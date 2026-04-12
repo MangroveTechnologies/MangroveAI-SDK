@@ -1,16 +1,15 @@
 from __future__ import annotations
 
 from mangroveai import MangroveAI
-from mangroveai._transport._mock import MockTransport
 from mangroveai._pagination import PaginatedResponse
+from mangroveai._transport._mock import MockTransport
+from mangroveai.models.shared import SuccessResponse
 from mangroveai.models.strategies import (
-    StrategyListItem,
-    StrategyDetail,
     CreateStrategyRequest,
+    StrategyDetail,
+    StrategyListItem,
     UpdateStrategyRequest,
 )
-from mangroveai.models.shared import SuccessResponse
-
 
 STRATEGY_DETAIL = {
     "id": "strat-uuid-1",

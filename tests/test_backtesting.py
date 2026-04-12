@@ -4,16 +4,16 @@ import pytest
 
 from mangroveai import MangroveAI
 from mangroveai._transport._mock import MockTransport
-from mangroveai.models.backtesting import (
-    BacktestRequest,
-    BulkBacktestRequest,
-    BacktestResult,
-    BulkBacktestResult,
-    BacktestTradesResponse,
-    AsyncBacktestSubmission,
-    AsyncBacktestStatus,
-)
 from mangroveai.exceptions import TimeoutError
+from mangroveai.models.backtesting import (
+    AsyncBacktestStatus,
+    AsyncBacktestSubmission,
+    BacktestRequest,
+    BacktestResult,
+    BacktestTradesResponse,
+    BulkBacktestRequest,
+    BulkBacktestResult,
+)
 
 
 def _make_client(mock: MockTransport) -> MangroveAI:

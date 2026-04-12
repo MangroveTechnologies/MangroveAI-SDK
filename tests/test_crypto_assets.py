@@ -5,10 +5,10 @@ from mangroveai._transport._mock import MockTransport
 from mangroveai.models.crypto_assets import (
     CryptoAsset,
     Exchange,
+    GlobalMarketResponse,
     MarketDataResponse,
     OHLCVResponse,
     TrendingResponse,
-    GlobalMarketResponse,
 )
 
 
@@ -85,7 +85,7 @@ class TestCryptoAssetsList:
 class TestCryptoAssetsGet:
     def test_get_returns_asset(self) -> None:
         mock = MockTransport()
-        mock.add_response("GET", "/crypto-assets/symbols/BTC", json=ASSET_JSON)
+        mock.add_response("GET", "/crypto-assets/symbols/BTC", json={"success": True, "asset": ASSET_JSON})
         client = _make_client(mock)
 
         result = client.crypto_assets.get("BTC")

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from mangroveai import MangroveAI
 from mangroveai._transport._mock import MockTransport
-from mangroveai.models.auth import LoginResponse, RefreshResponse, ApiKey, ApiKeyCreateResponse
+from mangroveai.models.auth import ApiKey, ApiKeyCreateResponse, LoginResponse, RefreshResponse
 from mangroveai.models.shared import SuccessResponse
 
 
@@ -62,7 +62,7 @@ class TestAuthApiKeys:
             "success": True,
             "keys": [
                 {
-                    "key_id": "key-uuid-1",
+                    "id": "key-uuid-1",
                     "key_prefix": "dev_a1b2",
                     "name": "My Key",
                     "created_at": "2026-01-01T00:00:00Z",
@@ -76,7 +76,7 @@ class TestAuthApiKeys:
 
         assert len(result) == 1
         assert isinstance(result[0], ApiKey)
-        assert result[0].key_id == "key-uuid-1"
+        assert result[0].id == "key-uuid-1"
         assert result[0].name == "My Key"
 
     def test_create_api_key(self) -> None:

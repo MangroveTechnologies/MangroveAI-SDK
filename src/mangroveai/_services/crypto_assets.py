@@ -41,7 +41,7 @@ class CryptoAssetsService(BaseService):
         Args:
             symbol: Asset symbol (e.g. "BTC", "ETH").
         """
-        return self._request_model("GET", f"/crypto-assets/symbols/{symbol}", CryptoAsset)
+        return self._request_model("GET", f"/crypto-assets/symbols/{symbol}", CryptoAsset, key="asset")
 
     def list_exchanges(self) -> list[Exchange]:
         """List all exchanges with tier info."""

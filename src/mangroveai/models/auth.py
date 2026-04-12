@@ -31,11 +31,15 @@ class RefreshResponse(MangroveModel):
 class ApiKey(MangroveModel):
     """An API key summary (masked)."""
 
-    key_id: str
+    id: str
     key_prefix: str
     name: str
     created_at: str
     expires_at: str | None = None
+    scopes: list[str] | None = None
+    last_used_at: str | None = None
+    revoked_at: str | None = None
+    is_active: bool | None = None
 
 
 class ApiKeyCreateResponse(MangroveModel):

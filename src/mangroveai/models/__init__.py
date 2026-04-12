@@ -39,6 +39,22 @@ from .execution import (
     Position,
     Trade,
 )
+from .kb import (
+    KBBacklinksResponse,
+    KBComputeResult,
+    KBDocument,
+    KBDocumentSections,
+    KBDocumentSummary,
+    KBGlossaryEntry,
+    KBGlossaryResponse,
+    KBIndicator,
+    KBSearchResponse,
+    KBSearchResult,
+    KBSection,
+    KBSignal,
+    KBTag,
+    KBTagDocuments,
+)
 from .shared import SuccessResponse
 from .signals import (
     EvaluateResponse,
@@ -106,4 +122,19 @@ __all__ = [
     # Docs
     "DocItem",
     "DocContentResponse",
+    # KB
+    "KBDocumentSummary",
+    "KBDocument",
+    "KBSection",
+    "KBDocumentSections",
+    "KBSearchResult",
+    "KBSearchResponse",
+    "KBTag",
+    "KBTagDocuments",
+    "KBGlossaryEntry",
+    "KBGlossaryResponse",
+    "KBBacklinksResponse",
+    "KBSignal",
+    "KBIndicator",
+    "KBComputeResult",
 ]

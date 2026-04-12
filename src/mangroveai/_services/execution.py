@@ -24,7 +24,9 @@ class ExecutionService(BaseService):
         params: dict[str, Any] = {}
         if account_type is not None:
             params["account_type"] = account_type
-        return self._request_list("GET", "/execution/accounts", Account, params=params or None, key="accounts")
+        data = self._request("GET", "/execution/accounts", params=params or None)
+        items = data if isinstance(data, list) else data.get("accounts", data)
+        return [Account.model_validate(a) for a in items]
 
     def create_account(self, request: CreateAccountRequest) -> Account:
         """Create a new trading account.

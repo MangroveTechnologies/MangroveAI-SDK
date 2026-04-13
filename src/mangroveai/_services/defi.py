@@ -1,19 +1,28 @@
 from __future__ import annotations
 
-from ..exceptions import NotImplementedLayerError
+from ..models.defi import ChainTVLResponse, ProtocolTVLResponse, StablecoinMetricsResponse
 from ._base import BaseService
-
-_MSG = "DeFi analytics endpoints are not yet available. Expected in a future SDK release."
 
 
 class DeFiService(BaseService):
-    """DeFi protocol analytics (Layer 3 -- not yet implemented)."""
+    """DeFi protocol analytics via DeFiLlama."""
 
-    def get_protocol_tvl(self, protocol: str) -> None:
-        raise NotImplementedLayerError(_MSG)
+    def get_protocol_tvl(self, protocol: str) -> ProtocolTVLResponse:
+        """Get total value locked for a DeFi protocol with chain breakdown.
 
-    def get_chain_tvl(self, chain: str) -> None:
-        raise NotImplementedLayerError(_MSG)
+        Args:
+            protocol: Protocol name (e.g. "aave", "uniswap").
+        """
+        return self._request_model("GET", f"/defi/protocol/{protocol}/tvl", ProtocolTVLResponse)
 
-    def get_stablecoin_metrics(self) -> None:
-        raise NotImplementedLayerError(_MSG)
+    def get_chain_tvl(self, chain: str) -> ChainTVLResponse:
+        """Get total value locked for a blockchain with top protocols.
+
+        Args:
+            chain: Chain name (e.g. "ethereum", "bsc", "arbitrum").
+        """
+        return self._request_model("GET", f"/defi/chain/{chain}/tvl", ChainTVLResponse)
+
+    def get_stablecoin_metrics(self) -> StablecoinMetricsResponse:
+        """Get global stablecoin supply and metrics by chain."""
+        return self._request_model("GET", "/defi/stablecoins/metrics", StablecoinMetricsResponse)

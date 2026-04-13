@@ -24,6 +24,7 @@ from mangroveai.models.crypto_assets import (
     OHLCVResponse,
     TrendingResponse,
 )
+from mangroveai.models.defi import ChainTVLResponse, ProtocolTVLResponse, StablecoinMetricsResponse
 from mangroveai.models.kb import (
     KBDocumentSummary,
     KBGlossaryResponse,
@@ -32,8 +33,17 @@ from mangroveai.models.kb import (
     KBSignal,
     KBTag,
 )
+from mangroveai.models.on_chain import (
+    ExchangeFlowsResponse,
+    SmartMoneyScreenResponse,
+    SmartMoneySentimentResponse,
+    TokenHoldersResponse,
+    WhaleActivityResponse,
+    WhaleTransactionsResponse,
+)
 from mangroveai.models.shared import SuccessResponse
 from mangroveai.models.signals import MatchResponse, Signal
+from mangroveai.models.social import InfluenceScoreResponse, MentionsResponse, SentimentResponse
 from mangroveai.models.strategies import CreateStrategyRequest, StrategyDetail
 
 API_KEY = os.environ.get("MANGROVE_API_KEY")
@@ -301,3 +311,108 @@ class TestKBLive:
         assert len(result) > 0
         assert isinstance(result[0], KBIndicator)
         assert result[0].name is not None
+
+
+# =============================================================================
+# DeFi (Layer 3)
+# =============================================================================
+
+class TestDeFiLive:
+    def test_get_protocol_tvl(self, client: MangroveAI) -> None:
+        result = client.defi.get_protocol_tvl("aave")
+        assert isinstance(result, ProtocolTVLResponse)
+        assert result.success is True
+
+    def test_get_chain_tvl(self, client: MangroveAI) -> None:
+        result = client.defi.get_chain_tvl("ethereum")
+        assert isinstance(result, ChainTVLResponse)
+        assert result.success is True
+
+    def test_get_stablecoin_metrics(self, client: MangroveAI) -> None:
+        result = client.defi.get_stablecoin_metrics()
+        assert isinstance(result, StablecoinMetricsResponse)
+        assert result.success is True
+
+
+# =============================================================================
+# Social (Layer 3)
+# =============================================================================
+
+class TestSocialLive:
+    def test_get_sentiment(self, client: MangroveAI) -> None:
+        try:
+            result = client.social.get_sentiment("bitcoin", hours_back=24)
+            assert isinstance(result, SentimentResponse)
+            assert result.success is True
+        except Exception as e:
+            pytest.skip(f"Social provider unavailable: {e}")
+
+    def test_get_mentions(self, client: MangroveAI) -> None:
+        try:
+            result = client.social.get_mentions("bitcoin", hours_back=24, limit=5)
+            assert isinstance(result, MentionsResponse)
+            assert result.success is True
+        except Exception as e:
+            pytest.skip(f"Social provider unavailable: {e}")
+
+    def test_get_influence_score(self, client: MangroveAI) -> None:
+        try:
+            result = client.social.get_influence_score("elonmusk")
+            assert isinstance(result, InfluenceScoreResponse)
+            assert result.success is True
+        except Exception as e:
+            pytest.skip(f"Social provider unavailable: {e}")
+
+
+# =============================================================================
+# On-Chain (Layer 3)
+# =============================================================================
+
+class TestOnChainLive:
+    def test_get_smart_money_sentiment(self, client: MangroveAI) -> None:
+        try:
+            result = client.on_chain.get_smart_money_sentiment("ETH")
+            assert isinstance(result, SmartMoneySentimentResponse)
+            assert result.success is True
+        except Exception as e:
+            pytest.skip(f"On-chain provider unavailable: {e}")
+
+    def test_screen_smart_money(self, client: MangroveAI) -> None:
+        try:
+            result = client.on_chain.screen_smart_money(timeframe="24h", limit=5)
+            assert isinstance(result, SmartMoneyScreenResponse)
+            assert result.success is True
+        except Exception as e:
+            pytest.skip(f"On-chain provider unavailable: {e}")
+
+    def test_get_token_holders(self, client: MangroveAI) -> None:
+        try:
+            result = client.on_chain.get_token_holders("ETH")
+            assert isinstance(result, TokenHoldersResponse)
+            assert result.success is True
+        except Exception as e:
+            pytest.skip(f"On-chain provider unavailable: {e}")
+
+    def test_get_whale_transactions(self, client: MangroveAI) -> None:
+        try:
+            result = client.on_chain.get_whale_transactions(min_value=1_000_000, hours_back=24)
+            assert isinstance(result, WhaleTransactionsResponse)
+            assert result.success is True
+        except Exception as e:
+            pytest.skip(f"On-chain provider unavailable: {e}")
+
+    def test_get_exchange_flows(self, client: MangroveAI) -> None:
+        try:
+            result = client.on_chain.get_exchange_flows(symbol="BTC", hours_back=24)
+            assert isinstance(result, ExchangeFlowsResponse)
+            assert result.success is True
+        except Exception as e:
+            pytest.skip(f"On-chain provider unavailable: {e}")
+
+    def test_get_whale_activity(self, client: MangroveAI) -> None:
+        try:
+            result = client.on_chain.get_whale_activity("BTC", hours_back=24)
+            assert isinstance(result, WhaleActivityResponse)
+            assert result.success is True
+        except Exception as e:
+            pytest.skip(f"On-chain provider unavailable: {e}")

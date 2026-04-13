@@ -1,19 +1,39 @@
 from __future__ import annotations
 
-from ..exceptions import NotImplementedLayerError
-from ._base import BaseService
+from typing import Any
 
-_MSG = "Social analytics endpoints are not yet available. Expected in a future SDK release."
+from ..models.social import InfluenceScoreResponse, MentionsResponse, SentimentResponse
+from ._base import BaseService
 
 
 class SocialService(BaseService):
-    """Social signal analytics (Layer 3 -- not yet implemented)."""
+    """Social signal analytics via X/Twitter."""
 
-    def get_sentiment(self, topic: str, *, hours_back: int = 24) -> None:
-        raise NotImplementedLayerError(_MSG)
+    def get_sentiment(self, topic: str, *, hours_back: int = 24) -> SentimentResponse:
+        """Get social sentiment for a topic.
 
-    def get_mentions(self, topic: str, *, hours_back: int = 24, limit: int = 20) -> None:
-        raise NotImplementedLayerError(_MSG)
+        Args:
+            topic: Topic or asset symbol to analyze.
+            hours_back: Lookback window in hours.
+        """
+        params: dict[str, Any] = {"hours_back": hours_back}
+        return self._request_model("GET", f"/social/sentiment/{topic}", SentimentResponse, params=params)
 
-    def get_influence_score(self, username: str) -> None:
-        raise NotImplementedLayerError(_MSG)
+    def get_mentions(self, topic: str, *, hours_back: int = 24, limit: int = 20) -> MentionsResponse:
+        """Get recent social mentions for a topic.
+
+        Args:
+            topic: Topic or asset symbol.
+            hours_back: Lookback window in hours.
+            limit: Max posts to return.
+        """
+        params: dict[str, Any] = {"hours_back": hours_back, "limit": limit}
+        return self._request_model("GET", f"/social/mentions/{topic}", MentionsResponse, params=params)
+
+    def get_influence_score(self, username: str) -> InfluenceScoreResponse:
+        """Get influence score for a social account.
+
+        Args:
+            username: X/Twitter username.
+        """
+        return self._request_model("GET", f"/social/influence/{username}", InfluenceScoreResponse)

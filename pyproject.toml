@@ -37,6 +37,12 @@ dev = [
     "mypy>=1.10",
 ]
 
+[project.urls]
+Homepage = "https://mangrovedeveloper.ai"
+Repository = "https://github.com/MangroveTechnologies/MangroveAI-SDK"
+Documentation = "https://github.com/MangroveTechnologies/MangroveAI-SDK#readme"
+Changelog = "https://github.com/MangroveTechnologies/MangroveAI-SDK/blob/main/CHANGELOG.md"
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/mangroveai"]
 

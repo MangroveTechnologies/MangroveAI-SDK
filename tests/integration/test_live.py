@@ -371,7 +371,7 @@ class TestSocialLive:
 class TestOnChainLive:
     def test_get_smart_money_sentiment(self, client: MangroveAI) -> None:
         try:
-            result = client.on_chain.get_smart_money_sentiment("ETH")
+            result = client.on_chain.get_smart_money_sentiment("LINK")
             assert isinstance(result, SmartMoneySentimentResponse)
             assert result.success is True
         except Exception as e:

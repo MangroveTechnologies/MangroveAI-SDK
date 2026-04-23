@@ -1,8 +1,29 @@
 from __future__ import annotations
 
+import warnings
 from typing import Any
 
+from pydantic import model_validator
+
 from ._base import MangroveModel
+
+# Fields superseded by cooldown_config in SDK 0.2.0.
+_DEPRECATED_COOLDOWN_FIELDS = ("cooldown_bars", "daily_momentum_limit", "weekly_momentum_limit", "max_hold_time_hours")
+
+_DEPRECATION_MSG = (
+    "The top-level field '{field}' is deprecated and will be removed in a future major version. "
+    "Use cooldown_config instead. cooldown_config is a dict keyed by primary timeframe "
+    "(e.g. '5m', '15m', '1h', '1d'), where each value is a dict with: "
+    "max_hold_time_hours, short_loss_limit, long_loss_limit, short_window_bars, long_window_bars."
+)
+
+
+def _warn_deprecated_fields(values: Any) -> Any:
+    """Emit DeprecationWarning for each legacy top-level cooldown field that is explicitly set."""
+    for field in _DEPRECATED_COOLDOWN_FIELDS:
+        if getattr(values, field, None) is not None:
+            warnings.warn(_DEPRECATION_MSG.format(field=field), DeprecationWarning, stacklevel=3)
+    return values
 
 
 class BacktestRequest(MangroveModel):
@@ -26,6 +47,7 @@ class BacktestRequest(MangroveModel):
     cooldown_bars: int = 24
     daily_momentum_limit: float = 3.0
     weekly_momentum_limit: float = 3.0
+    max_hold_time_hours: float | None = None
     lookback_months: int | None = None
     start_date: str | None = None
     end_date: str | None = None
@@ -33,6 +55,37 @@ class BacktestRequest(MangroveModel):
     fee_pct: float | None = None
     execution_config: dict[str, Any] | None = None
     data_source: str | None = None
+    cooldown_config: dict[str, dict[str, Any]] | None = None
+    """Per-timeframe cooldown configuration (preferred over legacy top-level fields).
+
+    Keyed by primary timeframe string, e.g. "5m", "15m", "1h", "1d".
+    Each value is a dict with the following keys:
+      - max_hold_time_hours (int): maximum bars a position may be held
+      - short_loss_limit (int): number of losses in the short window that triggers a short cooldown
+      - long_loss_limit (int): number of losses in the long window that triggers a long cooldown
+      - short_window_bars (int): rolling lookback bars AND cooldown duration for the short tier
+      - long_window_bars (int): rolling lookback bars AND cooldown duration for the long tier
+
+    Example::
+
+        cooldown_config={
+            "1h": {
+                "max_hold_time_hours": 24,
+                "short_loss_limit": 4,
+                "long_loss_limit": 6,
+                "short_window_bars": 48,
+                "long_window_bars": 144,
+            }
+        }
+
+    The old top-level fields (cooldown_bars, daily_momentum_limit, weekly_momentum_limit,
+    max_hold_time_hours) remain accepted during the deprecation grace period but will be
+    removed in a future major version.
+    """
+
+    @model_validator(mode="after")
+    def _check_deprecated_fields(self) -> "BacktestRequest":
+        return _warn_deprecated_fields(self)
 
 
 class BulkBacktestRequest(MangroveModel):
@@ -55,12 +108,19 @@ class BulkBacktestRequest(MangroveModel):
     cooldown_bars: int = 24
     daily_momentum_limit: float = 3.0
     weekly_momentum_limit: float = 3.0
+    max_hold_time_hours: float | None = None
     interval: str = "1h"
     strategy_ids: list[str] | None = None
     strategy_configs: list[dict[str, Any]] | None = None
     slippage_pct: float | None = None
     fee_pct: float | None = None
     execution_config: dict[str, Any] | None = None
+    cooldown_config: dict[str, dict[str, Any]] | None = None
+    """Per-timeframe cooldown configuration. See BacktestRequest.cooldown_config for full docs."""
+
+    @model_validator(mode="after")
+    def _check_deprecated_fields(self) -> "BulkBacktestRequest":
+        return _warn_deprecated_fields(self)
 
 
 class BacktestResult(MangroveModel):

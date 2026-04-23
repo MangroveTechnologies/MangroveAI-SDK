@@ -5,6 +5,25 @@ All notable changes to the MangroveAI Python SDK will be documented in this file
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-04-22
+
+### Added
+
+- `cooldown_config` field on `BacktestRequest` and `BulkBacktestRequest` -- a dict keyed by primary
+  timeframe (e.g. `"5m"`, `"15m"`, `"1h"`, `"1d"`) where each value carries `max_hold_time_hours`,
+  `short_loss_limit`, `long_loss_limit`, `short_window_bars`, and `long_window_bars`. This is the
+  preferred replacement for the old flat cooldown fields.
+
+### Deprecated
+
+- Top-level fields `cooldown_bars`, `daily_momentum_limit`, `weekly_momentum_limit`, and
+  `max_hold_time_hours` on `BacktestRequest` and `BulkBacktestRequest`. These fields continue to
+  work and are forwarded to the API during the 90-day grace period, but will be removed in a future
+  major version. Use `cooldown_config` instead. A `DeprecationWarning` is emitted at model
+  construction time when any of these fields are set.
+
+---
+
 ## [0.1.0] - 2026-04-12
 
 ### Added

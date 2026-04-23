@@ -63,6 +63,18 @@ result = client.backtesting.run(BacktestRequest(
     max_risk_per_trade=0.02, max_units_per_trade=1000000,
     max_trade_amount=10000000, volatility_window=24,
     target_volatility=0.1,
+    # Optional: per-timeframe cooldown configuration (preferred over legacy flat fields).
+    # Keys are the primary timeframe; each value carries max_hold_time_hours,
+    # short_loss_limit, long_loss_limit, short_window_bars, and long_window_bars.
+    cooldown_config={
+        "1d": {
+            "max_hold_time_hours": 10,
+            "short_loss_limit": 4,
+            "long_loss_limit": 6,
+            "short_window_bars": 20,
+            "long_window_bars": 60,
+        }
+    },
 ))
 print(f"Trades: {result.trade_count}, Sharpe: {result.metrics.get('sharpe_ratio')}")
 ```

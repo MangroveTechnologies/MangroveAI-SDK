@@ -5,6 +5,29 @@ All notable changes to the MangroveAI Python SDK will be documented in this file
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-04-24
+
+### Added
+
+- `client.config` service with two methods:
+  - `trading_defaults()` — full nested `trading_defaults.json` contents from the server.
+  - `execution_defaults()` — the flattened execution config the server applies by default.
+- Both endpoints are unauthenticated (non-secret public configuration). Backed by
+  MangroveAI's new `/api/v1/config/trading-defaults` and `/api/v1/config/execution-defaults`
+  routes (MangroveAI #437).
+
+### Changed
+
+- `BacktestRequest` and `BulkBacktestRequest`: trading-config fields that used to be
+  required now accept `None` and fall back to the server's `trading_defaults.json`.
+  Only `asset` / `interval` / `strategy_json` (and `start_date` / `end_date` on bulk)
+  stay required. Explicit values still take precedence.
+- Relaxed fields: `initial_balance`, `min_balance_threshold`, `min_trade_amount`,
+  `max_open_positions`, `max_trades_per_day`, `max_risk_per_trade`,
+  `max_units_per_trade`, `max_trade_amount`, `volatility_window`, `target_volatility`.
+- Callers that still pass explicit values work exactly as before — this is a
+  relax, not a breaking change.
+
 ## [0.2.0] - 2026-04-22
 
 ### Added

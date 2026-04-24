@@ -110,6 +110,11 @@ class MangroveAI:
         from ._services.docs import DocsService
         return DocsService(self._core_transport)
 
+    @cached_property
+    def config(self) -> Any:
+        from ._services.config import ConfigService
+        return ConfigService(self._core_transport)
+
     # -- Layer 2: Knowledge Base --
 
     @cached_property

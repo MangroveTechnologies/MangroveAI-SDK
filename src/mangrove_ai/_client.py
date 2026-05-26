@@ -91,6 +91,11 @@ class MangroveAI:
         return BacktestingService(self._core_transport, self._core_v2_transport)
 
     @cached_property
+    def oracle(self) -> Any:
+        from ._services.oracle import OracleService
+        return OracleService(self._core_transport, self._core_v2_transport)
+
+    @cached_property
     def signals(self) -> Any:
         from ._services.signals import SignalsService
         return SignalsService(self._core_transport)

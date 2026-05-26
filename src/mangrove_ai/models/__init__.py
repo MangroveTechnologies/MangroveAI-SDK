@@ -56,6 +56,23 @@ from .kb import (
     KBTagDocuments,
 )
 from .shared import SuccessResponse
+from .oracle import (
+    DataQueryFilter,
+    DataQueryRequest,
+    DataQueryResponse,
+    OracleAsyncBacktestStatus,
+    OracleAsyncBacktestSubmission,
+    OracleBacktestRequest,
+    OracleBacktestResult,
+    OracleBulkBacktestRequest,
+    OracleBulkBacktestResult,
+    RunInput,
+    SievePrediction,
+    SieveScoreRequest,
+    SieveScoreResponse,
+    SignalSpec,
+    StrategyInput,
+)
 from .signals import (
     EvaluateResponse,
     MatchResponse,
@@ -137,4 +154,20 @@ __all__ = [
     "KBSignal",
     "KBIndicator",
     "KBComputeResult",
+    # Oracle
+    "SignalSpec",
+    "StrategyInput",
+    "RunInput",
+    "SieveScoreRequest",
+    "SievePrediction",
+    "SieveScoreResponse",
+    "DataQueryFilter",
+    "DataQueryRequest",
+    "DataQueryResponse",
+    "OracleBacktestRequest",
+    "OracleBulkBacktestRequest",
+    "OracleBacktestResult",
+    "OracleAsyncBacktestSubmission",
+    "OracleAsyncBacktestStatus",
+    "OracleBulkBacktestResult",
 ]

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from mangroveai import MangroveAI
-from mangroveai._transport._mock import MockTransport
-from mangroveai.models.auth import ApiKey, ApiKeyCreateResponse, LoginResponse, RefreshResponse
-from mangroveai.models.shared import SuccessResponse
+from mangrove_ai import MangroveAI
+from mangrove_ai._transport._mock import MockTransport
+from mangrove_ai.models.auth import ApiKey, ApiKeyCreateResponse, LoginResponse, RefreshResponse
+from mangrove_ai.models.shared import SuccessResponse
 
 
 def _make_client(mock: MockTransport) -> MangroveAI:

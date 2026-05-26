@@ -5,7 +5,7 @@ import warnings
 
 import pytest
 
-from mangroveai.models.backtesting import BacktestRequest, BulkBacktestRequest
+from mangrove_ai.models.backtesting import BacktestRequest, BulkBacktestRequest
 
 # ---------------------------------------------------------------------------
 # Minimal required kwargs shared across all BacktestRequest constructions

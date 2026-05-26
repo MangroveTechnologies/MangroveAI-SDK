@@ -3,8 +3,8 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "mangroveai"
-version = "0.3.0"
+name = "mangrove-ai"
+version = "1.0.0"
 description = "Python SDK for the MangroveAI trading strategy platform"
 readme = "README.md"
 license = "MIT"
@@ -13,7 +13,7 @@ authors = [
     {name = "Mangrove Technologies Inc."},
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
@@ -39,12 +39,12 @@ dev = [
 
 [project.urls]
 Homepage = "https://mangrovedeveloper.ai"
-Repository = "https://github.com/MangroveTechnologies/MangroveAI-SDK"
-Documentation = "https://github.com/MangroveTechnologies/MangroveAI-SDK#readme"
-Changelog = "https://github.com/MangroveTechnologies/MangroveAI-SDK/blob/main/CHANGELOG.md"
+Repository = "https://github.com/MangroveTechnologies/mangrove-ai-sdk"
+Documentation = "https://github.com/MangroveTechnologies/mangrove-ai-sdk#readme"
+Changelog = "https://github.com/MangroveTechnologies/mangrove-ai-sdk/blob/main/CHANGELOG.md"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/mangroveai"]
+packages = ["src/mangrove_ai"]
 
 [tool.ruff]
 target-version = "py310"

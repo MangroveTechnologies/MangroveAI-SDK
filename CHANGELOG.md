@@ -5,6 +5,67 @@ All notable changes to the MangroveAI Python SDK will be documented in this file
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-05-26
+
+### Renamed (breaking)
+
+- **PyPI distribution: `mangroveai` → `mangrove-ai`.** Install with
+  `pip install mangrove-ai`. The old `mangroveai` package will receive a
+  final 0.3.2 release containing only a `DeprecationWarning` and then
+  stop receiving updates.
+- **Python import: `from mangroveai import …` → `from mangrove_ai import …`.**
+  (Python module names use underscores; PyPI distribution names use
+  hyphens — same as `scikit-learn` → `import sklearn`.)
+- **Repository: `MangroveTechnologies/MangroveAI-SDK` → `mangrove-ai-sdk`.**
+  GitHub redirects old URLs.
+
+Rationale: the old `mangroveai` package collided constantly with the
+`MangroveAI` backend repo when navigating between them. The TypeScript
+SDK already publishes as `@mangrove-ai/sdk`; this rename aligns Python
+with the established brand convention.
+
+### Migrating
+
+```diff
+- pip install mangroveai
++ pip install mangrove-ai
+```
+```diff
+- from mangroveai import MangroveAI
++ from mangrove_ai import MangroveAI
+```
+The `MangroveAI` client class name is unchanged. Every other public
+symbol is unchanged. Only the package and import names differ.
+
+### Added
+
+- `client.oracle` — `OracleService` covering the MangroveOracle endpoints
+  reached via MangroveAI's reverse proxy:
+  - `sieve_score(request)` — score up to 99 strategies through the
+    Mangrove SIEVE classifier (binary + 4-class probabilities, with
+    `model_version` + `code_version` provenance). Client-side enforces
+    the 99-item cap before the request goes out.
+  - `data_query(request)` — query the curated Oracle corpus (results /
+    OHLCV) through the BigQuery proxy.
+  - `backtest(request)`, `backtest_async(request)`, `backtest_poll(id)`,
+    `backtest_bulk(request)` — full backtest surface against Oracle's
+    engine.
+- New Pydantic models under `mangrove_ai.models.oracle`: `SieveScoreRequest`,
+  `SievePrediction`, `SieveScoreResponse`, `StrategyInput`, `RunInput`,
+  `SignalSpec`, `DataQueryRequest`, `DataQueryResponse`, `DataQueryFilter`,
+  `OracleBacktestRequest`, `OracleBulkBacktestRequest`,
+  `OracleBacktestResult`, `OracleAsyncBacktestSubmission`,
+  `OracleAsyncBacktestStatus`, `OracleBulkBacktestResult`. All re-exported
+  from `mangrove_ai.models`.
+- `examples/oracle_quickstart.py` — runnable end-to-end example
+  exercising SIEVE → data_query → backtest.
+
+### Production stability
+
+- Project classifier promoted from `Development Status :: 3 - Alpha` to
+  `Development Status :: 5 - Production/Stable`. The 1.0 release commits
+  to semantic-versioning compatibility going forward.
+
 ## [0.3.0] - 2026-04-24
 
 ### Added

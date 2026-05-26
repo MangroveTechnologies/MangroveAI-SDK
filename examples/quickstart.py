@@ -11,8 +11,8 @@ Then run this script:
    python examples/quickstart.py
 """
 
-from mangroveai import MangroveAI
-from mangroveai.models import CreateStrategyRequest, BacktestRequest
+from mangrove_ai import MangroveAI
+from mangrove_ai.models import CreateStrategyRequest, BacktestRequest
 
 
 def main() -> None:
@@ -28,7 +28,7 @@ def main() -> None:
         print(f"  {s.name} ({s.category}, {s.signal_type})")
 
     # Search for specific signals
-    from mangroveai.models import SearchSignalsRequest
+    from mangrove_ai.models import SearchSignalsRequest
     results = client.signals.search(SearchSignalsRequest(query="rsi", search_type="name"))
     print(f"\nRSI signals: {results.total}")
     for s in results.items:

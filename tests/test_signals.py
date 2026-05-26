@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from mangroveai import MangroveAI
-from mangroveai._pagination import PaginatedResponse
-from mangroveai._transport._mock import MockTransport
-from mangroveai.models.signals import (
+from mangrove_ai import MangroveAI
+from mangrove_ai._pagination import PaginatedResponse
+from mangrove_ai._transport._mock import MockTransport
+from mangrove_ai.models.signals import (
     EvaluateResponse,
     MatchResponse,
     SearchSignalsRequest,

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from mangroveai import MangroveAI
-from mangroveai._transport._mock import MockTransport
-from mangroveai.models.kb import (
+from mangrove_ai import MangroveAI
+from mangrove_ai._transport._mock import MockTransport
+from mangrove_ai.models.kb import (
     KBBacklinksResponse,
     KBComputeResult,
     KBDocument,

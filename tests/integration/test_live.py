@@ -13,10 +13,10 @@ import os
 
 import pytest
 
-from mangroveai import MangroveAI
-from mangroveai.models.auth import ApiKey
-from mangroveai.models.backtesting import BacktestRequest, BacktestResult
-from mangroveai.models.crypto_assets import (
+from mangrove_ai import MangroveAI
+from mangrove_ai.models.auth import ApiKey
+from mangrove_ai.models.backtesting import BacktestRequest, BacktestResult
+from mangrove_ai.models.crypto_assets import (
     CryptoAsset,
     Exchange,
     GlobalMarketResponse,
@@ -24,8 +24,8 @@ from mangroveai.models.crypto_assets import (
     OHLCVResponse,
     TrendingResponse,
 )
-from mangroveai.models.defi import ChainTVLResponse, ProtocolTVLResponse, StablecoinMetricsResponse
-from mangroveai.models.kb import (
+from mangrove_ai.models.defi import ChainTVLResponse, ProtocolTVLResponse, StablecoinMetricsResponse
+from mangrove_ai.models.kb import (
     KBDocumentSummary,
     KBGlossaryResponse,
     KBIndicator,
@@ -33,7 +33,7 @@ from mangroveai.models.kb import (
     KBSignal,
     KBTag,
 )
-from mangroveai.models.on_chain import (
+from mangrove_ai.models.on_chain import (
     ExchangeFlowsResponse,
     SmartMoneyScreenResponse,
     SmartMoneySentimentResponse,
@@ -41,10 +41,10 @@ from mangroveai.models.on_chain import (
     WhaleActivityResponse,
     WhaleTransactionsResponse,
 )
-from mangroveai.models.shared import SuccessResponse
-from mangroveai.models.signals import MatchResponse, Signal
-from mangroveai.models.social import InfluenceScoreResponse, MentionsResponse, SentimentResponse
-from mangroveai.models.strategies import CreateStrategyRequest, StrategyDetail
+from mangrove_ai.models.shared import SuccessResponse
+from mangrove_ai.models.signals import MatchResponse, Signal
+from mangrove_ai.models.social import InfluenceScoreResponse, MentionsResponse, SentimentResponse
+from mangrove_ai.models.strategies import CreateStrategyRequest, StrategyDetail
 
 API_KEY = os.environ.get("MANGROVE_API_KEY")
 
@@ -81,7 +81,7 @@ class TestSignalsLive:
         assert result.metadata.params is not None
 
     def test_search_signals(self, client: MangroveAI) -> None:
-        from mangroveai.models.signals import SearchSignalsRequest
+        from mangrove_ai.models.signals import SearchSignalsRequest
         result = client.signals.search(SearchSignalsRequest(query="rsi", search_type="name"))
         assert len(result.items) > 0
         assert any("rsi" in s.name.lower() for s in result.items)

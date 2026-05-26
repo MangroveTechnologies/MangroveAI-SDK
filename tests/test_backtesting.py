@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import pytest
 
-from mangroveai import MangroveAI
-from mangroveai._transport._mock import MockTransport
-from mangroveai.exceptions import TimeoutError
-from mangroveai.models.backtesting import (
+from mangrove_ai import MangroveAI
+from mangrove_ai._transport._mock import MockTransport
+from mangrove_ai.exceptions import TimeoutError
+from mangrove_ai.models.backtesting import (
     AsyncBacktestStatus,
     AsyncBacktestSubmission,
     BacktestRequest,

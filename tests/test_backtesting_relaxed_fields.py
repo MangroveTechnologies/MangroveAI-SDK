@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import pytest
 
-from mangroveai.models.backtesting import BacktestRequest, BulkBacktestRequest
+from mangrove_ai.models.backtesting import BacktestRequest, BulkBacktestRequest
 
 
 class TestBacktestRequestMinimalConstruction:

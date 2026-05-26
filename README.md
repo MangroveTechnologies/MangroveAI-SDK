@@ -5,8 +5,24 @@ Python SDK for the [MangroveAI](https://mangrovedeveloper.ai) trading strategy p
 ## Install
 
 ```bash
-pip install mangroveai
+pip install mangrove-ai
 ```
+
+> **Migrating from `mangroveai` (the pre-1.0 package name)?** Two changes:
+>
+> ```diff
+> - pip install mangroveai
+> + pip install mangrove-ai
+> ```
+> ```diff
+> - from mangroveai import MangroveAI
+> + from mangrove_ai import MangroveAI
+> ```
+>
+> Everything else (the `MangroveAI` client class, every method name, every
+> model name) is unchanged. The old `mangroveai` PyPI package will receive
+> a final 0.3.2 release with a `DeprecationWarning` and then stop receiving
+> updates. See `CHANGELOG.md` `[1.0.0]` for the full rationale.
 
 ## Setup
 
@@ -22,7 +38,7 @@ export MANGROVE_API_KEY=prod_your_key_here
 ## Quickstart
 
 ```python
-from mangroveai import MangroveAI
+from mangrove_ai import MangroveAI
 
 client = MangroveAI()  # reads MANGROVE_API_KEY from environment
 
@@ -36,7 +52,7 @@ btc = client.crypto_assets.get_market_data("BTC")
 print(f"BTC: ${btc.data['current_price']:,.2f}")
 
 # Create a strategy
-from mangroveai.models import CreateStrategyRequest
+from mangrove_ai.models import CreateStrategyRequest
 
 strategy = client.strategies.create(CreateStrategyRequest(
     name="RSI Momentum",
@@ -47,7 +63,7 @@ strategy = client.strategies.create(CreateStrategyRequest(
 
 # Run a backtest
 import json
-from mangroveai.models import BacktestRequest
+from mangrove_ai.models import BacktestRequest
 
 result = client.backtesting.run(BacktestRequest(
     asset="BTC",
@@ -127,7 +143,7 @@ client = MangroveAI(api_key="...", base_url="http://localhost:5001/api/v1")
 ## Error Handling
 
 ```python
-from mangroveai import MangroveAI, NotFoundError, RateLimitError, APIError
+from mangrove_ai import MangroveAI, NotFoundError, RateLimitError, APIError
 
 client = MangroveAI()
 
@@ -162,8 +178,8 @@ See the [`examples/`](examples/) directory for working scripts.
 ## Development
 
 ```bash
-git clone https://github.com/MangroveTechnologies/MangroveAI-SDK.git
-cd MangroveAI-SDK
+git clone https://github.com/MangroveTechnologies/mangrove-ai-sdk.git
+cd mangrove-ai-sdk
 pip install -e ".[dev]"
 pytest tests/ --ignore=tests/integration  # unit tests
 MANGROVE_API_KEY=... pytest tests/integration/ -m integration  # live tests

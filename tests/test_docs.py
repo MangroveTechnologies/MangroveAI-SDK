@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from mangroveai import MangroveAI
-from mangroveai._transport._mock import MockTransport
-from mangroveai.models.docs import DocContentResponse, DocItem
+from mangrove_ai import MangroveAI
+from mangrove_ai._transport._mock import MockTransport
+from mangrove_ai.models.docs import DocContentResponse, DocItem
 
 
 def _make_client(mock: MockTransport) -> MangroveAI:

@@ -82,7 +82,7 @@ class TestExecutionDefaults:
 
     def test_execution_defaults_can_feed_backtest_request(self, client) -> None:
         """execution_defaults() output is shaped to be passed straight to BacktestRequest.execution_config."""
-        from mangroveai.models.backtesting import BacktestRequest
+        from mangrove_ai.models.backtesting import BacktestRequest
 
         fixture = _load("execution_defaults_response.json")
         client._http.add_response("GET", "/config/execution-defaults", json=fixture)
@@ -123,7 +123,7 @@ class TestLiveConfigEndpoints:
         if not base_url:
             pytest.skip("MANGROVE_TEST_URL not set")
 
-        from mangroveai import MangroveAI
+        from mangrove_ai import MangroveAI
         live = MangroveAI(api_key="dev_public_check", base_url=base_url)
         result = live.config.trading_defaults()
         assert "risk_management" in result

@@ -1,7 +1,7 @@
 """MangroveAI Python SDK.
 
 Quickstart:
-    from mangroveai import MangroveAI
+    from mangrove_ai import MangroveAI
 
     client = MangroveAI(api_key="prod_a1b2c3...")
     strategies = client.strategies.list()

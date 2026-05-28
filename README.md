@@ -107,6 +107,9 @@ print(f"Trades: {result.trade_count}, Sharpe: {result.metrics.get('sharpe_ratio'
 | `client.signals` | `signals.*` | 7 | Signal discovery, evaluation, validation |
 | `client.crypto_assets` | `crypto_assets.*` | 8 | Assets, exchanges, OHLCV, market data |
 | `client.execution` | `execution.*` | 8 | Accounts, positions, trades, evaluation |
+| `client.on_chain` | `on_chain.*` | 11 | Smart-money flows, DEX/perp trades, token holders, whale activity (Nansen + WhaleAlert) |
+| `client.defi` | `defi.*` | 3 | Protocol/chain TVL, stablecoin metrics (DeFiLlama) |
+| `client.social` | `social.*` | 3 | Topic sentiment, mentions, user influence (X / Twitter) |
 | `client.docs` | `docs.*` | 2 | Documentation listing and content |
 
 ### Layer 2: Knowledge Base API
@@ -121,9 +124,25 @@ print(f"Trades: {result.trade_count}, Sharpe: {result.metrics.get('sharpe_ratio'
 | `client.kb.indicators` | `kb.indicators.*` | 2 | Indicator metadata from KB |
 | `client.kb.compute` | `kb.compute.*` | 2 | x402 paid signal/indicator computation |
 
-### Layer 3: Coming Soon
+### On-chain capability surface
 
-On-chain analytics (`client.on_chain`), DeFi data (`client.defi`), and social signals (`client.social`) are defined but not yet available. Calling these methods raises `NotImplementedLayerError`.
+`client.on_chain` covers Mangrove's full Nansen Pro plan plus WhaleAlert Enterprise:
+
+| Method | Source | What it returns |
+|---|---|---|
+| `get_smart_money_sentiment(symbol)` | Nansen | Single-token accumulation/distribution score |
+| `screen_smart_money(chains, timeframe)` | Nansen | Tokens with high smart-money activity |
+| `get_smart_money_historical_holdings(chains, date_range, filters, order_by)` | Nansen | Date-stamped holdings snapshots |
+| `get_smart_money_dex_trades(chains, filters, order_by)` | Nansen | Live DEX trades by smart-money wallets |
+| `get_smart_money_perp_trades(filters, order_by)` | Nansen (Hyperliquid) | Perpetual-futures trades by smart-money wallets |
+| `get_token_holders(symbol)` | Nansen | Holder distribution + concentration |
+| `get_token_dex_trades(symbol, chain, date_range, filters, order_by)` | Nansen | Single-token DEX trades across all participants |
+| `get_token_flows(symbol, chain, date_range, filters, order_by)` | Nansen | Per-wallet-category flow aggregation (excludes stablecoins) |
+| `get_whale_transactions(symbol, min_value, hours_back)` | WhaleAlert | Recent large-value on-chain transactions |
+| `get_exchange_flows(symbol, hours_back)` | WhaleAlert | Aggregated exchange inflows/outflows |
+| `get_whale_activity(symbol, hours_back)` | WhaleAlert | High-level whale activity summary |
+
+`filters` and `order_by` pass through directly to the upstream Nansen API, so you get the full Pro-plan capability — restrict by `include_smart_money_labels`, set `value_usd` min/max bounds, sort by any field. See `examples/on_chain_nansen.py` for working snippets.
 
 ## Environment Detection
 

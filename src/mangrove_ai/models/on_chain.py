@@ -66,3 +66,55 @@ class WhaleActivityResponse(MangroveModel):
     symbol: str
     hours_back: int | None = None
     summary: dict[str, Any] | None = None
+
+
+class SmartMoneyHistoricalHoldingsResponse(MangroveModel):
+    """Date-stamped snapshots of Smart Money token holdings."""
+
+    success: bool
+    chains: list[str] | None = None
+    date_range: dict[str, str] | None = None
+    count: int | None = None
+    holdings: list[dict[str, Any]] | None = None
+
+
+class SmartMoneyDexTradesResponse(MangroveModel):
+    """Recent DEX trades from Smart Money wallets."""
+
+    success: bool
+    chains: list[str] | None = None
+    count: int | None = None
+    trades: list[dict[str, Any]] | None = None
+
+
+class SmartMoneyPerpTradesResponse(MangroveModel):
+    """Perpetual-futures trades from Smart Money wallets (Hyperliquid)."""
+
+    success: bool
+    venue: str | None = None
+    count: int | None = None
+    trades: list[dict[str, Any]] | None = None
+
+
+class TokenDexTradesResponse(MangroveModel):
+    """DEX trades for a single token across all participants in a date window."""
+
+    success: bool
+    symbol: str
+    chain: str | None = None
+    contract_address: str | None = None
+    date_range: dict[str, str] | None = None
+    count: int | None = None
+    trades: list[dict[str, Any]] | None = None
+
+
+class TokenFlowsResponse(MangroveModel):
+    """Aggregated per-wallet-category flow data for a single token in a date window."""
+
+    success: bool
+    symbol: str
+    chain: str | None = None
+    contract_address: str | None = None
+    date_range: dict[str, str] | None = None
+    count: int | None = None
+    flows: list[dict[str, Any]] | None = None

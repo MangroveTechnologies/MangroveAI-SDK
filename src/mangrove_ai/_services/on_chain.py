@@ -4,8 +4,13 @@ from typing import Any
 
 from ..models.on_chain import (
     ExchangeFlowsResponse,
+    SmartMoneyDexTradesResponse,
+    SmartMoneyHistoricalHoldingsResponse,
+    SmartMoneyPerpTradesResponse,
     SmartMoneyScreenResponse,
     SmartMoneySentimentResponse,
+    TokenDexTradesResponse,
+    TokenFlowsResponse,
     TokenHoldersResponse,
     WhaleActivityResponse,
     WhaleTransactionsResponse,
@@ -88,4 +93,207 @@ class OnChainService(BaseService):
         params: dict[str, Any] = {"hours_back": hours_back}
         return self._request_model(
             "GET", f"/on-chain/whale-activity/{symbol}", WhaleActivityResponse, params=params,
+        )
+
+    # ----- Tier-1 smart-money expansion (Nansen Pro plan) ---------------------
+    #
+    # All five new methods POST a JSON body that mirrors the upstream Nansen
+    # API shape, so customers get full filter + order_by passthrough -- they
+    # can sort by ``value_usd DESC``, restrict to ``Fund``-labelled wallets,
+    # bound ``value_usd`` between a min/max, etc.
+
+    def get_smart_money_historical_holdings(
+        self,
+        *,
+        chains: list[str] | None = None,
+        date_from: str | None = None,
+        date_to: str | None = None,
+        filters: dict[str, Any] | None = None,
+        order_by: list[dict[str, str]] | None = None,
+        page: int = 1,
+        per_page: int = 100,
+    ) -> SmartMoneyHistoricalHoldingsResponse:
+        """Get date-stamped Smart Money holdings snapshots across chains.
+
+        Args:
+            chains: Chain filter (e.g. ["ethereum", "solana"]). Default: ["ethereum"].
+            date_from: Start date YYYY-MM-DD. Default: 7 days ago.
+            date_to: End date YYYY-MM-DD. Default: today.
+            filters: Nansen-shape filter dict (include_smart_money_labels,
+                value_usd: {min, max}, balance_24h_percent_change, token_age_days, ...).
+            order_by: Nansen-shape order_by list, e.g.
+                ``[{"field": "value_usd", "direction": "DESC"}]``.
+            page: Page number.
+            per_page: Page size.
+        """
+        body: dict[str, Any] = {"page": page, "per_page": per_page}
+        if chains is not None:
+            body["chains"] = chains
+        if date_from is not None or date_to is not None:
+            body["date_range"] = {
+                k: v for k, v in {"from": date_from, "to": date_to}.items() if v is not None
+            }
+        if filters is not None:
+            body["filters"] = filters
+        if order_by is not None:
+            body["order_by"] = order_by
+        return self._request_model(
+            "POST",
+            "/on-chain/smart-money/historical-holdings",
+            SmartMoneyHistoricalHoldingsResponse,
+            json=body,
+        )
+
+    def get_smart_money_dex_trades(
+        self,
+        *,
+        chains: list[str] | None = None,
+        filters: dict[str, Any] | None = None,
+        order_by: list[dict[str, str]] | None = None,
+        page: int = 1,
+        per_page: int = 100,
+    ) -> SmartMoneyDexTradesResponse:
+        """Get recent DEX trades from Smart Money wallets.
+
+        Args:
+            chains: Chain filter (e.g. ["ethereum"]).
+            filters: Nansen filter dict (include_smart_money_labels, token_address,
+                side ['buy'|'sell'], min_amount_usd).
+            order_by: Sort order, e.g. ``[{"field": "block_timestamp", "direction": "DESC"}]``.
+            page: Page number.
+            per_page: Page size.
+        """
+        body: dict[str, Any] = {"page": page, "per_page": per_page}
+        if chains is not None:
+            body["chains"] = chains
+        if filters is not None:
+            body["filters"] = filters
+        if order_by is not None:
+            body["order_by"] = order_by
+        return self._request_model(
+            "POST",
+            "/on-chain/smart-money/dex-trades",
+            SmartMoneyDexTradesResponse,
+            json=body,
+        )
+
+    def get_smart_money_perp_trades(
+        self,
+        *,
+        filters: dict[str, Any] | None = None,
+        order_by: list[dict[str, str]] | None = None,
+        page: int = 1,
+        per_page: int = 100,
+    ) -> SmartMoneyPerpTradesResponse:
+        """Get perpetual-futures trades from Smart Money wallets on Hyperliquid.
+
+        Hyperliquid-only; no chain filter accepted by upstream.
+
+        Args:
+            filters: Nansen filter dict (action, side ['Long'|'Short'], token_symbol,
+                type ['Market'|'Limit'], value_usd: {min, max}, only_new_positions).
+            order_by: Sort order (valid fields: block_timestamp, token_amount,
+                price_usd, value_usd).
+            page: Page number.
+            per_page: Page size.
+        """
+        body: dict[str, Any] = {"page": page, "per_page": per_page}
+        if filters is not None:
+            body["filters"] = filters
+        if order_by is not None:
+            body["order_by"] = order_by
+        return self._request_model(
+            "POST",
+            "/on-chain/smart-money/perp-trades",
+            SmartMoneyPerpTradesResponse,
+            json=body,
+        )
+
+    # ----- Tier-2 token-scoped expansion --------------------------------------
+
+    def get_token_dex_trades(
+        self,
+        symbol: str,
+        *,
+        chain: str | None = None,
+        date_from: str | None = None,
+        date_to: str | None = None,
+        filters: dict[str, Any] | None = None,
+        order_by: list[dict[str, str]] | None = None,
+        page: int = 1,
+        per_page: int = 100,
+    ) -> TokenDexTradesResponse:
+        """Get DEX trades for a single token across all participants in a date window.
+
+        Args:
+            symbol: Token identifier (CoinGecko ID preferred, e.g. ``"uniswap"``).
+            chain: Blockchain (default: "ethereum").
+            date_from: Start date YYYY-MM-DD. Default: 7 days ago.
+            date_to: End date YYYY-MM-DD. Default: today.
+            filters: Nansen filter dict.
+            order_by: Sort order.
+            page: Page number.
+            per_page: Page size.
+        """
+        body: dict[str, Any] = {"page": page, "per_page": per_page}
+        if chain is not None:
+            body["chain"] = chain
+        if date_from is not None or date_to is not None:
+            body["date_range"] = {
+                k: v for k, v in {"from": date_from, "to": date_to}.items() if v is not None
+            }
+        if filters is not None:
+            body["filters"] = filters
+        if order_by is not None:
+            body["order_by"] = order_by
+        return self._request_model(
+            "POST",
+            f"/on-chain/token/{symbol}/dex-trades",
+            TokenDexTradesResponse,
+            json=body,
+        )
+
+    def get_token_flows(
+        self,
+        symbol: str,
+        *,
+        chain: str | None = None,
+        date_from: str | None = None,
+        date_to: str | None = None,
+        filters: dict[str, Any] | None = None,
+        order_by: list[dict[str, str]] | None = None,
+        page: int = 1,
+        per_page: int = 100,
+    ) -> TokenFlowsResponse:
+        """Get aggregated per-wallet-category flow data for a single token in a date window.
+
+        Stablecoins are not supported on this endpoint -- returns 404.
+
+        Args:
+            symbol: Token identifier (CoinGecko ID preferred, e.g. ``"uniswap"``).
+                Stablecoins are rejected.
+            chain: Blockchain (default: "ethereum").
+            date_from: Start date YYYY-MM-DD. Default: 7 days ago.
+            date_to: End date YYYY-MM-DD. Default: today.
+            filters: Nansen filter dict.
+            order_by: Sort order.
+            page: Page number.
+            per_page: Page size.
+        """
+        body: dict[str, Any] = {"page": page, "per_page": per_page}
+        if chain is not None:
+            body["chain"] = chain
+        if date_from is not None or date_to is not None:
+            body["date_range"] = {
+                k: v for k, v in {"from": date_from, "to": date_to}.items() if v is not None
+            }
+        if filters is not None:
+            body["filters"] = filters
+        if order_by is not None:
+            body["order_by"] = order_by
+        return self._request_model(
+            "POST",
+            f"/on-chain/token/{symbol}/flows",
+            TokenFlowsResponse,
+            json=body,
         )

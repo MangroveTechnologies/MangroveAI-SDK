@@ -5,6 +5,38 @@ All notable changes to the MangroveAI Python SDK will be documented in this file
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added -- `client.on_chain` expanded to full Nansen Pro coverage
+
+Five new methods on `client.on_chain`, each POSTing a JSON body that mirrors
+the upstream Nansen API shape so customers get the full filter / order_by
+capability the Pro plan unlocks:
+
+- `get_smart_money_historical_holdings(chains, date_from, date_to, filters, order_by, page, per_page)`
+- `get_smart_money_dex_trades(chains, filters, order_by, page, per_page)`
+- `get_smart_money_perp_trades(filters, order_by, page, per_page)` -- Hyperliquid
+- `get_token_dex_trades(symbol, chain, date_from, date_to, filters, order_by, page, per_page)`
+- `get_token_flows(symbol, chain, date_from, date_to, filters, order_by, page, per_page)`
+
+The on-chain surface now totals **11 methods** (was 6). All Nansen routes
+forward `filters` and `order_by` straight through to the upstream API --
+e.g. restrict smart-money DEX trades to `Fund`-labelled wallets, sort by
+`block_timestamp DESC`, bound `value_usd` min/max.
+
+New Pydantic response models in `mangrove_ai.models.on_chain`:
+`SmartMoneyHistoricalHoldingsResponse`, `SmartMoneyDexTradesResponse`,
+`SmartMoneyPerpTradesResponse`, `TokenDexTradesResponse`, `TokenFlowsResponse`.
+
+New customer quickstart: `examples/on_chain_nansen.py`.
+
+### Fixed -- README on-chain availability
+
+The README previously said `client.on_chain` was "defined but not yet
+available -- raises `NotImplementedLayerError`." That has been incorrect
+for months; the service exposes 6 working methods today, and this release
+adds 5 more for 11 total.
+
 ## [1.0.0] - 2026-05-26
 
 ### Renamed (breaking)

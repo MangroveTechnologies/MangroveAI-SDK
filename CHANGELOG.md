@@ -7,38 +7,34 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### Added -- `client.ai_copilot` (conversational strategy authoring)
 
-New service covering the full `/api/v1/ai-copilot/*` surface. The
-Copilot is a stateful OpenAI-backed agent that turns "I want momentum
-on ETH" into a fully-configured MangroveAI draft strategy through a
-few chat turns.
+### Added -- `client.execution` covers bulk + by-object + portfolio
 
-Service: `client.ai_copilot`. Methods:
+Three new methods on `ExecutionService` that close the loop on the
+`/api/v1/execution/*` surface MangroveAI has exposed since v3.4 but
+the SDK never typed:
 
-- `start_new_conversation()` -- create a fresh session.
-- `chat(session_id, message, timeout=60)` -- blocking convenience.
-  Sends the message, polls the conversation context internally, and
-  returns the new assistant turn. Hides the server-side 202 / polling
-  dance.
-- `chat_async(session_id, message)` -- returns the raw 202 submission
-  for callers that want to do their own polling.
-- `get_conversation(session_id)` -- full working-context snapshot
-  (mode, collected_info, conversation_history, strategy_config).
-- `list_conversations()` / `get_latest_conversation()` -- discovery.
-- `rename_conversation(session_id, title)` -- rename.
-- `delete_conversation(session_id)` -- delete.
-- `save_strategy(strategy_config, name=None)` -- persist the
-  Copilot-generated config as a MangroveAI draft.
-- `configuration()` -- list the agentic / context / prompts files the
-  Copilot has loaded (debugging).
+- `evaluate_by_object(strategy, persist=False)` -- evaluate an inline
+  strategy dict WITHOUT persisting it to the DB first. Useful for
+  draft testing, dry-runs, and parameter exploration.
+- `evaluate_bulk(strategy_ids=[...], strategy_configs=[...], persist=False)`
+  -- evaluate N strategies in one HTTP call with shared
+  `(asset, timeframe)` market-data fetches. Per-strategy failures
+  captured in each result's `error` field without aborting the batch.
+  Retires the N+1 fan-out that `live-strategies/run_cron.py` worked
+  around with direct httpx calls.
+- `get_portfolio(strategy_ids=[...])` -- batched dashboard read:
+  name + asset + status + execution_state + open_positions_count +
+  last 5 trades for N strategies, in one call. Max 100 IDs per
+  request (client-side validation).
 
-New Pydantic models in `mangrove_ai.models.ai_copilot`:
-`Conversation`, `ConversationResponse`, `ConversationListResponse`,
-`ConversationContext`, `ChatMessage`, `ChatSubmission`,
-`SaveStrategyResponse`, `Configuration`, `MutationResponse`.
+New Pydantic response models in `mangrove_ai.models.execution`:
+`BulkEvaluateResult`, `PortfolioResponse`, `PortfolioEntry`,
+`PortfolioRecentTrade`. `EvaluateResult` gains an optional `error`
+field for bulk-mode per-strategy failures.
 
-New customer quickstart: `examples/ai_copilot_quickstart.py`.
+New customer quickstart: `examples/execution_bulk_quickstart.py`.
+
 
 ### Added -- `client.on_chain` expanded to full Nansen Pro coverage
 

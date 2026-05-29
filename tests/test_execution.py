@@ -216,3 +216,208 @@ class TestExecutionEvaluate:
         client.execution.evaluate("strat-uuid-1", persist=False)
 
         assert mock.requests[0].json == {"persist": False}
+
+
+# =============================================================================
+# evaluate_by_object
+# =============================================================================
+
+
+class TestExecutionEvaluateByObject:
+    def test_evaluate_by_object_posts_strategy_dict(self) -> None:
+        mock = MockTransport()
+        mock.add_response("POST", "/execution/evaluate", json={
+            "success": True,
+            "asset": "ETH-USD",
+            "current_price": 3500.0,
+            "new_orders": [],
+            "execution_time_seconds": 0.8,
+        })
+        client = _make_client(mock)
+
+        strategy = {
+            "asset": "ETH-USD",
+            "rules": {"entry": [{"name": "macd_bullish_cross"}], "exit": []},
+            "execution_config": {"timeframe": "1h"},
+            "execution_state": {
+                "cash_balance": 10000,
+                "account_value": 10000,
+                "total_trades": 0,
+                "num_open_positions": 0,
+            },
+        }
+        result = client.execution.evaluate_by_object(strategy)
+
+        from mangrove_ai.models.execution import EvaluateResult
+        assert isinstance(result, EvaluateResult)
+        assert result.asset == "ETH-USD"
+        recorded = mock.requests[-1]
+        assert recorded.json == {"strategy": strategy, "persist": False}
+
+    def test_evaluate_by_object_persist_opt_in(self) -> None:
+        mock = MockTransport()
+        mock.add_response("POST", "/execution/evaluate", json={"success": True})
+        client = _make_client(mock)
+
+        client.execution.evaluate_by_object({"asset": "BTC"}, persist=True)
+
+        assert mock.requests[-1].json == {"strategy": {"asset": "BTC"}, "persist": True}
+
+
+# =============================================================================
+# evaluate_bulk
+# =============================================================================
+
+
+class TestExecutionEvaluateBulk:
+    def test_evaluate_bulk_with_ids(self) -> None:
+        mock = MockTransport()
+        mock.add_response("POST", "/execution/evaluate/bulk", json={
+            "success": True,
+            "results": [
+                {
+                    "success": True,
+                    "strategy_id": "s-1",
+                    "strategy_name": "BTC momentum",
+                    "asset": "BTC-USD",
+                    "current_price": 97500.0,
+                    "new_orders": [],
+                    "execution_time_seconds": 1.0,
+                },
+                {
+                    "success": True,
+                    "strategy_id": "s-2",
+                    "strategy_name": "ETH momentum",
+                    "asset": "ETH-USD",
+                    "current_price": 3500.0,
+                    "new_orders": [],
+                    "execution_time_seconds": 1.0,
+                },
+            ],
+            "data_fetches": 2,
+            "total_execution_time_seconds": 1.5,
+        })
+        client = _make_client(mock)
+
+        result = client.execution.evaluate_bulk(strategy_ids=["s-1", "s-2"])
+
+        from mangrove_ai.models.execution import BulkEvaluateResult
+        assert isinstance(result, BulkEvaluateResult)
+        assert len(result.results) == 2
+        assert result.data_fetches == 2
+        assert mock.requests[-1].json == {
+            "persist": False,
+            "strategy_ids": ["s-1", "s-2"],
+        }
+
+    def test_evaluate_bulk_captures_per_strategy_failures(self) -> None:
+        mock = MockTransport()
+        mock.add_response("POST", "/execution/evaluate/bulk", json={
+            "success": True,
+            "results": [
+                {"success": True, "strategy_id": "s-1", "new_orders": []},
+                {"success": False, "strategy_id": "s-2", "error": "stale OHLCV"},
+            ],
+            "data_fetches": 1,
+            "total_execution_time_seconds": 1.0,
+        })
+        client = _make_client(mock)
+
+        result = client.execution.evaluate_bulk(strategy_ids=["s-1", "s-2"])
+
+        assert result.success is True
+        assert result.results[0].success is True
+        assert result.results[1].success is False
+        assert result.results[1].error == "stale OHLCV"
+
+    def test_evaluate_bulk_inline_configs(self) -> None:
+        mock = MockTransport()
+        mock.add_response("POST", "/execution/evaluate/bulk", json={
+            "success": True,
+            "results": [],
+            "data_fetches": 0,
+            "total_execution_time_seconds": 0.0,
+        })
+        client = _make_client(mock)
+
+        configs = [{"asset": "BTC", "rules": {}, "execution_config": {}, "execution_state": {}}]
+        client.execution.evaluate_bulk(strategy_configs=configs)
+
+        body = mock.requests[-1].json
+        assert body == {"persist": False, "strategy_configs": configs}
+        assert "strategy_ids" not in body
+
+    def test_evaluate_bulk_rejects_empty_request(self) -> None:
+        import pytest
+        client = _make_client(MockTransport())
+
+        with pytest.raises(ValueError, match="strategy_ids.*strategy_configs"):
+            client.execution.evaluate_bulk()
+
+
+# =============================================================================
+# get_portfolio
+# =============================================================================
+
+
+class TestExecutionGetPortfolio:
+    def test_get_portfolio_returns_typed_response(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/execution/portfolio", json={
+            "results": [
+                {
+                    "strategy_id": "s-1",
+                    "strategy_name": "BTC Momentum",
+                    "asset": "BTC-USD",
+                    "status": "paper",
+                    "execution_state": {"cash_balance": 9500.0, "total_trades": 3},
+                    "last_evaluated_at": "2026-05-29T10:00:00Z",
+                    "open_positions_count": 1,
+                    "recent_trades": [
+                        {
+                            "id": "tr-1",
+                            "asset": "BTC-USD",
+                            "outcome": "win",
+                            "profit_loss": 120.0,
+                            "profit_loss_pct": 1.2,
+                            "closed_at": "2026-05-29T09:00:00Z",
+                        }
+                    ],
+                }
+            ],
+            "missing": ["s-deleted"],
+        })
+        client = _make_client(mock)
+
+        result = client.execution.get_portfolio(["s-1", "s-deleted"])
+
+        from mangrove_ai.models.execution import PortfolioResponse
+        assert isinstance(result, PortfolioResponse)
+        assert len(result.results) == 1
+        assert result.results[0].strategy_id == "s-1"
+        assert result.results[0].open_positions_count == 1
+        assert len(result.results[0].recent_trades) == 1
+        assert result.missing == ["s-deleted"]
+
+    def test_get_portfolio_serializes_ids_as_csv(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/execution/portfolio", json={"results": [], "missing": []})
+        client = _make_client(mock)
+
+        client.execution.get_portfolio(["a", "b", "c"])
+
+        assert mock.requests[-1].params == {"strategy_ids": "a,b,c"}
+
+    def test_get_portfolio_rejects_empty(self) -> None:
+        import pytest
+        client = _make_client(MockTransport())
+
+        with pytest.raises(ValueError, match="non-empty"):
+            client.execution.get_portfolio([])
+
+    def test_get_portfolio_rejects_over_100(self) -> None:
+        import pytest
+        client = _make_client(MockTransport())
+
+        with pytest.raises(ValueError, match="Max 100"):
+            client.execution.get_portfolio([f"s-{i}" for i in range(101)])

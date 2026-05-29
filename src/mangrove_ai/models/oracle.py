@@ -299,3 +299,78 @@ class OracleResultsPage(MangroveModel):
     offset: int
     limit: int
     results: list[dict[str, Any]] = []
+
+
+# ---------------------------------------------------------------------------
+# Simulate (single-strategy runs without persisting)
+# ---------------------------------------------------------------------------
+
+
+class SimulateRunResponse(MangroveModel):
+    """Response from POST /oracle/simulate/run.
+
+    The simulate surface runs a single strategy against a dataset
+    without persisting results to the experiment store — useful for
+    interactive "try this rule and see" loops.
+
+    Shape stays loose because Oracle's simulate response includes a
+    full backtest result row plus optional plot URIs; locking the schema
+    forces SDK bumps when Oracle adds visualization fields.
+    """
+
+    simulation_id: str | None = None
+    status: str | None = None
+    result: dict[str, Any] | None = None
+    error: str | None = None
+
+
+# ---------------------------------------------------------------------------
+# Leaderboard (curated personas — display wrappers for the deployed strategies)
+# ---------------------------------------------------------------------------
+
+
+class LeaderboardPersona(MangroveModel):
+    """One curated persona on the public leaderboard.
+
+    Personas wrap deployed strategies for the public-facing dashboard
+    (e.g. mangrovedeveloper.ai/leaderboard). The actual live execution
+    state lives under ``/oracle/deployed/*`` — use
+    ``list_deployed_strategies()`` etc. to read it.
+    """
+
+    id: str
+    name: str
+    avatar: str | None = None
+    deployed_strategy_ids: list[str] = []
+    rank: int | None = None
+
+
+class LeaderboardResponse(MangroveModel):
+    """Top-level shape returned by GET /oracle/leaderboard."""
+
+    personas: list[LeaderboardPersona] = []
+
+
+# ---------------------------------------------------------------------------
+# Deployed strategies (live execution state of curated deployed strategies)
+# ---------------------------------------------------------------------------
+
+
+class DeployedStrategy(MangroveModel):
+    """A single curated strategy currently running in paper-trading mode.
+
+    Carries identity + live execution state. ``persona_id`` links back
+    to the ``LeaderboardPersona`` that owns it.
+    """
+
+    id: str
+    name: str
+    persona_id: str | None = None
+    asset: str | None = None
+    timeframe: str | None = None
+    deployed_at: str | None = None
+    account_value: float | None = None
+    cash_balance: float | None = None
+    num_open_positions: int | None = None
+    total_trades: int | None = None
+    status: str | None = None

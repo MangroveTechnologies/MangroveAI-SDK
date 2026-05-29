@@ -244,3 +244,194 @@ class TestBacktest:
         assert isinstance(result, OracleBulkBacktestResult)
         assert result.success is True
         assert result.data_fetches == 1
+
+
+# =============================================================================
+# Experiments lifecycle
+# =============================================================================
+
+
+_EXPERIMENT_ID = "exp_20260529T120000000000Z"
+
+
+class TestExperiments:
+    def test_create_experiment_posts_config(self) -> None:
+        mock = MockTransport()
+        mock.add_response("POST", "/oracle/experiments", json={
+            "experiment_id": _EXPERIMENT_ID,
+            "status": "draft",
+            "created_at": "2026-05-29T12:00:00Z",
+            "org_id": "org-abc",
+        })
+        client = _make_client(mock)
+
+        from mangrove_ai.models.oracle import ExperimentCreated
+        result = client.oracle.create_experiment({"name": "BTC momentum sweep"})
+
+        assert isinstance(result, ExperimentCreated)
+        assert result.experiment_id == _EXPERIMENT_ID
+        assert result.status == "draft"
+        assert mock.requests[-1].json == {"name": "BTC momentum sweep"}
+
+    def test_list_experiments_parses_each_entry(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/oracle/experiments", json=[
+            {
+                "experiment_id": _EXPERIMENT_ID,
+                "name": "BTC sweep",
+                "status": "launched",
+                "total_runs": 99,
+                "completed": 42,
+                "search_mode": "grid",
+                "created_at": "2026-05-29T12:00:00Z",
+            },
+            {
+                "experiment_id": "exp_other",
+                "name": "ETH sweep",
+                "status": "draft",
+            },
+        ])
+        client = _make_client(mock)
+
+        from mangrove_ai.models.oracle import ExperimentSummary
+        summaries = client.oracle.list_experiments()
+
+        assert len(summaries) == 2
+        assert all(isinstance(s, ExperimentSummary) for s in summaries)
+        assert summaries[0].completed == 42
+        assert summaries[0].search_mode == "grid"
+
+    def test_get_experiment_returns_full_dict(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", f"/oracle/experiments/{_EXPERIMENT_ID}", json={
+            "experiment_id": _EXPERIMENT_ID,
+            "name": "BTC sweep",
+            "status": "draft",
+            "datasets": ["btc_2024_1h"],
+            "completed_runs": 0,
+        })
+        client = _make_client(mock)
+
+        result = client.oracle.get_experiment(_EXPERIMENT_ID)
+
+        assert result["experiment_id"] == _EXPERIMENT_ID
+        assert result["datasets"] == ["btc_2024_1h"]
+        assert result["completed_runs"] == 0
+
+    def test_update_experiment(self) -> None:
+        mock = MockTransport()
+        mock.add_response("PUT", f"/oracle/experiments/{_EXPERIMENT_ID}", json={
+            "experiment_id": _EXPERIMENT_ID,
+            "status": "draft",
+        })
+        client = _make_client(mock)
+
+        from mangrove_ai.models.oracle import ExperimentStatus
+        result = client.oracle.update_experiment(
+            _EXPERIMENT_ID,
+            {"name": "BTC sweep v2", "datasets": ["btc_2024_1h"]},
+        )
+
+        assert isinstance(result, ExperimentStatus)
+        assert mock.requests[-1].json == {"name": "BTC sweep v2", "datasets": ["btc_2024_1h"]}
+
+    def test_delete_experiment(self) -> None:
+        mock = MockTransport()
+        mock.add_response("DELETE", f"/oracle/experiments/{_EXPERIMENT_ID}", json={
+            "status": "deleted",
+        })
+        client = _make_client(mock)
+
+        from mangrove_ai.models.oracle import ExperimentDeleted
+        result = client.oracle.delete_experiment(_EXPERIMENT_ID)
+
+        assert isinstance(result, ExperimentDeleted)
+        assert result.status == "deleted"
+
+    def test_validate_launch_pause_each_return_status(self) -> None:
+        mock = MockTransport()
+        mock.add_response("POST", f"/oracle/experiments/{_EXPERIMENT_ID}/validate", json={
+            "experiment_id": _EXPERIMENT_ID, "status": "validated",
+        })
+        mock.add_response("POST", f"/oracle/experiments/{_EXPERIMENT_ID}/launch", json={
+            "experiment_id": _EXPERIMENT_ID, "status": "launched",
+        })
+        mock.add_response("POST", f"/oracle/experiments/{_EXPERIMENT_ID}/pause", json={
+            "experiment_id": _EXPERIMENT_ID, "status": "paused",
+        })
+        client = _make_client(mock)
+
+        assert client.oracle.validate_experiment(_EXPERIMENT_ID).status == "validated"
+        assert client.oracle.launch_experiment(_EXPERIMENT_ID).status == "launched"
+        assert client.oracle.pause_experiment(_EXPERIMENT_ID).status == "paused"
+
+
+# =============================================================================
+# Results
+# =============================================================================
+
+
+class TestResults:
+    def test_list_results_paginated(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/oracle/results", json={
+            "total": 99,
+            "offset": 0,
+            "limit": 10,
+            "results": [
+                {"experiment_id": _EXPERIMENT_ID, "asset": "BTC", "irr_annualized": 0.42},
+                {"experiment_id": _EXPERIMENT_ID, "asset": "BTC", "irr_annualized": 0.31},
+            ],
+        })
+        client = _make_client(mock)
+
+        from mangrove_ai.models.oracle import OracleResultsPage
+        page = client.oracle.list_results(experiment_id=_EXPERIMENT_ID, limit=10)
+
+        assert isinstance(page, OracleResultsPage)
+        assert page.total == 99
+        assert len(page.results) == 2
+        assert page.results[0]["irr_annualized"] == 0.42
+        params = mock.requests[-1].params
+        assert params == {"experiment_id": _EXPERIMENT_ID, "limit": 10, "offset": 0}
+
+
+# =============================================================================
+# Metadata catalogs
+# =============================================================================
+
+
+class TestOracleMetadata:
+    def test_list_datasets(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/oracle/datasets", json=[
+            {"asset": "BTC", "timeframe": "1h", "file": "btc_2024_1h.csv", "rows": 8760,
+             "start_date": "2024-01-01", "end_date": "2024-12-31"},
+        ])
+        client = _make_client(mock)
+
+        result = client.oracle.list_datasets()
+
+        assert isinstance(result, list)
+        assert result[0]["asset"] == "BTC"
+
+    def test_list_signals(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/oracle/signals", json=[
+            {"name": "macd_bullish_cross", "type": "TRIGGER", "category": "momentum",
+             "params": {"window_fast": {"type": "int", "default": 12}},
+             "requires": ["Close"]},
+        ])
+        client = _make_client(mock)
+
+        result = client.oracle.list_signals()
+
+        assert result[0]["name"] == "macd_bullish_cross"
+        assert result[0]["type"] == "TRIGGER"
+
+    def test_list_templates(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/oracle/templates", json=[])
+        client = _make_client(mock)
+
+        assert client.oracle.list_templates() == []

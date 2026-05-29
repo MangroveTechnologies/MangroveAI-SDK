@@ -231,3 +231,71 @@ class OracleBulkBacktestResult(MangroveModel):
     data_fetches: int
     total_execution_time_seconds: float
     error: str | None = None
+
+
+# ---------------------------------------------------------------------------
+# Experiments (sweep lifecycle)
+# ---------------------------------------------------------------------------
+
+
+class ExperimentSummary(MangroveModel):
+    """Compact experiment view returned by `list_experiments`.
+
+    Lifecycle status values:
+      - ``draft``     — created but not yet validated; editable.
+      - ``validated`` — validation passed; ready to launch.
+      - ``launched``  — fan-out in progress (``completed < total_runs``).
+      - ``completed`` — all child backtests finished.
+      - ``paused``    — fan-out paused by the operator.
+      - ``failed``    — terminal failure during launch.
+    """
+
+    experiment_id: str
+    name: str | None = None
+    status: str
+    total_runs: int | None = None
+    completed: int | None = None
+    search_mode: str | None = None  # "grid" | "random"
+    created_at: str | None = None
+
+
+class ExperimentCreated(MangroveModel):
+    """Response shape from `POST /experiments` (201)."""
+
+    experiment_id: str
+    status: str  # always "draft" on first create
+    created_at: str | None = None
+    org_id: str | None = None
+
+
+class ExperimentStatus(MangroveModel):
+    """Response shape for validate / launch / pause / update transitions."""
+
+    experiment_id: str
+    status: str
+
+
+class ExperimentDeleted(MangroveModel):
+    """Response shape from `DELETE /experiments/{id}`."""
+
+    status: str  # "deleted"
+
+
+# ---------------------------------------------------------------------------
+# Results (Oracle backtest results — paginated)
+# ---------------------------------------------------------------------------
+
+
+class OracleResultsPage(MangroveModel):
+    """One page of backtest results for an experiment.
+
+    Each entry in ``results`` is the wide-format Oracle backtest result
+    row — metrics + trade history + provenance. The schema stays loose
+    (``dict[str, Any]``) because Oracle adds columns each release;
+    locking it down forces SDK bumps for cosmetic field additions.
+    """
+
+    total: int
+    offset: int
+    limit: int
+    results: list[dict[str, Any]] = []

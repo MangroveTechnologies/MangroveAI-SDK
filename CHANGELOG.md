@@ -7,6 +7,54 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added -- `client.oracle` expanded with experiments + results + metadata
+
+Twelve new methods on `OracleService` covering the experiments
+lifecycle, paginated result reads, and the metadata catalogs.
+
+Experiments lifecycle:
+- `create_experiment(config)` -- create draft.
+- `list_experiments()` -- summary view across the org.
+- `get_experiment(id)` -- full config + progress.
+- `update_experiment(id, config)` -- mutate while in draft (PUT replace).
+- `delete_experiment(id)` -- tombstone + cancel in-flight children.
+- `validate_experiment(id)` -- draft -> validated transition.
+- `launch_experiment(id)` -- fan out to up to 99 child backtests.
+- `pause_experiment(id)` -- halt fan-out without losing completed
+  results.
+
+Results:
+- `list_results(experiment_id, limit, offset)` -- paginated read of
+  wide-format Oracle backtest result rows.
+
+Metadata catalogs (free):
+- `list_datasets()` -- curated OHLCV snapshots (2246 datasets across
+  asset/timeframe pairs at time of release).
+- `list_signals()` -- signal catalog with typed param specs (223
+  signals: trend / momentum / patterns / volume / volatility).
+- `list_templates()` -- predefined strategy templates.
+
+New Pydantic models in `mangrove_ai.models.oracle`: `ExperimentSummary`,
+`ExperimentCreated`, `ExperimentStatus`, `ExperimentDeleted`,
+`OracleResultsPage`. Experiment configs themselves stay
+`dict[str, Any]` to track Oracle's `ExperimentConfig` shape without
+forcing SDK bumps on cosmetic field additions.
+
+New customer quickstart: `examples/oracle_experiments_quickstart.py`.
+
+#### Server-side gaps observed during verification (filed separately)
+
+- `GET /api/v1/oracle/exec-config` and `GET /api/v1/oracle/simulate`
+  fall through to the static `index.html` instead of returning JSON.
+- `GET /api/v1/oracle/results` (no `experiment_id`) returns 500.
+- `GET /api/v1/oracle/experiments` and `GET /api/v1/oracle/simulate/history`
+  intermittently 504 under load.
+- `GET /api/v1/oracle/leaderboard` returns a personas shape, not the
+  per-strategy ranking documented in `experiments.mdx`.
+
+The `simulate` namespace and `exec_config` getter are deferred until
+the proxy routing settles.
+
 ### Added -- `client.on_chain` expanded to full Nansen Pro coverage
 
 Five new methods on `client.on_chain`, each POSTing a JSON body that mirrors

@@ -7,6 +7,7 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+
 ### Added -- `client.execution` covers bulk + by-object + portfolio
 
 Three new methods on `ExecutionService` that close the loop on the
@@ -33,6 +34,7 @@ New Pydantic response models in `mangrove_ai.models.execution`:
 field for bulk-mode per-strategy failures.
 
 New customer quickstart: `examples/execution_bulk_quickstart.py`.
+
 
 ### Added -- `client.on_chain` expanded to full Nansen Pro coverage
 

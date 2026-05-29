@@ -120,6 +120,11 @@ class MangroveAI:
         from ._services.config import ConfigService
         return ConfigService(self._core_transport)
 
+    @cached_property
+    def ai_copilot(self) -> Any:
+        from ._services.ai_copilot import AICopilotService
+        return AICopilotService(self._core_transport)
+
     # -- Layer 2: Knowledge Base --
 
     @cached_property

@@ -7,6 +7,39 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added -- `client.ai_copilot` (conversational strategy authoring)
+
+New service covering the full `/api/v1/ai-copilot/*` surface. The
+Copilot is a stateful OpenAI-backed agent that turns "I want momentum
+on ETH" into a fully-configured MangroveAI draft strategy through a
+few chat turns.
+
+Service: `client.ai_copilot`. Methods:
+
+- `start_new_conversation()` -- create a fresh session.
+- `chat(session_id, message, timeout=60)` -- blocking convenience.
+  Sends the message, polls the conversation context internally, and
+  returns the new assistant turn. Hides the server-side 202 / polling
+  dance.
+- `chat_async(session_id, message)` -- returns the raw 202 submission
+  for callers that want to do their own polling.
+- `get_conversation(session_id)` -- full working-context snapshot
+  (mode, collected_info, conversation_history, strategy_config).
+- `list_conversations()` / `get_latest_conversation()` -- discovery.
+- `rename_conversation(session_id, title)` -- rename.
+- `delete_conversation(session_id)` -- delete.
+- `save_strategy(strategy_config, name=None)` -- persist the
+  Copilot-generated config as a MangroveAI draft.
+- `configuration()` -- list the agentic / context / prompts files the
+  Copilot has loaded (debugging).
+
+New Pydantic models in `mangrove_ai.models.ai_copilot`:
+`Conversation`, `ConversationResponse`, `ConversationListResponse`,
+`ConversationContext`, `ChatMessage`, `ChatSubmission`,
+`SaveStrategyResponse`, `Configuration`, `MutationResponse`.
+
+New customer quickstart: `examples/ai_copilot_quickstart.py`.
+
 ### Added -- `client.on_chain` expanded to full Nansen Pro coverage
 
 Five new methods on `client.on_chain`, each POSTing a JSON body that mirrors

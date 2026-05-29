@@ -55,6 +55,7 @@ New customer quickstart: `examples/oracle_experiments_quickstart.py`.
 The `simulate` namespace and `exec_config` getter are deferred until
 the proxy routing settles.
 
+
 ### Added -- `client.on_chain` expanded to full Nansen Pro coverage
 
 Five new methods on `client.on_chain`, each POSTing a JSON body that mirrors

@@ -4,12 +4,20 @@ from typing import Any
 
 from ..models.execution import (
     Account,
+    BulkEvaluateResult,
     CreateAccountRequest,
     EvaluateResult,
+    PortfolioResponse,
     Position,
     Trade,
 )
 from ._base import BaseService
+
+
+# Server-side cap on `get_portfolio` strategy_ids per request. Enforced
+# client-side too so callers fail fast with ValueError instead of an
+# HTTP 400.
+PORTFOLIO_MAX_IDS_PER_REQUEST = 100
 
 
 class ExecutionService(BaseService):
@@ -124,3 +132,105 @@ class ExecutionService(BaseService):
         """
         data = self._request("POST", f"/execution/evaluate/{strategy_id}", json={"persist": persist})
         return EvaluateResult.model_validate(data)
+
+    def evaluate_by_object(
+        self,
+        strategy: dict[str, Any],
+        *,
+        persist: bool = False,
+    ) -> EvaluateResult:
+        """Evaluate an inline strategy object without persisting it first.
+
+        Useful for:
+          - Testing draft strategies before saving to MangroveAI.
+          - One-off evaluations against modified parameters.
+          - Dry-runs with hand-tuned ``execution_state``.
+
+        Args:
+            strategy: Strategy dict — at minimum ``asset``, ``rules``,
+                ``execution_config``, ``execution_state`` (with
+                ``cash_balance`` / ``account_value`` /
+                ``total_trades`` / ``num_open_positions``).
+            persist: Persist orders/positions if the evaluation fires
+                — defaults to False because object-based evaluation is
+                typically dry-run.
+        """
+        return self._request_model(
+            "POST", "/execution/evaluate",
+            EvaluateResult,
+            json={"strategy": strategy, "persist": persist},
+        )
+
+    def evaluate_bulk(
+        self,
+        *,
+        strategy_ids: list[str] | None = None,
+        strategy_configs: list[dict[str, Any]] | None = None,
+        persist: bool = False,
+    ) -> BulkEvaluateResult:
+        """Evaluate many strategies in one call with shared market-data fetches.
+
+        The server fetches OHLCV once per unique ``(asset, timeframe)``
+        across the batch and reuses it for every strategy that needs
+        it — the round-trip cost stays roughly flat with N for
+        homogeneous portfolios. Per-strategy failures are captured in
+        ``results[i].error`` without aborting the batch.
+
+        Either ``strategy_ids`` (DB UUIDs) or ``strategy_configs``
+        (inline dicts) — or both — must be supplied. Inline configs
+        bypass the DB and require the full strategy shape
+        (``asset``, ``rules``, ``execution_config``, ``execution_state``).
+
+        Args:
+            strategy_ids: UUIDs to load from the strategy table.
+            strategy_configs: Inline strategy dicts to evaluate.
+            persist: Persist orders/positions per strategy.
+
+        Raises:
+            ValueError: If neither ``strategy_ids`` nor
+                ``strategy_configs`` is supplied.
+        """
+        if not strategy_ids and not strategy_configs:
+            raise ValueError(
+                "Provide at least one of `strategy_ids` or `strategy_configs`"
+            )
+        body: dict[str, Any] = {"persist": persist}
+        if strategy_ids:
+            body["strategy_ids"] = strategy_ids
+        if strategy_configs:
+            body["strategy_configs"] = strategy_configs
+        return self._request_model(
+            "POST", "/execution/evaluate/bulk",
+            BulkEvaluateResult,
+            json=body,
+        )
+
+    def get_portfolio(self, strategy_ids: list[str]) -> PortfolioResponse:
+        """Batch-read dashboard data for N strategies in one call.
+
+        Returns name + asset + status + execution_state + open-position
+        count + last 5 trades per strategy. Designed for UI cards that
+        render multiple strategies — collapses the N+1 fan-out into
+        one batched DB read on the server side.
+
+        Args:
+            strategy_ids: UUIDs to fetch. Max 100 per request.
+
+        Raises:
+            ValueError: If ``strategy_ids`` is empty or exceeds the
+                100-ID server cap.
+        """
+        if not strategy_ids:
+            raise ValueError("strategy_ids must be non-empty")
+        if len(strategy_ids) > PORTFOLIO_MAX_IDS_PER_REQUEST:
+            raise ValueError(
+                f"Max {PORTFOLIO_MAX_IDS_PER_REQUEST} strategy_ids per "
+                f"request, got {len(strategy_ids)}"
+            )
+        # Server accepts both CSV and repeated query params. CSV is
+        # the more compact wire format.
+        return self._request_model(
+            "GET", "/execution/portfolio",
+            PortfolioResponse,
+            params={"strategy_ids": ",".join(strategy_ids)},
+        )

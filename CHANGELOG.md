@@ -7,6 +7,33 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added -- `client.execution` covers bulk + by-object + portfolio
+
+Three new methods on `ExecutionService` that close the loop on the
+`/api/v1/execution/*` surface MangroveAI has exposed since v3.4 but
+the SDK never typed:
+
+- `evaluate_by_object(strategy, persist=False)` -- evaluate an inline
+  strategy dict WITHOUT persisting it to the DB first. Useful for
+  draft testing, dry-runs, and parameter exploration.
+- `evaluate_bulk(strategy_ids=[...], strategy_configs=[...], persist=False)`
+  -- evaluate N strategies in one HTTP call with shared
+  `(asset, timeframe)` market-data fetches. Per-strategy failures
+  captured in each result's `error` field without aborting the batch.
+  Retires the N+1 fan-out that `live-strategies/run_cron.py` worked
+  around with direct httpx calls.
+- `get_portfolio(strategy_ids=[...])` -- batched dashboard read:
+  name + asset + status + execution_state + open_positions_count +
+  last 5 trades for N strategies, in one call. Max 100 IDs per
+  request (client-side validation).
+
+New Pydantic response models in `mangrove_ai.models.execution`:
+`BulkEvaluateResult`, `PortfolioResponse`, `PortfolioEntry`,
+`PortfolioRecentTrade`. `EvaluateResult` gains an optional `error`
+field for bulk-mode per-strategy failures.
+
+New customer quickstart: `examples/execution_bulk_quickstart.py`.
+
 ### Added -- `client.on_chain` expanded to full Nansen Pro coverage
 
 Five new methods on `client.on_chain`, each POSTing a JSON body that mirrors

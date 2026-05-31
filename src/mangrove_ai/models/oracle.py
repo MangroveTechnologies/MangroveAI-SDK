@@ -359,18 +359,28 @@ class LeaderboardResponse(MangroveModel):
 class DeployedStrategy(MangroveModel):
     """A single curated strategy currently running in paper-trading mode.
 
-    Carries identity + live execution state. ``persona_id`` links back
-    to the ``LeaderboardPersona`` that owns it.
+    Field names mirror what Oracle's /deployed/strategies endpoint
+    actually returns (verified against api.mangrovedeveloper.ai on
+    2026-05-31). ``persona_id`` is not on the strategy row itself —
+    look up the owning persona via ``LeaderboardPersona.deployed_strategy_ids``.
     """
 
-    id: str
+    strategy_id: str
     name: str
-    persona_id: str | None = None
     asset: str | None = None
     timeframe: str | None = None
-    deployed_at: str | None = None
-    account_value: float | None = None
-    cash_balance: float | None = None
+    experiment_id: str | None = None
+    run_index: int | None = None
+    trigger_name: str | None = None
     num_open_positions: int | None = None
     total_trades: int | None = None
-    status: str | None = None
+    last_price: float | None = None
+    last_tick_at: str | None = None
+    last_tick_status: str | None = None
+    health: str | None = None
+    # Free-form sub-payloads. Keep loose to avoid breaking on every
+    # backtest-metric / position-shape iteration server-side.
+    equity: list[Any] | None = None
+    positions: list[Any] | None = None
+    trades: list[Any] | None = None
+    backtest_metrics: dict[str, Any] | None = None

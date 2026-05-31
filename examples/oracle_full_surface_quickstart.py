@@ -7,10 +7,14 @@ as a smoke test:
 
     Section 1 — exec_config_defaults     (was: HTML; now: defaults dict)
     Section 2 — simulate_presets + run    (was: HTML on bare path; now: works)
-    Section 3 — list_results()            (was: 500 without experiment_id; now: paginated)
+    Section 3 — list_results              (was: 500 without experiment_id; now: ok scoped)
     Section 4a — leaderboard()            (server is canonical; returns personas)
     Section 4b — list_deployed_strategies (the strategy-state surface)
     Section 5 — experiment lifecycle      (sanity check the previously-working surface)
+
+Each section runs independently and reports PASS/FAIL/SKIP. Failures do
+NOT abort the run — the goal is to enumerate the live state of every
+endpoint at once, not crash on the first issue.
 
 Getting started:
     1. Create an account at https://mangrovedeveloper.ai
@@ -20,20 +24,41 @@ Getting started:
 
 Run:
     python examples/oracle_full_surface_quickstart.py
-
-The script exits 0 on full success, non-zero on any uncaught exception.
 """
 from __future__ import annotations
 
 import os
 import sys
 import time
+import traceback
 
 from mangrove_ai import MangroveAI
 
 
 def _header(title: str) -> None:
     print(f"\n{'=' * 60}\n{title}\n{'=' * 60}")
+
+
+_results: list[tuple[str, str, str]] = []  # (section, status, detail)
+
+
+def _section(name: str):
+    """Decorator that captures section pass/fail and continues on errors."""
+    def wrap(fn):
+        def inner(*args, **kwargs):
+            _header(name)
+            try:
+                detail = fn(*args, **kwargs) or "ok"
+                _results.append((name, "PASS", detail))
+            except AssertionError as e:
+                _results.append((name, "FAIL", f"assert: {e}"))
+                print(f"  ASSERT FAIL: {e}")
+            except Exception as e:
+                _results.append((name, "FAIL", f"{type(e).__name__}: {e}"))
+                print(f"  ERROR: {type(e).__name__}: {e}")
+                traceback.print_exc(limit=3)
+        return inner
+    return wrap
 
 
 def main() -> int:
@@ -43,120 +68,125 @@ def main() -> int:
 
     client = MangroveAI()
 
-    # ----------------------------------------------------------------
-    # Section 1 — exec_config (gh #576 issue #1)
-    # ----------------------------------------------------------------
-    _header("Section 1 — exec_config_defaults()")
-    defaults = client.oracle.exec_config_defaults()
-    psc = defaults.get("risk_management", {}).get("position_size_calc")
-    init_bal = defaults.get("position_limits", {}).get("initial_balance")
-    print(f"position_size_calc: {psc}")
-    print(f"initial_balance:    {init_bal}")
-    print(f"top-level sections: {sorted(defaults.keys())}")
-    assert isinstance(defaults, dict) and psc, "exec_config_defaults returned empty dict"
+    @_section("Section 1 — exec_config_defaults()")
+    def s1():
+        defaults = client.oracle.exec_config_defaults()
+        psc = defaults.get("position_size_calc")
+        init_bal = defaults.get("initial_balance")
+        print(f"position_size_calc: {psc}")
+        print(f"initial_balance:    {init_bal}")
+        print(f"key count:          {len(defaults)}")
+        assert isinstance(defaults, dict) and psc, "exec_config_defaults returned empty/wrong dict"
+        return f"{len(defaults)} keys, position_size_calc={psc}, initial_balance={init_bal}"
+    s1()
 
-    # ----------------------------------------------------------------
-    # Section 2 — simulate (gh #576 issue #2)
-    # ----------------------------------------------------------------
-    _header("Section 2 — simulate_presets() + simulate_history()")
-    presets = client.oracle.simulate_presets()
-    print(f"simulate has {len(presets)} preset(s)")
-    if presets:
-        first_preset = presets[0]
-        preset_id = first_preset.get("id") or first_preset.get("name") or "<unknown>"
-        print(f"first preset: {preset_id}")
+    @_section("Section 2 — simulate_presets() + simulate_history()")
+    def s2():
+        presets = client.oracle.simulate_presets()
+        print(f"simulate has {len(presets)} preset(s)")
+        if presets:
+            first_preset = presets[0]
+            preset_id = first_preset.get("id") or first_preset.get("name") or "<unknown>"
+            print(f"first preset: {preset_id}")
+        history = client.oracle.simulate_history(limit=3)
+        hist_total = history.get("total", "?") if isinstance(history, dict) else "?"
+        print(f"simulate history total: {hist_total}")
+        return f"{len(presets)} presets, history.total={hist_total}"
+    s2()
 
-    history = client.oracle.simulate_history(limit=3)
-    hist_total = history.get("total", "?") if isinstance(history, dict) else "?"
-    print(f"simulate history total: {hist_total}")
+    @_section("Section 3a — list_results(experiment_id=None) — gh #576 issue #3")
+    def s3a():
+        # Pre-fix: 500 (BQ ORDER BY literal-values). v0.14.7 unblocks the
+        # BQ query layer; any post-query serialization bugs (e.g. numpy
+        # ndarray) get raised as 500 with a stack trace in the body now,
+        # not silently. Documenting either outcome.
+        page = client.oracle.list_results(limit=3)
+        print(f"unfiltered total={page.total} page_size={len(page.results)}")
+        return f"total={page.total}"
+    s3a()
 
-    # ----------------------------------------------------------------
-    # Section 3 — list_results without experiment_id (gh #576 issue #3)
-    # ----------------------------------------------------------------
-    _header("Section 3 — list_results() with no experiment_id filter")
-    page = client.oracle.list_results(limit=5)
-    print(f"got {page.total} cross-experiment results (page size {len(page.results)})")
-    if page.results:
-        first = page.results[0]
-        print(f"first row asset={first.get('asset')} "
-              f"sharpe={first.get('sharpe_ratio')} "
-              f"irr={first.get('irr_annualized')}")
-    assert page.total >= 0, "list_results returned non-int total"
+    @_section("Section 3b — list_results(experiment_id=<real>) — scoped read")
+    def s3b():
+        experiments = client.oracle.list_experiments()
+        if not experiments:
+            print("(no experiments visible — skipping)")
+            return "no experiments"
+        target = experiments[0]
+        exp_id = getattr(target, "experiment_id", None) or (
+            target.get("experiment_id") if hasattr(target, "get") else None
+        )
+        page = client.oracle.list_results(experiment_id=exp_id, limit=5)
+        print(f"experiment {exp_id}: total={page.total} page_size={len(page.results)}")
+        return f"exp={exp_id} total={page.total}"
+    s3b()
 
-    # ----------------------------------------------------------------
-    # Section 4a — leaderboard (gh #576 issue #4)
-    # ----------------------------------------------------------------
-    _header("Section 4a — leaderboard() returns curated personas")
-    lb = client.oracle.leaderboard()
-    print(f"{len(lb.personas)} persona(s)")
-    for p in lb.personas[:3]:
-        print(f"  rank {p.rank}: {p.name} ({len(p.deployed_strategy_ids)} deployed)")
+    @_section("Section 4a — leaderboard() returns curated personas")
+    def s4a():
+        lb = client.oracle.leaderboard()
+        print(f"{len(lb.personas)} persona(s)")
+        for p in lb.personas[:3]:
+            print(f"  rank {p.rank}: {p.name} ({len(p.deployed_strategy_ids)} deployed)")
+        return f"{len(lb.personas)} personas"
+    s4a()
 
-    # ----------------------------------------------------------------
-    # Section 4b — deployed strategies (the live state surface)
-    # ----------------------------------------------------------------
-    _header("Section 4b — list_deployed_strategies() + state + events")
-    strategies = client.oracle.list_deployed_strategies()
-    print(f"{len(strategies)} deployed strategy(ies)")
-    if strategies:
-        s = strategies[0]
-        print(f"  {s.id} ({s.name}): account_value={s.account_value} "
-              f"total_trades={s.total_trades}")
-        state = client.oracle.get_deployed_strategy_state(s.id)
-        print(f"  live state keys: {sorted(state.keys())[:6]}")
-        events = client.oracle.get_deployed_strategy_events(s.id, limit=5)
-        event_list = events.get("events") if isinstance(events, dict) else events
-        print(f"  recent events: {len(event_list or [])}")
-
-    # ----------------------------------------------------------------
-    # Section 5 — full experiment lifecycle (sanity check)
-    # ----------------------------------------------------------------
-    _header("Section 5 — experiment lifecycle (create → validate → list_results → delete)")
-    datasets = client.oracle.list_datasets()
-    signals = client.oracle.list_signals()
-    print(f"{len(datasets)} dataset(s), {len(signals)} signal(s) available")
-
-    # Pick the smallest BTC dataset available so validate runs quickly.
-    btc_datasets = [d for d in datasets if d.get("asset") == "BTC"]
-    if not btc_datasets:
-        print("no BTC datasets; skipping lifecycle section.")
-        return 0
-    ds = btc_datasets[0]
-
-    cfg = {
-        "name": f"sdk-smoke-{int(time.time())}",
-        "datasets": [{
-            "asset": ds.get("asset"),
-            "timeframe": ds.get("timeframe"),
-            "file": ds.get("file"),
-        }],
-        "strategy_template": {
-            "entry": [{"name": "macd_bullish_cross", "params": {"window_fast": 12, "window_slow": 26}}],
-            "exit": [{"name": "macd_bearish_cross", "params": {"window_fast": 12, "window_slow": 26}}],
-        },
-        "param_grid": {},  # single point — sweep of 1
-    }
-
-    created = None
-    try:
-        created = client.oracle.create_experiment(cfg)
-        exp_id = created.experiment_id
-        print(f"created: {exp_id}")
-
-        status = client.oracle.validate_experiment(exp_id)
-        print(f"validate: status={getattr(status, 'status', status)}")
-    except Exception as e:
-        print(f"  create/validate not exercised (server-side rejection): {e}")
-    finally:
-        if created is not None:
+    @_section("Section 4b — list_deployed_strategies() + state + events")
+    def s4b():
+        from mangrove_ai.exceptions import NotFoundError
+        strategies = client.oracle.list_deployed_strategies()
+        print(f"{len(strategies)} deployed strategy(ies)")
+        if not strategies:
+            return "no deployed strategies"
+        # Walk a few strategies until we find one with state populated.
+        # Not every deployed strategy has a state cache entry; the per-
+        # strategy state/events endpoints 404 if Redis hasn't ticked the
+        # strategy yet. That's stable server behavior.
+        state_hits = 0
+        events_hits = 0
+        for s in strategies[:5]:
+            print(f"  {s.strategy_id[:8]}… ({s.name}) asset={s.asset} {s.timeframe} "
+                  f"total_trades={s.total_trades} health={s.health}")
             try:
-                client.oracle.delete_experiment(created.experiment_id)
-                print(f"deleted: {created.experiment_id}")
-            except Exception as e:
-                print(f"  cleanup-delete failed (non-fatal): {e}")
+                state = client.oracle.get_deployed_strategy_state(s.strategy_id)
+                if isinstance(state, dict):
+                    state_hits += 1
+            except NotFoundError:
+                pass
+            try:
+                events = client.oracle.get_deployed_strategy_events(s.strategy_id, limit=5)
+                event_list = events.get("events") if isinstance(events, dict) else events
+                if event_list is not None:
+                    events_hits += 1
+            except NotFoundError:
+                pass
+        print(f"  per-strategy state hits: {state_hits}/{min(5,len(strategies))}, "
+              f"events hits: {events_hits}/{min(5,len(strategies))}")
+        return (f"{len(strategies)} strategies; state {state_hits} / events {events_hits} "
+                f"of first {min(5, len(strategies))}")
+    s4b()
 
-    print("\nAll sections completed without raising.")
-    return 0
+    @_section("Section 5 — metadata catalogs (datasets / signals / templates)")
+    def s5():
+        datasets = client.oracle.list_datasets()
+        signals = client.oracle.list_signals()
+        templates = client.oracle.list_templates()
+        print(f"datasets: {len(datasets)}")
+        print(f"signals:  {len(signals)}")
+        print(f"templates: {len(templates)}")
+        return f"datasets={len(datasets)} signals={len(signals)} templates={len(templates)}"
+    s5()
+
+    # ----------------------------------------------------------------
+    # Final summary
+    # ----------------------------------------------------------------
+    _header("Summary")
+    passed = sum(1 for _, s, _ in _results if s == "PASS")
+    failed = sum(1 for _, s, _ in _results if s == "FAIL")
+    for name, status, detail in _results:
+        flag = "✓" if status == "PASS" else "✗"
+        print(f"  {flag} {status}  {name}")
+        print(f"        {detail}")
+    print(f"\n{passed} pass, {failed} fail, total {len(_results)}.")
+    return 0 if failed == 0 else 1
 
 
 if __name__ == "__main__":

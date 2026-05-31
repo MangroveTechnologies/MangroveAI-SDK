@@ -543,8 +543,8 @@ class TestDeployed:
         mock = MockTransport()
         mock.add_response("GET", "/oracle/deployed/strategies", json={
             "strategies": [
-                {"id": "dep-001", "name": "BTC RSI Mean Reversion", "asset": "BTC",
-                 "account_value": 10456.23, "total_trades": 8},
+                {"strategy_id": "dep-001", "name": "BTC RSI Mean Reversion",
+                 "asset": "BTC", "total_trades": 8, "health": "ok"},
             ]
         })
         client = _make_client(mock)
@@ -552,15 +552,15 @@ class TestDeployed:
         strategies = client.oracle.list_deployed_strategies()
 
         assert len(strategies) == 1
-        assert strategies[0].id == "dep-001"
-        assert strategies[0].account_value == 10456.23
+        assert strategies[0].strategy_id == "dep-001"
         assert strategies[0].total_trades == 8
+        assert strategies[0].health == "ok"
 
     def test_list_deployed_strategies_bare_list_shape(self) -> None:
         """Server may also return a bare list. Accept both."""
         mock = MockTransport()
         mock.add_response("GET", "/oracle/deployed/strategies", json=[
-            {"id": "dep-002", "name": "ETH Momentum", "asset": "ETH"},
+            {"strategy_id": "dep-002", "name": "ETH Momentum", "asset": "ETH"},
         ])
         client = _make_client(mock)
 

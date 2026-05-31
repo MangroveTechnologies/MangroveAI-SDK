@@ -12,10 +12,12 @@ from .._transport._service import ServiceTransport
 from ..models.oracle import (
     DataQueryRequest,
     DataQueryResponse,
+    DeployedStrategy,
     ExperimentCreated,
     ExperimentDeleted,
     ExperimentStatus,
     ExperimentSummary,
+    LeaderboardResponse,
     OracleAsyncBacktestStatus,
     OracleAsyncBacktestSubmission,
     OracleBacktestRequest,
@@ -25,6 +27,7 @@ from ..models.oracle import (
     OracleResultsPage,
     SieveScoreRequest,
     SieveScoreResponse,
+    SimulateRunResponse,
 )
 
 
@@ -284,26 +287,36 @@ class OracleService:
     def list_results(
         self,
         *,
-        experiment_id: str,
+        experiment_id: str | None = None,
         limit: int = 100,
         offset: int = 0,
     ) -> OracleResultsPage:
-        """Read backtest results materializing under an experiment.
+        """Read backtest results materializing under an experiment, or
+        across the full corpus when ``experiment_id`` is omitted.
 
         Args:
-            experiment_id: Required — Oracle rejects unfiltered reads
-                across all experiments at the proxy layer.
-            limit: Page size, max 1000.
+            experiment_id: Optional — when provided, scopes results to a
+                single experiment. When omitted, returns the broader
+                cross-experiment view paginated by ``limit`` / ``offset``.
+            limit: Page size, max 500 (server-enforced).
             offset: Pagination offset.
 
         Returns:
             ``OracleResultsPage`` with ``total``, ``offset``, ``limit``,
             and ``results`` (list of wide-format result dicts).
+
+        Note:
+            Pre-Oracle v0.14.7 the unfiltered call 500'd because the BQ
+            ORDER BY fell through a DuckDB-quoted-identifier fallback
+            that BQ rejected. Fixed in MangroveOracle PR #237.
         """
+        params: dict[str, Any] = {"limit": limit, "offset": offset}
+        if experiment_id is not None:
+            params["experiment_id"] = experiment_id
         return self._request_model(
             "GET", "/oracle/results",
             OracleResultsPage,
-            params={"experiment_id": experiment_id, "limit": limit, "offset": offset},
+            params=params,
         )
 
     # ------------------------------------------------------------------ #
@@ -333,3 +346,142 @@ class OracleService:
     def list_templates(self) -> list[dict[str, Any]]:
         """List predefined strategy templates you can seed an experiment from."""
         return self._request("GET", "/oracle/templates")
+
+    # ------------------------------------------------------------------ #
+    # Execution-config defaults (canonical trading defaults snapshot)
+    # ------------------------------------------------------------------ #
+    def exec_config_defaults(self) -> dict[str, Any]:
+        """Fetch the canonical execution-defaults snapshot.
+
+        Returns the flattened trading-defaults dict: risk management
+        (``max_risk_per_trade``, ``reward_factor``, ``position_size_calc``),
+        position limits (``initial_balance``, ``max_open_positions``,
+        ``min_trade_amount``, ...), volatility settings, trading rules
+        (``cooldown_bars``, ``max_hold_time_hours``), and time-based
+        exits. Use these to seed an ``ExperimentConfig`` or as input
+        validation bounds when authoring a strategy programmatically.
+
+        Endpoint: GET /oracle/exec-config/defaults
+        """
+        return self._request("GET", "/oracle/exec-config/defaults")
+
+    # ------------------------------------------------------------------ #
+    # Simulate (single-strategy run without persisting)
+    # ------------------------------------------------------------------ #
+    def simulate_run(self, request: dict[str, Any]) -> SimulateRunResponse:
+        """Run a single strategy in interactive mode without persisting.
+
+        Use this for "try this rule and see" loops where you don't want
+        the result to land in the experiment store. For batched / sweep
+        scoring, use ``create_experiment`` + ``launch_experiment``.
+
+        Args:
+            request: Simulate request body — at minimum ``strategy``
+                (a dict in MangroveAI strategy_json shape), ``asset``,
+                ``timeframe``, ``dataset_id``. See
+                ``simulate_presets()`` for ready-made templates.
+
+        Returns:
+            ``SimulateRunResponse`` with ``simulation_id``, ``status``,
+            ``result`` (the wide-format backtest row), and optional
+            ``error`` field for server-side rejections.
+
+        Endpoint: POST /oracle/simulate/run
+        """
+        return self._request_model(
+            "POST", "/oracle/simulate/run",
+            SimulateRunResponse,
+            json=request,
+        )
+
+    def simulate_generate(self, request: dict[str, Any]) -> dict[str, Any]:
+        """Generate a strategy candidate from a high-level intent (LLM-backed).
+
+        Endpoint: POST /oracle/simulate/generate
+        """
+        return self._request("POST", "/oracle/simulate/generate", json=request)
+
+    def simulate_presets(self) -> list[dict[str, Any]]:
+        """List ready-made simulate request templates.
+
+        Endpoint: GET /oracle/simulate/presets
+        """
+        return self._request("GET", "/oracle/simulate/presets")
+
+    def simulate_history(self, *, limit: int = 50, offset: int = 0) -> dict[str, Any]:
+        """List recent simulate runs (caller-scoped).
+
+        Endpoint: GET /oracle/simulate/history
+        """
+        return self._request(
+            "GET", "/oracle/simulate/history",
+            params={"limit": limit, "offset": offset},
+        )
+
+    # ------------------------------------------------------------------ #
+    # Leaderboard (curated personas — display roster, NOT strategy ranking)
+    # ------------------------------------------------------------------ #
+    def leaderboard(self) -> LeaderboardResponse:
+        """Return the curated leaderboard persona roster.
+
+        Personas are display wrappers for the public dashboard at
+        mangrovedeveloper.ai/leaderboard. Each persona's
+        ``deployed_strategy_ids`` link to the per-strategy live state
+        readable via ``list_deployed_strategies()`` /
+        ``get_deployed_strategy_state()``.
+
+        This is NOT a strategy-ranking endpoint — for the
+        best-performing-strategies view, query ``list_results()`` with
+        an appropriate ``sort`` parameter.
+
+        Endpoint: GET /oracle/leaderboard
+        """
+        return self._request_model("GET", "/oracle/leaderboard", LeaderboardResponse)
+
+    # ------------------------------------------------------------------ #
+    # Deployed strategies (live execution state of curated deployed strategies)
+    # ------------------------------------------------------------------ #
+    def list_deployed_strategies(self) -> list[DeployedStrategy]:
+        """List curated strategies currently running in paper-trading mode.
+
+        Each entry carries identity + live execution state
+        (account_value, cash_balance, num_open_positions, total_trades,
+        status). Pair with ``leaderboard()`` to map strategies back to
+        their owning persona.
+
+        Endpoint: GET /oracle/deployed/strategies
+        """
+        data = self._request("GET", "/oracle/deployed/strategies")
+        # Server returns {"strategies": [...]} or a bare list depending
+        # on Oracle version. Accept both shapes.
+        if isinstance(data, dict) and "strategies" in data:
+            items = data["strategies"]
+        else:
+            items = data
+        return [DeployedStrategy.model_validate(item) for item in (items or [])]
+
+    def get_deployed_strategy_state(self, strategy_id: str) -> dict[str, Any]:
+        """Read the live execution state of one deployed strategy.
+
+        Endpoint: GET /oracle/deployed/{strategy_id}/state
+        """
+        return self._request("GET", f"/oracle/deployed/{strategy_id}/state")
+
+    def get_deployed_strategy_events(
+        self,
+        strategy_id: str,
+        *,
+        limit: int = 100,
+    ) -> dict[str, Any]:
+        """Read recent trade events for one deployed strategy.
+
+        Args:
+            strategy_id: The deployed strategy ID.
+            limit: Number of events to return (1-500, server-enforced).
+
+        Endpoint: GET /oracle/deployed/{strategy_id}/events
+        """
+        return self._request(
+            "GET", f"/oracle/deployed/{strategy_id}/events",
+            params={"limit": limit},
+        )

@@ -7,6 +7,48 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added -- `client.oracle` full-surface coverage (closes gh #576)
+
+Nine new methods + `list_results(experiment_id=None)` support, closing
+the four Oracle-proxy regressions filed in MangroveAI gh #576.
+
+Execution config:
+- `exec_config_defaults()` -- canonical flat trading-defaults dict
+  (risk management, position limits, volatility, etc.). Endpoint lives
+  at `/oracle/exec-config/defaults`; the bare `/oracle/exec-config`
+  was always a server SPA fallback, not a JSON endpoint.
+
+Simulate (single-strategy runs without persisting):
+- `simulate_run(request)` -- POST /oracle/simulate/run.
+- `simulate_generate(request)` -- POST /oracle/simulate/generate.
+- `simulate_presets()` -- GET /oracle/simulate/presets.
+- `simulate_history(limit, offset)` -- GET /oracle/simulate/history.
+
+Leaderboard (curated personas, not strategy ranking):
+- `leaderboard()` -- returns `LeaderboardResponse` with
+  `personas: list[LeaderboardPersona]`. Personas wrap the curated
+  deployed strategies for the public dashboard.
+
+Deployed strategies (live execution state surface):
+- `list_deployed_strategies()` -- list curated strategies with
+  account_value, num_open_positions, status, etc.
+- `get_deployed_strategy_state(id)` -- live execution snapshot.
+- `get_deployed_strategy_events(id, limit)` -- recent trade events.
+
+### Changed -- `list_results(experiment_id=None)` now supported
+
+`list_results` previously required `experiment_id` to avoid a
+server-side 500 (Oracle's BQ ORDER BY fell through a DuckDB-quoted
+literal that BigQuery rejected). MangroveOracle PR #237 fixes the
+upstream bug, so the SDK now accepts `experiment_id=None` for the
+broader cross-experiment view.
+
+### Verified
+
+`examples/oracle_full_surface_quickstart.py` exercises every new
+method end-to-end against `api.mangrovedeveloper.ai` prod. See the PR
+description for the full live output.
+
 ### Added -- `client.oracle` expanded with experiments + results + metadata
 
 Twelve new methods on `OracleService` covering the experiments

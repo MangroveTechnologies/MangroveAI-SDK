@@ -435,3 +435,183 @@ class TestOracleMetadata:
         client = _make_client(mock)
 
         assert client.oracle.list_templates() == []
+
+
+# ─── gh issue #576 fixes: exec_config / simulate / leaderboard / deployed ───
+
+
+class TestExecConfigDefaults:
+    """gh #576 issue #1: GET /oracle/exec-config used to return SPA HTML."""
+
+    def test_exec_config_defaults_returns_dict(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/oracle/exec-config/defaults", json={
+            "risk_management": {"position_size_calc": "v2", "max_risk_per_trade": 0.01},
+            "position_limits": {"initial_balance": 10000.0, "max_open_positions": 1},
+        })
+        client = _make_client(mock)
+
+        defaults = client.oracle.exec_config_defaults()
+
+        assert defaults["risk_management"]["position_size_calc"] == "v2"
+        assert defaults["position_limits"]["initial_balance"] == 10000.0
+
+
+class TestSimulate:
+    """gh #576 issue #2: GET /oracle/simulate bare path used to return SPA HTML.
+    Real verbs live under /simulate/{run,generate,presets,history}."""
+
+    def test_simulate_run_posts_body(self) -> None:
+        mock = MockTransport()
+        mock.add_response("POST", "/oracle/simulate/run", json={
+            "simulation_id": "sim-abc-123",
+            "status": "complete",
+            "result": {"irr_annualized": 0.42, "sharpe_ratio": 2.1},
+        })
+        client = _make_client(mock)
+
+        resp = client.oracle.simulate_run({"strategy": {"asset": "BTC"}, "dataset_id": "ds-1"})
+
+        assert resp.simulation_id == "sim-abc-123"
+        assert resp.status == "complete"
+        assert resp.result["irr_annualized"] == 0.42
+
+    def test_simulate_presets_lists(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/oracle/simulate/presets", json=[
+            {"id": "rsi_oversold_btc", "name": "RSI oversold BTC", "strategy": {}},
+        ])
+        client = _make_client(mock)
+
+        presets = client.oracle.simulate_presets()
+
+        assert len(presets) == 1
+        assert presets[0]["id"] == "rsi_oversold_btc"
+
+    def test_simulate_history_passes_pagination(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/oracle/simulate/history",
+                          json={"total": 0, "results": []})
+        client = _make_client(mock)
+
+        hist = client.oracle.simulate_history(limit=10, offset=20)
+
+        assert hist["total"] == 0
+
+
+class TestLeaderboard:
+    """gh #576 issue #4: /oracle/leaderboard returns curated personas, not
+    strategy rankings (server is canonical post-restructure)."""
+
+    def test_leaderboard_returns_personas(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/oracle/leaderboard", json={
+            "personas": [
+                {
+                    "id": "marcus",
+                    "name": "Marcus",
+                    "avatar": "stethoscope",
+                    "deployed_strategy_ids": ["dep-001", "dep-002"],
+                    "rank": 1,
+                },
+                {
+                    "id": "lina",
+                    "name": "Lina",
+                    "avatar": "violin",
+                    "deployed_strategy_ids": ["dep-003"],
+                    "rank": 2,
+                },
+            ]
+        })
+        client = _make_client(mock)
+
+        lb = client.oracle.leaderboard()
+
+        assert len(lb.personas) == 2
+        assert lb.personas[0].name == "Marcus"
+        assert lb.personas[0].rank == 1
+        assert lb.personas[0].deployed_strategy_ids == ["dep-001", "dep-002"]
+
+
+class TestDeployed:
+    """gh #576 issue #4 (sibling): /oracle/deployed/* is the new home for
+    live strategy state. Wrapped here so customers don't have to drop to
+    raw httpx."""
+
+    def test_list_deployed_strategies_dict_shape(self) -> None:
+        """Server may return {"strategies": [...]} wrapper."""
+        mock = MockTransport()
+        mock.add_response("GET", "/oracle/deployed/strategies", json={
+            "strategies": [
+                {"strategy_id": "dep-001", "name": "BTC RSI Mean Reversion",
+                 "asset": "BTC", "total_trades": 8, "health": "ok"},
+            ]
+        })
+        client = _make_client(mock)
+
+        strategies = client.oracle.list_deployed_strategies()
+
+        assert len(strategies) == 1
+        assert strategies[0].strategy_id == "dep-001"
+        assert strategies[0].total_trades == 8
+        assert strategies[0].health == "ok"
+
+    def test_list_deployed_strategies_bare_list_shape(self) -> None:
+        """Server may also return a bare list. Accept both."""
+        mock = MockTransport()
+        mock.add_response("GET", "/oracle/deployed/strategies", json=[
+            {"strategy_id": "dep-002", "name": "ETH Momentum", "asset": "ETH"},
+        ])
+        client = _make_client(mock)
+
+        strategies = client.oracle.list_deployed_strategies()
+
+        assert len(strategies) == 1
+        assert strategies[0].asset == "ETH"
+
+    def test_get_deployed_strategy_state(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/oracle/deployed/dep-001/state", json={
+            "cash_balance": 1234.56, "account_value": 10456.23,
+            "num_open_positions": 1, "total_trades": 8,
+        })
+        client = _make_client(mock)
+
+        state = client.oracle.get_deployed_strategy_state("dep-001")
+
+        assert state["account_value"] == 10456.23
+        assert state["num_open_positions"] == 1
+
+    def test_get_deployed_strategy_events_passes_limit(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/oracle/deployed/dep-001/events",
+                          json={"events": [{"type": "fill", "side": "buy"}]})
+        client = _make_client(mock)
+
+        events = client.oracle.get_deployed_strategy_events("dep-001", limit=10)
+
+        assert len(events["events"]) == 1
+        assert events["events"][0]["type"] == "fill"
+
+
+class TestListResultsUnfiltered:
+    """gh #576 issue #3 (SDK side): list_results(experiment_id=None) used to
+    500 because of the Oracle BQ ORDER BY bug. Now that Oracle PR #237 is in,
+    the SDK should accept None and omit the filter."""
+
+    def test_list_results_with_none_experiment_id_omits_param(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/oracle/results",
+                          json={"total": 5, "offset": 0, "limit": 100, "results": []})
+        client = _make_client(mock)
+
+        page = client.oracle.list_results(experiment_id=None, limit=100)
+
+        assert page.total == 5
+        # The recorded request should not include an empty experiment_id —
+        # the SDK omits the param entirely when None so the server uses
+        # the cross-experiment scan path.
+        recorded = [r for r in mock.requests if r.method == "GET" and "/oracle/results" in r.url]
+        assert len(recorded) == 1
+        if recorded[0].params:
+            assert "experiment_id" not in recorded[0].params

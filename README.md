@@ -126,10 +126,11 @@ print(f"Trades: {result.trade_count}, Sharpe: {result.metrics.get('sharpe_ratio'
 
 ### On-chain capability surface
 
-`client.on_chain` covers Mangrove's full Nansen Pro plan plus WhaleAlert Enterprise:
+`client.on_chain` covers Mangrove's Nansen Pro plan plus WhaleAlert (Developer tier, 30-day history):
 
 | Method | Source | What it returns |
 |---|---|---|
+| `get_onchain_series(symbol, metrics, date_from, date_to, interval, provider)` | Nansen (WhaleAlert fallback) | **Per-bar metric time series** (SmartMoneyNetflow, SmartMoneyHoldings, ExchangeNetflow, WhaleNetInflow, HolderConcentration) — one column per metric |
 | `get_smart_money_sentiment(symbol)` | Nansen | Single-token accumulation/distribution score |
 | `screen_smart_money(chains, timeframe)` | Nansen | Tokens with high smart-money activity |
 | `get_smart_money_historical_holdings(chains, date_range, filters, order_by)` | Nansen | Date-stamped holdings snapshots |
@@ -137,12 +138,20 @@ print(f"Trades: {result.trade_count}, Sharpe: {result.metrics.get('sharpe_ratio'
 | `get_smart_money_perp_trades(filters, order_by)` | Nansen (Hyperliquid) | Perpetual-futures trades by smart-money wallets |
 | `get_token_holders(symbol)` | Nansen | Holder distribution + concentration |
 | `get_token_dex_trades(symbol, chain, date_range, filters, order_by)` | Nansen | Single-token DEX trades across all participants |
-| `get_token_flows(symbol, chain, date_range, filters, order_by)` | Nansen | Per-wallet-category flow aggregation (excludes stablecoins) |
+| `get_token_flows(symbol, chain, date_range, label, filters, order_by)` | Nansen | Per-wallet-category hourly flow rows (`label` scopes to smart_money/exchange/whale/…; excludes stablecoins) |
 | `get_whale_transactions(symbol, min_value, hours_back)` | WhaleAlert | Recent large-value on-chain transactions |
 | `get_exchange_flows(symbol, hours_back)` | WhaleAlert | Aggregated exchange inflows/outflows |
 | `get_whale_activity(symbol, hours_back)` | WhaleAlert | High-level whale activity summary |
 
-`filters` and `order_by` pass through directly to the upstream Nansen API, so you get the full Pro-plan capability — restrict by `include_smart_money_labels`, set `value_usd` min/max bounds, sort by any field. See `examples/on_chain_nansen.py` for working snippets.
+**On-chain time series → signals.** `get_onchain_series` returns a per-bar series for any window — the
+same call serves a live trailing window (e.g. last 10 days, ending now) or a long historical range.
+Build a DataFrame with `pd.DataFrame(resp.series).set_index("timestamp")` and feed it to a
+[`mangrove-kb`](https://pypi.org/project/mangrove-kb/) on-chain signal. End-to-end walkthrough:
+`examples/onchain_signals_demo.py`.
+
+`filters` and `order_by` pass through directly to the upstream Nansen API — restrict by
+`include_smart_money_labels`, set `value_usd` min/max bounds, sort by any field. See
+`examples/on_chain_nansen.py` for raw-method snippets.
 
 ## Environment Detection
 

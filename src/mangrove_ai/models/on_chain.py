@@ -115,6 +115,26 @@ class TokenFlowsResponse(MangroveModel):
     symbol: str
     chain: str | None = None
     contract_address: str | None = None
+    label: str | None = None
     date_range: dict[str, str] | None = None
     count: int | None = None
     flows: list[dict[str, Any]] | None = None
+
+
+class OnChainSeriesResponse(MangroveModel):
+    """Per-bar on-chain metric series (one key per metric), indexed by timestamp.
+
+    Each item in ``series`` is a row with a ``timestamp`` plus one key per requested
+    metric (SmartMoneyNetflow, SmartMoneyHoldings, ExchangeNetflow, WhaleNetInflow,
+    HolderConcentration). Build a pandas DataFrame with
+    ``pd.DataFrame(resp.series).set_index("timestamp")``.
+    """
+
+    success: bool
+    symbol: str
+    chain: str | None = None
+    interval: str | None = None
+    date_range: dict[str, str] | None = None
+    metrics: list[str] | None = None
+    count: int | None = None
+    series: list[dict[str, Any]] | None = None

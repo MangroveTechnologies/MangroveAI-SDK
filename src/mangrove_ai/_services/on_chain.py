@@ -4,6 +4,7 @@ from typing import Any
 
 from ..models.on_chain import (
     ExchangeFlowsResponse,
+    OnChainSeriesResponse,
     SmartMoneyDexTradesResponse,
     SmartMoneyHistoricalHoldingsResponse,
     SmartMoneyPerpTradesResponse,
@@ -260,6 +261,7 @@ class OnChainService(BaseService):
         chain: str | None = None,
         date_from: str | None = None,
         date_to: str | None = None,
+        label: str | None = None,
         filters: dict[str, Any] | None = None,
         order_by: list[dict[str, str]] | None = None,
         page: int = 1,
@@ -275,6 +277,8 @@ class OnChainService(BaseService):
             chain: Blockchain (default: "ethereum").
             date_from: Start date YYYY-MM-DD. Default: 7 days ago.
             date_to: End date YYYY-MM-DD. Default: today.
+            label: Wallet category to scope to -- one of ``"smart_money"``,
+                ``"exchange"``, ``"whale"``, ``"public_figure"``, ``"top_100_holders"``.
             filters: Nansen filter dict.
             order_by: Sort order.
             page: Page number.
@@ -287,6 +291,8 @@ class OnChainService(BaseService):
             body["date_range"] = {
                 k: v for k, v in {"from": date_from, "to": date_to}.items() if v is not None
             }
+        if label is not None:
+            body["label"] = label
         if filters is not None:
             body["filters"] = filters
         if order_by is not None:
@@ -295,5 +301,52 @@ class OnChainService(BaseService):
             "POST",
             f"/on-chain/token/{symbol}/flows",
             TokenFlowsResponse,
+            json=body,
+        )
+
+    def get_onchain_series(
+        self,
+        symbol: str,
+        metrics: list[str],
+        *,
+        date_from: str | None = None,
+        date_to: str | None = None,
+        interval: str = "1h",
+        chain: str | None = None,
+        provider: str | None = None,
+        top_n: int = 10,
+    ) -> OnChainSeriesResponse:
+        """Per-bar on-chain metric series for a token (one column per metric).
+
+        The same call serves a live trailing window (e.g. the last 10 days, ending now)
+        or a long historical range -- it is just a different ``date_from``. Build a
+        DataFrame with ``pd.DataFrame(resp.series).set_index("timestamp")``.
+
+        Args:
+            symbol: Token identifier (e.g. ``"WETH"``).
+            metrics: Subset of ``"SmartMoneyNetflow"``, ``"SmartMoneyHoldings"``,
+                ``"ExchangeNetflow"``, ``"WhaleNetInflow"``, ``"HolderConcentration"``.
+            date_from: Start date YYYY-MM-DD. Default: 10 days ago.
+            date_to: End date YYYY-MM-DD. Default: today.
+            interval: Resample interval -- ``"1h"`` (default), ``"4h"``, ``"1d"``, ``"1w"``.
+            chain: Blockchain (default: "ethereum").
+            provider: ``None``/``"nansen"`` (default, uncapped) or ``"whalealert"``
+                (30-day fallback, ExchangeNetflow/WhaleNetInflow only).
+            top_n: Top-N holders summed for HolderConcentration. Default: 10.
+        """
+        body: dict[str, Any] = {"symbol": symbol, "metrics": metrics,
+                                "interval": interval, "top_n": top_n}
+        if chain is not None:
+            body["chain"] = chain
+        if provider is not None:
+            body["provider"] = provider
+        if date_from is not None or date_to is not None:
+            body["date_range"] = {
+                k: v for k, v in {"from": date_from, "to": date_to}.items() if v is not None
+            }
+        return self._request_model(
+            "POST",
+            "/on-chain/series",
+            OnChainSeriesResponse,
             json=body,
         )

@@ -82,8 +82,11 @@ def main() -> None:
 
     # 4. Snapshot method for contrast (point-in-time, not a series) -----------
     _hdr("Snapshot for contrast — smart-money sentiment (current state)")
-    sent = client.on_chain.get_smart_money_sentiment(SYMBOL)
-    print(f"  sentiment={getattr(sent, 'sentiment', None)} score={getattr(sent, 'smart_money_score', None)}")
+    try:
+        sent = client.on_chain.get_smart_money_sentiment(SYMBOL)
+        print(f"  sentiment={getattr(sent, 'sentiment', None)} score={getattr(sent, 'smart_money_score', None)}")
+    except Exception as e:  # snapshot may have no smart-money data for this token right now
+        print(f"  (no current sentiment data for {SYMBOL}: {e})")
 
     # 5. Series -> signal, the full path --------------------------------------
     _hdr("Series -> mangrove-kb signal")

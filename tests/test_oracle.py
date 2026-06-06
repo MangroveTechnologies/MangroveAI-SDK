@@ -348,22 +348,56 @@ class TestExperiments:
         assert isinstance(result, ExperimentDeleted)
         assert result.status == "deleted"
 
-    def test_validate_launch_pause_each_return_status(self) -> None:
+    def test_validate_returns_validation_result(self) -> None:
+        # Validate returns {valid, total_runs, errors, warnings} — NOT a
+        # {experiment_id, status} transition. (Regression: the SDK used to
+        # type this as ExperimentStatus and crashed on the real 200 body.)
         mock = MockTransport()
         mock.add_response("POST", f"/oracle/experiments/{_EXPERIMENT_ID}/validate", json={
-            "experiment_id": _EXPERIMENT_ID, "status": "validated",
-        })
-        mock.add_response("POST", f"/oracle/experiments/{_EXPERIMENT_ID}/launch", json={
-            "experiment_id": _EXPERIMENT_ID, "status": "launched",
-        })
-        mock.add_response("POST", f"/oracle/experiments/{_EXPERIMENT_ID}/pause", json={
-            "experiment_id": _EXPERIMENT_ID, "status": "paused",
+            "valid": True, "total_runs": 12, "errors": [], "warnings": [],
         })
         client = _make_client(mock)
 
-        assert client.oracle.validate_experiment(_EXPERIMENT_ID).status == "validated"
-        assert client.oracle.launch_experiment(_EXPERIMENT_ID).status == "launched"
-        assert client.oracle.pause_experiment(_EXPERIMENT_ID).status == "paused"
+        from mangrove_ai.models.oracle import ExperimentValidation
+        result = client.oracle.validate_experiment(_EXPERIMENT_ID)
+
+        assert isinstance(result, ExperimentValidation)
+        assert result.valid is True
+        assert result.total_runs == 12
+
+    def test_validate_surfaces_invalid_config(self) -> None:
+        mock = MockTransport()
+        mock.add_response("POST", f"/oracle/experiments/{_EXPERIMENT_ID}/validate", json={
+            "valid": False, "total_runs": 0,
+            "errors": ["No entry filter signals selected"], "warnings": [],
+        })
+        client = _make_client(mock)
+
+        result = client.oracle.validate_experiment(_EXPERIMENT_ID)
+        assert result.valid is False
+        assert "No entry filter signals selected" in result.errors
+
+    def test_launch_returns_status(self) -> None:
+        mock = MockTransport()
+        # Real launch body carries status + experiment_id (+ total_runs).
+        mock.add_response("POST", f"/oracle/experiments/{_EXPERIMENT_ID}/launch", json={
+            "status": "preparing", "experiment_id": _EXPERIMENT_ID, "total_runs": 12,
+        })
+        client = _make_client(mock)
+        assert client.oracle.launch_experiment(_EXPERIMENT_ID).status == "preparing"
+
+    def test_pause_returns_status_without_experiment_id(self) -> None:
+        # Pause returns {status: "paused"} alone — no experiment_id.
+        # (Regression: experiment_id was required and crashed parsing this.)
+        mock = MockTransport()
+        mock.add_response("POST", f"/oracle/experiments/{_EXPERIMENT_ID}/pause", json={
+            "status": "paused",
+        })
+        client = _make_client(mock)
+
+        result = client.oracle.pause_experiment(_EXPERIMENT_ID)
+        assert result.status == "paused"
+        assert result.experiment_id is None
 
 
 # =============================================================================

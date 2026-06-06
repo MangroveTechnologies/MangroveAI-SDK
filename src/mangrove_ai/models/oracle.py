@@ -11,7 +11,6 @@ from typing import Any
 
 from ._base import MangroveModel
 
-
 # ---------------------------------------------------------------------------
 # SIEVE classifier scoring
 # ---------------------------------------------------------------------------
@@ -269,10 +268,32 @@ class ExperimentCreated(MangroveModel):
 
 
 class ExperimentStatus(MangroveModel):
-    """Response shape for validate / launch / pause / update transitions."""
+    """Response shape for launch / pause / update transitions.
 
-    experiment_id: str
+    `experiment_id` is optional because not every transition echoes it:
+    `launch` and `update` return ``{experiment_id, status}``, but `pause`
+    returns ``{status: "paused"}`` alone. (Validate has its own shape —
+    see `ExperimentValidation`.)
+    """
+
+    experiment_id: str | None = None
     status: str
+
+
+class ExperimentValidation(MangroveModel):
+    """Response shape from `POST /experiments/{id}/validate` (HTTP 200).
+
+    Validation does NOT return the {experiment_id, status} transition
+    shape — it returns the config-check result. On a config that can't be
+    validated Oracle still returns 200 with ``valid: false`` and the
+    reasons in ``errors``; hard failures (e.g. tier caps) come back as
+    4xx with the detail in the error body instead.
+    """
+
+    valid: bool
+    total_runs: int
+    errors: list[str] = []
+    warnings: list[str] = []
 
 
 class ExperimentDeleted(MangroveModel):

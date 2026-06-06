@@ -17,6 +17,7 @@ from ..models.oracle import (
     ExperimentDeleted,
     ExperimentStatus,
     ExperimentSummary,
+    ExperimentValidation,
     LeaderboardResponse,
     OracleAsyncBacktestStatus,
     OracleAsyncBacktestSubmission,
@@ -29,7 +30,6 @@ from ..models.oracle import (
     SieveScoreResponse,
     SimulateRunResponse,
 )
-
 
 SIEVE_MAX_ITEMS_PER_REQUEST = 99
 
@@ -241,16 +241,19 @@ class OracleService:
             ExperimentDeleted,
         )
 
-    def validate_experiment(self, experiment_id: str) -> ExperimentStatus:
+    def validate_experiment(self, experiment_id: str) -> ExperimentValidation:
         """Validate a draft experiment.
 
-        Transitions ``draft`` → ``validated`` if the config is
-        consistent (datasets exist, signal params in range, etc.).
         Required before ``launch_experiment`` will accept the call.
+        Returns the config-check result — ``{valid, total_runs, errors,
+        warnings}`` — NOT a {experiment_id, status} transition. Check
+        ``valid`` and read ``total_runs`` before launching; ``errors``
+        explains a ``valid: false`` (bad signal, params out of range, no
+        entry filter, grid over cap).
         """
         return self._request_model(
             "POST", f"/oracle/experiments/{experiment_id}/validate",
-            ExperimentStatus,
+            ExperimentValidation,
         )
 
     def launch_experiment(self, experiment_id: str) -> ExperimentStatus:

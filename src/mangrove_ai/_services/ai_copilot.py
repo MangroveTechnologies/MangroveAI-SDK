@@ -29,7 +29,6 @@ from ..models.ai_copilot import (
 )
 from ._base import BaseService
 
-
 # Default polling parameters for blocking `chat()`. The Copilot is a
 # state machine — first-turn (greeting + signal lookup) typically lands
 # in 10-20s, but later-turn transitions that fan out to reference-

@@ -13,7 +13,6 @@ from ..models.execution import (
 )
 from ._base import BaseService
 
-
 # Server-side cap on `get_portfolio` strategy_ids per request. Enforced
 # client-side too so callers fail fast with ValueError instead of an
 # HTTP 400.

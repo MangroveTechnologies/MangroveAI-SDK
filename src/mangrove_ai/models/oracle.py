@@ -86,8 +86,19 @@ class DataQueryFilter(MangroveModel):
     """One filter clause on a data-query request."""
 
     col: str
-    op: str  # "=", "!=", ">", ">=", "<", "<=", "in", "not in"
+    op: str  # "=", "!=", ">", ">=", "<", "<=", "in", "not in", "between"
     value: Any
+
+
+class OrderBy(MangroveModel):
+    """One ORDER BY clause for a data query.
+
+    Mirrors MangroveOracle `models/data_query.OrderBy` — the server expects
+    objects `{col, dir}`, NOT bare strings. `dir` is "asc" | "desc".
+    """
+
+    col: str
+    dir: str = "desc"
 
 
 class DataQueryRequest(MangroveModel):
@@ -100,17 +111,26 @@ class DataQueryRequest(MangroveModel):
     table: str  # "results" | "ohlcv"
     select: list[str]
     filters: list[DataQueryFilter] = []
-    order_by: list[str] | None = None
+    order_by: list[OrderBy] | None = None
     limit: int = 100
     offset: int = 0
 
 
 class DataQueryResponse(MangroveModel):
-    """Rows + metadata for a data-query response."""
+    """Rows + metadata for a data-query response (POST /oracle/data/query).
+
+    Fields mirror MangroveOracle `models/data_query.QueryResponse`. `table`
+    is echoed by Oracle >= v0.15.7 (kept optional so the SDK also parses
+    responses from older servers that omit it). `code_version` is not sent
+    by the data-query route today; kept optional for forward-compat.
+    """
 
     rows: list[dict[str, Any]]
     row_count: int
-    table: str
+    table: str | None = None
+    total_bytes_billed: int | None = None
+    cost_estimate_usd: float | None = None
+    next_page_token: str | None = None
     code_version: str | None = None
 
 
@@ -328,20 +348,22 @@ class OracleResultsPage(MangroveModel):
 
 
 class SimulateRunResponse(MangroveModel):
-    """Response from POST /oracle/simulate/run.
+    """Response from POST /oracle/simulate/run — one strategy applied to a
+    dataset without persisting (interactive "try this rule and see").
 
-    The simulate surface runs a single strategy against a dataset
-    without persisting results to the experiment store — useful for
-    interactive "try this rule and see" loops.
-
-    Shape stays loose because Oracle's simulate response includes a
-    full backtest result row plus optional plot URIs; locking the schema
-    forces SDK bumps when Oracle adds visualization fields.
+    Shape verified against MangroveOracle `src/services/simulator.py` (the
+    route returns this dict directly): the dataset it ran on, the
+    reconstructed strategy config, and the visualization payload (trades,
+    ohlcv, metrics) plus an optional error. (Earlier this model guessed
+    `simulation_id`/`status`/`result`, which the server never returns — the
+    real data was silently dropped into pydantic extras.)
     """
 
-    simulation_id: str | None = None
-    status: str | None = None
-    result: dict[str, Any] | None = None
+    dataset_file: str | None = None
+    strategy_config: dict[str, Any] | None = None
+    trades: list[dict[str, Any]] = []
+    ohlcv: list[dict[str, Any]] = []
+    metrics: dict[str, Any] = {}
     error: str | None = None
 
 

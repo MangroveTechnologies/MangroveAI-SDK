@@ -497,18 +497,23 @@ class TestSimulate:
 
     def test_simulate_run_posts_body(self) -> None:
         mock = MockTransport()
+        # Real /oracle/simulate/run shape (MangroveOracle src/services/simulator.py):
         mock.add_response("POST", "/oracle/simulate/run", json={
-            "simulation_id": "sim-abc-123",
-            "status": "complete",
-            "result": {"irr_annualized": 0.42, "sharpe_ratio": 2.1},
+            "dataset_file": "btc_2024_1h.csv",
+            "strategy_config": {"asset": "BTC", "entry": [], "exit": []},
+            "trades": [{"side": "buy"}],
+            "ohlcv": [{"time": 1, "close": 100.0}],
+            "metrics": {"irr_annualized": 0.42, "sharpe_ratio": 2.1},
+            "error": None,
         })
         client = _make_client(mock)
 
         resp = client.oracle.simulate_run({"strategy": {"asset": "BTC"}, "dataset_id": "ds-1"})
 
-        assert resp.simulation_id == "sim-abc-123"
-        assert resp.status == "complete"
-        assert resp.result["irr_annualized"] == 0.42
+        assert resp.dataset_file == "btc_2024_1h.csv"
+        assert resp.metrics["irr_annualized"] == 0.42
+        assert len(resp.trades) == 1
+        assert resp.error is None
 
     def test_simulate_presets_lists(self) -> None:
         mock = MockTransport()

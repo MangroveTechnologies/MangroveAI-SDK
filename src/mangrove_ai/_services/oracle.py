@@ -260,9 +260,10 @@ class OracleService:
         """Fan out a validated experiment into individual backtests.
 
         Requires the experiment to be in ``validated`` status. Returns
-        immediately with ``status: "launched"``; the actual fan-out
-        progresses asynchronously — poll ``get_experiment(id)`` or
-        ``list_results(experiment_id)`` to track completion.
+        immediately with ``status: "preparing"`` (plus ``experiment_id`` and
+        ``total_runs``); the actual fan-out progresses asynchronously — poll
+        ``get_experiment(id)`` or ``list_results(experiment_id)`` to track
+        completion.
 
         Bills: 1 unit per HTTP call (the fan-out children are not
         billed individually — phase-1 policy). x402: $0.25 per call.

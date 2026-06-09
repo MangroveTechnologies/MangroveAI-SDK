@@ -3,8 +3,6 @@ from __future__ import annotations
 import json
 import warnings
 
-import pytest
-
 from mangrove_ai.models.backtesting import BacktestRequest, BulkBacktestRequest
 
 # ---------------------------------------------------------------------------

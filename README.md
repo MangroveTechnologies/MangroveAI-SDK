@@ -104,6 +104,7 @@ print(f"Trades: {result.trade_count}, Sharpe: {result.metrics.get('sharpe_ratio'
 | `client.auth` | `auth.*` | 5 | Login, refresh, API key management |
 | `client.strategies` | `strategies.*` | 8 | Strategy CRUD, status, execution state |
 | `client.backtesting` | `backtesting.*` | 7 | Sync/async/bulk backtesting |
+| `client.oracle` | `oracle.*` | 28 | SIEVE scoring, parameter sweeps/experiments, corpus data queries, backtests, simulation, leaderboard |
 | `client.signals` | `signals.*` | 7 | Signal discovery, evaluation, validation |
 | `client.crypto_assets` | `crypto_assets.*` | 8 | Assets, exchanges, OHLCV, market data |
 | `client.execution` | `execution.*` | 8 | Accounts, positions, trades, evaluation |
@@ -152,6 +153,91 @@ Build a DataFrame with `pd.DataFrame(resp.series).set_index("timestamp")` and fe
 `filters` and `order_by` pass through directly to the upstream Nansen API — restrict by
 `include_smart_money_labels`, set `value_usd` min/max bounds, sort by any field. See
 `examples/on_chain_nansen.py` for raw-method snippets.
+
+## Oracle — SIEVE + sweep
+
+`client.oracle.*` is Mangrove's strategy-research engine. Two headline tools:
+
+- **SIEVE** scores up to 99 strategy ideas in one call and tells you which are worth
+  testing — a binary go/no-go (`p_trades` vs `p_no_trades`) plus a 4-class outcome head
+  (`losing` / `no_trades` / `wash` / `winning`). Most ideas never trade meaningfully;
+  SIEVE finds the ones that do *before* you spend compute backtesting them.
+- **Sweep** fans a parameter search into one managed experiment of many backtests and
+  ranks the results.
+
+### Score ideas with SIEVE
+
+```python
+from mangrove_ai import MangroveAI
+from mangrove_ai.models.oracle import SieveScoreRequest, StrategyInput, SignalSpec
+
+client = MangroveAI()  # reads MANGROVE_API_KEY
+
+resp = client.oracle.sieve_score(SieveScoreRequest(strategies=[
+    StrategyInput(
+        asset="BTC",
+        entry=[SignalSpec(name="ema_crossover", signal_type="TRIGGER", timeframe="1h")],
+        exit=[SignalSpec(name="rsi", signal_type="FILTER", timeframe="1h")],
+    ),
+    # ...up to 99 strategies per request
+]))
+
+print(f"scored {resp.count} | model {resp.model_version}")
+for p in resp.predictions:
+    print(f"  go/no-go: {p.binary}")      # {'p_no_trades': .., 'p_trades': ..}
+    print(f"  outcome:  {p.four_class}")  # {'losing':.., 'no_trades':.., 'wash':.., 'winning':..}
+```
+
+### Run a parameter sweep (experiment lifecycle)
+
+A sweep is a draft experiment you **validate**, then **launch**; it fans out into backtests
+asynchronously. Poll `get_experiment` / `list_results` to track it.
+
+```python
+# Pick a dataset + execution defaults from the API, then build a config
+ds = client.oracle.list_datasets()[0]
+exec_config = client.oracle.exec_config_defaults()
+
+config = {
+    "name": "ema-sweep-demo",
+    "kind": "single",
+    "search_mode": "random",
+    "seed": 42,
+    "n_random": 50,                 # number of random strategies to draw
+    "datasets": [ds],
+    "random_signals": {
+        "n_entry_triggers": 1, "min_entry_filters": 0, "max_entry_filters": 2,
+        "min_exit_triggers": 0, "max_exit_triggers": 1,
+        "min_exit_filters": 0, "max_exit_filters": 1,
+        "n_param_draws": 3, "allowed_categories": None,
+    },
+    "execution_config": exec_config,
+}
+
+created = client.oracle.create_experiment(config)            # -> status "draft"
+val = client.oracle.validate_experiment(created.experiment_id)
+print(f"valid={val.valid} total_runs={val.total_runs} errors={val.errors}")
+
+if val.valid:                                                # must pass before launch
+    client.oracle.launch_experiment(created.experiment_id)   # fans out asynchronously
+    status = client.oracle.get_experiment(created.experiment_id)
+    print(f"status={status['status']} completed={status.get('completed_runs')}")
+    # client.oracle.pause_experiment(id) / delete_experiment(id) to stop or clean up
+
+results = client.oracle.list_results(experiment_id=created.experiment_id, limit=20)
+```
+
+### Other `client.oracle.*` methods
+
+- **Backtests:** `backtest`, `backtest_async` + `backtest_poll`, `backtest_bulk`
+- **Corpus query:** `data_query` (curated BigQuery proxy over results / ohlcv)
+- **Simulation:** `simulate_run`, `simulate_generate`, `simulate_presets`, `simulate_history`
+- **Results & catalogs:** `list_results`, `list_datasets`, `list_signals`, `list_templates`, `exec_config_defaults`
+- **Leaderboard & live:** `leaderboard`, `list_deployed_strategies`, `get_deployed_strategy_state`, `get_deployed_strategy_events`
+
+Full reference: [SIEVE pre-filter guide](https://docs.mangrovedeveloper.ai/guides/using-sieve-prefilter),
+[SIEVE end-to-end](https://docs.mangrovedeveloper.ai/guides/sieve-end-to-end-workflow), and the
+[Experiments API reference](https://docs.mangrovedeveloper.ai/api-reference/experiments).
 
 ## Environment Detection
 

@@ -29,17 +29,21 @@ def _warn_deprecated_fields(values: Any) -> Any:
 class BacktestRequest(MangroveModel):
     """Request body for running a single backtest.
 
-    `asset`, `interval`, and `strategy_json` are strategy-specific and remain
-    required. Every other trading-config field is now optional — the server
-    fills it from `trading_defaults.json` when omitted. Fetch the canonical
-    defaults via ``client.config.execution_defaults()`` if you need to
-    inspect or override them. Explicit values you pass still win. (SDK 0.3.0
-    / MangroveAI #437.)
+    `interval` is required. Provide exactly one of `strategy_json` (full config
+    inline) or `strategy_id` (reuse a saved strategy by UUID -- the server loads
+    its `strategy_json` and defaults `asset` from the saved strategy). `asset` is
+    required only when using `strategy_json`. Every other trading-config field is
+    optional -- the server fills it from `trading_defaults.json` when omitted.
+    Fetch the canonical defaults via ``client.config.execution_defaults()``.
+    (strategy_id added in MangroveAI #629; mirrors run_bulk's strategy_ids and
+    execution.evaluate(strategy_id).)
     """
 
-    asset: str
+    asset: str | None = None
     interval: str
-    strategy_json: str
+    # Provide exactly one of strategy_json or strategy_id (see class docstring).
+    strategy_json: str | None = None
+    strategy_id: str | None = None
     # Server-default fillable: None = accept server default (from
     # trading_defaults.json). See client.config.execution_defaults() for the
     # authoritative values.
@@ -97,6 +101,14 @@ class BacktestRequest(MangroveModel):
     @model_validator(mode="after")
     def _check_deprecated_fields(self) -> BacktestRequest:
         return _warn_deprecated_fields(self)
+
+    @model_validator(mode="after")
+    def _check_strategy_source(self) -> BacktestRequest:
+        if bool(self.strategy_json) == bool(self.strategy_id):
+            raise ValueError("Provide exactly one of strategy_json or strategy_id")
+        if self.strategy_json and not self.asset:
+            raise ValueError("asset is required when using strategy_json")
+        return self
 
 
 class BulkBacktestRequest(MangroveModel):

@@ -1,30 +1,18 @@
 # MangroveAI Python SDK
 
 [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white&style=for-the-badge)](https://discord.gg/xUcn4R6zJR)
+[![PyPI Downloads](https://static.pepy.tech/badge/mangroveai)](https://pepy.tech/projects/mangroveai)
 
 Python SDK for the [MangroveAI](https://mangrovedeveloper.ai) trading strategy platform.
 
 ## Install
 
 ```bash
-pip install mangrove-ai
+pip install mangroveai
 ```
 
-> **Migrating from `mangroveai` (the pre-1.0 package name)?** Two changes:
->
-> ```diff
-> - pip install mangroveai
-> + pip install mangrove-ai
-> ```
-> ```diff
-> - from mangroveai import MangroveAI
-> + from mangrove_ai import MangroveAI
-> ```
->
-> Everything else (the `MangroveAI` client class, every method name, every
-> model name) is unchanged. The old `mangroveai` PyPI package will receive
-> a final 0.3.2 release with a `DeprecationWarning` and then stop receiving
-> updates. See `CHANGELOG.md` `[1.0.0]` for the full rationale.
+> The package imports as `mangrove_ai` (e.g. `from mangrove_ai import MangroveAI`).
+> The legacy `import mangroveai` path also still works for backwards compatibility.
 
 ## Setup
 

@@ -1,5 +1,7 @@
 # MangroveAI Python SDK
 
+[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white&style=for-the-badge)](https://discord.gg/xUcn4R6zJR)
+
 Python SDK for the [MangroveAI](https://mangrovedeveloper.ai) trading strategy platform.
 
 ## Install

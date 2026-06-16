@@ -17,14 +17,25 @@ from ._base import BaseService
 class SignalsService(BaseService):
     """Signal discovery, evaluation, and validation."""
 
-    def list(self, *, limit: int = 50, offset: int = 0) -> PaginatedResponse[Signal]:
+    def list(
+        self,
+        *,
+        limit: int = 50,
+        offset: int = 0,
+        category: str | None = None,
+    ) -> PaginatedResponse[Signal]:
         """List all available trading signals.
 
         Args:
             limit: Max signals per page (1-100).
             offset: Pagination offset.
+            category: Optional category filter ("momentum", "trend", "volume",
+                "volatility"). When omitted, signals from all categories are returned.
         """
-        data = self._request("GET", "/signals/", params={"limit": limit, "offset": offset})
+        params: dict[str, Any] = {"limit": limit, "offset": offset}
+        if category is not None:
+            params["category"] = category
+        data = self._request("GET", "/signals/", params=params)
         items = [Signal.model_validate(s) for s in data["signals"]]
         return PaginatedResponse(
             items=items,
@@ -33,10 +44,15 @@ class SignalsService(BaseService):
             limit=data.get("limit", limit),
         )
 
-    def list_iter(self, *, limit_per_page: int = 50) -> Iterator[Signal]:
-        """Auto-paginating iterator over all signals."""
+    def list_iter(
+        self,
+        *,
+        limit_per_page: int = 50,
+        category: str | None = None,
+    ) -> Iterator[Signal]:
+        """Auto-paginating iterator over all signals (optionally filtered by category)."""
         return paginate_iter(
-            lambda offset, limit: self.list(limit=limit, offset=offset),
+            lambda offset, limit: self.list(limit=limit, offset=offset, category=category),
             limit_per_page=limit_per_page,
         )
 

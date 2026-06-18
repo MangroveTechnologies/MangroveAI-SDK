@@ -30,7 +30,8 @@ class SignalsService(BaseService):
             limit: Max signals per page (1-100).
             offset: Pagination offset.
             category: Optional category filter ("momentum", "trend", "volume",
-                "volatility"). When omitted, signals from all categories are returned.
+                "volatility", "patterns", "onchain"). When omitted, signals from
+                all categories are returned.
         """
         params: dict[str, Any] = {"limit": limit, "offset": offset}
         if category is not None:

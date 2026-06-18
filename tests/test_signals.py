@@ -70,6 +70,51 @@ class TestSignalsList:
         assert len(items) == 1
         assert items[0].category == "momentum"
 
+    def test_list_forwards_category_filter(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/signals/", json={
+            "signals": [SIGNAL_JSON],
+            "total": 1,
+            "limit": 10,
+            "offset": 0,
+        })
+        client = _make_client(mock)
+
+        result = client.signals.list(category="momentum", limit=10)
+
+        assert len(result.items) == 1
+        assert mock.requests[0].params["category"] == "momentum"
+        assert mock.requests[0].params["limit"] == 10
+
+    def test_list_omits_category_when_not_given(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/signals/", json={
+            "signals": [SIGNAL_JSON],
+            "total": 1,
+            "limit": 50,
+            "offset": 0,
+        })
+        client = _make_client(mock)
+
+        client.signals.list()
+
+        assert "category" not in mock.requests[0].params
+
+    def test_list_iter_forwards_category_filter(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/signals/", json={
+            "signals": [SIGNAL_JSON],
+            "total": 1,
+            "limit": 50,
+            "offset": 0,
+        })
+        client = _make_client(mock)
+
+        items = list(client.signals.list_iter(category="momentum"))
+
+        assert len(items) == 1
+        assert mock.requests[0].params["category"] == "momentum"
+
 
 class TestSignalsGet:
     def test_get_returns_signal(self) -> None:

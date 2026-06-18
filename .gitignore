@@ -8,3 +8,15 @@ build/
 .ruff_cache/
 *.log
 .env
+# virtualenvs & build artifacts (never commit)
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/

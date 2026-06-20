@@ -75,7 +75,7 @@ class HttpTransport:
                 )
 
             retry_after = self._parse_retry_after(response)
-            if self._retry.should_retry(response.status_code, attempt):
+            if self._retry.should_retry(response.status_code, attempt, method):
                 last_error = self._build_error(response)
                 self._retry.wait(attempt, retry_after)
                 continue

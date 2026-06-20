@@ -265,12 +265,62 @@ class OracleService:
         ``get_experiment(id)`` or ``list_results(experiment_id)`` to track
         completion.
 
+        Note: this call can return an HTTP 504 (gateway timeout) even though the
+        launch **succeeded** server-side. Because launch is non-idempotent, the
+        SDK does NOT auto-retry it (a retry could hit the single-flight 409 /
+        concurrent-cap 429 / double charge). On a 504, do not re-launch — poll
+        ``get_experiment(id)`` and treat a status past ``validated`` as success.
+        ``launch_experiment_and_wait`` does this for you.
+
         Bills: 1 unit per HTTP call (the fan-out children are not
         billed individually — phase-1 policy). x402: $0.25 per call.
         """
         return self._request_model(
             "POST", f"/oracle/experiments/{experiment_id}/launch",
             ExperimentStatus,
+        )
+
+    def launch_experiment_and_wait(
+        self,
+        experiment_id: str,
+        *,
+        poll_interval: float = 3.0,
+        timeout: float = 120.0,
+    ) -> dict[str, Any]:
+        """Launch an experiment and confirm the launch took effect.
+
+        Wraps :meth:`launch_experiment` to handle the 504-but-succeeded case: a
+        gateway timeout on launch doesn't mean the launch failed, so rather than
+        re-sending the non-idempotent POST this polls ``get_experiment`` until
+        the experiment leaves ``validated``/``draft`` (proof the launch ran).
+
+        Returns the first post-launch experiment dict observed in a non-pending
+        state. Raises the original error if launch fails for a non-gateway
+        reason, or ``TimeoutError`` if the status never advances within
+        ``timeout`` seconds.
+        """
+        import time as _time
+
+        from ..exceptions import APIError
+
+        deadline = _time.monotonic() + timeout
+        try:
+            self.launch_experiment(experiment_id)
+        except APIError as exc:
+            # Gateway timeouts (and 502/503) may have applied server-side; any
+            # other API error is a real failure → surface it.
+            if getattr(exc, "status_code", None) not in (502, 503, 504):
+                raise
+
+        while _time.monotonic() < deadline:
+            exp = self.get_experiment(experiment_id)
+            if exp.get("status") not in ("validated", "draft", None):
+                return exp
+            _time.sleep(poll_interval)
+
+        raise TimeoutError(
+            f"Experiment {experiment_id} did not leave 'validated' within "
+            f"{timeout:.0f}s after launch"
         )
 
     def pause_experiment(self, experiment_id: str) -> ExperimentStatus:

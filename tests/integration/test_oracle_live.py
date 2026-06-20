@@ -19,6 +19,7 @@ import os
 import pytest
 
 from mangrove_ai import MangroveAI
+from mangrove_ai.exceptions import NotFoundError
 from mangrove_ai.models.oracle import (
     DataQueryFilter,
     DataQueryRequest,
@@ -66,10 +67,17 @@ def test_data_query_results_parses(client: MangroveAI) -> None:
 
 
 def test_data_query_ohlcv_not_org_scoped(client: MangroveAI) -> None:
-    """Catches the unconditional-org_id 400 on the non-tenant ohlcv table."""
+    """ohlcv is a GLOBAL (non-tenant) table — the proxy must not inject an
+    ``org_id`` filter (would 400; regression guard for Oracle #262).
+
+    NB: ``asset`` is NOT a column on the prod ohlcv BigQuery table (only
+    timestamp/open/high/low/close/volume resolve), even though the server's
+    column whitelist still lists it — a whitelist↔schema drift on the Oracle
+    side. Querying ``asset`` returns BigQuery ``Unrecognized name: asset``,
+    so this uses real columns.
+    """
     r = client.oracle.data_query(DataQueryRequest(
-        table="ohlcv", select=["asset", "close"],
-        filters=[DataQueryFilter(col="asset", op="=", value="BTC")], limit=3,
+        table="ohlcv", select=["timestamp", "close"], limit=3,
     ))
     assert isinstance(r, DataQueryResponse)
 
@@ -99,11 +107,42 @@ def test_sieve_score_parses(client: MangroveAI) -> None:
 
 
 def test_simulate_run_parses(client: MangroveAI) -> None:
-    """Catches the simulate_run silent-wrong drift (real fields, not simulation_id)."""
+    """Catches the simulate_run silent-wrong drift (real fields, not simulation_id).
+
+    simulate is a 3-step pipeline: ``presets`` are inputs to ``generate``
+    (which produces a synthetic OHLCV dataset), and ``run`` applies a strategy
+    to that generated ``dataset_file``. The earlier version fed a *generate*
+    preset straight into ``run`` (422: missing ``dataset_file``) — it skipped
+    ``generate`` entirely and never exercised the real response shape.
+    """
     presets = client.oracle.simulate_presets()
     if not presets:
         pytest.skip("no simulate presets available")
-    r = client.oracle.simulate_run(presets[0])
+    # Generate a small/fast synthetic dataset from the first preset.
+    cfg = dict(presets[0])
+    cfg.update(duration_days=10, n_agents=50, seed=7)
+    gen = client.oracle.simulate_generate(cfg)
+    dataset_file = gen["filename"]
+    tf = gen.get("timeframe", "1h")
+    strat = {
+        "asset": gen.get("asset_name", "SIM"),
+        "entry": [{"name": "macd_bullish_cross", "signal_type": "TRIGGER",
+                   "timeframe": tf, "params": {"window_fast": 12, "window_slow": 26}}],
+        "exit": [{"name": "macd_bearish_cross", "signal_type": "TRIGGER",
+                  "timeframe": tf, "params": {"window_fast": 12, "window_slow": 26}}],
+        "execution_config": {"reward_factor": 2.0, "max_risk_per_trade": 0.01,
+                             "position_size_calc": "v2"},
+    }
+    try:
+        r = client.oracle.simulate_run(
+            {"dataset_file": dataset_file, "strategy_config": strat}
+        )
+    except NotFoundError as exc:
+        # Known Oracle bug: generated sim datasets are written to instance-local
+        # disk, so run() 404s when the gateway routes it to a different Cloud
+        # Run instance than generate() hit. (Sim dataset storage should be
+        # shared/GCS.) Verified end-to-end on a single-instance local Oracle.
+        pytest.skip(f"Oracle instance-local sim-dataset storage 404: {exc}")
     assert isinstance(r, SimulateRunResponse)
     # the real shape exposes metrics/trades, not a `result` blob
     assert hasattr(r, "metrics") and hasattr(r, "trades")

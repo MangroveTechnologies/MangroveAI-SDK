@@ -7,6 +7,22 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added -- `client.defi` DeFiLlama Pro methods
+
+Five new tier-gated methods on `client.defi` (require a Pro, Startup, or
+Enterprise plan; unentitled plans get a 403 `AuthorizationError` with an
+upgrade message):
+
+- `get_token_unlocks()` -- token unlock schedules + supply metrics (supply-shock signal).
+- `get_perp_funding()` -- aggregated DeFi perpetual funding rates.
+- `get_treasuries()` -- protocol treasury holdings.
+- `get_etf_flows()` -- crypto ETF net flows (institutional flow signal).
+- `get_lending_borrow_rates()` -- lending-pool borrow rates.
+
+Each returns a `{success, count, data}` envelope. New runnable example
+`examples/defi_pro.py`. (The existing TVL/chain/stablecoin methods are
+available on any plan and unchanged.)
+
 ### Added -- `client.oracle` full-surface coverage (closes gh #576)
 
 Nine new methods + `list_results(experiment_id=None)` support, closing

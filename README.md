@@ -99,7 +99,7 @@ print(f"Trades: {result.trade_count}, Sharpe: {result.metrics.get('sharpe_ratio'
 | `client.crypto_assets` | `crypto_assets.*` | 8 | Assets, exchanges, OHLCV, market data |
 | `client.execution` | `execution.*` | 8 | Accounts, positions, trades, evaluation |
 | `client.on_chain` | `on_chain.*` | 11 | Smart-money flows, DEX/perp trades, token holders, whale activity (Nansen + WhaleAlert) |
-| `client.defi` | `defi.*` | 3 | Protocol/chain TVL, stablecoin metrics (DeFiLlama) |
+| `client.defi` | `defi.*` | 8 | TVL/chain/stablecoins (any plan); token unlocks, perp funding, treasuries, ETF flows, lending rates (DeFiLlama Pro -- requires Pro/Startup/Enterprise) |
 | `client.social` | `social.*` | 3 | Topic sentiment, mentions, user influence (X / Twitter) |
 | `client.docs` | `docs.*` | 2 | Documentation listing and content |
 

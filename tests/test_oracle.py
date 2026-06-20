@@ -654,3 +654,50 @@ class TestListResultsUnfiltered:
         assert len(recorded) == 1
         if recorded[0].params:
             assert "experiment_id" not in recorded[0].params
+
+
+class TestDataQueryRequestContract:
+    """SDK#17: DataQueryRequest must mirror the server's QueryRequest DSL
+    (typed op, page_token pagination, field bounds)."""
+
+    def test_rejects_invalid_filter_op(self):
+        import pytest
+        from pydantic import ValidationError
+
+        from mangrove_ai.models.oracle import DataQueryFilter
+        with pytest.raises(ValidationError):
+            DataQueryFilter(col="x", op="not in", value=1)   # server has no "not in"
+        with pytest.raises(ValidationError):
+            DataQueryFilter(col="x", op="like", value=1)
+        # valid ops accepted
+        for op in ("=", "!=", ">", ">=", "<", "<=", "in", "between"):
+            DataQueryFilter(col="x", op=op, value=1)
+
+    def test_pagination_is_page_token_not_offset(self):
+        from mangrove_ai.models.oracle import DataQueryRequest
+        r = DataQueryRequest(table="results", select=["asset"], page_token="tok")
+        dumped = r.model_dump(exclude_none=True)
+        assert dumped.get("page_token") == "tok"
+        assert "offset" not in DataQueryRequest.model_fields  # offset removed
+
+    def test_field_bounds_and_table_literal(self):
+        import pytest
+        from pydantic import ValidationError
+
+        from mangrove_ai.models.oracle import DataQueryRequest
+        with pytest.raises(ValidationError):
+            DataQueryRequest(table="bogus", select=["asset"])      # table Literal
+        with pytest.raises(ValidationError):
+            DataQueryRequest(table="results", select=[])           # select min_length 1
+        with pytest.raises(ValidationError):
+            DataQueryRequest(table="results", select=["a"], limit=5000)  # limit le 1000
+
+    def test_order_by_dir_literal(self):
+        import pytest
+        from pydantic import ValidationError
+
+        from mangrove_ai.models.oracle import OrderBy
+        OrderBy(col="x", dir="asc")
+        OrderBy(col="x", dir="desc")
+        with pytest.raises(ValidationError):
+            OrderBy(col="x", dir="ascending")

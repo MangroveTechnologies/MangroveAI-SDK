@@ -15,6 +15,7 @@ from mangrove_ai.models.oracle import (
     DataQueryFilter,
     DataQueryRequest,
     OracleBacktestRequest,
+    OrderBy,
     SieveScoreRequest,
     SignalSpec,
     StrategyInput,
@@ -53,7 +54,7 @@ def main() -> None:
 
     score = client.oracle.sieve_score(SieveScoreRequest(strategies=[strategy]))
     pred = score.predictions[0]
-    print(f"\n=== SIEVE score ===")
+    print("\n=== SIEVE score ===")
     print(f"model_version: {score.model_version}")
     print(f"code_version:  {score.code_version}")
     print(f"binary:        {pred.binary}")
@@ -74,11 +75,11 @@ def main() -> None:
                 DataQueryFilter(col="irr_annualized", op=">=", value=50),
                 DataQueryFilter(col="total_trades", op=">=", value=20),
             ],
-            order_by=["irr_annualized DESC"],
+            order_by=[OrderBy(col="irr_annualized", dir="desc")],
             limit=5,
         )
     )
-    print(f"\n=== Top 5 BTC analogues with irr_annualized >= 50% ===")
+    print("\n=== Top 5 BTC analogues with irr_annualized >= 50% ===")
     for row in corpus_hits.rows:
         print(f"  {row['experiment_id'][:32]:32s}  irr={row['irr_annualized']:.1f}%  trades={row['total_trades']}")
 
@@ -91,7 +92,7 @@ def main() -> None:
             lookback_months=12,
         )
     )
-    print(f"\n=== Backtest ===")
+    print("\n=== Backtest ===")
     print(f"success:        {bt.success}")
     print(f"sharpe_ratio:   {bt.metrics.get('sharpe_ratio')}")
     print(f"total_return:   {bt.metrics.get('total_return')}")

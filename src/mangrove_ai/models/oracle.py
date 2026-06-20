@@ -7,7 +7,9 @@ validate request/response shapes without round-tripping through dynamic dicts.
 """
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
+
+from pydantic import Field
 
 from ._base import MangroveModel
 
@@ -86,7 +88,9 @@ class DataQueryFilter(MangroveModel):
     """One filter clause on a data-query request."""
 
     col: str
-    op: str  # "=", "!=", ">", ">=", "<", "<=", "in", "not in", "between"
+    # Matches the server's FilterOp DSL exactly (MangroveOracle data_query.Filter).
+    # Note: there is no "not in" — the server does not support it.
+    op: Literal["=", "!=", ">", ">=", "<", "<=", "in", "between"]
     value: Any
 
 
@@ -98,7 +102,7 @@ class OrderBy(MangroveModel):
     """
 
     col: str
-    dir: str = "desc"
+    dir: Literal["asc", "desc"] = "desc"
 
 
 class DataQueryRequest(MangroveModel):
@@ -108,12 +112,17 @@ class DataQueryRequest(MangroveModel):
     request only ever sees the curated surface.
     """
 
-    table: str  # "results" | "ohlcv"
-    select: list[str]
-    filters: list[DataQueryFilter] = []
-    order_by: list[OrderBy] | None = None
-    limit: int = 100
-    offset: int = 0
+    # Field bounds mirror the server's QueryRequest validation so invalid
+    # requests fail fast client-side instead of round-tripping to a 400/422.
+    table: Literal["results", "ohlcv"]
+    select: list[str] = Field(min_length=1, max_length=80)
+    filters: list[DataQueryFilter] = Field(default_factory=list, max_length=20)
+    order_by: list[OrderBy] | None = Field(default=None, max_length=5)
+    limit: int = Field(default=100, ge=1, le=1000)
+    # Server paginates via an opaque page_token (returned as next_page_token),
+    # NOT a numeric offset. The previous `offset` field was silently ignored by
+    # the server and gave no way to fetch page 2.
+    page_token: str | None = None
 
 
 class DataQueryResponse(MangroveModel):

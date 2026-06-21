@@ -220,7 +220,7 @@ results = client.oracle.list_results(experiment_id=created.experiment_id, limit=
 ### Other `client.oracle.*` methods
 
 - **Backtests:** `backtest`, `backtest_async` + `backtest_poll`, `backtest_bulk`
-- **Corpus query:** `data_query` (curated BigQuery proxy over results / ohlcv)
+- **Corpus query:** `data_query` (curated BigQuery proxy over the results corpus)
 - **Simulation:** `simulate_run`, `simulate_generate`, `simulate_presets`, `simulate_history`
 - **Results & catalogs:** `list_results`, `list_datasets`, `list_signals`, `list_templates`, `exec_config_defaults`
 - **Leaderboard & live:** `leaderboard`, `list_deployed_strategies`, `get_deployed_strategy_state`, `get_deployed_strategy_events`

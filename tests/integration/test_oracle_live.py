@@ -53,7 +53,7 @@ def test_list_signals_parses(client: MangroveAI) -> None:
     assert isinstance(sigs, list) and sigs
 
 
-# --- data_query: the table-field + order_by drift (results AND ohlcv) ---------
+# --- data_query: the table-field + order_by drift (results) ------------------
 
 def test_data_query_results_parses(client: MangroveAI) -> None:
     """Catches the `DataQueryResponse.table` required-field crash."""
@@ -62,22 +62,6 @@ def test_data_query_results_parses(client: MangroveAI) -> None:
         select=["experiment_id", "asset", "sharpe_ratio"],
         filters=[DataQueryFilter(col="asset", op="=", value="BTC")],
         limit=3,
-    ))
-    assert isinstance(r, DataQueryResponse)
-
-
-def test_data_query_ohlcv_not_org_scoped(client: MangroveAI) -> None:
-    """ohlcv is a GLOBAL (non-tenant) table — the proxy must not inject an
-    ``org_id`` filter (would 400; regression guard for Oracle #262).
-
-    NB: ``asset`` is NOT a column on the prod ohlcv BigQuery table (only
-    timestamp/open/high/low/close/volume resolve), even though the server's
-    column whitelist still lists it — a whitelist↔schema drift on the Oracle
-    side. Querying ``asset`` returns BigQuery ``Unrecognized name: asset``,
-    so this uses real columns.
-    """
-    r = client.oracle.data_query(DataQueryRequest(
-        table="ohlcv", select=["timestamp", "close"], limit=3,
     ))
     assert isinstance(r, DataQueryResponse)
 

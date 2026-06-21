@@ -114,7 +114,10 @@ class DataQueryRequest(MangroveModel):
 
     # Field bounds mirror the server's QueryRequest validation so invalid
     # requests fail fast client-side instead of round-tripping to a 400/422.
-    table: Literal["results", "ohlcv"]
+    # Only ``results`` is queryable. The ``ohlcv`` table option was removed
+    # (empty/unconsumed BQ table — MangroveOracle#312); OHLCV data is accessed
+    # via the datasets endpoint (``client.oracle.list_datasets``), not data_query.
+    table: Literal["results"]
     select: list[str] = Field(min_length=1, max_length=80)
     filters: list[DataQueryFilter] = Field(default_factory=list, max_length=20)
     order_by: list[OrderBy] | None = Field(default=None, max_length=5)

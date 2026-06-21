@@ -23,6 +23,10 @@ Each returns a `{success, count, data}` envelope. New runnable example
 `examples/defi_pro.py`. (The existing TVL/chain/stablecoin methods are
 available on any plan and unchanged.)
 
+These Pro methods are capped at **1,000 calls/account/month**; beyond the cap
+they raise `RateLimitError` (HTTP 429, `quota_exceeded`). The example handles
+both `AuthorizationError` (403) and `RateLimitError` (429).
+
 ### Added -- `client.oracle` full-surface coverage (closes gh #576)
 
 Nine new methods + `list_results(experiment_id=None)` support, closing

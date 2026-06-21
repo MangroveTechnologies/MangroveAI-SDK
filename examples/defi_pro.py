@@ -7,6 +7,10 @@ Startup, or Enterprise** plan; on an unentitled plan they raise
 ``AuthorizationError`` (HTTP 403, ``TIER_UPGRADE_REQUIRED``) with an upgrade
 message. (Agents paying per-call via x402 are not subscription-gated.)
 
+Each paid account also gets **1,000 DeFiLlama Pro calls per month**; beyond
+that the methods raise ``RateLimitError`` (HTTP 429, ``quota_exceeded``) until
+the monthly period rolls over.
+
 Getting started:
     1. Create an account at https://mangrovedeveloper.ai
     2. Settings -> API Keys -> generate a new key (on a Pro/Startup/Enterprise plan)
@@ -14,12 +18,13 @@ Getting started:
     4. ``python examples/defi_pro.py``
 
 This doubles as a coverage smoke-test for the DeFi Pro surface -- each section
-runs one method and prints a short summary. All calls are billable.
+runs one method and prints a short summary. All calls are billable and count
+against the 1,000/month cap.
 """
 from __future__ import annotations
 
 from mangrove_ai import MangroveAI
-from mangrove_ai.exceptions import AuthorizationError
+from mangrove_ai.exceptions import AuthorizationError, RateLimitError
 
 
 def main() -> None:
@@ -46,6 +51,9 @@ def main() -> None:
 
     except AuthorizationError as e:
         print(f"DeFi Pro requires a Pro/Startup/Enterprise plan: {e}")
+    except RateLimitError as e:
+        # 1,000 Pro calls/account/month exhausted -- resets next monthly period.
+        print(f"DeFi Pro monthly cap reached (1,000/account/month): {e}")
 
 
 if __name__ == "__main__":

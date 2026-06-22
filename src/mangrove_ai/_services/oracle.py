@@ -104,9 +104,10 @@ class OracleService:
     # Data query (BigQuery proxy)
     # ------------------------------------------------------------------ #
     def data_query(self, request: DataQueryRequest) -> DataQueryResponse:
-        """Run a curated query against the Oracle corpus (results / ohlcv).
+        """Run a curated query against the Oracle results corpus.
 
-        Columns and filter operators are whitelisted server-side.
+        Columns and filter operators are whitelisted server-side. Only the
+        ``results`` table is queryable; for OHLCV data use ``list_datasets``.
         """
         data = self._core_request(
             "POST", "/oracle/data/query", json=request.model_dump(exclude_none=True)

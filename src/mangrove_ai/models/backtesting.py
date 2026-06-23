@@ -195,6 +195,18 @@ class BacktestTradesResponse(MangroveModel):
     trades: list[dict[str, Any]]
 
 
+class BacktestArchiveResult(MangroveModel):
+    """Response from archiving or unarchiving a backtest.
+
+    Backtests are never deleted; archiving hides a run from the default history
+    view (and is reversible via unarchive).
+    """
+
+    success: bool
+    backtest_id: str
+    archived: bool
+
+
 class AsyncBacktestSubmission(MangroveModel):
     """Response from submitting an async backtest."""
 

@@ -8,6 +8,7 @@ from mangrove_ai.exceptions import TimeoutError
 from mangrove_ai.models.backtesting import (
     AsyncBacktestStatus,
     AsyncBacktestSubmission,
+    BacktestArchiveResult,
     BacktestRequest,
     BacktestResult,
     BacktestTradesResponse,
@@ -52,7 +53,7 @@ BACKTEST_RESULT_JSON = {
 class TestBacktestRun:
     def test_run_returns_result(self) -> None:
         mock = MockTransport()
-        mock.add_response("POST", "/backtesting/backtest", json=BACKTEST_RESULT_JSON)
+        mock.add_response("POST", "/backtests", json=BACKTEST_RESULT_JSON)
         client = _make_client(mock)
 
         result = client.backtesting.run(BACKTEST_REQUEST)
@@ -67,7 +68,7 @@ class TestBacktestRun:
 class TestBacktestRunBulk:
     def test_run_bulk_returns_results(self) -> None:
         mock = MockTransport()
-        mock.add_response("POST", "/backtesting/backtest/bulk", json={
+        mock.add_response("POST", "/backtests/bulk", json={
             "success": True,
             "results": [
                 {"success": True, "strategy_name": "Strat A", "metrics": {"sharpe_ratio": 1.4}, "trade_count": 38, "execution_time_seconds": 2.1},
@@ -105,7 +106,7 @@ class TestBacktestRunBulk:
 class TestBacktestGet:
     def test_get_returns_result(self) -> None:
         mock = MockTransport()
-        mock.add_response("GET", "/backtesting/backtest/bt-uuid-1", json=BACKTEST_RESULT_JSON)
+        mock.add_response("GET", "/backtests/bt-uuid-1", json=BACKTEST_RESULT_JSON)
         client = _make_client(mock)
 
         result = client.backtesting.get("bt-uuid-1")
@@ -117,7 +118,7 @@ class TestBacktestGet:
 class TestBacktestGetTrades:
     def test_get_trades_returns_response(self) -> None:
         mock = MockTransport()
-        mock.add_response("GET", "/backtesting/backtest/bt-uuid-1/trades", json={
+        mock.add_response("GET", "/backtests/bt-uuid-1/trades", json={
             "success": True,
             "backtest_id": "bt-uuid-1",
             "trade_count": 2,
@@ -224,3 +225,31 @@ class TestBacktestAsync:
 
         with pytest.raises(TimeoutError, match="did not complete"):
             client.backtesting.run_async(BACKTEST_REQUEST, poll_interval=0.01, timeout=0.05)
+
+
+class TestBacktestArchive:
+    def test_archive_hides_backtest(self) -> None:
+        mock = MockTransport()
+        mock.add_response("POST", "/backtests/bt-uuid-1/archive", json={
+            "success": True, "backtest_id": "bt-uuid-1", "archived": True,
+        })
+        client = _make_client(mock)
+
+        result = client.backtesting.archive("bt-uuid-1")
+
+        assert isinstance(result, BacktestArchiveResult)
+        assert result.success is True
+        assert result.archived is True
+        assert result.backtest_id == "bt-uuid-1"
+
+    def test_unarchive_restores_backtest(self) -> None:
+        mock = MockTransport()
+        mock.add_response("POST", "/backtests/bt-uuid-1/unarchive", json={
+            "success": True, "backtest_id": "bt-uuid-1", "archived": False,
+        })
+        client = _make_client(mock)
+
+        result = client.backtesting.unarchive("bt-uuid-1")
+
+        assert isinstance(result, BacktestArchiveResult)
+        assert result.archived is False

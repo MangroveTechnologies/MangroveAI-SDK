@@ -7,6 +7,7 @@ from ..exceptions import TimeoutError
 from ..models.backtesting import (
     AsyncBacktestStatus,
     AsyncBacktestSubmission,
+    BacktestArchiveResult,
     BacktestRequest,
     BacktestResult,
     BacktestTradesResponse,
@@ -36,7 +37,7 @@ class BacktestingService:
         Args:
             request: Backtest configuration including asset, interval, strategy, and risk params.
         """
-        data = self._core_request("POST", "/backtesting/backtest", json=request.model_dump(exclude_none=True))
+        data = self._core_request("POST", "/backtests", json=request.model_dump(exclude_none=True))
         return BacktestResult.model_validate(data)
 
     def run_bulk(self, request: BulkBacktestRequest) -> BulkBacktestResult:
@@ -45,18 +46,31 @@ class BacktestingService:
         Args:
             request: Bulk backtest configuration with strategy_ids or strategy_configs.
         """
-        data = self._core_request("POST", "/backtesting/backtest/bulk", json=request.model_dump(exclude_none=True))
+        data = self._core_request("POST", "/backtests/bulk", json=request.model_dump(exclude_none=True))
         return BulkBacktestResult.model_validate(data)
 
     def get(self, backtest_id: str) -> BacktestResult:
         """Get a backtest result by ID."""
-        data = self._core_request("GET", f"/backtesting/backtest/{backtest_id}")
+        data = self._core_request("GET", f"/backtests/{backtest_id}")
         return BacktestResult.model_validate(data)
 
     def get_trades(self, backtest_id: str) -> BacktestTradesResponse:
         """Get trade history for a backtest."""
-        data = self._core_request("GET", f"/backtesting/backtest/{backtest_id}/trades")
+        data = self._core_request("GET", f"/backtests/{backtest_id}/trades")
         return BacktestTradesResponse.model_validate(data)
+
+    def archive(self, backtest_id: str) -> BacktestArchiveResult:
+        """Archive a backtest, hiding it from the default history view.
+
+        Backtests are never deleted; archiving is reversible via ``unarchive``.
+        """
+        data = self._core_request("POST", f"/backtests/{backtest_id}/archive")
+        return BacktestArchiveResult.model_validate(data)
+
+    def unarchive(self, backtest_id: str) -> BacktestArchiveResult:
+        """Unarchive a backtest, restoring it to the default history view."""
+        data = self._core_request("POST", f"/backtests/{backtest_id}/unarchive")
+        return BacktestArchiveResult.model_validate(data)
 
     def submit_async(self, request: BacktestRequest) -> AsyncBacktestSubmission:
         """Submit a backtest for async execution.

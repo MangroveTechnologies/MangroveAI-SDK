@@ -7,6 +7,23 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added -- backtest archive/unarchive
+
+Backtests are immutable historical records and are never deleted. Two new methods
+hide/restore a run from the default history view (reversible):
+
+- `client.backtesting.archive(backtest_id)` -> `BacktestArchiveResult`
+- `client.backtesting.unarchive(backtest_id)` -> `BacktestArchiveResult`
+
+(Requires the MangroveAI backend that serves `POST /api/v1/backtests/{id}/archive`.)
+
+### Changed -- canonical `/api/v1/backtests` path for sync backtests
+
+`client.backtesting.run / run_bulk / get / get_trades` now call the canonical
+`/api/v1/backtests*` collection path (previously `/api/v1/backtesting/backtest*`,
+which the backend retains as a deprecated alias). No change to method signatures,
+arguments, or return types -- callers are unaffected.
+
 ### Added -- `client.defi` DeFiLlama Pro methods
 
 Five new tier-gated methods on `client.defi` (require a Pro, Startup, or

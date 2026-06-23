@@ -10,6 +10,7 @@ from .auth import (
 from .backtesting import (
     AsyncBacktestStatus,
     AsyncBacktestSubmission,
+    BacktestArchiveResult,
     BacktestRequest,
     BacktestResult,
     BacktestTradesResponse,
@@ -111,6 +112,7 @@ __all__ = [
     "BulkBacktestItemResult",
     "BulkBacktestResult",
     "BacktestTradesResponse",
+    "BacktestArchiveResult",
     "AsyncBacktestSubmission",
     "AsyncBacktestStatus",
     # Signals

@@ -29,6 +29,9 @@ class MangroveAI:
         auto_retry: Enable automatic retry with backoff on rate limits.
         auto_auth: Enable automatic JWT refresh on 401 responses.
         wallet_address: Wallet address for x402 payment-gated endpoints.
+        load_dotenv: Auto-load a .env file into the environment when python-dotenv
+            is installed (soft dependency; ``pip install mangroveai[dotenv]``).
+            Real process env vars always win over .env values. Set False to disable.
         httpx_client: Inject a custom httpx.Client for testing.
     """
 
@@ -44,6 +47,7 @@ class MangroveAI:
         auto_retry: bool = True,
         auto_auth: bool = True,
         wallet_address: str | None = None,
+        load_dotenv: bool = True,
         httpx_client: httpx.Client | None = None,
     ) -> None:
         self._config = ClientConfig(
@@ -56,6 +60,7 @@ class MangroveAI:
             auto_retry=auto_retry,
             auto_auth=auto_auth,
             wallet_address=wallet_address,
+            load_dotenv=load_dotenv,
         )
 
         from ._transport._mock import MockTransport

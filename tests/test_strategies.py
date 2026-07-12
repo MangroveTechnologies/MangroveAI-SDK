@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import pytest
+
 from mangrove_ai import MangroveAI
 from mangrove_ai._pagination import PaginatedResponse
 from mangrove_ai._transport._mock import MockTransport
 from mangrove_ai.models.shared import SuccessResponse
 from mangrove_ai.models.strategies import (
     CreateStrategyRequest,
+    StrategyArchiveResult,
     StrategyDetail,
     StrategyListItem,
     UpdateStrategyRequest,
@@ -135,16 +138,66 @@ class TestStrategiesUpdate:
         assert mock.requests[0].json == {"name": "BTC Momentum v2"}
 
 
-class TestStrategiesDelete:
-    def test_delete_returns_success(self) -> None:
+class TestStrategiesArchive:
+    def test_archive_returns_result(self) -> None:
         mock = MockTransport()
-        mock.add_response("DELETE", "/strategies/strat-uuid-1", json={
+        mock.add_response("POST", "/strategies/strat-uuid-1/archive", json={
             "success": True,
-            "message": "Strategy deleted",
+            "strategy_id": "strat-uuid-1",
+            "archived": True,
         })
         client = _make_client(mock)
 
-        result = client.strategies.delete("strat-uuid-1")
+        result = client.strategies.archive("strat-uuid-1")
+
+        assert isinstance(result, StrategyArchiveResult)
+        assert result.success is True
+        assert result.archived is True
+        assert result.strategy_id == "strat-uuid-1"
+
+    def test_unarchive_returns_result(self) -> None:
+        mock = MockTransport()
+        mock.add_response("POST", "/strategies/strat-uuid-1/unarchive", json={
+            "success": True,
+            "strategy_id": "strat-uuid-1",
+            "archived": False,
+        })
+        client = _make_client(mock)
+
+        result = client.strategies.unarchive("strat-uuid-1")
+
+        assert result.archived is False
+
+    def test_list_can_include_archived(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/strategies/", json={
+            "success": True,
+            "strategies": [
+                {"id": "s1", "name": "Archived One", "asset": "BTC", "status": "live",
+                 "created_at": "2026-01-01T00:00:00Z", "archived": True,
+                 "archived_at": "2026-06-01T00:00:00Z"},
+            ],
+            "total": 1, "skip": 0, "limit": 100,
+        })
+        client = _make_client(mock)
+
+        result = client.strategies.list(include_archived=True)
+
+        assert result.items[0].archived is True
+        assert mock.requests[0].params["include_archived"] is True
+
+
+class TestStrategiesDelete:
+    def test_delete_is_deprecated_but_still_works(self) -> None:
+        mock = MockTransport()
+        mock.add_response("DELETE", "/strategies/strat-uuid-1", json={
+            "success": True,
+            "message": "Strategy archived (strategies are never hard-deleted)",
+        })
+        client = _make_client(mock)
+
+        with pytest.warns(DeprecationWarning):
+            result = client.strategies.delete("strat-uuid-1")
 
         assert isinstance(result, SuccessResponse)
         assert result.success is True

@@ -15,6 +15,9 @@ class StrategyListItem(MangroveModel):
     created_at: str
     strategy_type: str | None = None
     description: str | None = None
+    # Archive view-state (reversible; strategies are never hard-deleted).
+    archived: bool = False
+    archived_at: str | None = None
 
 
 class StrategyDetail(MangroveModel):
@@ -35,6 +38,22 @@ class StrategyDetail(MangroveModel):
     content_hash: str | None = None
     strategy_type: str | None = None
     description: str | None = None
+    # Archive view-state (reversible; strategies are never hard-deleted).
+    archived: bool = False
+    archived_at: str | None = None
+
+
+class StrategyArchiveResult(MangroveModel):
+    """Response from archiving or unarchiving a strategy.
+
+    Strategies are never deleted; archiving hides a strategy from the default
+    list views and stops it counting toward the per-tier strategy limit (and is
+    reversible via unarchive).
+    """
+
+    success: bool
+    strategy_id: str
+    archived: bool
 
 
 class CreateStrategyRequest(MangroveModel):

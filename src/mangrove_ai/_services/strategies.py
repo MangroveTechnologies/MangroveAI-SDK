@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import warnings
 from collections.abc import Iterator
 
 from .._pagination import PaginatedResponse, paginate_iter
 from ..models.shared import SuccessResponse
 from ..models.strategies import (
     CreateStrategyRequest,
+    StrategyArchiveResult,
     StrategyDetail,
     StrategyListItem,
     UpdateStrategyRequest,
@@ -16,14 +18,22 @@ from ._base import BaseService
 class StrategiesService(BaseService):
     """Strategy CRUD and lifecycle management."""
 
-    def list(self, *, skip: int = 0, limit: int = 100) -> PaginatedResponse[StrategyListItem]:
+    def list(
+        self, *, skip: int = 0, limit: int = 100, include_archived: bool = False
+    ) -> PaginatedResponse[StrategyListItem]:
         """List all strategies for the authenticated user.
 
         Args:
             skip: Pagination offset.
             limit: Max strategies per page (1-100).
+            include_archived: Include archived strategies (default False). Strategies
+                are never deleted; archived ones are hidden from this list by default.
         """
-        data = self._request("GET", "/strategies/", params={"skip": skip, "limit": limit})
+        data = self._request(
+            "GET",
+            "/strategies/",
+            params={"skip": skip, "limit": limit, "include_archived": include_archived},
+        )
         items = [StrategyListItem.model_validate(s) for s in data["strategies"]]
         return PaginatedResponse(
             items=items,
@@ -32,10 +42,14 @@ class StrategiesService(BaseService):
             limit=data.get("limit", limit),
         )
 
-    def list_iter(self, *, limit_per_page: int = 100) -> Iterator[StrategyListItem]:
+    def list_iter(
+        self, *, limit_per_page: int = 100, include_archived: bool = False
+    ) -> Iterator[StrategyListItem]:
         """Auto-paginating iterator over all strategies."""
         return paginate_iter(
-            lambda offset, limit: self.list(skip=offset, limit=limit),
+            lambda offset, limit: self.list(
+                skip=offset, limit=limit, include_archived=include_archived
+            ),
             limit_per_page=limit_per_page,
         )
 
@@ -66,8 +80,35 @@ class StrategiesService(BaseService):
         )
         return StrategyDetail.model_validate(data["strategy"])
 
+    def archive(self, strategy_id: str) -> StrategyArchiveResult:
+        """Archive a strategy, hiding it from the default list views.
+
+        Strategies are never deleted; archiving is reversible via ``unarchive``.
+        An archived strategy also stops counting toward your per-tier strategy
+        limit, so this is how you free a slot when you are at your limit.
+        """
+        data = self._request("POST", f"/strategies/{strategy_id}/archive")
+        return StrategyArchiveResult.model_validate(data)
+
+    def unarchive(self, strategy_id: str) -> StrategyArchiveResult:
+        """Unarchive a strategy, restoring it to the default list views."""
+        data = self._request("POST", f"/strategies/{strategy_id}/unarchive")
+        return StrategyArchiveResult.model_validate(data)
+
     def delete(self, strategy_id: str) -> SuccessResponse:
-        """Delete a strategy."""
+        """Deprecated: archive the strategy instead.
+
+        Strategies are never hard-deleted (MangroveAI #806). This method calls the
+        legacy ``DELETE /strategies/{id}`` route, which now ARCHIVES the strategy
+        rather than removing it. Prefer :meth:`archive` (which needs only the
+        ``strategy:update_status`` permission, not ``strategy:delete``).
+        """
+        warnings.warn(
+            "StrategiesService.delete() is deprecated: strategies are never "
+            "hard-deleted. Use archive()/unarchive() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         data = self._request("DELETE", f"/strategies/{strategy_id}")
         return SuccessResponse.model_validate(data)
 

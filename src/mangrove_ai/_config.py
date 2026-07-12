@@ -8,14 +8,39 @@ from ._constants import DEFAULT_MAX_RETRIES, DEFAULT_TIMEOUT, DEFAULT_URLS, KEY_
 logger = logging.getLogger(__name__)
 
 
+def _maybe_load_dotenv() -> None:
+    """Best-effort load of a ``.env`` file into ``os.environ`` (soft dependency).
+
+    ``python-dotenv`` is an *optional* dependency (``pip install mangroveai[dotenv]``).
+    If it isn't installed this is a no-op, so the SDK keeps reading ``os.environ``
+    exactly as before for users who don't opt in.
+
+    ``override=False`` guarantees that variables already present in the real
+    process environment always win over values in a ``.env`` file — so this never
+    changes behavior for users who rely on real env vars.
+    """
+    try:
+        from dotenv import find_dotenv, load_dotenv
+    except ImportError:
+        logger.debug("python-dotenv not installed; skipping .env autoload")
+        return
+
+    load_dotenv(find_dotenv(usecwd=True), override=False)
+
+
 class ClientConfig:
     """Resolved SDK configuration.
 
     Resolution precedence:
     1. Explicit constructor arguments (highest)
-    2. Environment variables
+    2. Environment variables (real process env, then optionally a .env file)
     3. Auto-detection from API key prefix
     4. Defaults (lowest)
+
+    If ``python-dotenv`` is installed (``pip install mangroveai[dotenv]``) and
+    ``load_dotenv`` is left enabled, a ``.env`` file discovered from the current
+    working directory is loaded into the environment before resolution. Real
+    process environment variables always take precedence over ``.env`` values.
     """
 
     def __init__(
@@ -29,7 +54,11 @@ class ClientConfig:
         auto_retry: bool = True,
         auto_auth: bool = True,
         wallet_address: str | None = None,
+        load_dotenv: bool = True,
     ) -> None:
+        if load_dotenv:
+            _maybe_load_dotenv()
+
         self.api_key = api_key or os.environ.get("MANGROVE_API_KEY")
         self.timeout = timeout
         self.max_retries = max_retries

@@ -21,9 +21,44 @@ pip install mangroveai
 3. Generate a new API key
 4. Set it as an environment variable:
 
+**macOS / Linux (bash/zsh):**
+
 ```bash
 export MANGROVE_API_KEY=prod_your_key_here
 ```
+
+**Windows (PowerShell):**
+
+```powershell
+$env:MANGROVE_API_KEY = "prod_your_key_here"
+```
+
+**Windows (cmd.exe):**
+
+```bat
+set MANGROVE_API_KEY=prod_your_key_here
+```
+
+### Or use a `.env` file
+
+The SDK can load a `.env` file automatically if you install the optional
+[`python-dotenv`](https://pypi.org/project/python-dotenv/) extra:
+
+```bash
+pip install "mangroveai[dotenv]"
+```
+
+Then create a `.env` file in your project root:
+
+```dotenv
+MANGROVE_API_KEY=prod_your_key_here
+```
+
+`MangroveAI()` will pick it up with no further code. Real environment variables
+always take precedence over `.env` values, so a `.env` file never overrides a key
+you've already exported. Disable autoloading with `MangroveAI(load_dotenv=False)`.
+If `python-dotenv` isn't installed, the SDK reads `os.environ` only (a `.env`
+file is ignored).
 
 ## Quickstart
 

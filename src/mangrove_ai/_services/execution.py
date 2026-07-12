@@ -137,6 +137,7 @@ class ExecutionService(BaseService):
         strategy: dict[str, Any],
         *,
         persist: bool = False,
+        open_positions: list[dict[str, Any]] | None = None,
     ) -> EvaluateResult:
         """Evaluate an inline strategy object without persisting it first.
 
@@ -144,6 +145,14 @@ class ExecutionService(BaseService):
           - Testing draft strategies before saving to MangroveAI.
           - One-off evaluations against modified parameters.
           - Dry-runs with hand-tuned ``execution_state``.
+          - Fully stateless ticking: pass ``open_positions`` (the value a
+            previous evaluation returned) and the engine evaluates
+            stop-loss / take-profit / signal / time exits against them
+            with zero server-side position storage. The response's
+            ``open_positions`` field carries the UPDATED set (surviving
+            plus newly entered, resting bracket orders included) —
+            persist it and echo it back on the next call, exactly like
+            ``execution_state``.
 
         Args:
             strategy: Strategy dict — at minimum ``asset``, ``rules``,
@@ -152,12 +161,19 @@ class ExecutionService(BaseService):
                 ``total_trades`` / ``num_open_positions``).
             persist: Persist orders/positions if the evaluation fires
                 — defaults to False because object-based evaluation is
-                typically dry-run.
+                typically dry-run. Not allowed together with
+                ``open_positions`` (caller-owned state; the API rejects
+                the combination).
+            open_positions: Caller-owned open positions from the prior
+                evaluation's ``open_positions`` response field.
         """
+        body: dict[str, Any] = {"strategy": strategy, "persist": persist}
+        if open_positions is not None:
+            body["open_positions"] = open_positions
         return self._request_model(
             "POST", "/execution/evaluate",
             EvaluateResult,
-            json={"strategy": strategy, "persist": persist},
+            json=body,
         )
 
     def evaluate_bulk(
@@ -180,9 +196,17 @@ class ExecutionService(BaseService):
         bypass the DB and require the full strategy shape
         (``asset``, ``rules``, ``execution_config``, ``execution_state``).
 
+        Stateless positions: an inline config may carry its own
+        ``open_positions`` (the list a previous evaluation returned for
+        that strategy). The engine evaluates exits against them without
+        server-side storage and the per-strategy result echoes the
+        updated set back in its ``open_positions`` field. Not allowed
+        with ``persist=True`` or a config carrying a DB id.
+
         Args:
             strategy_ids: UUIDs to load from the strategy table.
-            strategy_configs: Inline strategy dicts to evaluate.
+            strategy_configs: Inline strategy dicts to evaluate
+                (optionally each carrying ``open_positions``).
             persist: Persist orders/positions per strategy.
 
         Raises:

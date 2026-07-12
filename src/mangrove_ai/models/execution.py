@@ -97,6 +97,11 @@ class EvaluateResult(MangroveModel):
     timestamp: str | None = None
     execution_state: dict[str, Any] | None = None
     new_orders: list[dict[str, Any]] | None = None
+    # Stateless lane only: present when the request carried caller-owned
+    # open_positions. The UPDATED set (surviving + newly entered, resting
+    # bracket orders included) -- persist it and echo it back on the next
+    # evaluation, exactly like execution_state.
+    open_positions: list[dict[str, Any]] | None = None
     execution_time_seconds: float | None = None
     error: str | None = None
 

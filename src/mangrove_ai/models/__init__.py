@@ -86,6 +86,7 @@ from .signals import (
 )
 from .strategies import (
     CreateStrategyRequest,
+    StrategyArchiveResult,
     StrategyDetail,
     StrategyListItem,
     UpdateStrategyRequest,
@@ -103,6 +104,7 @@ __all__ = [
     # Strategies
     "StrategyListItem",
     "StrategyDetail",
+    "StrategyArchiveResult",
     "CreateStrategyRequest",
     "UpdateStrategyRequest",
     # Backtesting

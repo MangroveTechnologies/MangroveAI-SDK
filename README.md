@@ -225,9 +225,9 @@ results = client.oracle.list_results(experiment_id=created.experiment_id, limit=
 - **Results & catalogs:** `list_results`, `list_datasets`, `list_signals`, `list_templates`, `exec_config_defaults`
 - **Leaderboard & live:** `leaderboard`, `list_deployed_strategies`, `get_deployed_strategy_state`, `get_deployed_strategy_events`
 
-Full reference: [SIEVE pre-filter guide](https://docs.mangrovedeveloper.ai/guides/using-sieve-prefilter),
-[SIEVE end-to-end](https://docs.mangrovedeveloper.ai/guides/sieve-end-to-end-workflow), and the
-[Experiments API reference](https://docs.mangrovedeveloper.ai/api-reference/experiments).
+Full reference: [SIEVE pre-filter guide](https://mangrove.io/docs/guides/using-sieve-prefilter),
+[SIEVE end-to-end](https://mangrove.io/docs/guides/sieve-end-to-end-workflow), and the
+[Experiments API reference](https://mangrove.io/docs/api-reference/experiments).
 
 ## Environment Detection
 

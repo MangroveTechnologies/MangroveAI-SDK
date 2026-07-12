@@ -263,6 +263,52 @@ class TestExecutionEvaluateByObject:
 
         assert mock.requests[-1].json == {"strategy": {"asset": "BTC"}, "persist": True}
 
+    def test_evaluate_by_object_round_trips_open_positions(self) -> None:
+        """Stateless lane (MangroveAI#840): open_positions goes up in the
+        request body and the UPDATED set comes back on the result model."""
+        position = {
+            "id": "pos-1",
+            "asset": "ETH-USD",
+            "entry_price": 1800.0,
+            "position_size": 0.5,
+            "open": True,
+            "orders": [
+                {"id": "o-1", "asset": "ETH-USD", "order_type": "stop_loss",
+                 "side": "exit_long", "status": "pending", "price": 1750.0,
+                 "position_size": 0.5, "position_id": "pos-1", "history": {}},
+            ],
+        }
+        updated = [dict(position, entry_price=1800.0)]
+        mock = MockTransport()
+        mock.add_response("POST", "/execution/evaluate", json={
+            "success": True,
+            "new_orders": [],
+            "open_positions": updated,
+        })
+        client = _make_client(mock)
+
+        result = client.execution.evaluate_by_object(
+            {"asset": "ETH-USD"}, open_positions=[position],
+        )
+
+        assert mock.requests[-1].json == {
+            "strategy": {"asset": "ETH-USD"},
+            "persist": False,
+            "open_positions": [position],
+        }
+        assert result.open_positions == updated
+
+    def test_evaluate_by_object_omits_open_positions_when_none(self) -> None:
+        """Default calls stay byte-identical to the pre-#40 wire shape."""
+        mock = MockTransport()
+        mock.add_response("POST", "/execution/evaluate", json={"success": True})
+        client = _make_client(mock)
+
+        result = client.execution.evaluate_by_object({"asset": "BTC"})
+
+        assert "open_positions" not in mock.requests[-1].json
+        assert result.open_positions is None
+
 
 # =============================================================================
 # evaluate_bulk

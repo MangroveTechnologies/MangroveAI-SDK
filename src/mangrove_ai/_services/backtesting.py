@@ -31,20 +31,42 @@ class BacktestingService:
         response = self._v2.request(method, path, **kwargs)
         return response.json()
 
-    def run(self, request: BacktestRequest) -> BacktestResult:
-        """Run a synchronous single-strategy backtest.
+    def run(
+        self,
+        request: BacktestRequest,
+        *,
+        poll_interval: float = 2.0,
+        timeout: float = 600.0,
+    ) -> BacktestResult:
+        """Run a single-strategy backtest and block until the result is ready.
+
+        Since v1.14 this is async-backed: it submits to the async surface
+        (``POST /api/v2/backtests/``) and polls status until completion, so it
+        has NO request-duration ceiling -- long lookbacks and cold data
+        windows work. (The old transport rode one HTTP request through the
+        API gateway's ~15s budget, so cold long-window runs died as
+        ``503 ENGINE_WARMING`` / gateway 504s.) The signature and return
+        value are unchanged.
 
         Args:
             request: Backtest configuration including asset, interval, strategy, and risk params.
+            poll_interval: Seconds between status checks.
+            timeout: Maximum seconds to wait before raising TimeoutError.
         """
-        data = self._core_request("POST", "/backtests", json=request.model_dump(exclude_none=True))
-        return BacktestResult.model_validate(data)
+        return self.run_async(request, poll_interval=poll_interval, timeout=timeout)
 
     def run_bulk(self, request: BulkBacktestRequest) -> BulkBacktestResult:
         """Run multiple strategies over a shared date range.
 
         Args:
             request: Bulk backtest configuration with strategy_ids or strategy_configs.
+
+        Note:
+            Bulk rides the synchronous transport (~15s gateway budget; there
+            is no async bulk surface). Keep bulk runs to short/warm windows;
+            a ``503`` with ``error_code: ENGINE_WARMING`` means retry after
+            the ``Retry-After`` delay, or run strategies individually via
+            ``run()`` (async-backed) for long lookbacks.
         """
         data = self._core_request("POST", "/backtests/bulk", json=request.model_dump(exclude_none=True))
         return BulkBacktestResult.model_validate(data)

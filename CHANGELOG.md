@@ -7,6 +7,19 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed -- backtesting.run() is async-backed (no more 15s ceiling)
+
+`backtesting.run()` keeps its blocking signature and `BacktestResult` return, but
+now submits to the async surface (`POST /api/v2/backtests/`) and polls status
+internally instead of riding the legacy synchronous route. The sync transport
+carried a ~15s API-gateway budget, so cold long-window runs died as
+`503 ENGINE_WARMING` / gateway 504s (MangroveAI#808). Long lookbacks now just
+work. New optional kwargs: `poll_interval` (default 2.0s) and `timeout`
+(default 600s, raises `TimeoutError`). Note: async status polls are metered at
+$0.001 each, so a run costs a few tenths of a cent more than the old sync meter.
+`run_bulk()` still rides the sync transport (no async bulk surface exists);
+its docstring documents the budget and the `ENGINE_WARMING` retry contract.
+
 ### Added -- backtest archive/unarchive
 
 Backtests are immutable historical records and are never deleted. Two new methods

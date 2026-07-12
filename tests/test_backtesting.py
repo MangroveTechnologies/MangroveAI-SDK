@@ -51,9 +51,24 @@ BACKTEST_RESULT_JSON = {
 
 
 class TestBacktestRun:
-    def test_run_returns_result(self) -> None:
+    def test_run_is_async_backed_and_returns_result(self) -> None:
+        """run() must ride the async surface (v1.14): submit v2 + poll.
+
+        The old sync transport rode one HTTP request through the gateway's
+        ~15s budget, so cold long-window runs died (MangroveAI#808). Same
+        signature, same BacktestResult -- different transport.
+        """
         mock = MockTransport()
-        mock.add_response("POST", "/backtests", json=BACKTEST_RESULT_JSON)
+        mock.add_response("POST", "/backtests/", json={
+            "backtest_id": "async-bt-run", "status": "running",
+        })
+        mock.add_response("GET", "/backtests/async-bt-run/status", json={
+            "backtest_id": "async-bt-run",
+            "status": "completed",
+            "metrics": BACKTEST_RESULT_JSON["metrics"],
+            "trade_history": BACKTEST_RESULT_JSON["trade_history"],
+            "execution_time_seconds": 3.21,
+        })
         client = _make_client(mock)
 
         result = client.backtesting.run(BACKTEST_REQUEST)
@@ -63,6 +78,14 @@ class TestBacktestRun:
         assert result.metrics["sharpe_ratio"] == 1.23
         assert result.trade_count == 1
         assert len(result.trade_history) == 1
+        # No request may hit the legacy sync route
+        sync_calls = [
+            r for r in mock.requests
+            if r.method == "POST" and r.url.rstrip("/").endswith("/api/v1/backtests")
+        ]
+        assert not sync_calls, "run() must not call the v1 sync route anymore"
+        # It must submit to the v2 async surface instead
+        assert any("/api/v2/backtests" in r.url for r in mock.requests if r.method == "POST")
 
 
 class TestBacktestRunBulk:

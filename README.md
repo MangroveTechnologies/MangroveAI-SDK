@@ -86,7 +86,8 @@ strategy = client.strategies.create(CreateStrategyRequest(
             "timeframe": "1d", "params": {"window": 14, "threshold": 30}}],
 ))
 
-# Run a backtest
+# Run a backtest (blocks until done; async-backed since v1.14, so long
+# lookbacks work -- it submits to the async surface and polls internally)
 import json
 from mangrove_ai.models import BacktestRequest
 

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mangroveai"
-version = "1.13.0"
+version = "1.14.0"
 description = "Python SDK for the MangroveAI trading strategy platform"
 readme = "README.md"
 license = "MIT"

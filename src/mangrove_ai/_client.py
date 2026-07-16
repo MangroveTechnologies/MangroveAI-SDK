@@ -86,6 +86,11 @@ class MangroveAI:
         return AuthService(self._core_transport)
 
     @cached_property
+    def users(self) -> Any:
+        from ._services.users import UsersService
+        return UsersService(self._core_transport)
+
+    @cached_property
     def strategies(self) -> Any:
         from ._services.strategies import StrategiesService
         return StrategiesService(self._core_transport)

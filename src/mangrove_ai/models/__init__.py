@@ -91,6 +91,12 @@ from .strategies import (
     StrategyListItem,
     UpdateStrategyRequest,
 )
+from .users import (
+    TokenBreakdown,
+    UserBacktest,
+    UserMetrics,
+    UserStrategy,
+)
 
 __all__ = [
     # Shared
@@ -176,4 +182,9 @@ __all__ = [
     "OracleAsyncBacktestSubmission",
     "OracleAsyncBacktestStatus",
     "OracleBulkBacktestResult",
+    # Users
+    "UserMetrics",
+    "TokenBreakdown",
+    "UserStrategy",
+    "UserBacktest",
 ]

@@ -7,6 +7,18 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed -- backtesting.get() parses stored run records
+
+`GET /backtests/{id}` returns a stored run record (`id`, `status`, `metrics`,
+`trade_history`, `error_message`, `config`, `start_date`, `end_date`, ...) with no
+`success` field, but `BacktestResult.success` was required, so every
+`client.backtesting.get()` on a real run raised a pydantic `ValidationError`.
+`BacktestResult` now accepts both shapes and keeps its return type: `success` is
+optional and derived from `status` for stored records (`completed` -> True,
+`failed` -> False, in flight -> None), `error` comes from `error_message`,
+`trade_count` from `trade_history`, and the record fields (`id`, `status`,
+`asset`, `strategy_id`, `config`, `error_message`, `start_date`, `end_date`,
+`initial_balance`) are typed. Run results that carry `success` parse as before.
 ### Fixed -- sieve_score() parses current Oracle responses
 
 MangroveOracle retired SIEVE's 4-class outcome head (MangroveOracle #422: SIEVE

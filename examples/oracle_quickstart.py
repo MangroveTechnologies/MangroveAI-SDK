@@ -58,11 +58,11 @@ def main() -> None:
     print(f"model_version: {score.model_version}")
     print(f"code_version:  {score.code_version}")
     print(f"binary:        {pred.binary}")
-    print(f"four_class:    {pred.four_class}")
 
-    # Only spend backtest compute on strategies SIEVE thinks will win.
-    if pred.four_class["winning"] < 0.3:
-        print("\nWinning probability too low — skipping backtest.")
+    # Only spend backtest compute on strategies SIEVE expects to trade.
+    # SIEVE is a go/no-go gate; it does not predict performance.
+    if pred.binary["p_no_trades"] > 0.5:
+        print("\nSIEVE expects this strategy not to trade -- skipping backtest.")
         return
 
     # 2. Mine the corpus for similar high-IRR analogues you can learn from.

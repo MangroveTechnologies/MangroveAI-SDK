@@ -56,13 +56,18 @@ class SieveScoreRequest(MangroveModel):
 class SievePrediction(MangroveModel):
     """Probabilities for one SIEVE-scored item.
 
-    ``binary`` keys: ``p_no_trades`` + ``p_trades``.
-    ``four_class`` keys: ``losing`` / ``no_trades`` / ``wash`` / ``winning``.
-    Each dict sums to 1.0 within float32 tolerance.
+    ``binary`` is the go/no-go head: ``p_no_trades`` + ``p_trades`` (sums to
+    1.0 within float32 tolerance) -- whether a strategy is worth backtesting,
+    i.e. will it place trades. SIEVE does not predict performance.
+
+    ``four_class`` (``losing`` / ``no_trades`` / ``wash`` / ``winning``) is the
+    retired outcome head. Oracle stopped returning it (MangroveOracle #422), so
+    it is ``None`` on current responses and kept optional only so responses from
+    older Oracle deployments still parse. Don't rank strategies by it.
     """
 
     binary: dict[str, float]
-    four_class: dict[str, float]
+    four_class: dict[str, float] | None = None
 
 
 class SieveScoreResponse(MangroveModel):

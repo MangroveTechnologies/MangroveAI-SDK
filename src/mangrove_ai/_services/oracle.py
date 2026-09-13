@@ -70,8 +70,10 @@ class OracleService:
     def sieve_score(self, request: SieveScoreRequest) -> SieveScoreResponse:
         """Score up to 99 strategies through the Mangrove SIEVE classifier.
 
-        Returns binary go/no-go probabilities and 4-class outcome
-        probabilities per item, plus ``model_version`` and ``code_version``
+        Returns binary go/no-go probabilities per item (whether each strategy
+        will place trades; SIEVE does not predict performance, and the
+        retired 4-class head is no longer served, so ``four_class`` is
+        ``None``), plus ``model_version`` and ``code_version``
         for provenance.
 
         Args:

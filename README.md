@@ -210,8 +210,9 @@ resp = client.oracle.sieve_score(SieveScoreRequest(strategies=[
 
 print(f"scored {resp.count} | model {resp.model_version}")
 for p in resp.predictions:
-    print(f"  go/no-go: {p.binary}")      # {'p_no_trades': .., 'p_trades': ..}
-    print(f"  outcome:  {p.four_class}")  # {'losing':.., 'no_trades':.., 'wash':.., 'winning':..}
+    print(f"  go/no-go: {p.binary}")  # {'p_no_trades': .., 'p_trades': ..}
+# SIEVE is a go/no-go gate (will it trade?), not a performance prediction:
+# backtest the strategies it expects to trade. `four_class` is retired (None).
 ```
 
 ### Run a parameter sweep (experiment lifecycle)

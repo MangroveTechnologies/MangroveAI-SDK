@@ -10,6 +10,7 @@ from ..models.strategies import (
     StrategyArchiveResult,
     StrategyDetail,
     StrategyListItem,
+    StrategyVerification,
     UpdateStrategyRequest,
 )
 from ._base import BaseService
@@ -79,6 +80,20 @@ class StrategiesService(BaseService):
             json=request.model_dump(exclude_none=True),
         )
         return StrategyDetail.model_validate(data["strategy"])
+
+    def verify_strategy(self, strategy_id: str) -> StrategyVerification:
+        """Check a stored strategy for everything that would stop it running.
+
+        Signal names and parameter keys, roles composing, and a timeframe on every
+        signal. Reads what is STORED. Call after saving and BEFORE backtesting -- a
+        backtest is billed at submission whether or not it runs. ``warnings`` (e.g. a
+        parameter at its library default) never make ``conforms`` false. Mirrors the
+        copilot's ``verify_strategy`` tool (``GET /strategies/{id}/verify``).
+
+        Raises:
+            NotFoundError: No strategy with that id in the caller's org.
+        """
+        return self._request_model("GET", f"/strategies/{strategy_id}/verify", StrategyVerification)
 
     def archive(self, strategy_id: str) -> StrategyArchiveResult:
         """Archive a strategy, hiding it from the default list views.

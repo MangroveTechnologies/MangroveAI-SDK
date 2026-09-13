@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import time
+from datetime import date
 
 from .._transport._service import ServiceTransport
 from ..exceptions import TimeoutError
@@ -11,9 +12,14 @@ from ..models.backtesting import (
     BacktestRequest,
     BacktestResult,
     BacktestTradesResponse,
+    Benchmark,
     BulkBacktestRequest,
     BulkBacktestResult,
 )
+
+
+def _iso(value: str | date) -> str:
+    return value.isoformat() if isinstance(value, date) else str(value)
 
 
 class BacktestingService:
@@ -80,6 +86,33 @@ class BacktestingService:
         """Get trade history for a backtest."""
         data = self._core_request("GET", f"/backtests/{backtest_id}/trades")
         return BacktestTradesResponse.model_validate(data)
+
+    def get_benchmark(self, asset: str, start_date: str | date, end_date: str | date) -> Benchmark:
+        """Buy-and-hold return for an asset between two dates.
+
+        First daily close to last daily close, as a percentage -- the comparison a
+        strategy's return needs. Mirrors the copilot's ``get_benchmark`` tool
+        (``GET /backtests/benchmark``).
+
+        Args:
+            asset: Asset symbol, e.g. ``"BTC"``.
+            start_date: Window start (ISO string or ``date``).
+            end_date: Window end, after ``start_date``.
+
+        Returns:
+            ``Benchmark`` with ``buy_and_hold_return`` as a display string (``"12.3%"``)
+            and ``buy_and_hold_return_raw`` as a 0-100 percent number.
+
+        Raises:
+            ValidationError: Missing asset, non-ISO dates, or an empty window.
+            NotFoundError: No daily closes for the asset over the window.
+        """
+        data = self._core_request("GET", "/backtests/benchmark", params={
+            "asset": asset,
+            "start_date": _iso(start_date),
+            "end_date": _iso(end_date),
+        })
+        return Benchmark.model_validate(data)
 
     def archive(self, backtest_id: str) -> BacktestArchiveResult:
         """Archive a backtest, hiding it from the default history view.

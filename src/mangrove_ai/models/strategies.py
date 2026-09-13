@@ -56,6 +56,23 @@ class StrategyArchiveResult(MangroveModel):
     archived: bool
 
 
+class StrategyVerification(MangroveModel):
+    """Response from GET /strategies/{id}/verify (``client.strategies.verify_strategy``).
+
+    Same fields as the copilot's ``verify_strategy`` tool. A missing strategy is a
+    404 (``NotFoundError``), so ``found`` is always ``True`` on a returned result.
+    """
+
+    found: bool
+    conforms: bool
+    """Whether it will run. ``False`` means ``problems`` says why."""
+    problems: list[str] = []
+    """What to fix before backtesting, one per fault, each naming the signal."""
+    warnings: list[str] = []
+    """Legal but worth a second look (a parameter at its library default). Never makes
+    ``conforms`` false."""
+
+
 class CreateStrategyRequest(MangroveModel):
     """Request body for creating a new strategy."""
 

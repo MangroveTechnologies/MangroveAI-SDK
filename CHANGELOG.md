@@ -7,6 +7,17 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed -- sieve_score() parses current Oracle responses
+
+MangroveOracle retired SIEVE's 4-class outcome head (MangroveOracle #422: SIEVE
+is a go/no-go gate and does not predict performance), so live responses carry
+only `predictions[].binary`. `SievePrediction.four_class` was required, so every
+live `client.oracle.sieve_score()` call raised a pydantic `ValidationError`
+(and the live contract test `test_sieve_score_parses` has failed since). It is
+now `dict[str, float] | None = None`: `None` on current responses, still parsed
+from older deployments that send it. README and `examples/oracle_quickstart.py`
+no longer gate on `four_class["winning"]`.
+
 ### Changed -- backtesting.run() is async-backed (no more 15s ceiling)
 
 `backtesting.run()` keeps its blocking signature and `BacktestResult` return, but

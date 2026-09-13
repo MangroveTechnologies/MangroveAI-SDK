@@ -154,15 +154,58 @@ class BulkBacktestRequest(MangroveModel):
 
 
 class BacktestResult(MangroveModel):
-    """Result of a completed backtest run."""
+    """Result of a backtest run.
 
-    success: bool
+    Two server shapes land here:
+
+    - a run result (``run()`` / ``run_async()`` / the legacy sync route), which
+      carries ``success``;
+    - a stored run record from ``GET /backtests/{id}`` (``get()``), which carries
+      ``id`` / ``status`` / ``error_message`` and the run's ``config`` and window
+      but no ``success``.
+
+    For a stored record, ``success`` is derived from ``status`` (``completed`` ->
+    True, ``failed`` -> False, anything still in flight -> None), ``error`` from
+    ``error_message``, and ``trade_count`` from ``trade_history``. Before this,
+    ``success`` was required and every ``get()`` on a real run raised a
+    ValidationError.
+    """
+
+    success: bool | None = None
     metrics: dict[str, Any] | None = None
     trade_history: list[dict[str, Any]] | None = None
     execution_time_seconds: float | None = None
     trade_count: int | None = None
     strategy_names: list[str] | None = None
     error: str | None = None
+
+    # Stored run record fields (GET /backtests/{id}).
+    id: str | None = None
+    status: str | None = None
+    asset: str | None = None
+    strategy_id: str | None = None
+    config: dict[str, Any] | None = None
+    error_message: str | None = None
+    start_date: str | None = None
+    end_date: str | None = None
+    initial_balance: float | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _derive_from_stored_record(cls, data: Any) -> Any:
+        if not isinstance(data, dict) or data.get("success") is not None:
+            return data
+        data = dict(data)
+        status = data.get("status")
+        if status == "completed":
+            data["success"] = True
+        elif status == "failed":
+            data["success"] = False
+        if data.get("error") is None and data.get("error_message"):
+            data["error"] = data["error_message"]
+        if data.get("trade_count") is None and isinstance(data.get("trade_history"), list):
+            data["trade_count"] = len(data["trade_history"])
+        return data
 
 
 class BulkBacktestItemResult(MangroveModel):

@@ -137,6 +137,68 @@ class TestBacktestGet:
         assert isinstance(result, BacktestResult)
         assert result.success is True
 
+    # GET /backtests/{id} returns a stored run record: no `success`, but
+    # id/status/error_message/config + the window. Requiring `success` made
+    # every get() on a real run raise.
+    _STORED_RECORD = {
+        "id": "092fd3b7-5fcc-4342-8de4-365d78960f15",
+        "org_id": "org-1",
+        "user_id": "user-1",
+        "strategy_id": None,
+        "asset": "ETH",
+        "config": {"name": "dogfood", "entry": [], "exit": []},
+        "data_source": "api",
+        "status": "completed",
+        "metrics": {"total_return": 1.31, "win_rate": 50.0},
+        "trade_history": [{"pnl": 3.1}, {"pnl": -1.2}],
+        "error_message": None,
+        "start_date": "2026-03-17",
+        "end_date": "2026-09-13",
+        "initial_balance": 10000.0,
+        "execution_time_seconds": 9.4,
+    }
+
+    def test_get_parses_completed_stored_record(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/backtests/bt-stored", json=self._STORED_RECORD)
+        client = _make_client(mock)
+
+        result = client.backtesting.get("bt-stored")
+
+        assert result.success is True
+        assert result.status == "completed"
+        assert result.id == self._STORED_RECORD["id"]
+        assert result.asset == "ETH"
+        assert result.trade_count == 2
+        assert result.metrics["total_return"] == pytest.approx(1.31)
+        assert result.start_date == "2026-03-17" and result.end_date == "2026-09-13"
+
+    def test_get_parses_failed_stored_record(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/backtests/bt-failed", json={
+            **self._STORED_RECORD, "status": "failed", "metrics": None,
+            "trade_history": None, "error_message": "no data for window",
+        })
+        client = _make_client(mock)
+
+        result = client.backtesting.get("bt-failed")
+
+        assert result.success is False
+        assert result.error == "no data for window"
+        assert result.trade_count is None
+
+    def test_get_in_flight_record_has_no_success_yet(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/backtests/bt-running", json={
+            **self._STORED_RECORD, "status": "running", "metrics": None, "trade_history": None,
+        })
+        client = _make_client(mock)
+
+        result = client.backtesting.get("bt-running")
+
+        assert result.success is None
+        assert result.status == "running"
+
 
 class TestBacktestGetTrades:
     def test_get_trades_returns_response(self) -> None:

@@ -69,3 +69,32 @@ class ValidationResponse(MangroveModel):
 
     valid: bool
     errors: list[str] | None = None
+
+
+class SignalBehaviorResult(MangroveModel):
+    """Response from POST /signals/behavior (``client.signals.query_signal_behavior``).
+
+    ``result`` is the lookup's answer, shaped per lookup exactly as the copilot's
+    ``query_signal_behavior`` tool returns it:
+
+    - ``describe``: ``signal``, ``signal_type``, ``category``, ``description``,
+      ``parameters`` (each ``type``/``min``/``max``/``default``/``means``), ``measured``,
+      and when measured the span -- FILTER ``selectivity_min``/``_median``/``_max``
+      (fractions 0-1), ``typical_run_bars``, ``longest_run_bars``; TRIGGER
+      ``per_1000_bars_min``/``_median``/``_max``, ``typical_gap_bars``,
+      ``shortest_gap_bars``, ``stays_true_over_one_bar`` -- plus ``default``.
+    - ``pick``: ``measured``, ``measured_in``, ``span``, ``matches``, ``unreachable``
+      (``None`` when the target was met) and ``configurations``.
+    - ``find``: ``measured_in``, ``band`` and ``signals`` (each with one ``example``).
+    - ``gap_probability``: ``range_bars``, ``matches`` and ``configurations`` (each with
+      ``probability``, ``gaps_in_range``, ``gaps_total``).
+
+    Configuration rows always carry ``params``, ``fired_bars`` and ``is_default``; FILTER
+    rows add ``selectivity`` (0-1), ``runs``, ``mean_run_bars``, ``longest_run_bars``;
+    TRIGGER rows add ``per_1000_bars``, ``median_gap_bars``, ``shortest_gap_bars``,
+    ``longest_gap_bars``, ``stays_true_bars``. ``measured: False`` means the signal has
+    no measurements yet -- an answer, not an error.
+    """
+
+    lookup: str
+    result: dict[str, Any]

@@ -14,9 +14,15 @@ from .backtesting import (
     BacktestRequest,
     BacktestResult,
     BacktestTradesResponse,
+    Benchmark,
     BulkBacktestItemResult,
     BulkBacktestRequest,
     BulkBacktestResult,
+)
+from .config import (
+    ExecutionConfigParam,
+    ExecutionConfigSchema,
+    TransactionCosts,
 )
 from .crypto_assets import (
     AssetMetadata,
@@ -56,6 +62,14 @@ from .kb import (
     KBTag,
     KBTagDocuments,
 )
+from .market_data import (
+    DirectionReading,
+    MarketRegime,
+    MarketSegment,
+    RegimeReading,
+    SegmentFeatures,
+    VolatilityReading,
+)
 from .oracle import (
     DataQueryFilter,
     DataQueryRequest,
@@ -81,6 +95,7 @@ from .signals import (
     MatchResult,
     SearchSignalsRequest,
     Signal,
+    SignalBehaviorResult,
     SignalMetadata,
     ValidationResponse,
 )
@@ -89,6 +104,7 @@ from .strategies import (
     StrategyArchiveResult,
     StrategyDetail,
     StrategyListItem,
+    StrategyVerification,
     UpdateStrategyRequest,
 )
 from .users import (
@@ -111,9 +127,22 @@ __all__ = [
     "StrategyListItem",
     "StrategyDetail",
     "StrategyArchiveResult",
+    "StrategyVerification",
     "CreateStrategyRequest",
     "UpdateStrategyRequest",
+    # Config
+    "ExecutionConfigSchema",
+    "ExecutionConfigParam",
+    "TransactionCosts",
+    # Market data
+    "MarketRegime",
+    "RegimeReading",
+    "DirectionReading",
+    "VolatilityReading",
+    "MarketSegment",
+    "SegmentFeatures",
     # Backtesting
+    "Benchmark",
     "BacktestRequest",
     "BulkBacktestRequest",
     "BacktestResult",
@@ -131,6 +160,7 @@ __all__ = [
     "MatchResponse",
     "EvaluateResponse",
     "ValidationResponse",
+    "SignalBehaviorResult",
     # Crypto Assets
     "CryptoAsset",
     "RiskScores",

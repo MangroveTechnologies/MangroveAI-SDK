@@ -207,6 +207,27 @@ class BacktestArchiveResult(MangroveModel):
     archived: bool
 
 
+class Benchmark(MangroveModel):
+    """Buy-and-hold return over a window (``client.backtesting.get_benchmark``).
+
+    Same fields as the copilot's ``get_benchmark`` tool, plus
+    ``buy_and_hold_return_raw`` for arithmetic.
+    """
+
+    asset: str
+    start: str
+    end: str
+    bars: int
+    """How many daily closes it was computed from."""
+    first_close: float
+    last_close: float
+    buy_and_hold_return: str | None = None
+    """Display string with the % attached, e.g. ``"12.3456%"``."""
+    buy_and_hold_return_raw: float | None = None
+    """The same return as a number on a 0-100 percent scale (``12.3456`` means 12.3456%)."""
+    unit: str = "percent_0_100"
+
+
 class AsyncBacktestSubmission(MangroveModel):
     """Response from submitting an async backtest."""
 

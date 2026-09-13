@@ -131,6 +131,11 @@ class MangroveAI:
         return ConfigService(self._core_transport)
 
     @cached_property
+    def market_data(self) -> Any:
+        from ._services.market_data import MarketDataService
+        return MarketDataService(self._core_transport)
+
+    @cached_property
     def ai_copilot(self) -> Any:
         from ._services.ai_copilot import AICopilotService
         return AICopilotService(self._core_transport)

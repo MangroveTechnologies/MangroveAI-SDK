@@ -128,10 +128,12 @@ print(f"Trades: {result.trade_count}, Sharpe: {result.metrics.get('sharpe_ratio'
 | Service | Access | Methods | Description |
 |---------|--------|---------|-------------|
 | `client.auth` | `auth.*` | 5 | Login, refresh, API key management |
-| `client.strategies` | `strategies.*` | 8 | Strategy CRUD, status, execution state |
-| `client.backtesting` | `backtesting.*` | 7 | Sync/async/bulk backtesting |
+| `client.strategies` | `strategies.*` | 9 | Strategy CRUD, status, execution state, `verify_strategy` (pre-backtest conformance check) |
+| `client.backtesting` | `backtesting.*` | 8 | Sync/async/bulk backtesting, `get_benchmark` (buy-and-hold over a window) |
+| `client.market_data` | `market_data.*` | 2 | `get_market_regime` (direction over 90/180/365d + volatility), `classify_market_segment` (one named stretch in sweep-catalog labels) |
+| `client.config` | `config.*` | 3 | Trading/execution defaults, `get_execution_config_schema` (each parameter's default, effect, bounds, status) |
 | `client.oracle` | `oracle.*` | 28 | SIEVE scoring, parameter sweeps/experiments, corpus data queries, backtests, simulation, leaderboard |
-| `client.signals` | `signals.*` | 7 | Signal discovery, evaluation, validation |
+| `client.signals` | `signals.*` | 8 | Signal discovery, evaluation, validation, `query_signal_behavior` (measured selectivity / firing rate by parameter setting) |
 | `client.crypto_assets` | `crypto_assets.*` | 8 | Assets, exchanges, OHLCV, market data |
 | `client.execution` | `execution.*` | 8 | Accounts, positions, trades, evaluation |
 | `client.on_chain` | `on_chain.*` | 11 | Smart-money flows, DEX/perp trades, token holders, whale activity (Nansen + WhaleAlert) |
@@ -210,8 +212,9 @@ resp = client.oracle.sieve_score(SieveScoreRequest(strategies=[
 
 print(f"scored {resp.count} | model {resp.model_version}")
 for p in resp.predictions:
-    print(f"  go/no-go: {p.binary}")      # {'p_no_trades': .., 'p_trades': ..}
-    print(f"  outcome:  {p.four_class}")  # {'losing':.., 'no_trades':.., 'wash':.., 'winning':..}
+    print(f"  go/no-go: {p.binary}")  # {'p_no_trades': .., 'p_trades': ..}
+# SIEVE is a go/no-go gate (will it trade?), not a performance prediction:
+# backtest the strategies it expects to trade. `four_class` is retired (None).
 ```
 
 ### Run a parameter sweep (experiment lifecycle)

@@ -82,6 +82,24 @@ class TestSieveScore:
         assert result.predictions[0].binary["p_trades"] == pytest.approx(0.9999)
         assert result.predictions[0].four_class["winning"] == pytest.approx(0.6977)
 
+    def test_score_parses_current_binary_only_response(self) -> None:
+        """Oracle retired the 4-class head: live responses carry only `binary`.
+        Requiring `four_class` made every live sieve_score call raise."""
+        mock = MockTransport()
+        mock.add_response("POST", "/oracle/sieve/score", json={
+            "predictions": [{"binary": {"p_no_trades": 0.9956, "p_trades": 0.0044}}],
+            "count": 1,
+            "model_version": "mangrove-sieve:fb26279be5c6",
+            "code_version": "oracle:v2.11.0 ai:v5.4.0 kb:3.3.1 roots:v0.14.0",
+        })
+        client = _make_client(mock)
+
+        result = client.oracle.sieve_score(SieveScoreRequest(strategies=[_strategy()]))
+
+        assert result.predictions[0].binary["p_no_trades"] == pytest.approx(0.9956)
+        assert result.predictions[0].four_class is None
+        assert result.model_version == "mangrove-sieve:fb26279be5c6"
+
     def test_score_with_runs_posts_correct_payload(self) -> None:
         mock = MockTransport()
         mock.add_response("POST", "/oracle/sieve/score", json=_SIEVE_RESPONSE)

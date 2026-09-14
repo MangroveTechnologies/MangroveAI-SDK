@@ -7,6 +7,51 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added -- copilot agent capabilities as SDK methods
+
+The six analysis tools the MangroveAI copilot uses are now public, authenticated,
+billable REST routes, and each has an SDK method whose response fields, units and null
+semantics match the copilot tool of the same name:
+
+- `client.market_data.get_market_regime(asset, *, lookback_days=None)` -> `MarketRegime`
+  (`GET /market-data/regime/{asset}`)
+- `client.market_data.classify_market_segment(*, asset=, start_date=, end_date=, candle_size=, window_file=)`
+  -> `MarketSegment` (`GET /market-data/segment`)
+- `client.signals.query_signal_behavior(lookup, *, signal_type="FILTER", signal=, ...)`
+  -> `SignalBehaviorResult` (`POST /signals/behavior`)
+- `client.strategies.verify_strategy(strategy_id)` -> `StrategyVerification`
+  (`GET /strategies/{id}/verify`)
+- `client.config.get_execution_config_schema()` -> `ExecutionConfigSchema`
+  (`GET /config/execution-config-schema`)
+- `client.backtesting.get_benchmark(asset, start_date, end_date)` -> `Benchmark`
+  (`GET /backtests/benchmark`)
+
+Percent-typed values are on a 0-100 scale. Each call bills one `api_calls` unit on
+success. **Requires the MangroveAI backend release that serves these routes** -- do
+not publish this version before that backend is deployed to production.
+### Fixed -- backtesting.get() parses stored run records
+
+`GET /backtests/{id}` returns a stored run record (`id`, `status`, `metrics`,
+`trade_history`, `error_message`, `config`, `start_date`, `end_date`, ...) with no
+`success` field, but `BacktestResult.success` was required, so every
+`client.backtesting.get()` on a real run raised a pydantic `ValidationError`.
+`BacktestResult` now accepts both shapes and keeps its return type: `success` is
+optional and derived from `status` for stored records (`completed` -> True,
+`failed` -> False, in flight -> None), `error` comes from `error_message`,
+`trade_count` from `trade_history`, and the record fields (`id`, `status`,
+`asset`, `strategy_id`, `config`, `error_message`, `start_date`, `end_date`,
+`initial_balance`) are typed. Run results that carry `success` parse as before.
+### Fixed -- sieve_score() parses current Oracle responses
+
+MangroveOracle retired SIEVE's 4-class outcome head (MangroveOracle #422: SIEVE
+is a go/no-go gate and does not predict performance), so live responses carry
+only `predictions[].binary`. `SievePrediction.four_class` was required, so every
+live `client.oracle.sieve_score()` call raised a pydantic `ValidationError`
+(and the live contract test `test_sieve_score_parses` has failed since). It is
+now `dict[str, float] | None = None`: `None` on current responses, still parsed
+from older deployments that send it. README and `examples/oracle_quickstart.py`
+no longer gate on `four_class["winning"]`.
+
 ### Changed -- backtesting.run() is async-backed (no more 15s ceiling)
 
 `backtesting.run()` keeps its blocking signature and `BacktestResult` return, but

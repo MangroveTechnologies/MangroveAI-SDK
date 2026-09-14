@@ -8,14 +8,29 @@ from __future__ import annotations
 
 from typing import Any
 
+from ..models.config import ExecutionConfigSchema
 from ._base import BaseService
 
 
 class ConfigService(BaseService):
-    """Server configuration — trading defaults + flattened execution config.
+    """Server configuration — trading defaults, flattened execution config, parameter schema.
 
-    Both endpoints are unauthenticated (non-secret public configuration).
+    ``trading_defaults`` and ``execution_defaults`` are unauthenticated (non-secret
+    public configuration). ``get_execution_config_schema`` requires an API key and is
+    billable.
     """
+
+    def get_execution_config_schema(self) -> ExecutionConfigSchema:
+        """Every execution_config parameter: its default, effect, bounds and status.
+
+        Call before discussing or overriding a risk parameter, so you describe the knob
+        that exists. Each ``param_glossary`` entry carries ``status`` (tunable /
+        guardrail / gated / unused / superseded), ``description``, ``effect`` and any
+        bounds (``type``, ``min``, ``max``, ``min_exclusive``, ``max_exclusive``,
+        ``gate_field``, ``choices``). Mirrors the copilot's
+        ``get_execution_config_schema`` tool (``GET /config/execution-config-schema``).
+        """
+        return self._request_model("GET", "/config/execution-config-schema", ExecutionConfigSchema)
 
     def trading_defaults(self) -> dict[str, Any]:
         """Return the full `trading_defaults.json` structure, nested sections intact.

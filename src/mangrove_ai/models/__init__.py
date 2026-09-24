@@ -96,6 +96,8 @@ from .signals import (
     SearchSignalsRequest,
     Signal,
     SignalBehaviorResult,
+    SignalListFilter,
+    SignalListPage,
     SignalMetadata,
     ValidationResponse,
 )
@@ -155,6 +157,8 @@ __all__ = [
     # Signals
     "Signal",
     "SignalMetadata",
+    "SignalListFilter",
+    "SignalListPage",
     "SearchSignalsRequest",
     "MatchResult",
     "MatchResponse",

@@ -70,6 +70,15 @@ class ServiceUnavailableError(APIError):
     pass
 
 
+class MalformedResponseError(MangroveSDKError):
+    """A 2xx response whose body does not satisfy the endpoint's contract.
+
+    Raised instead of returning a plausible-looking empty or partial result, so a
+    contract break surfaces where it happens rather than as missing data later.
+    """
+    pass
+
+
 class ConnectionError(MangroveSDKError):
     """Network-level error."""
     pass

@@ -15,6 +15,7 @@ from .exceptions import (
     AuthorizationError,
     ConfigurationError,
     ConnectionError,
+    MalformedResponseError,
     MangroveSDKError,
     NotFoundError,
     NotImplementedLayerError,
@@ -39,6 +40,7 @@ __all__ = [
     "ServiceUnavailableError",
     "ConnectionError",
     "TimeoutError",
+    "MalformedResponseError",
     "ConfigurationError",
     "NotImplementedLayerError",
 ]

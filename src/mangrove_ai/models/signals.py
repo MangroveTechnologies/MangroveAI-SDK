@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from typing import Any
 
+from pydantic import Field
+
+from .._pagination import PaginatedResponse
 from ._base import MangroveModel
 
 
@@ -23,6 +26,29 @@ class Signal(MangroveModel):
     metadata: SignalMetadata | None = None
     code: str | None = None
     usage_count: int | None = None
+
+
+class SignalListFilter(MangroveModel):
+    """How a listing request narrowed the catalogue.
+
+    Reported only when a narrowing filter was applied. ``before_filter`` and
+    ``after_filter`` are the catalogue counts either side of it.
+    """
+
+    regime_direction: str | None = None
+    role: str | None = None
+    before_filter: int | None = None
+    after_filter: int | None = None
+
+
+class SignalListPage(PaginatedResponse[Signal]):
+    """One page of signals, plus the filter metadata the listing endpoint reports."""
+
+    total: int = Field(ge=0)
+    offset: int = Field(ge=0)
+    limit: int = Field(gt=0)
+    next_offset: int | None = Field(default=None, ge=0)
+    filter: SignalListFilter | None = None
 
 
 class SearchSignalsRequest(MangroveModel):

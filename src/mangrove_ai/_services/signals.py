@@ -1,15 +1,20 @@
 from __future__ import annotations
 
+import builtins
 from collections.abc import Iterator
 from typing import Any
 
+from pydantic import ValidationError as ModelValidationError
+
 from .._pagination import PaginatedResponse, paginate_iter
+from ..exceptions import MalformedResponseError
 from ..models.signals import (
     EvaluateResponse,
     MatchResponse,
     SearchSignalsRequest,
     Signal,
     SignalBehaviorResult,
+    SignalListPage,
     ValidationResponse,
 )
 from ._base import BaseService
@@ -24,37 +29,94 @@ class SignalsService(BaseService):
         limit: int = 50,
         offset: int = 0,
         category: str | None = None,
-    ) -> PaginatedResponse[Signal]:
-        """List all available trading signals.
+        regime_direction: str | None = None,
+        role: str | None = None,
+    ) -> SignalListPage:
+        """List available trading signals.
+
+        Filters combine: a signal is returned only if it satisfies every filter
+        supplied. The server owns the accepted values and rejects an unknown one
+        rather than ignoring it, so the values named below are a guide to what is
+        currently accepted, not a list this client enforces.
 
         Args:
-            limit: Max signals per page (1-100).
-            offset: Pagination offset.
-            category: Optional category filter ("momentum", "trend", "volume",
-                "volatility", "patterns", "onchain"). When omitted, signals from
-                all categories are returned.
+            limit: Page size requested. The server applies its own ceiling and may
+                serve fewer rows than asked for. Use ``next_offset`` from the result
+                to continue, or ``list_iter`` to page automatically.
+            offset: Index of the first record to return.
+            category: Signal library module, e.g. "momentum", "trend", "volume",
+                "volatility", "patterns", "onchain".
+            regime_direction: Market regime band to narrow to, e.g. "bull", "bear",
+                "neutral", as reported by a market regime lookup. Keeps only signals
+                admissible for that regime.
+            role: The part a signal plays in a strategy -- "TRIGGER" or "FILTER".
+
+        Raises:
+            ValidationError: A page bound or filter value the server does not accept.
+            ServiceUnavailableError: The signal catalogue is not loaded. Distinct
+                from an empty result, which is a successful answer.
+            MalformedResponseError: The response contains invalid signal or page data.
         """
         params: dict[str, Any] = {"limit": limit, "offset": offset}
-        if category is not None:
-            params["category"] = category
+        for name, value in (
+            ("category", category),
+            ("regime_direction", regime_direction),
+            ("role", role),
+        ):
+            if value is not None:
+                params[name] = value
+
         data = self._request("GET", "/signals/", params=params)
-        items = [Signal.model_validate(s) for s in data["signals"]]
-        return PaginatedResponse(
-            items=items,
-            total=data.get("total", len(items)),
-            offset=data.get("offset", offset),
-            limit=data.get("limit", limit),
-        )
+        if not isinstance(data, dict) or not isinstance(data.get("signals"), builtins.list):
+            raise MalformedResponseError(
+                "Signal listing response must contain a 'signals' list."
+            )
+
+        page: dict[str, Any] = {
+            "items": data["signals"],
+            "total": data.get("total", len(data["signals"])),
+            "offset": data.get("offset", offset),
+            "limit": data.get("limit", limit),
+            "filter": data.get("filter"),
+        }
+        # Passed on only where the server reported them, so an endpoint that does not
+        # is left to the page's own derivation rather than told "no further results".
+        for key in ("has_more", "next_offset"):
+            if data.get(key) is not None:
+                page[key] = data[key]
+        try:
+            return SignalListPage(**page)
+        except ModelValidationError:
+            # Pydantic errors include rejected input values; do not expose those
+            # through the traceback of the public SDK error.
+            raise MalformedResponseError(
+                "Signal listing response contains invalid signal or page data."
+            ) from None
 
     def list_iter(
         self,
         *,
         limit_per_page: int = 50,
         category: str | None = None,
+        regime_direction: str | None = None,
+        role: str | None = None,
     ) -> Iterator[Signal]:
-        """Auto-paginating iterator over all signals (optionally filtered by category)."""
+        """Auto-paginating iterator over every signal matching the filters.
+
+        Each page is continued from the offset the server reports, so a page
+        ceiling below ``limit_per_page`` yields every record rather than skipping
+        the rows between the size requested and the size served.
+        Each fetched page is a separate billable request. Use ``list`` when you
+        want exactly one page.
+        """
         return paginate_iter(
-            lambda offset, limit: self.list(limit=limit, offset=offset, category=category),
+            lambda offset, limit: self.list(
+                limit=limit,
+                offset=offset,
+                category=category,
+                regime_direction=regime_direction,
+                role=role,
+            ),
             limit_per_page=limit_per_page,
         )
 

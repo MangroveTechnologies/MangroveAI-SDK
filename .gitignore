@@ -10,6 +10,7 @@ build/
 .env
 # virtualenvs & build artifacts (never commit)
 .venv/
+.venv-*/
 venv/
 env/
 __pycache__/

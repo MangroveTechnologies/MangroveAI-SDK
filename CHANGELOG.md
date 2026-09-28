@@ -7,6 +7,34 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added -- signal listing filters and page metadata
+
+- `signals.list()` and `signals.list_iter()` accept `regime_direction` and `role`
+  alongside `category`. Values are forwarded unchanged; the server validates them.
+- `signals.list()` returns `SignalListPage`, a `PaginatedResponse[Signal]` subclass,
+  with optional typed `filter` metadata. Existing method names and requested page
+  defaults remain unchanged. The server determines the effective page size.
+- `PaginatedResponse` includes `has_more` and `next_offset` as serialized fields.
+  Page metadata describes the received page; callers should fetch a new page rather
+  than mutate a received page and expect its continuation to be recomputed.
+
+### Fixed -- pagination no longer skips records under server page limits
+
+- Iterators follow the server's `next_offset`. Where paging metadata is absent,
+  continuation is derived from the number of returned rows, not the requested limit.
+  For example, requesting 200 rows from a server that serves 50 continues at offset
+  50 instead of skipping to 200. Each fetched page remains a separate billable call.
+- Non-advancing pages raise `MalformedResponseError` instead of repeatedly fetching
+  the same page. Invalid signal lists, records, and page metadata also raise this
+  SDK error instead of appearing to be successful empty results.
+- HTTP 400 and 503 continue to raise `ValidationError` and
+  `ServiceUnavailableError`, respectively. A valid empty list remains successful.
+
+The new filters require a backend serving the canonical signal-listing contract.
+Release and adopt the fixed SDK before deploying the backend's 30-row page-limit
+cutover: older clients can skip records after that change. Use the new filters only
+once backend support is available. This SDK does not impose a 30-row ceiling.
+
 ### Added -- copilot agent capabilities as SDK methods
 
 The six analysis tools the MangroveAI copilot uses are now public, authenticated,

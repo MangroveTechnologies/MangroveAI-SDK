@@ -1,8 +1,18 @@
 from __future__ import annotations
 
+import traceback
+
+import httpx
+import pytest
+
 from mangrove_ai import MangroveAI
 from mangrove_ai._pagination import PaginatedResponse
 from mangrove_ai._transport._mock import MockTransport
+from mangrove_ai.exceptions import (
+    MalformedResponseError,
+    ServiceUnavailableError,
+    ValidationError,
+)
 from mangrove_ai.models.signals import (
     EvaluateResponse,
     MatchResponse,
@@ -14,6 +24,24 @@ from mangrove_ai.models.signals import (
 
 def _make_client(mock: MockTransport) -> MangroveAI:
     return MangroveAI(api_key="test_abc123", environment="local", httpx_client=mock)
+
+
+def _erroring_client(status: int, body: dict) -> MangroveAI:
+    """A client on the real transport, so error responses go through its status mapping.
+
+    (MockTransport returns canned responses without raising, so it cannot exercise
+    that path.)
+    """
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(status, json=body)
+
+    return MangroveAI(
+        api_key="test_abc123",
+        environment="local",
+        auto_retry=False,
+        httpx_client=httpx.Client(transport=httpx.MockTransport(handler)),
+    )
 
 
 SIGNAL_JSON = {
@@ -114,6 +142,221 @@ class TestSignalsList:
 
         assert len(items) == 1
         assert mock.requests[0].params["category"] == "momentum"
+
+
+class TestSignalsListFilters:
+    def _mock(self, **body: object) -> MockTransport:
+        mock = MockTransport()
+        mock.add_response("GET", "/signals/", json={
+            "signals": [SIGNAL_JSON],
+            "total": 1,
+            "limit": 50,
+            "offset": 0,
+            **body,
+        })
+        return mock
+
+    def test_forwards_regime_direction(self) -> None:
+        mock = self._mock()
+        _make_client(mock).signals.list(regime_direction="bear")
+
+        assert mock.requests[0].params["regime_direction"] == "bear"
+
+    def test_forwards_role(self) -> None:
+        mock = self._mock()
+        _make_client(mock).signals.list(role="TRIGGER")
+
+        assert mock.requests[0].params["role"] == "TRIGGER"
+
+    def test_forwards_every_filter_together(self) -> None:
+        mock = self._mock()
+        _make_client(mock).signals.list(
+            category="momentum", regime_direction="bull", role="FILTER"
+        )
+
+        params = mock.requests[0].params
+        assert params["category"] == "momentum"
+        assert params["regime_direction"] == "bull"
+        assert params["role"] == "FILTER"
+
+    def test_omits_filters_that_were_not_supplied(self) -> None:
+        mock = self._mock()
+        _make_client(mock).signals.list()
+
+        params = mock.requests[0].params
+        assert "category" not in params
+        assert "regime_direction" not in params
+        assert "role" not in params
+
+    def test_an_unrecognised_filter_value_is_sent_for_the_server_to_judge(self) -> None:
+        # The accepted values live on the server. Enforcing a copy of them here would
+        # reject a value the server has started accepting until the client is released.
+        mock = self._mock()
+        _make_client(mock).signals.list(role="not_a_role")
+
+        assert mock.requests[0].params["role"] == "not_a_role"
+
+    def test_list_iter_forwards_the_filters(self) -> None:
+        mock = self._mock()
+        list(_make_client(mock).signals.list_iter(regime_direction="bear", role="FILTER"))
+
+        params = mock.requests[0].params
+        assert params["regime_direction"] == "bear"
+        assert params["role"] == "FILTER"
+
+
+class TestSignalsListResponse:
+    def test_reported_paging_is_exposed(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/signals/", json={
+            "signals": [SIGNAL_JSON],
+            "total": 96,
+            "limit": 30,
+            "offset": 0,
+            "has_more": True,
+            "next_offset": 30,
+        })
+
+        result = _make_client(mock).signals.list(limit=50)
+
+        assert result.limit == 30
+        assert result.has_more is True
+        assert result.next_offset == 30
+
+    def test_filter_metadata_is_exposed(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/signals/", json={
+            "signals": [SIGNAL_JSON],
+            "total": 1,
+            "limit": 50,
+            "offset": 0,
+            "filter": {
+                "regime_direction": "bear",
+                "role": "TRIGGER",
+                "before_filter": 96,
+                "after_filter": 1,
+            },
+        })
+
+        result = _make_client(mock).signals.list(regime_direction="bear", role="TRIGGER")
+
+        assert result.filter is not None
+        assert result.filter.regime_direction == "bear"
+        assert result.filter.before_filter == 96
+        assert result.filter.after_filter == 1
+
+    def test_filter_metadata_is_absent_when_nothing_was_narrowed(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/signals/", json={
+            "signals": [SIGNAL_JSON],
+            "total": 1,
+            "limit": 50,
+            "offset": 0,
+            "filter": None,
+        })
+
+        result = _make_client(mock).signals.list()
+
+        assert result.filter is None
+
+    def test_a_body_without_a_signal_list_is_an_error_not_an_empty_page(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/signals/", json={"total": 0, "limit": 50, "offset": 0})
+
+        with pytest.raises(MalformedResponseError):
+            _make_client(mock).signals.list()
+
+    @pytest.mark.parametrize("signals", [None, {}, "", "invalid", 0, False])
+    def test_a_signal_list_with_the_wrong_type_is_rejected(self, signals: object) -> None:
+        client = _erroring_client(200, {"signals": signals, "total": 0})
+
+        with pytest.raises(MalformedResponseError):
+            client.signals.list()
+
+    @pytest.mark.parametrize("record", [None, {}, "invalid", 7])
+    def test_invalid_signal_records_raise_an_sdk_error(self, record: object) -> None:
+        client = _erroring_client(200, {"signals": [record], "total": 1})
+
+        with pytest.raises(MalformedResponseError):
+            client.signals.list()
+
+    def test_malformed_response_traceback_does_not_expose_input(self) -> None:
+        client = _erroring_client(200, {
+            "signals": [{"name": {"private": "PRIVATE_PAYLOAD_MARKER"}, "category": "trend"}],
+        })
+
+        with pytest.raises(MalformedResponseError) as error:
+            client.signals.list()
+
+        rendered = "".join(traceback.format_exception(error.type, error.value, error.tb))
+        assert "PRIVATE_PAYLOAD_MARKER" not in rendered
+        assert "input_value" not in rendered
+
+    @pytest.mark.parametrize("field,value", [
+        ("total", -1), ("offset", -1), ("limit", 0), ("limit", -1), ("next_offset", -1),
+    ])
+    def test_impossible_page_bounds_raise_an_sdk_error(self, field: str, value: int) -> None:
+        client = _erroring_client(200, {
+            "signals": [SIGNAL_JSON], "total": 2, "offset": 0, "limit": 1,
+            "has_more": True, "next_offset": 1, field: value,
+        })
+
+        with pytest.raises(MalformedResponseError):
+            client.signals.list()
+
+    @pytest.mark.parametrize("field,value", [
+        ("total", "invalid"), ("offset", "invalid"), ("limit", {}),
+        ("has_more", "invalid"), ("next_offset", {}), ("filter", "invalid"),
+    ])
+    def test_invalid_page_metadata_raises_an_sdk_error(self, field: str, value: object) -> None:
+        body = {"signals": [SIGNAL_JSON], "total": 2, "offset": 0, "limit": 1,
+                "has_more": True, "next_offset": 1, field: value}
+        client = _erroring_client(200, body)
+
+        with pytest.raises(MalformedResponseError):
+            client.signals.list()
+
+    def test_a_valid_empty_list_is_still_successful(self) -> None:
+        client = _erroring_client(200, {
+            "signals": [], "total": 0, "offset": 0, "limit": 50,
+            "has_more": False, "next_offset": None,
+        })
+
+        page = client.signals.list()
+
+        assert page.items == []
+        assert page.has_more is False
+        assert page.next_offset is None
+
+    def test_a_rejected_page_bound_raises(self) -> None:
+        client = _erroring_client(400, {
+            "error": "validation_error",
+            "message": "limit must be at least 1",
+            "code": "INVALID_REQUEST",
+        })
+
+        with pytest.raises(ValidationError):
+            client.signals.list(limit=0)
+
+    def test_a_rejected_filter_value_raises(self) -> None:
+        client = _erroring_client(400, {
+            "error": "validation_error",
+            "message": "role must be one of TRIGGER, FILTER",
+            "code": "INVALID_REQUEST",
+        })
+
+        with pytest.raises(ValidationError):
+            client.signals.list(role="not_a_role")
+
+    def test_an_unloaded_catalogue_is_distinct_from_an_empty_result(self) -> None:
+        client = _erroring_client(503, {
+            "error": "service_unavailable",
+            "message": "signal catalogue is not loaded",
+            "code": "CATALOGUE_UNAVAILABLE",
+        })
+
+        with pytest.raises(ServiceUnavailableError):
+            client.signals.list()
 
 
 class TestSignalsGet:

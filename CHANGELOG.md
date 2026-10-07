@@ -7,7 +7,7 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### Signals family contracts (1.19.0 candidate)
+### Signals family contracts (1.18.0 candidate)
 
 - Search defaults to `keywords` with 20 results, matching the shared backend Tool.
   Pass `search_type="name", limit=50` explicitly to retain those previous choices.
@@ -18,7 +18,7 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Empty detail names are rejected before making a request; names are URL-encoded.
   Malformed detail/search/match responses produce safe `MalformedResponseError`s.
 - Deploy the matching backend contract before publishing/installing this candidate.
-  Agent clients using the completed family require SDK 1.19.0 or later.
+  Agent clients using the completed family require SDK 1.18.0 or later.
 
 ### Added -- remaining canonical signal operations
 

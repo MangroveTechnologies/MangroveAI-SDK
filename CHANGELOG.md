@@ -7,6 +7,30 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Signals family contracts (1.18.0 candidate)
+
+- Search defaults to `keywords` with 20 results, matching the shared backend Tool.
+  Pass `search_type="name", limit=50` explicitly to retain those previous choices.
+- Search accepts regime, role and category filters and returns `SignalSearchPage`
+  with the actual page bounds, continuation and filter metadata.
+- Matching defaults to threshold 0.3 and accepts intent, regime and role. Matching
+  results preserve description, filter metadata and provider scores.
+- Empty detail names are rejected before making a request; names are URL-encoded.
+  Malformed detail/search/match responses produce safe `MalformedResponseError`s.
+- Deploy the matching backend contract before publishing/installing this candidate.
+  Agent clients using the completed family require SDK 1.18.0 or later.
+
+### Added -- remaining canonical signal operations
+
+- Add `signals.validate_params()`, `signals.evaluate_multiple_series()`,
+  `signals.labels()`, `signals.playground_datasets()` and `signals.playground_data()`.
+- Behavior and evaluation use the same server operations as Michael and hosted MCP.
+  Each SDK method makes one request; a multi-series workflow does not separately bill
+  its internal evaluations.
+- Reject unsafe evaluation/validation path names before network access.
+- Signal Python-code upload validation remains retired; `signals.validate()` retains
+  the existing server 410 response for compatibility.
+
 ### Added -- signal listing filters and page metadata
 
 - `signals.list()` and `signals.list_iter()` accept `regime_direction` and `role`

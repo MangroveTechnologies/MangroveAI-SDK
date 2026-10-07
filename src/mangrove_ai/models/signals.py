@@ -35,6 +35,7 @@ class SignalListFilter(MangroveModel):
     ``after_filter`` are the catalogue counts either side of it.
     """
 
+    category: str | None = None
     regime_direction: str | None = None
     role: str | None = None
     before_filter: int | None = None
@@ -55,9 +56,17 @@ class SearchSignalsRequest(MangroveModel):
     """Request body for POST /signals/search."""
 
     query: str
-    search_type: str = "name"
-    limit: int = 50
+    search_type: str = "keywords"
+    limit: int = 20
     offset: int = 0
+    regime_direction: str | None = None
+    role: str | None = None
+    category: str | None = None
+
+
+class SignalSearchPage(SignalListPage):
+    query: str
+    search_type: str
 
 
 class MatchResult(MangroveModel):
@@ -80,6 +89,8 @@ class MatchResponse(MangroveModel):
     top_k: int
     similarity_threshold: float
     matches: list[MatchResult]
+    description: str | None = None
+    filter: SignalListFilter | None = None
 
 
 class EvaluateResponse(MangroveModel):

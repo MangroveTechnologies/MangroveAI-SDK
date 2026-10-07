@@ -3,10 +3,11 @@ from __future__ import annotations
 import builtins
 from collections.abc import Iterator
 from typing import Any
+from urllib.parse import quote
 
 from pydantic import ValidationError as ModelValidationError
 
-from .._pagination import PaginatedResponse, paginate_iter
+from .._pagination import paginate_iter
 from ..exceptions import MalformedResponseError
 from ..models.signals import (
     EvaluateResponse,
@@ -15,6 +16,7 @@ from ..models.signals import (
     Signal,
     SignalBehaviorResult,
     SignalListPage,
+    SignalSearchPage,
     ValidationResponse,
 )
 from ._base import BaseService
@@ -122,30 +124,42 @@ class SignalsService(BaseService):
 
     def get(self, signal_name: str) -> Signal:
         """Get full metadata for a signal by name."""
-        data = self._request("GET", f"/signals/{signal_name}")
-        return Signal.model_validate(data)
+        if not isinstance(signal_name, str) or not signal_name.strip() or signal_name in {".", ".."}:
+            raise ValueError("signal_name must be a nonempty string")
+        data = self._request("GET", f"/signals/{quote(signal_name, safe='')}")
+        try:
+            return Signal.model_validate(data)
+        except ModelValidationError:
+            raise MalformedResponseError("Signal detail response contains invalid data.") from None
 
-    def search(self, request: SearchSignalsRequest) -> PaginatedResponse[Signal]:
+    def search(self, request: SearchSignalsRequest) -> SignalSearchPage:
         """Search signals by name, params, or keywords.
 
         Args:
             request: Search query with search_type (name, params, keywords).
         """
         data = self._request("POST", "/signals/search", json=request.model_dump())
-        items = [Signal.model_validate(s) for s in data["signals"]]
-        return PaginatedResponse(
-            items=items,
-            total=data.get("total", len(items)),
-            offset=data.get("offset", request.offset),
-            limit=data.get("limit", request.limit),
-        )
+        if not isinstance(data, dict) or not isinstance(data.get("signals"), builtins.list):
+            raise MalformedResponseError("Signal search response must contain a signals list.")
+        try:
+            return SignalSearchPage(
+                items=data["signals"], total=data["total"], limit=data["limit"],
+                offset=data["offset"], query=data.get("query", request.query),
+                search_type=data.get("search_type", request.search_type),
+                **{key: data[key] for key in ("has_more", "next_offset", "filter") if key in data},
+            )
+        except (ModelValidationError, KeyError):
+            raise MalformedResponseError("Signal search response contains invalid page data.") from None
 
     def match(
         self,
         description: str,
         *,
         top_k: int = 5,
-        similarity_threshold: float = 0.5,
+        similarity_threshold: float = 0.3,
+        user_intent: dict[str, Any] | None = None,
+        regime_direction: str | None = None,
+        role: str | None = None,
     ) -> MatchResponse:
         """Find signals matching a natural language description.
 
@@ -158,8 +172,14 @@ class SignalsService(BaseService):
             "description": description,
             "top_k": top_k,
             "similarity_threshold": similarity_threshold,
+            "user_intent": user_intent,
+            "regime_direction": regime_direction,
+            "role": role,
         })
-        return MatchResponse.model_validate(data)
+        try:
+            return MatchResponse.model_validate(data)
+        except ModelValidationError:
+            raise MalformedResponseError("Signal match response contains invalid data.") from None
 
     def evaluate(
         self,
@@ -174,7 +194,7 @@ class SignalsService(BaseService):
             market_data: OHLCV data points.
             parameters: Signal-specific parameters.
         """
-        data = self._request("POST", f"/signals/{signal_name}/evaluate", json={
+        data = self._request("POST", f"/signals/{quote(self._signal_name(signal_name), safe='')}/evaluate", json={
             "market_data": market_data,
             "parameters": parameters,
         })
@@ -268,3 +288,42 @@ class SignalsService(BaseService):
                 body[key] = value
         body["limit"] = limit
         return self._request_model("POST", "/signals/behavior", SignalBehaviorResult, json=body)
+
+    @staticmethod
+    def _signal_name(name: str) -> str:
+        if not isinstance(name, str) or not name.strip() or any(c in name for c in "/\\?#%"):
+            raise ValueError("signal_name must be an exact registered signal name")
+        return name.strip()
+
+    def validate_params(self, signal_name: str, parameters: dict[str, Any]) -> ValidationResponse:
+        """Validate values for a registered signal; does not submit Python code."""
+        name = quote(self._signal_name(signal_name), safe="")
+        return self._request_model("POST", f"/signals/{name}/validate-params", ValidationResponse,
+                                   json={"parameters": parameters})
+
+    def evaluate_multiple_series(
+        self, *, signals: list[dict[str, Any]] | None = None,
+        symbol: str | None = None, start_date: str | None = None,
+        end_date: str | None = None, chart_timeframe: str = "1h",
+        dataset_key: str | None = None,
+    ) -> dict[str, Any]:
+        """Evaluate a bounded set of signals in one server workflow and one charge."""
+        body = {"signals": [] if signals is None else signals, "chart_timeframe": chart_timeframe}
+        for key, value in (("symbol", symbol), ("start_date", start_date),
+                           ("end_date", end_date), ("dataset_key", dataset_key)):
+            if value is not None:
+                body[key] = value
+        return self._request("POST", "/signals/evaluate-multiple-series", json=body)
+
+    def labels(self) -> dict[str, Any]:
+        """Read the unbilled catalogue-label projection."""
+        return self._request("GET", "/signals/labels")
+
+    def playground_datasets(self) -> dict[str, Any]:
+        """Read metadata for bundled playground datasets."""
+        return self._request("GET", "/signals/playground-datasets")
+
+    def playground_data(self, dataset_key: str) -> dict[str, Any]:
+        """Read one bundled dataset, without fetching market-provider data."""
+        key = quote(self._signal_name(dataset_key), safe="")
+        return self._request("GET", f"/signals/playground-data/{key}")

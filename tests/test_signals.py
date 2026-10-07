@@ -478,3 +478,101 @@ class TestSignalsValidate:
 
         assert result.valid is False
         assert len(result.errors) == 2
+
+
+class TestSharedSignalContracts:
+    def test_search_preserves_applied_page_and_filters(self):
+        mock = MockTransport()
+        mock.add_response("POST", "/signals/search", json={
+            "signals": [SIGNAL_JSON], "total": 7, "limit": 1, "offset": 2,
+            "query": "rsi", "search_type": "keywords", "has_more": True, "next_offset": 3,
+            "filter": {"role": "TRIGGER", "before_filter": 9, "after_filter": 7},
+        })
+        client = _make_client(mock)
+        page = client.signals.search(SearchSignalsRequest(query="rsi", role="TRIGGER", regime_direction="bull"))
+        assert (page.total, page.limit, page.offset, page.next_offset) == (7, 1, 2, 3)
+        assert page.filter.role == "TRIGGER"
+        assert page.search_type == "keywords"
+        assert mock.requests[0].json["search_type"] == "keywords"
+        assert mock.requests[0].json["limit"] == 20
+        assert mock.requests[0].json["regime_direction"] == "bull"
+
+    def test_match_forwards_intent_filters_and_default_threshold(self):
+        mock = MockTransport()
+        mock.add_response("POST", "/signals/match", json={
+            "query": "momentum", "description": "momentum", "top_k": 5,
+            "similarity_threshold": 0.3, "matches": [],
+            "filter": {"role": "TRIGGER", "before_filter": 3, "after_filter": 0},
+        })
+        result = _make_client(mock).signals.match("momentum", user_intent={"sentiment": "bullish"}, role="TRIGGER")
+        assert result.filter.after_filter == 0
+        assert mock.requests[0].json["similarity_threshold"] == 0.3
+        assert mock.requests[0].json["user_intent"] == {"sentiment": "bullish"}
+        assert mock.requests[0].json["role"] == "TRIGGER"
+
+    def test_empty_get_cannot_accidentally_buy_a_list_page(self):
+        mock = MockTransport()
+        with pytest.raises(ValueError):
+            _make_client(mock).signals.get("")
+        assert mock.requests == []
+
+    def test_detail_preserves_complete_metadata(self):
+        mock = MockTransport()
+        mock.add_response("GET", "/signals/rsi_oversold", json={**SIGNAL_JSON,
+            "canonical_name": "rsi_oversold", "id": "procedure:signal-rsi-oversold",
+            "composable": True, "friendly_name": "RSI oversold"})
+        result = _make_client(mock).signals.get("rsi_oversold")
+        assert result.model_dump()["id"] == "procedure:signal-rsi-oversold"
+        assert result.model_dump()["composable"] is True
+
+    @pytest.mark.parametrize('method', ['get', 'search'])
+    def test_malformed_response_does_not_leak_private_values(self, method):
+        mock = MockTransport()
+        if method == 'get':
+            mock.add_response('GET', '/signals/name', json={'name': {'secret': 'private-sentinel'}})
+            def call():
+                return _make_client(mock).signals.get('name')
+        else:
+            mock.add_response('POST', '/signals/search', json={'signals': [], 'total': 'private-sentinel', 'limit': 1, 'offset': 0})
+            def call():
+                return _make_client(mock).signals.search(SearchSignalsRequest(query='name'))
+        with pytest.raises(MalformedResponseError) as caught:
+            call()
+        assert 'private-sentinel' not in ''.join(traceback.format_exception(caught.value))
+
+@pytest.mark.parametrize('method,args,path,payload', [
+    ('validate_params', {'signal_name': 'rsi_oversold', 'parameters': {'threshold': 30}}, '/signals/rsi_oversold/validate-params', {'valid': True, 'errors': []}),
+    ('evaluate_multiple_series', {'dataset_key': 'BTC_1D', 'signals': []}, '/signals/evaluate-multiple-series', {'signal_results': [], 'chart_data': []}),
+    ('labels', {}, '/signals/labels', {'signals': []}),
+    ('playground_datasets', {}, '/signals/playground-datasets', {'datasets': []}),
+    ('playground_data', {'dataset_key': 'BTC_1D'}, '/signals/playground-data/BTC_1D', {'chart_data': []}),
+])
+def test_remaining_signal_methods_forward_one_request(method, args, path, payload):
+    calls = []
+    def handler(request):
+        calls.append(request)
+        assert request.url.path.endswith(path)
+        return httpx.Response(200, json=payload)
+    with MangroveAI(api_key='test_abc123', environment='local', auto_retry=False,
+                   httpx_client=httpx.Client(transport=httpx.MockTransport(handler))) as client:
+        result = getattr(client.signals, method)(**args)
+        assert (result.model_dump(exclude_none=True) if hasattr(result, 'model_dump') else result) == payload
+    assert len(calls) == 1
+
+
+@pytest.mark.parametrize('method', ['evaluate', 'validate_params'])
+@pytest.mark.parametrize('name', ['', '../validate', 'bad?name', 'bad/name'])
+def test_evaluation_path_names_cannot_escape(method, name):
+    calls = []
+    def handler(request):
+        calls.append(request)
+        return httpx.Response(200, json={})
+    client = MangroveAI(api_key='test_abc123', environment='local', auto_retry=False,
+                       httpx_client=httpx.Client(transport=httpx.MockTransport(handler)))
+    arguments = {'signal_name': name, 'parameters': {}}
+    if method == 'evaluate':
+        arguments['market_data'] = [{'close': 1}]
+    with pytest.raises(ValueError):
+        getattr(client.signals, method)(**arguments)
+    assert calls == []
+    client.close()

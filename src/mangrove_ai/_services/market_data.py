@@ -6,6 +6,7 @@ are not billed) and require an API key.
 from __future__ import annotations
 
 from typing import Any
+from urllib.parse import quote
 
 from ..models.market_data import MarketRegime, MarketSegment
 from ._base import BaseService
@@ -38,7 +39,7 @@ class MarketDataService(BaseService):
         if lookback_days is not None:
             params["lookback_days"] = lookback_days
         return self._request_model(
-            "GET", f"/market-data/regime/{asset}", MarketRegime, params=params or None
+            "GET", f"/market-data/regime/{quote(asset, safe='')}", MarketRegime, params=params or None
         )
 
     def classify_market_segment(
@@ -63,7 +64,7 @@ class MarketDataService(BaseService):
             asset: Asset symbol, e.g. ``"BTC"``.
             start_date: ISO start of the stretch, e.g. ``"2026-01-01"``.
             end_date: ISO end of the stretch, inclusive.
-            candle_size: Candle size the stretch is read at (server default ``"1d"``).
+            candle_size: Explicit ranges support ``"1d"``; catalogue windows retain their stored interval.
             window_file: A sweep-catalog window's file name.
 
         Raises:

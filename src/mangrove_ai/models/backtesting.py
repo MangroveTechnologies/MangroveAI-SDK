@@ -269,6 +269,14 @@ class Benchmark(MangroveModel):
     buy_and_hold_return_raw: float | None = None
     """The same return as a number on a 0-100 percent scale (``12.3456`` means 12.3456%)."""
     unit: str = "percent_0_100"
+    base_token: str | None = None
+    quote_token: str | None = None
+    market_data_venue: str | None = None
+    requested_start: str | None = None
+    requested_end: str | None = None
+    interval: str | None = None
+    partial: bool | None = None
+    has_gaps: bool | None = None
 
 
 class AsyncBacktestSubmission(MangroveModel):

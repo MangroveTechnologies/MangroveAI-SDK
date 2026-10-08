@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 from typing import Any
+from urllib.parse import quote
 
 from ..models.crypto_assets import (
+    ApprovedAssetsResponse,
     CryptoAsset,
     Exchange,
     GlobalMarketResponse,
     MarketDataResponse,
     OHLCVResponse,
+    SymbolExchangesResponse,
     TrendingResponse,
 )
 from ._base import BaseService
@@ -15,6 +18,18 @@ from ._base import BaseService
 
 class CryptoAssetsService(BaseService):
     """Crypto asset data, risk scoring, and market data."""
+
+    def list_approved_assets(self, *, top_n: int | None = None) -> ApprovedAssetsResponse:
+        """Read the approved strategy universe, preserving catalogue metadata."""
+        if top_n is None:
+            return self._request_model("GET", "/crypto-assets/symbols", ApprovedAssetsResponse)
+        return self._request_model("GET", "/crypto-assets/query", ApprovedAssetsResponse,
+                                   params={"limit": top_n})
+
+    def get_symbol_exchanges(self, symbol: str) -> SymbolExchangesResponse:
+        """Read the venues that list an asset, preserving per-venue metadata."""
+        return self._request_model("GET", f"/crypto-assets/symbols/{quote(symbol, safe='')}/exchanges",
+                                   SymbolExchangesResponse)
 
     def list(
         self,
@@ -41,7 +56,7 @@ class CryptoAssetsService(BaseService):
         Args:
             symbol: Asset symbol (e.g. "BTC", "ETH").
         """
-        return self._request_model("GET", f"/crypto-assets/symbols/{symbol}", CryptoAsset, key="asset")
+        return self._request_model("GET", f"/crypto-assets/symbols/{quote(symbol, safe='')}", CryptoAsset, key="asset")
 
     def list_exchanges(self) -> list[Exchange]:
         """List all exchanges with tier info."""
@@ -67,12 +82,14 @@ class CryptoAssetsService(BaseService):
         Args:
             symbol: Asset symbol (e.g. "BTC").
             days: Number of days of history.
-            provider: Data provider override (default: coinapi).
+            provider: Optional provider override; omitted uses the server's fallback chain.
         """
         params: dict[str, Any] = {"days": days}
         if provider is not None:
             params["provider"] = provider
-        return self._request_model("GET", f"/crypto-assets/ohlcv/{symbol}", OHLCVResponse, params=params)
+        return self._request_model(
+            "GET", f"/crypto-assets/ohlcv/{quote(symbol, safe='')}", OHLCVResponse, params=params
+        )
 
     def get_market_data(
         self,
@@ -90,7 +107,7 @@ class CryptoAssetsService(BaseService):
         if provider is not None:
             params["provider"] = provider
         return self._request_model(
-            "GET", f"/crypto-assets/market-data/{symbol}", MarketDataResponse,
+            "GET", f"/crypto-assets/market-data/{quote(symbol, safe='')}", MarketDataResponse,
             params=params if params else None,
         )
 

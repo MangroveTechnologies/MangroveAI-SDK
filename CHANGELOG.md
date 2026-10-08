@@ -7,6 +7,21 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Market data contracts (1.19.0 candidate)
+
+- Add `crypto_assets.list_approved_assets(top_n=...)` and
+  `crypto_assets.get_symbol_exchanges(symbol)`, preserving catalogue metadata.
+- OHLCV preserves provider, daily interval, requested days and quality metadata.
+  The backend returns UTC-ordered bars without filling gaps. Explicit segment date
+  ranges accept daily history only; catalogue windows retain their stored interval.
+- Benchmarks accept `base_token`, `quote_token` and `market_data_venue` and preserve
+  requested versus actual coverage, gaps and partial-history flags. Returns keep
+  both their numeric percentage and display string.
+- Existing methods and asset-list approval defaults are retained. Asset symbols
+  are URL-encoded in request paths.
+- Deploy the matching backend, publish this candidate, then upgrade agent clients.
+  Local wheel verification does not establish publication or deployment.
+
 ### Signals family contracts (1.18.0 candidate)
 
 - Search defaults to `keywords` with 20 results, matching the shared backend Tool.

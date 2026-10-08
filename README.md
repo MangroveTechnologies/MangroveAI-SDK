@@ -134,7 +134,7 @@ print(f"Trades: {result.trade_count}, Sharpe: {result.metrics.get('sharpe_ratio'
 | `client.config` | `config.*` | 3 | Trading/execution defaults, `get_execution_config_schema` (each parameter's default, effect, bounds, status) |
 | `client.oracle` | `oracle.*` | 28 | SIEVE scoring, parameter sweeps/experiments, corpus data queries, backtests, simulation, leaderboard |
 | `client.signals` | `signals.*` | 8 | Signal discovery, evaluation, validation, `query_signal_behavior` (measured selectivity / firing rate by parameter setting) |
-| `client.crypto_assets` | `crypto_assets.*` | 8 | Assets, exchanges, OHLCV, market data |
+| `client.crypto_assets` | `crypto_assets.*` | 10 | Assets, approved universe, per-asset exchanges, OHLCV, market data |
 | `client.execution` | `execution.*` | 8 | Accounts, positions, trades, evaluation |
 | `client.on_chain` | `on_chain.*` | 11 | Smart-money flows, DEX/perp trades, token holders, whale activity (Nansen + WhaleAlert) |
 | `client.defi` | `defi.*` | 8 | TVL/chain/stablecoins (any plan); token unlocks, perp funding, treasuries, ETF flows, lending rates (DeFiLlama Pro -- requires Pro/Startup/Enterprise, capped at 1,000 calls/account/month) |

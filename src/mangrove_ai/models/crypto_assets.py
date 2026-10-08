@@ -77,6 +77,23 @@ class OHLCVResponse(MangroveModel):
     symbol: str
     data_points: int | None = None
     data: Any = None
+    provider: str | None = None
+    days: int | None = None
+    interval: str | None = None
+    quality: dict[str, Any] | None = None
+
+
+class ApprovedAssetsResponse(MangroveModel):
+    success: bool
+    count: int
+    assets: list[dict[str, Any]]
+
+
+class SymbolExchangesResponse(MangroveModel):
+    success: bool
+    symbol: str
+    count: int
+    exchanges: list[dict[str, Any]]
 
 
 class TrendingResponse(MangroveModel):

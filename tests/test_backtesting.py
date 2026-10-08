@@ -338,3 +338,24 @@ class TestBacktestArchive:
 
         assert isinstance(result, BacktestArchiveResult)
         assert result.archived is False
+
+
+def test_benchmark_forwards_market_and_preserves_coverage():
+    mock = MockTransport()
+    mock.add_response("GET", "/backtests/benchmark", json={
+        "asset": "BTC", "start": "2026-01-02", "end": "2026-01-10", "bars": 9,
+        "first_close": 100, "last_close": 110, "buy_and_hold_return": "10.0%",
+        "buy_and_hold_return_raw": 10, "unit": "percent_0_100", "interval": "1d",
+        "requested_start": "2026-01-01", "requested_end": "2026-01-10",
+        "partial": False, "has_gaps": False,
+        "base_token": "BTC", "quote_token": "USD", "market_data_venue": "KRAKEN",
+    })
+    result = _make_client(mock).backtesting.get_benchmark(
+        "BTC", "2026-01-01", "2026-01-10",
+        base_token="BTC", quote_token="USD", market_data_venue="KRAKEN",
+    )
+    assert mock.requests[-1].params["market_data_venue"] == "KRAKEN"
+    assert mock.requests[-1].params["quote_token"] == "USD"
+    assert result.buy_and_hold_return_raw == 10
+    assert result.start != result.requested_start
+    assert result.has_gaps is False

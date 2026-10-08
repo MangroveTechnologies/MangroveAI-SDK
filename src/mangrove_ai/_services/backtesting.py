@@ -87,7 +87,9 @@ class BacktestingService:
         data = self._core_request("GET", f"/backtests/{backtest_id}/trades")
         return BacktestTradesResponse.model_validate(data)
 
-    def get_benchmark(self, asset: str, start_date: str | date, end_date: str | date) -> Benchmark:
+    def get_benchmark(self, asset: str, start_date: str | date, end_date: str | date, *,
+                      base_token: str | None = None, quote_token: str | None = None,
+                      market_data_venue: str | None = None) -> Benchmark:
         """Buy-and-hold return for an asset between two dates.
 
         First daily close to last daily close, as a percentage -- the comparison a
@@ -111,6 +113,10 @@ class BacktestingService:
             "asset": asset,
             "start_date": _iso(start_date),
             "end_date": _iso(end_date),
+            **{key: value for key, value in {
+                "base_token": base_token, "quote_token": quote_token,
+                "market_data_venue": market_data_venue,
+            }.items() if value is not None},
         })
         return Benchmark.model_validate(data)
 

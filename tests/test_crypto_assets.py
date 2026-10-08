@@ -228,3 +228,31 @@ class TestCryptoAssetsGlobalMarket:
 
         assert isinstance(result, GlobalMarketResponse)
         assert result.data["btc_dominance"] == 54.2
+
+
+def test_approved_asset_listing_preserves_envelope_and_limit():
+    mock = MockTransport()
+    mock.add_response("GET", "/crypto-assets/query", json={"success": True, "count": 1,
+        "assets": [{"symbol": "BTC", "market_data_venue": "KRAKEN"}]})
+    result = _make_client(mock).crypto_assets.list_approved_assets(top_n=2)
+    assert result.count == 1
+    assert result.assets[0]["market_data_venue"] == "KRAKEN"
+    assert mock.requests[-1].params["limit"] == 2
+
+
+def test_symbol_exchanges_preserves_provider_fields():
+    mock = MockTransport()
+    mock.add_response("GET", "/crypto-assets/symbols/BTC/exchanges", json={"success": True,
+        "symbol": "BTC", "count": 1, "exchanges": [{"name": "KRAKEN", "pair": "BTC/USD"}]})
+    result = _make_client(mock).crypto_assets.get_symbol_exchanges("BTC")
+    assert result.exchanges[0]["pair"] == "BTC/USD"
+
+
+def test_history_preserves_quality_and_source():
+    mock = MockTransport()
+    mock.add_response("GET", "/crypto-assets/ohlcv/BTC", json={"success": True, "symbol": "BTC",
+        "data": [], "data_points": 0, "provider": "chain", "interval": "1d", "days": 17,
+        "quality": {"has_gaps": False, "as_of": None, "stale": None}})
+    result = _make_client(mock).crypto_assets.get_ohlcv("BTC", days=17)
+    assert result.provider == "chain" and result.days == 17
+    assert result.model_dump()["quality"]["as_of"] is None

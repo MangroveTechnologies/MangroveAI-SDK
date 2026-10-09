@@ -25,10 +25,14 @@ from ._base import BaseService
 class OnChainService(BaseService):
     """On-chain analytics via Nansen. Legacy whale reads are unsupported."""
 
-    def get_smart_money_flows(self, symbol: str, *, chain: str = "ethereum", timeframe: str = "1d") -> SmartMoneyFlowsResponse:
+    def get_smart_money_flows(
+        self, symbol: str, *, chain: str = "ethereum", timeframe: str = "1d",
+    ) -> SmartMoneyFlowsResponse:
         """Read token flow intelligence from the canonical Nansen operation."""
-        return self._request_model("GET", f"/crypto-assets/flow-intelligence/{quote(symbol, safe='')}", SmartMoneyFlowsResponse,
-                                   params={"chain": chain, "timeframe": timeframe})
+        return self._request_model(
+            "GET", f"/crypto-assets/flow-intelligence/{quote(symbol, safe='')}", SmartMoneyFlowsResponse,
+            params={"chain": chain, "timeframe": timeframe},
+        )
 
     def get_smart_money_netflows(self, *, chains: list[str] | None = None,
                                 include_labels: list[str] | None = None, timeframe: str = "24h",
@@ -39,7 +43,9 @@ class OnChainService(BaseService):
             params["chains"] = ",".join(chains)
         if include_labels is not None:
             params["include_labels"] = ",".join(include_labels)
-        return self._request_model("GET", "/crypto-assets/smart-money/netflows", SmartMoneyPositionsResponse, params=params)
+        return self._request_model(
+            "GET", "/crypto-assets/smart-money/netflows", SmartMoneyPositionsResponse, params=params,
+        )
 
     def get_smart_money_holdings(self, *, chains: list[str] | None = None,
                                 include_labels: list[str] | None = None, min_value_usd: float = 1000000,
@@ -50,7 +56,9 @@ class OnChainService(BaseService):
             params["chains"] = ",".join(chains)
         if include_labels is not None:
             params["include_labels"] = ",".join(include_labels)
-        return self._request_model("GET", "/crypto-assets/smart-money/holdings", SmartMoneyPositionsResponse, params=params)
+        return self._request_model(
+            "GET", "/crypto-assets/smart-money/holdings", SmartMoneyPositionsResponse, params=params,
+        )
 
     def get_smart_money_sentiment(self, symbol: str, *, chain: str | None = None) -> SmartMoneySentimentResponse:
         """Get smart money sentiment for a token.

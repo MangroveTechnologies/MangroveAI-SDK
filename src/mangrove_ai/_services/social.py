@@ -18,7 +18,9 @@ class SocialService(BaseService):
             hours_back: Lookback window in hours.
         """
         params: dict[str, Any] = {"hours_back": hours_back}
-        return self._request_model("GET", f"/social/sentiment/{quote(topic, safe='')}", SentimentResponse, params=params)
+        return self._request_model(
+            "GET", f"/social/sentiment/{quote(topic, safe='')}", SentimentResponse, params=params,
+        )
 
     def get_mentions(self, topic: str, *, hours_back: int = 24, limit: int = 20) -> MentionsResponse:
         """Get recent social mentions for a topic.

@@ -9,6 +9,7 @@ class ProtocolTVLResponse(MangroveModel):
     """Total value locked for a DeFi protocol."""
 
     success: bool
+    provider: str | None = None
     protocol: str
     tvl_usd: float | None = None
     chains: dict[str, float] | None = None
@@ -19,6 +20,7 @@ class ChainTVLResponse(MangroveModel):
     """Total value locked for a blockchain."""
 
     success: bool
+    provider: str | None = None
     chain: str
     tvl_usd: float | None = None
     top_protocols: list[dict[str, Any]] | None = None
@@ -29,6 +31,7 @@ class StablecoinMetricsResponse(MangroveModel):
     """Global stablecoin supply and metrics."""
 
     success: bool
+    provider: str | None = None
     total_supply_usd: float | None = None
     supply_by_chain: dict[str, float] | None = None
     data: dict[str, Any] | None = None
@@ -45,37 +48,42 @@ class TokenUnlocksResponse(MangroveModel):
     """Token unlock schedules + supply metrics (supply-shock signal). Pro."""
 
     success: bool
+    provider: str | None = None
     count: int | None = None
-    data: list[dict[str, Any]] | None = None
+    data: list[dict[str, Any]] | dict[str, Any] | None = None
 
 
 class PerpFundingResponse(MangroveModel):
     """Aggregated DeFi perpetual funding rates across venues. Pro."""
 
     success: bool
+    provider: str | None = None
     count: int | None = None
-    data: list[dict[str, Any]] | None = None
+    data: list[dict[str, Any]] | dict[str, Any] | None = None
 
 
 class TreasuriesResponse(MangroveModel):
     """Protocol treasury holdings (crowd-positioning signal). Pro."""
 
     success: bool
+    provider: str | None = None
     count: int | None = None
-    data: list[dict[str, Any]] | None = None
+    data: list[dict[str, Any]] | dict[str, Any] | None = None
 
 
 class EtfFlowsResponse(MangroveModel):
     """Crypto ETF net flows (institutional flow signal). Pro."""
 
     success: bool
+    provider: str | None = None
     count: int | None = None
-    data: list[dict[str, Any]] | None = None
+    data: list[dict[str, Any]] | dict[str, Any] | None = None
 
 
 class LendingRatesResponse(MangroveModel):
     """Lending-pool borrow rates (rate-spread features). Pro."""
 
     success: bool
+    provider: str | None = None
     count: int | None = None
-    data: list[dict[str, Any]] | None = None
+    data: list[dict[str, Any]] | dict[str, Any] | None = None

@@ -9,6 +9,7 @@ class SmartMoneySentimentResponse(MangroveModel):
     """Smart money sentiment for a token."""
 
     success: bool
+    provider: str | None = None
     symbol: str
     chain: str | None = None
     sentiment: str | None = None
@@ -23,6 +24,7 @@ class SmartMoneyScreenResponse(MangroveModel):
     """Screened tokens by smart money activity."""
 
     success: bool
+    provider: str | None = None
     count: int | None = None
     chains: list[str] | None = None
     timeframe: str | None = None
@@ -33,6 +35,7 @@ class TokenHoldersResponse(MangroveModel):
     """Token holder distribution."""
 
     success: bool
+    provider: str | None = None
     symbol: str
     holder_count: int | None = None
     top_10_holders_pct: float | None = None
@@ -44,6 +47,7 @@ class WhaleTransactionsResponse(MangroveModel):
     """Recent large-value on-chain transactions."""
 
     success: bool
+    provider: str | None = None
     count: int | None = None
     min_value_usd: float | None = None
     transactions: list[dict[str, Any]] | None = None
@@ -53,6 +57,7 @@ class ExchangeFlowsResponse(MangroveModel):
     """Aggregated exchange inflows/outflows."""
 
     success: bool
+    provider: str | None = None
     symbol: str | None = None
     timeframe: str | None = None
     net_flow_usd: float | None = None
@@ -63,6 +68,7 @@ class WhaleActivityResponse(MangroveModel):
     """High-level whale activity summary."""
 
     success: bool
+    provider: str | None = None
     symbol: str
     hours_back: int | None = None
     summary: dict[str, Any] | None = None
@@ -72,6 +78,7 @@ class SmartMoneyHistoricalHoldingsResponse(MangroveModel):
     """Date-stamped snapshots of Smart Money token holdings."""
 
     success: bool
+    provider: str | None = None
     chains: list[str] | None = None
     date_range: dict[str, str] | None = None
     count: int | None = None
@@ -82,6 +89,7 @@ class SmartMoneyDexTradesResponse(MangroveModel):
     """Recent DEX trades from Smart Money wallets."""
 
     success: bool
+    provider: str | None = None
     chains: list[str] | None = None
     count: int | None = None
     trades: list[dict[str, Any]] | None = None
@@ -91,6 +99,7 @@ class SmartMoneyPerpTradesResponse(MangroveModel):
     """Perpetual-futures trades from Smart Money wallets (Hyperliquid)."""
 
     success: bool
+    provider: str | None = None
     venue: str | None = None
     count: int | None = None
     trades: list[dict[str, Any]] | None = None
@@ -100,6 +109,7 @@ class TokenDexTradesResponse(MangroveModel):
     """DEX trades for a single token across all participants in a date window."""
 
     success: bool
+    provider: str | None = None
     symbol: str
     chain: str | None = None
     contract_address: str | None = None
@@ -112,6 +122,7 @@ class TokenFlowsResponse(MangroveModel):
     """Aggregated per-wallet-category flow data for a single token in a date window."""
 
     success: bool
+    provider: str | None = None
     symbol: str
     chain: str | None = None
     contract_address: str | None = None
@@ -131,6 +142,7 @@ class OnChainSeriesResponse(MangroveModel):
     """
 
     success: bool
+    provider: str | None = None
     symbol: str
     chain: str | None = None
     interval: str | None = None
@@ -138,3 +150,21 @@ class OnChainSeriesResponse(MangroveModel):
     metrics: list[str] | None = None
     count: int | None = None
     series: list[dict[str, Any]] | None = None
+
+
+class SmartMoneyFlowsResponse(MangroveModel):
+    success: bool
+    provider: str | None = None
+    symbol: str
+    chain: str
+    timeframe: str
+    data: dict[str, Any]
+
+
+class SmartMoneyPositionsResponse(MangroveModel):
+    success: bool
+    provider: str | None = None
+    count: int
+    chains: list[str]
+    labels: list[str]
+    data: list[dict[str, Any]]

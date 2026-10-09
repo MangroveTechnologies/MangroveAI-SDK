@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from urllib.parse import quote
+
 from ..models.defi import (
     ChainTVLResponse,
     EtfFlowsResponse,
@@ -28,7 +30,7 @@ class DeFiService(BaseService):
         Args:
             protocol: Protocol name (e.g. "aave", "uniswap").
         """
-        return self._request_model("GET", f"/defi/protocol/{protocol}/tvl", ProtocolTVLResponse)
+        return self._request_model("GET", f"/defi/protocol/{quote(protocol, safe='')}/tvl", ProtocolTVLResponse)
 
     def get_chain_tvl(self, chain: str) -> ChainTVLResponse:
         """Get total value locked for a blockchain with top protocols.
@@ -36,7 +38,7 @@ class DeFiService(BaseService):
         Args:
             chain: Chain name (e.g. "ethereum", "bsc", "arbitrum").
         """
-        return self._request_model("GET", f"/defi/chain/{chain}/tvl", ChainTVLResponse)
+        return self._request_model("GET", f"/defi/chain/{quote(chain, safe='')}/tvl", ChainTVLResponse)
 
     def get_stablecoin_metrics(self) -> StablecoinMetricsResponse:
         """Get global stablecoin supply and metrics by chain."""
@@ -63,3 +65,11 @@ class DeFiService(BaseService):
     def get_lending_borrow_rates(self) -> LendingRatesResponse:
         """Pro: lending-pool borrow rates (rate-spread features)."""
         return self._request_model("GET", "/defi/lending-rates", LendingRatesResponse)
+
+    def get_perp_funding_rates(self) -> PerpFundingResponse:
+        """Canonical-name alias for perpetual funding rates."""
+        return self.get_perp_funding()
+
+    def get_lending_rates(self) -> LendingRatesResponse:
+        """Canonical-name alias for lending and borrow rates."""
+        return self.get_lending_borrow_rates()

@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 from typing import Any
+from urllib.parse import quote
 
 from ..models.on_chain import (
     ExchangeFlowsResponse,
     OnChainSeriesResponse,
     SmartMoneyDexTradesResponse,
+    SmartMoneyFlowsResponse,
     SmartMoneyHistoricalHoldingsResponse,
     SmartMoneyPerpTradesResponse,
+    SmartMoneyPositionsResponse,
     SmartMoneyScreenResponse,
     SmartMoneySentimentResponse,
     TokenDexTradesResponse,
@@ -20,7 +23,42 @@ from ._base import BaseService
 
 
 class OnChainService(BaseService):
-    """On-chain analytics via Nansen and WhaleAlert."""
+    """On-chain analytics via Nansen. Legacy whale reads are unsupported."""
+
+    def get_smart_money_flows(
+        self, symbol: str, *, chain: str = "ethereum", timeframe: str = "1d",
+    ) -> SmartMoneyFlowsResponse:
+        """Read token flow intelligence from the canonical Nansen operation."""
+        return self._request_model(
+            "GET", f"/crypto-assets/flow-intelligence/{quote(symbol, safe='')}", SmartMoneyFlowsResponse,
+            params={"chain": chain, "timeframe": timeframe},
+        )
+
+    def get_smart_money_netflows(self, *, chains: list[str] | None = None,
+                                include_labels: list[str] | None = None, timeframe: str = "24h",
+                                limit: int = 15) -> SmartMoneyPositionsResponse:
+        """Read market-wide netflows, with server-owned provider and ranking rules."""
+        params: dict[str, Any] = {"timeframe": timeframe, "limit": limit}
+        if chains is not None:
+            params["chains"] = ",".join(chains)
+        if include_labels is not None:
+            params["include_labels"] = ",".join(include_labels)
+        return self._request_model(
+            "GET", "/crypto-assets/smart-money/netflows", SmartMoneyPositionsResponse, params=params,
+        )
+
+    def get_smart_money_holdings(self, *, chains: list[str] | None = None,
+                                include_labels: list[str] | None = None, min_value_usd: float = 1000000,
+                                limit: int = 15) -> SmartMoneyPositionsResponse:
+        """Read current market-wide holdings from the canonical operation."""
+        params: dict[str, Any] = {"min_value_usd": min_value_usd, "limit": limit}
+        if chains is not None:
+            params["chains"] = ",".join(chains)
+        if include_labels is not None:
+            params["include_labels"] = ",".join(include_labels)
+        return self._request_model(
+            "GET", "/crypto-assets/smart-money/holdings", SmartMoneyPositionsResponse, params=params,
+        )
 
     def get_smart_money_sentiment(self, symbol: str, *, chain: str | None = None) -> SmartMoneySentimentResponse:
         """Get smart money sentiment for a token.
@@ -55,12 +93,12 @@ class OnChainService(BaseService):
         Args:
             symbol: Token symbol (e.g. "ETH").
         """
-        return self._request_model("GET", f"/on-chain/token-holders/{symbol}", TokenHoldersResponse)
+        return self._request_model("GET", f"/on-chain/token-holders/{quote(symbol, safe='')}", TokenHoldersResponse)
 
     def get_whale_transactions(
         self, *, symbol: str | None = None, min_value: float = 500_000, hours_back: int = 24,
     ) -> WhaleTransactionsResponse:
-        """Get recent large-value on-chain transactions.
+        """Legacy operation: the backend returns UNSUPPORTED_OPERATION (501).
 
         Args:
             symbol: Optional token filter.
@@ -73,7 +111,7 @@ class OnChainService(BaseService):
         return self._request_model("GET", "/on-chain/whale-transactions", WhaleTransactionsResponse, params=params)
 
     def get_exchange_flows(self, *, symbol: str | None = None, hours_back: int = 24) -> ExchangeFlowsResponse:
-        """Get aggregated exchange inflows/outflows.
+        """Legacy operation: the backend returns UNSUPPORTED_OPERATION (501).
 
         Args:
             symbol: Optional token filter (query param, not path).
@@ -85,7 +123,7 @@ class OnChainService(BaseService):
         return self._request_model("GET", "/on-chain/exchange-flows", ExchangeFlowsResponse, params=params)
 
     def get_whale_activity(self, symbol: str, *, hours_back: int = 24) -> WhaleActivityResponse:
-        """Get high-level whale activity summary for a token.
+        """Legacy operation: the backend returns UNSUPPORTED_OPERATION (501).
 
         Args:
             symbol: Token symbol (e.g. "BTC").
@@ -93,7 +131,7 @@ class OnChainService(BaseService):
         """
         params: dict[str, Any] = {"hours_back": hours_back}
         return self._request_model(
-            "GET", f"/on-chain/whale-activity/{symbol}", WhaleActivityResponse, params=params,
+            "GET", f"/on-chain/whale-activity/{quote(symbol, safe='')}", WhaleActivityResponse, params=params,
         )
 
     # ----- Tier-1 smart-money expansion (Nansen Pro plan) ---------------------
@@ -118,7 +156,7 @@ class OnChainService(BaseService):
 
         Args:
             chains: Chain filter (e.g. ["ethereum", "solana"]). Default: ["ethereum"].
-            date_from: Start date YYYY-MM-DD. Default: 7 days ago.
+            date_from: Start date YYYY-MM-DD. Default: 7 days before date_to.
             date_to: End date YYYY-MM-DD. Default: today.
             filters: Nansen-shape filter dict (include_smart_money_labels,
                 value_usd: {min, max}, balance_24h_percent_change, token_age_days, ...).
@@ -229,7 +267,7 @@ class OnChainService(BaseService):
         Args:
             symbol: Token identifier (CoinGecko ID preferred, e.g. ``"uniswap"``).
             chain: Blockchain (default: "ethereum").
-            date_from: Start date YYYY-MM-DD. Default: 7 days ago.
+            date_from: Start date YYYY-MM-DD. Default: 7 days before date_to.
             date_to: End date YYYY-MM-DD. Default: today.
             filters: Nansen filter dict.
             order_by: Sort order.
@@ -249,7 +287,7 @@ class OnChainService(BaseService):
             body["order_by"] = order_by
         return self._request_model(
             "POST",
-            f"/on-chain/token/{symbol}/dex-trades",
+            f"/on-chain/token/{quote(symbol, safe='')}/dex-trades",
             TokenDexTradesResponse,
             json=body,
         )
@@ -275,7 +313,7 @@ class OnChainService(BaseService):
             symbol: Token identifier (CoinGecko ID preferred, e.g. ``"uniswap"``).
                 Stablecoins are rejected.
             chain: Blockchain (default: "ethereum").
-            date_from: Start date YYYY-MM-DD. Default: 7 days ago.
+            date_from: Start date YYYY-MM-DD. Default: 7 days before date_to.
             date_to: End date YYYY-MM-DD. Default: today.
             label: Wallet category to scope to -- one of ``"smart_money"``,
                 ``"exchange"``, ``"whale"``, ``"public_figure"``, ``"top_100_holders"``.
@@ -299,7 +337,7 @@ class OnChainService(BaseService):
             body["order_by"] = order_by
         return self._request_model(
             "POST",
-            f"/on-chain/token/{symbol}/flows",
+            f"/on-chain/token/{quote(symbol, safe='')}/flows",
             TokenFlowsResponse,
             json=body,
         )
@@ -326,12 +364,12 @@ class OnChainService(BaseService):
             symbol: Token identifier (e.g. ``"WETH"``).
             metrics: Subset of ``"SmartMoneyNetflow"``, ``"SmartMoneyHoldings"``,
                 ``"ExchangeNetflow"``, ``"WhaleNetInflow"``, ``"HolderConcentration"``.
-            date_from: Start date YYYY-MM-DD. Default: 10 days ago.
+            date_from: Start date YYYY-MM-DD. Default: 10 days before date_to.
             date_to: End date YYYY-MM-DD. Default: today.
             interval: Resample interval -- ``"1h"`` (default), ``"4h"``, ``"1d"``, ``"1w"``.
             chain: Blockchain (default: "ethereum").
-            provider: ``None``/``"nansen"`` (default, uncapped) or ``"whalealert"``
-                (30-day fallback, ExchangeNetflow/WhaleNetInflow only).
+            provider: ``None`` or ``"nansen"``. Other providers are rejected.
+                Date windows are limited to 366 days.
             top_n: Top-N holders summed for HolderConcentration. Default: 10.
         """
         body: dict[str, Any] = {"symbol": symbol, "metrics": metrics,

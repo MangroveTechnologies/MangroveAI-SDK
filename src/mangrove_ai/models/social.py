@@ -9,6 +9,7 @@ class SentimentResponse(MangroveModel):
     """Social sentiment for a topic."""
 
     success: bool
+    provider: str | None = None
     topic: str
     sentiment: str | None = None
     score: float | None = None
@@ -20,6 +21,7 @@ class MentionsResponse(MangroveModel):
     """Social mentions for a topic."""
 
     success: bool
+    provider: str | None = None
     topic: str
     count: int | None = None
     posts: list[dict[str, Any]] | None = None
@@ -29,6 +31,7 @@ class InfluenceScoreResponse(MangroveModel):
     """Influence score for a social account."""
 
     success: bool
+    provider: str | None = None
     username: str
     score: float | None = None
     followers: int | None = None

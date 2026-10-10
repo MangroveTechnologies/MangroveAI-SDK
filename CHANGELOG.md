@@ -7,10 +7,11 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### Removed
+### Removed (breaking)
 
-- `MarketSegment.market_era`. `market_data.classify_market_segment()` no longer
-  returns a market era; code that reads the attribute must drop it.
+- **Breaking:** `MarketSegment.market_era` is removed from the public model.
+  `market_data.classify_market_segment()` no longer returns a market era, and code
+  that reads `segment.market_era` must drop it.
 
 ### Market regime window
 

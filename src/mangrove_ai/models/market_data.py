@@ -39,15 +39,46 @@ class VolatilityReading(MangroveModel):
     error: str | None = None
 
 
+class RegimeWindow(MangroveModel):
+    """The whole lookback read as one window, in the sweep catalog's labels."""
+
+    start_date: str | None = None
+    end_date: str | None = None
+    length: str | None = None
+    """``1-month`` / ``3-month`` / ``6-month`` / ``12-month``, or ``None`` when the lookback
+    falls in no length band (21-45, 75-135, 150-220, 330-400 days)."""
+    asset_class: str | None = None
+    """The class the volatility label is read against, e.g. ``crypto``."""
+    direction: str | None = None
+    """Direction band of the total return over the whole lookback."""
+    volatility: str | None = None
+    """``low`` / ``medium`` / ``high`` for the asset class and length, or ``unscored``."""
+    trend: str | None = None
+    """``clean`` / ``mixed`` / ``choppy``."""
+    volatility_probabilities: dict[str, float | None] | None = None
+    """``{"low", "medium", "high"}``: how firmly the window sits in its label; ``None``
+    when unscored."""
+    total_return_pct: float | None = None
+    """Percent, 0-100 scale."""
+    realized_vol_ann_pct: float | None = None
+    """Annualised realised volatility, percent, 0-100 scale."""
+    r_squared: float | None = None
+    """0 to 1 -- how closely the path tracked a straight line."""
+
+
 class RegimeReading(MangroveModel):
-    """The regime service's classification, unchanged."""
+    """The regime service's classification of an asset's current regime."""
 
     asof: str | None = None
     """The last date read."""
     direction: dict[str, DirectionReading] = {}
     """Keyed by horizon: ``"90d"``, ``"180d"``, ``"365d"``."""
     volatility: VolatilityReading | None = None
+    """Volatility against the asset's own baseline."""
     asset: str | None = None
+    window: RegimeWindow | None = None
+    """The whole lookback in the sweep catalog's labels; ``None`` from a server that
+    predates it."""
 
 
 class MarketRegime(MangroveModel):

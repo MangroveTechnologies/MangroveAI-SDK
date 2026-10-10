@@ -20,7 +20,8 @@ class MarketDataService(BaseService):
 
         The return and a bull/neutral/bear band over 90, 180 and 365 days, plus
         annualised volatility with a low/medium/high bucket and a z-score against the
-        asset's own baseline. Mirrors the copilot's ``get_market_regime`` tool.
+        asset's own baseline, and the whole lookback in the sweep catalog's labels
+        (``window``). Mirrors the copilot's ``get_market_regime`` tool.
 
         Args:
             asset: Asset symbol, e.g. ``"BTC"``.
@@ -28,8 +29,8 @@ class MarketDataService(BaseService):
 
         Returns:
             ``MarketRegime`` -- ``asset``, ``bars`` and ``regime`` (``asof``,
-            ``direction`` keyed ``"90d"``/``"180d"``/``"365d"``, ``volatility``).
-            Percent fields are on a 0-100 scale.
+            ``direction`` keyed ``"90d"``/``"180d"``/``"365d"``, ``volatility``,
+            ``window``). Percent fields are on a 0-100 scale.
 
         Raises:
             ValidationError: Bad ``lookback_days`` (400) or too little history (422).

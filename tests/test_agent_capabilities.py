@@ -60,6 +60,12 @@ REGIME = {
         },
         "volatility": {"vol_ann_pct": 41.3, "z_vs_baseline": -0.62, "bucket": "low"},
         "asset": "BTC",
+        "window": {
+            "start_date": "2025-09-29", "end_date": "2026-09-29", "length": "12-month",
+            "asset_class": "crypto", "direction": "bear", "volatility": "low", "trend": "mixed",
+            "volatility_probabilities": {"low": 0.98, "medium": 0.02, "high": 0.0},
+            "total_return_pct": -26.8, "realized_vol_ann_pct": 45.0, "r_squared": 0.51,
+        },
     },
 }
 
@@ -85,7 +91,19 @@ class TestMarketRegime:
         assert out.regime.direction["90d"].return_pct == 8.4
         assert out.regime.direction["365d"].error == "insufficient_history"
         assert out.regime.volatility is not None and out.regime.volatility.bucket == "low"
+        window = out.regime.window
+        assert window is not None and window.length == "12-month" and window.asset_class == "crypto"
+        assert (window.direction, window.volatility, window.trend) == ("bear", "low", "mixed")
+        assert window.volatility_probabilities == {"low": 0.98, "medium": 0.02, "high": 0.0}
+
         assert mock.requests[-1].params == {"lookback_days": 180}
+
+    def test_a_reading_without_a_window_still_parses(self) -> None:
+        """A backend that predates the window block answers without it."""
+        mock = MockTransport()
+        old = {**REGIME, "regime": {k: v for k, v in REGIME["regime"].items() if k != "window"}}
+        mock.add_response("GET", "/market-data/regime/BTC", json=old)
+        assert _client(mock).market_data.get_market_regime("BTC").regime.window is None
 
     def test_lookback_is_omitted_when_not_given(self) -> None:
         mock = MockTransport()

@@ -7,6 +7,14 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Market regime window
+
+- `market_data.get_market_regime()` returns `regime.window` (`RegimeWindow`): the whole
+  lookback in the sweep catalog's labels -- length, asset class, direction, volatility
+  (low/medium/high for the class and length, or unscored), trend (clean/mixed/choppy),
+  the volatility probabilities, and the return, realised volatility and R-squared.
+  `None` from a backend that predates it; the existing fields are unchanged.
+
 ### Market data contracts (1.19.0 candidate)
 
 - Add `crypto_assets.list_approved_assets(top_n=...)` and

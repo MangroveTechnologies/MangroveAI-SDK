@@ -159,6 +159,20 @@ class TestMarketSegment:
         assert mock.requests[-1].params == {
             "asset": "BTC", "start_date": "2026-02-01", "end_date": "2026-05-01"}
 
+    def test_a_listed_commodity_segment_reports_its_venue(self) -> None:
+        mock = MockTransport()
+        gold = {**SEGMENT, "asset": "GOLD", "venue": "yahoofut"}
+        mock.add_response("GET", "/market-data/segment", json=gold)
+        out = _client(mock).market_data.classify_market_segment(
+            asset="GOLD", start_date="2026-02-02", end_date="2026-05-01")
+        assert out.venue == "yahoofut"
+
+    def test_a_segment_without_a_venue_still_parses(self) -> None:
+        """A backend that predates the venue answers without it."""
+        mock = MockTransport()
+        mock.add_response("GET", "/market-data/segment", json=SEGMENT)
+        assert _client(mock).market_data.classify_market_segment(window_file="w.csv").venue is None
+
     def test_classify_a_catalog_window(self) -> None:
         mock = MockTransport()
         mock.add_response("GET", "/market-data/segment", json=SEGMENT)

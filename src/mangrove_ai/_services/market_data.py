@@ -23,10 +23,13 @@ class MarketDataService(BaseService):
         asset's own baseline, and the whole lookback in the sweep catalog's labels
         (``window``). Mirrors the copilot's ``get_market_regime`` tool.
 
-        Covers crypto and the stocks, ETFs, commodities and bonds the regime service
-        lists, e.g. ``"SPY"``, ``"GOLD"`` or ``"CRUDE"``. A ticker the regime service
-        lists is read as that asset from its exchange-session daily series, even where
-        a crypto token shares the ticker; any other ticker is read as crypto.
+        Covers crypto and the stocks, ETFs, commodities and bonds in Oracle's regime
+        catalog: SPY, QQQ, DIA, IWM, AAPL, AMD, AMZN, COST, GOOGL, HD, JNJ, JPM, META,
+        MSFT, NFLX, NVDA, PG, TSLA, UNH, WMT, XOM, GLD, SLV, USO, ``"GOLD"`` (gold
+        futures), ``"CRUDE"`` (crude oil futures) and TLT. Those tickers are read from
+        their exchange-session daily series, even where a crypto token shares one; any
+        other ticker is read as crypto, so a stock not named here cannot be read. A
+        listed ticker needs at least 15 sessions with a close, about three weeks.
         ``venue`` says which feed was read.
 
         Args:
@@ -65,12 +68,20 @@ class MarketDataService(BaseService):
         Supply ``window_file`` (a catalog window's file name), OR ``asset`` with both
         dates -- not both. Returns the direction band, volatility band (``unscored``
         when no fitted band covers the stretch's length; ``scale_bands`` says which
-        lengths have one), trend character, era and the features behind them. For an
-        asset's CURRENT conditions use :meth:`get_market_regime`. Mirrors the copilot's
-        ``classify_market_segment`` tool.
+        lengths have one), trend character, era, the features behind them and the
+        ``venue`` read. For an asset's CURRENT conditions use :meth:`get_market_regime`.
+        Mirrors the copilot's ``classify_market_segment`` tool.
+
+        Covers crypto and the stocks, ETFs, commodities and bonds in Oracle's regime
+        catalog: SPY, QQQ, DIA, IWM, AAPL, AMD, AMZN, COST, GOOGL, HD, JNJ, JPM, META,
+        MSFT, NFLX, NVDA, PG, TSLA, UNH, WMT, XOM, GLD, SLV, USO, ``"GOLD"`` (gold
+        futures), ``"CRUDE"`` (crude oil futures) and TLT. Those tickers are read from
+        their exchange-session daily series, even where a crypto token shares one; any
+        other ticker is read as crypto, so a stock not named here cannot be read. A
+        listed ticker needs at least 15 sessions with a close, about three weeks.
 
         Args:
-            asset: Asset symbol, e.g. ``"BTC"``.
+            asset: Asset symbol, e.g. ``"BTC"``, ``"SPY"``, ``"GOLD"`` or ``"CRUDE"``.
             start_date: ISO start of the stretch, e.g. ``"2026-01-01"``.
             end_date: ISO end of the stretch, inclusive.
             candle_size: Explicit ranges support ``"1d"``; catalogue windows retain their stored interval.

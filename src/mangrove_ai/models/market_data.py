@@ -126,7 +126,6 @@ class MarketSegment(MangroveModel):
     """The three joined, e.g. ``bear_medium_mixed``."""
     scale: str | None = None
     """The fitted length band used, or ``None`` when none applied."""
-    market_era: str | None = None
     scale_bands: list[dict[str, Any]] | None = None
     """Stretch lengths that have a fitted volatility band."""
     features: SegmentFeatures | None = None

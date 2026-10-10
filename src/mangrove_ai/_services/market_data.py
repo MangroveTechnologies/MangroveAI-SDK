@@ -23,12 +23,20 @@ class MarketDataService(BaseService):
         asset's own baseline, and the whole lookback in the sweep catalog's labels
         (``window``). Mirrors the copilot's ``get_market_regime`` tool.
 
+        Covers crypto and the stocks, ETFs, commodities and bonds the regime service
+        lists, e.g. ``"SPY"``, ``"GOLD"`` or ``"CRUDE"``. A ticker the regime service
+        lists is read as that asset from its exchange-session daily series, even where
+        a crypto token shares the ticker; any other ticker is read as crypto.
+        ``venue`` says which feed was read.
+
         Args:
-            asset: Asset symbol, e.g. ``"BTC"``.
+            asset: Asset symbol, e.g. ``"BTC"``, ``"SPY"``, ``"GOLD"`` or ``"CRUDE"``.
             lookback_days: Days of daily closes to read, 1-365 (server default 365).
+                For a stock, ETF, commodity or bond these are calendar days, so 365
+                reads about 250 sessions.
 
         Returns:
-            ``MarketRegime`` -- ``asset``, ``bars`` and ``regime`` (``asof``,
+            ``MarketRegime`` -- ``asset``, ``venue``, ``bars`` and ``regime`` (``asof``,
             ``direction`` keyed ``"90d"``/``"180d"``/``"365d"``, ``volatility``,
             ``window``). Percent fields are on a 0-100 scale.
 

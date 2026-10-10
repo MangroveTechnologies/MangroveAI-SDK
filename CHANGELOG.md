@@ -7,6 +7,14 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Market regime for stocks, ETFs, commodities and bonds
+
+- `market_data.get_market_regime()` reads the stocks, ETFs, commodities and bonds the
+  regime service lists (e.g. `"SPY"`, `"GOLD"`, `"CRUDE"`) as well as crypto.
+  `MarketRegime.venue` names the price feed read: `binance` for crypto, `yahoo` for a
+  listed stock, ETF or bond, `yahoofut` for a listed future. `None` from a backend
+  that predates it; the existing fields are unchanged.
+
 ### Market regime window
 
 - `market_data.get_market_regime()` returns `regime.window` (`RegimeWindow`): the whole

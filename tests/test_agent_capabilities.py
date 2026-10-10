@@ -98,6 +98,24 @@ class TestMarketRegime:
 
         assert mock.requests[-1].params == {"lookback_days": 180}
 
+    def test_a_listed_equity_reports_its_venue(self) -> None:
+        mock = MockTransport()
+        spy = {**REGIME, "asset": "SPY", "venue": "yahoo", "bars": 251,
+               "regime": {**REGIME["regime"], "asset": "SPY",
+                          "window": {**REGIME["regime"]["window"], "asset_class": "equity"}}}
+        mock.add_response("GET", "/market-data/regime/SPY", json=spy)
+        out = _client(mock).market_data.get_market_regime("SPY")
+
+        assert out.venue == "yahoo"
+        assert out.bars == 251
+        assert out.regime.window is not None and out.regime.window.asset_class == "equity"
+
+    def test_a_reading_without_a_venue_still_parses(self) -> None:
+        """A backend that predates the venue answers without it."""
+        mock = MockTransport()
+        mock.add_response("GET", "/market-data/regime/BTC", json=REGIME)
+        assert _client(mock).market_data.get_market_regime("BTC").venue is None
+
     def test_a_reading_without_a_window_still_parses(self) -> None:
         """A backend that predates the window block answers without it."""
         mock = MockTransport()

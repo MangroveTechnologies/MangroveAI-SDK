@@ -7,6 +7,12 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- HTTP 422 (e.g. `INSUFFICIENT_HISTORY` from the market-regime methods) raises
+  `ValidationError`, as their docstrings say, instead of a bare `APIError`.
+  `ValidationError` subclasses `APIError`, so code catching `APIError` still catches it.
+
 ### Market regime for stocks, ETFs, commodities and bonds
 
 - `market_data.get_market_regime()` and `market_data.classify_market_segment()` read

@@ -19,7 +19,7 @@ import pytest
 
 from mangrove_ai import MangroveAI
 from mangrove_ai._transport._mock import MockTransport
-from mangrove_ai.exceptions import NotFoundError, ValidationError
+from mangrove_ai.exceptions import APIError, NotFoundError, ValidationError
 from mangrove_ai.models.backtesting import Benchmark
 from mangrove_ai.models.config import ExecutionConfigSchema
 from mangrove_ai.models.market_data import MarketRegime, MarketSegment
@@ -185,6 +185,30 @@ class TestMarketSegment:
             "message": "Supply window_file, or asset with start_date and end_date."})
         with pytest.raises(ValidationError):
             client.market_data.classify_market_segment(asset="BTC")
+
+
+_TOO_SHORT = {
+    "error": "validation_error", "code": "INSUFFICIENT_HISTORY",
+    "message": "Need at least 15 daily bars, got 8: SPY on yahoo 1d from 2026-09-23 to 2026-10-10."}
+
+
+class TestTooLittleHistory:
+    """422 INSUFFICIENT_HISTORY is a ValidationError, which is still an APIError."""
+
+    def test_a_short_regime_lookback_raises_validation_error(self) -> None:
+        client = _erroring_client(422, _TOO_SHORT)
+        with pytest.raises(ValidationError) as info:
+            client.market_data.get_market_regime("SPY", lookback_days=10)
+        assert isinstance(info.value, APIError)
+        assert info.value.status_code == 422
+        assert info.value.code == "INSUFFICIENT_HISTORY"
+        assert "got 8" in info.value.message
+
+    def test_a_short_segment_raises_validation_error(self) -> None:
+        client = _erroring_client(422, _TOO_SHORT)
+        with pytest.raises(ValidationError):
+            client.market_data.classify_market_segment(
+                asset="SPY", start_date="2026-09-23", end_date="2026-10-09")
 
 
 class TestSignalBehavior:

@@ -42,4 +42,4 @@ jobs:
         # (secret set) catches SDK<->Oracle drift on every PR.
         env:
           MANGROVE_API_KEY: ${{ secrets.MANGROVE_API_KEY }}
-        run: pytest tests/integration/test_oracle_live.py -v -m integration
+        run: pytest tests/integration/test_oracle_live.py -v -rs -m integration

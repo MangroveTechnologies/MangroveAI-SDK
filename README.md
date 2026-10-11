@@ -130,7 +130,7 @@ print(f"Trades: {result.trade_count}, Sharpe: {result.metrics.get('sharpe_ratio'
 | `client.auth` | `auth.*` | 5 | Login, refresh, API key management |
 | `client.strategies` | `strategies.*` | 9 | Strategy CRUD, status, execution state, `verify_strategy` (pre-backtest conformance check) |
 | `client.backtesting` | `backtesting.*` | 8 | Sync/async/bulk backtesting, `get_benchmark` (buy-and-hold over a window) |
-| `client.market_data` | `market_data.*` | 2 | `get_market_regime` (direction over 90/180/365d + volatility + the lookback in sweep-catalog labels), `classify_market_segment` (one named stretch in sweep-catalog labels) |
+| `client.market_data` | `market_data.*` | 2 | `get_market_regime` (direction over 90/180/365d + volatility + the lookback in sweep-catalog labels, for crypto and listed stocks, ETFs, commodities and bonds such as SPY, GOLD and CRUDE), `classify_market_segment` (one named stretch in sweep-catalog labels) |
 | `client.config` | `config.*` | 3 | Trading/execution defaults, `get_execution_config_schema` (each parameter's default, effect, bounds, status) |
 | `client.oracle` | `oracle.*` | 28 | SIEVE scoring, parameter sweeps/experiments, corpus data queries, backtests, simulation, leaderboard |
 | `client.signals` | `signals.*` | 8 | Signal discovery, evaluation, validation, `query_signal_behavior` (measured selectivity / firing rate by parameter setting) |

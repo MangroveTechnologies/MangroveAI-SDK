@@ -48,7 +48,8 @@ class RegimeWindow(MangroveModel):
     """``1-month`` / ``3-month`` / ``6-month`` / ``12-month``, or ``None`` when the lookback
     falls in no length band (21-45, 75-135, 150-220, 330-400 days)."""
     asset_class: str | None = None
-    """The class the volatility label is read against, e.g. ``crypto``."""
+    """The class the volatility label is read against: ``crypto``, ``equity``,
+    ``commodity`` or ``bond``."""
     direction: str | None = None
     """Direction band of the total return over the whole lookback."""
     volatility: str | None = None
@@ -85,6 +86,10 @@ class MarketRegime(MangroveModel):
     """An asset's current market regime (``GET /market-data/regime/{asset}``)."""
 
     asset: str
+    venue: str | None = None
+    """The price feed read: ``binance`` for crypto (e.g. BTC), ``yahoo`` for a listed
+    stock, ETF or bond (e.g. SPY, TLT), ``yahoofut`` for a listed future (e.g. GOLD,
+    CRUDE). ``None`` from a backend that predates it."""
     bars: int
     """How many daily closes the classification was made from."""
     regime: RegimeReading
@@ -129,3 +134,8 @@ class MarketSegment(MangroveModel):
     scale_bands: list[dict[str, Any]] | None = None
     """Stretch lengths that have a fitted volatility band."""
     features: SegmentFeatures | None = None
+    venue: str | None = None
+    """The price feed the stretch was read on: ``binance`` for a crypto date range,
+    ``yahoo`` for a listed stock, ETF or bond (e.g. SPY), ``yahoofut`` for a listed
+    future (e.g. GOLD, CRUDE), or the exchange a catalog window was cut from. ``None``
+    from a backend that predates it."""

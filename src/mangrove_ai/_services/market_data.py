@@ -68,7 +68,7 @@ class MarketDataService(BaseService):
         Supply ``window_file`` (a catalog window's file name), OR ``asset`` with both
         dates -- not both. Returns the direction band, volatility band (``unscored``
         when no fitted band covers the stretch's length; ``scale_bands`` says which
-        lengths have one), trend character, era, the features behind them and the
+        lengths have one), trend character, the features behind them and the
         ``venue`` read. For an asset's CURRENT conditions use :meth:`get_market_regime`.
         Mirrors the copilot's ``classify_market_segment`` tool.
 

@@ -7,6 +7,12 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Removed (breaking)
+
+- **Breaking:** `MarketSegment.market_era` is removed from the public model.
+  `market_data.classify_market_segment()` no longer returns a market era, and code
+  that reads `segment.market_era` must drop it.
+
 ### Fixed
 
 - HTTP 422 (e.g. `INSUFFICIENT_HISTORY` from the market-regime methods) raises

@@ -73,7 +73,6 @@ SEGMENT = {
     "asset": "BTC", "timeframe": "1d", "start_date": "2026-02-01", "end_date": "2026-05-01",
     "bars": 90, "duration_days": 89, "direction": "bear", "volatility": "unscored",
     "trend": "mixed", "regime_composite": "bear_unscored_mixed", "scale": None,
-    "market_era": "bear-market-2",
     "scale_bands": [{"min_days": 75, "max_days": 135, "scale": "3-month"}],
     "features": {"total_return_pct": -21.4, "realized_vol_ann_pct": 48.0, "r_squared": 0.55},
 }
@@ -138,6 +137,7 @@ class TestMarketSegment:
         assert out.regime_composite == "bear_unscored_mixed"
         assert out.scale is None
         assert out.features is not None and out.features.total_return_pct == -21.4
+        assert "market_era" not in MarketSegment.model_fields
         assert mock.requests[-1].params == {
             "asset": "BTC", "start_date": "2026-02-01", "end_date": "2026-05-01"}
 

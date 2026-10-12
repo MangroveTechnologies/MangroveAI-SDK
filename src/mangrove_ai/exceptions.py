@@ -51,7 +51,7 @@ class NotFoundError(APIError):
 
 
 class ValidationError(APIError):
-    """400 Bad Request."""
+    """400 Bad Request, or 422 Unprocessable Entity (e.g. ``INSUFFICIENT_HISTORY``)."""
     pass
 
 
@@ -101,6 +101,7 @@ class NotImplementedLayerError(MangroveSDKError):
 
 STATUS_CODE_EXCEPTIONS: dict[int, type[APIError]] = {
     400: ValidationError,
+    422: ValidationError,
     401: AuthenticationError,
     403: AuthorizationError,
     404: NotFoundError,

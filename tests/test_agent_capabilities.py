@@ -19,7 +19,7 @@ import pytest
 
 from mangrove_ai import MangroveAI
 from mangrove_ai._transport._mock import MockTransport
-from mangrove_ai.exceptions import NotFoundError, ValidationError
+from mangrove_ai.exceptions import APIError, NotFoundError, ValidationError
 from mangrove_ai.models.backtesting import Benchmark
 from mangrove_ai.models.config import ExecutionConfigSchema
 from mangrove_ai.models.market_data import MarketRegime, MarketSegment
@@ -60,6 +60,12 @@ REGIME = {
         },
         "volatility": {"vol_ann_pct": 41.3, "z_vs_baseline": -0.62, "bucket": "low"},
         "asset": "BTC",
+        "window": {
+            "start_date": "2025-09-29", "end_date": "2026-09-29", "length": "12-month",
+            "asset_class": "crypto", "direction": "bear", "volatility": "low", "trend": "mixed",
+            "volatility_probabilities": {"low": 0.98, "medium": 0.02, "high": 0.0},
+            "total_return_pct": -26.8, "realized_vol_ann_pct": 45.0, "r_squared": 0.51,
+        },
     },
 }
 
@@ -67,7 +73,6 @@ SEGMENT = {
     "asset": "BTC", "timeframe": "1d", "start_date": "2026-02-01", "end_date": "2026-05-01",
     "bars": 90, "duration_days": 89, "direction": "bear", "volatility": "unscored",
     "trend": "mixed", "regime_composite": "bear_unscored_mixed", "scale": None,
-    "market_era": "bear-market-2",
     "scale_bands": [{"min_days": 75, "max_days": 135, "scale": "3-month"}],
     "features": {"total_return_pct": -21.4, "realized_vol_ann_pct": 48.0, "r_squared": 0.55},
 }
@@ -85,7 +90,37 @@ class TestMarketRegime:
         assert out.regime.direction["90d"].return_pct == 8.4
         assert out.regime.direction["365d"].error == "insufficient_history"
         assert out.regime.volatility is not None and out.regime.volatility.bucket == "low"
+        window = out.regime.window
+        assert window is not None and window.length == "12-month" and window.asset_class == "crypto"
+        assert (window.direction, window.volatility, window.trend) == ("bear", "low", "mixed")
+        assert window.volatility_probabilities == {"low": 0.98, "medium": 0.02, "high": 0.0}
+
         assert mock.requests[-1].params == {"lookback_days": 180}
+
+    def test_a_listed_equity_reports_its_venue(self) -> None:
+        mock = MockTransport()
+        spy = {**REGIME, "asset": "SPY", "venue": "yahoo", "bars": 251,
+               "regime": {**REGIME["regime"], "asset": "SPY",
+                          "window": {**REGIME["regime"]["window"], "asset_class": "equity"}}}
+        mock.add_response("GET", "/market-data/regime/SPY", json=spy)
+        out = _client(mock).market_data.get_market_regime("SPY")
+
+        assert out.venue == "yahoo"
+        assert out.bars == 251
+        assert out.regime.window is not None and out.regime.window.asset_class == "equity"
+
+    def test_a_reading_without_a_venue_still_parses(self) -> None:
+        """A backend that predates the venue answers without it."""
+        mock = MockTransport()
+        mock.add_response("GET", "/market-data/regime/BTC", json=REGIME)
+        assert _client(mock).market_data.get_market_regime("BTC").venue is None
+
+    def test_a_reading_without_a_window_still_parses(self) -> None:
+        """A backend that predates the window block answers without it."""
+        mock = MockTransport()
+        old = {**REGIME, "regime": {k: v for k, v in REGIME["regime"].items() if k != "window"}}
+        mock.add_response("GET", "/market-data/regime/BTC", json=old)
+        assert _client(mock).market_data.get_market_regime("BTC").regime.window is None
 
     def test_lookback_is_omitted_when_not_given(self) -> None:
         mock = MockTransport()
@@ -120,8 +155,23 @@ class TestMarketSegment:
         assert out.regime_composite == "bear_unscored_mixed"
         assert out.scale is None
         assert out.features is not None and out.features.total_return_pct == -21.4
+        assert "market_era" not in MarketSegment.model_fields
         assert mock.requests[-1].params == {
             "asset": "BTC", "start_date": "2026-02-01", "end_date": "2026-05-01"}
+
+    def test_a_listed_commodity_segment_reports_its_venue(self) -> None:
+        mock = MockTransport()
+        gold = {**SEGMENT, "asset": "GOLD", "venue": "yahoofut"}
+        mock.add_response("GET", "/market-data/segment", json=gold)
+        out = _client(mock).market_data.classify_market_segment(
+            asset="GOLD", start_date="2026-02-02", end_date="2026-05-01")
+        assert out.venue == "yahoofut"
+
+    def test_a_segment_without_a_venue_still_parses(self) -> None:
+        """A backend that predates the venue answers without it."""
+        mock = MockTransport()
+        mock.add_response("GET", "/market-data/segment", json=SEGMENT)
+        assert _client(mock).market_data.classify_market_segment(window_file="w.csv").venue is None
 
     def test_classify_a_catalog_window(self) -> None:
         mock = MockTransport()
@@ -135,6 +185,30 @@ class TestMarketSegment:
             "message": "Supply window_file, or asset with start_date and end_date."})
         with pytest.raises(ValidationError):
             client.market_data.classify_market_segment(asset="BTC")
+
+
+_TOO_SHORT = {
+    "error": "validation_error", "code": "INSUFFICIENT_HISTORY",
+    "message": "Need at least 15 daily bars, got 8: SPY on yahoo 1d from 2026-09-23 to 2026-10-10."}
+
+
+class TestTooLittleHistory:
+    """422 INSUFFICIENT_HISTORY is a ValidationError, which is still an APIError."""
+
+    def test_a_short_regime_lookback_raises_validation_error(self) -> None:
+        client = _erroring_client(422, _TOO_SHORT)
+        with pytest.raises(ValidationError) as info:
+            client.market_data.get_market_regime("SPY", lookback_days=10)
+        assert isinstance(info.value, APIError)
+        assert info.value.status_code == 422
+        assert info.value.code == "INSUFFICIENT_HISTORY"
+        assert "got 8" in info.value.message
+
+    def test_a_short_segment_raises_validation_error(self) -> None:
+        client = _erroring_client(422, _TOO_SHORT)
+        with pytest.raises(ValidationError):
+            client.market_data.classify_market_segment(
+                asset="SPY", start_date="2026-09-23", end_date="2026-10-09")
 
 
 class TestSignalBehavior:

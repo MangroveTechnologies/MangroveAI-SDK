@@ -7,6 +7,36 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Removed (breaking)
+
+- **Breaking:** `MarketSegment.market_era` is removed from the public model.
+  `market_data.classify_market_segment()` no longer returns a market era, and code
+  that reads `segment.market_era` must drop it.
+
+### Fixed
+
+- HTTP 422 (e.g. `INSUFFICIENT_HISTORY` from the market-regime methods) raises
+  `ValidationError`, as their docstrings say, instead of a bare `APIError`.
+  `ValidationError` subclasses `APIError`, so code catching `APIError` still catches it.
+
+### Market regime for stocks, ETFs, commodities and bonds
+
+- `market_data.get_market_regime()` and `market_data.classify_market_segment()` read
+  the stocks, ETFs, commodities and bonds in Oracle's regime catalog (e.g. `"SPY"`,
+  `"GOLD"`, `"CRUDE"`) as well as crypto; any other ticker is read as crypto.
+- `MarketRegime.venue` and `MarketSegment.venue` name the price feed read: `binance`
+  for crypto, `yahoo` for a listed stock, ETF or bond, `yahoofut` for a listed future,
+  or a catalog window's exchange. `None` from a backend that predates them; the
+  existing fields are unchanged.
+
+### Market regime window
+
+- `market_data.get_market_regime()` returns `regime.window` (`RegimeWindow`): the whole
+  lookback in the sweep catalog's labels -- length, asset class, direction, volatility
+  (low/medium/high for the class and length, or unscored), trend (clean/mixed/choppy),
+  the volatility probabilities, and the return, realised volatility and R-squared.
+  `None` from a backend that predates it; the existing fields are unchanged.
+
 ### Market data contracts (1.19.0 candidate)
 
 - Add `crypto_assets.list_approved_assets(top_n=...)` and

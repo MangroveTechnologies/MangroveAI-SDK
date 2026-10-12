@@ -46,21 +46,57 @@ class VolatilityReading(MangroveModel):
     error: str | None = None
 
 
+class RegimeWindow(MangroveModel):
+    """The whole lookback read as one window, in the sweep catalog's labels."""
+
+    start_date: str | None = None
+    end_date: str | None = None
+    length: str | None = None
+    """``1-month`` / ``3-month`` / ``6-month`` / ``12-month``, or ``None`` when the lookback
+    falls in no length band (21-45, 75-135, 150-220, 330-400 days)."""
+    asset_class: str | None = None
+    """The class the volatility label is read against: ``crypto``, ``equity``,
+    ``commodity`` or ``bond``."""
+    direction: str | None = None
+    """Direction band of the total return over the whole lookback."""
+    volatility: str | None = None
+    """``low`` / ``medium`` / ``high`` for the asset class and length, or ``unscored``."""
+    trend: str | None = None
+    """``clean`` / ``mixed`` / ``choppy``."""
+    volatility_probabilities: dict[str, float | None] | None = None
+    """``{"low", "medium", "high"}``: how firmly the window sits in its label; ``None``
+    when unscored."""
+    total_return_pct: float | None = None
+    """Percent, 0-100 scale."""
+    realized_vol_ann_pct: float | None = None
+    """Annualised realised volatility, percent, 0-100 scale."""
+    r_squared: float | None = None
+    """0 to 1 -- how closely the path tracked a straight line."""
+
+
 class RegimeReading(MangroveModel):
-    """The regime service's classification, unchanged."""
+    """The regime service's classification of an asset's current regime."""
 
     asof: str | None = None
     """The last date read."""
     direction: dict[str, DirectionReading] = {}
     """Keyed by horizon: ``"90d"``, ``"180d"``, ``"365d"``."""
     volatility: VolatilityReading | None = None
+    """Volatility against the asset's own baseline."""
     asset: str | None = None
+    window: RegimeWindow | None = None
+    """The whole lookback in the sweep catalog's labels; ``None`` from a server that
+    predates it."""
 
 
 class MarketRegime(MarketSource):
     """An asset's current market regime (``GET /market-data/regime/{asset}``)."""
 
     asset: str
+    venue: str | None = None
+    """The price feed read: ``binance`` or ``kraken`` for crypto (e.g. BTC), ``yahoo`` for a listed
+    stock, ETF or bond (e.g. SPY, TLT), ``yahoofut`` for a listed future (e.g. GOLD,
+    CRUDE). ``None`` from a backend that predates it."""
     bars: int
     """How many daily closes the classification was made from."""
     regime: RegimeReading
@@ -102,7 +138,11 @@ class MarketSegment(MarketSource):
     """The three joined, e.g. ``bear_medium_mixed``."""
     scale: str | None = None
     """The fitted length band used, or ``None`` when none applied."""
-    market_era: str | None = None
     scale_bands: list[dict[str, Any]] | None = None
     """Stretch lengths that have a fitted volatility band."""
     features: SegmentFeatures | None = None
+    venue: str | None = None
+    """The price feed the stretch was read on: ``binance`` or ``kraken`` for a crypto date range,
+    ``yahoo`` for a listed stock, ETF or bond (e.g. SPY), ``yahoofut`` for a listed
+    future (e.g. GOLD, CRUDE), or the exchange a catalog window was cut from. ``None``
+    from a backend that predates it."""

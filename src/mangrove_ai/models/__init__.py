@@ -67,6 +67,7 @@ from .market_data import (
     MarketRegime,
     MarketSegment,
     RegimeReading,
+    RegimeWindow,
     SegmentFeatures,
     VolatilityReading,
 )
@@ -140,6 +141,7 @@ __all__ = [
     # Market data
     "MarketRegime",
     "RegimeReading",
+    "RegimeWindow",
     "DirectionReading",
     "VolatilityReading",
     "MarketSegment",

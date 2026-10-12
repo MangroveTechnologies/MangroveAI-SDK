@@ -12,6 +12,13 @@ from typing import Any
 from ._base import MangroveModel
 
 
+class MarketSource(MangroveModel):
+    base_token: str | None = None
+    quote_token: str | None = None
+    market_data_venue: str | None = None
+    provider: str | None = None
+
+
 class DirectionReading(MangroveModel):
     """The direction band over one horizon.
 
@@ -82,12 +89,12 @@ class RegimeReading(MangroveModel):
     predates it."""
 
 
-class MarketRegime(MangroveModel):
+class MarketRegime(MarketSource):
     """An asset's current market regime (``GET /market-data/regime/{asset}``)."""
 
     asset: str
     venue: str | None = None
-    """The price feed read: ``binance`` for crypto (e.g. BTC), ``yahoo`` for a listed
+    """The price feed read: ``binance`` or ``kraken`` for crypto (e.g. BTC), ``yahoo`` for a listed
     stock, ETF or bond (e.g. SPY, TLT), ``yahoofut`` for a listed future (e.g. GOLD,
     CRUDE). ``None`` from a backend that predates it."""
     bars: int
@@ -106,7 +113,7 @@ class SegmentFeatures(MangroveModel):
     """0 to 1 -- how closely the path tracked a straight line."""
 
 
-class MarketSegment(MangroveModel):
+class MarketSegment(MarketSource):
     """What one named stretch of market was like (``GET /market-data/segment``).
 
     Every field is always present on the wire; one the regime service did not return
@@ -135,7 +142,7 @@ class MarketSegment(MangroveModel):
     """Stretch lengths that have a fitted volatility band."""
     features: SegmentFeatures | None = None
     venue: str | None = None
-    """The price feed the stretch was read on: ``binance`` for a crypto date range,
+    """The price feed the stretch was read on: ``binance`` or ``kraken`` for a crypto date range,
     ``yahoo`` for a listed stock, ETF or bond (e.g. SPY), ``yahoofut`` for a listed
     future (e.g. GOLD, CRUDE), or the exchange a catalog window was cut from. ``None``
     from a backend that predates it."""

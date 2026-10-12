@@ -15,7 +15,11 @@ from ._base import BaseService
 class MarketDataService(BaseService):
     """Regime classification: an asset's current regime, or one named stretch of the past."""
 
-    def get_market_regime(self, asset: str, *, lookback_days: int | None = None) -> MarketRegime:
+    def get_market_regime(
+        self, asset: str, *, lookback_days: int | None = None,
+        provider: str | None = None, quote_token: str | None = None,
+        market_data_venue: str | None = None,
+    ) -> MarketRegime:
         """Classify an asset's current regime from up to 12 months of daily closes.
 
         The return and a bull/neutral/bear band over 90, 180 and 365 days, plus
@@ -26,10 +30,12 @@ class MarketDataService(BaseService):
         Covers crypto and the stocks, ETFs, commodities and bonds in Oracle's regime
         catalog: SPY, QQQ, DIA, IWM, AAPL, AMD, AMZN, COST, GOOGL, HD, JNJ, JPM, META,
         MSFT, NFLX, NVDA, PG, TSLA, UNH, WMT, XOM, GLD, SLV, USO, ``"GOLD"`` (gold
-        futures), ``"CRUDE"`` (crude oil futures) and TLT. Those tickers are read from
+        futures), ``"CRUDE"`` (crude oil futures) and TLT. Without explicit source
+        arguments, those tickers are read from
         their exchange-session daily series, even where a crypto token shares one; any
         other ticker is read as crypto, so a stock not named here cannot be read. A
         listed ticker needs at least 15 sessions with a close, about three weeks.
+        Explicit market or provider arguments select the crypto history path.
         ``venue`` says which feed was read.
 
         Args:
@@ -37,6 +43,9 @@ class MarketDataService(BaseService):
             lookback_days: Days of daily closes to read, 1-365 (server default 365).
                 For a stock, ETF, commodity or bond these are calendar days, so 365
                 reads about 250 sessions.
+            provider: Explicit external history source.
+            quote_token: Quote currency; supply with market_data_venue.
+            market_data_venue: Exact exchange; supply with quote_token.
 
         Returns:
             ``MarketRegime`` -- ``asset``, ``venue``, ``bars`` and ``regime`` (``asof``,
@@ -48,8 +57,10 @@ class MarketDataService(BaseService):
             NotFoundError: No price data for the asset.
         """
         params: dict[str, Any] = {}
-        if lookback_days is not None:
-            params["lookback_days"] = lookback_days
+        for key, value in (("lookback_days", lookback_days), ("provider", provider),
+                           ("quote_token", quote_token), ("market_data_venue", market_data_venue)):
+            if value is not None:
+                params[key] = value
         return self._request_model(
             "GET", f"/market-data/regime/{quote(asset, safe='')}", MarketRegime, params=params or None
         )
@@ -62,6 +73,9 @@ class MarketDataService(BaseService):
         end_date: str | None = None,
         candle_size: str | None = None,
         window_file: str | None = None,
+        provider: str | None = None,
+        quote_token: str | None = None,
+        market_data_venue: str | None = None,
     ) -> MarketSegment:
         """Classify one stretch of market in the sweep catalog's labels.
 
@@ -75,10 +89,12 @@ class MarketDataService(BaseService):
         Covers crypto and the stocks, ETFs, commodities and bonds in Oracle's regime
         catalog: SPY, QQQ, DIA, IWM, AAPL, AMD, AMZN, COST, GOOGL, HD, JNJ, JPM, META,
         MSFT, NFLX, NVDA, PG, TSLA, UNH, WMT, XOM, GLD, SLV, USO, ``"GOLD"`` (gold
-        futures), ``"CRUDE"`` (crude oil futures) and TLT. Those tickers are read from
+        futures), ``"CRUDE"`` (crude oil futures) and TLT. Without explicit source
+        arguments, those tickers are read from
         their exchange-session daily series, even where a crypto token shares one; any
         other ticker is read as crypto, so a stock not named here cannot be read. A
         listed ticker needs at least 15 sessions with a close, about three weeks.
+        Explicit market or provider arguments select the crypto history path.
 
         Args:
             asset: Asset symbol, e.g. ``"BTC"``, ``"SPY"``, ``"GOLD"`` or ``"CRUDE"``.
@@ -86,6 +102,9 @@ class MarketDataService(BaseService):
             end_date: ISO end of the stretch, inclusive.
             candle_size: Explicit ranges support ``"1d"``; catalogue windows retain their stored interval.
             window_file: A sweep-catalog window's file name.
+            provider: Explicit external source for date-based history.
+            quote_token: Quote currency for date-based history.
+            market_data_venue: Exact exchange; supply with quote_token.
 
         Raises:
             ValidationError: Neither/both of window and range, a malformed or inverted
@@ -100,6 +119,9 @@ class MarketDataService(BaseService):
                 ("end_date", end_date),
                 ("candle_size", candle_size),
                 ("window_file", window_file),
+                ("provider", provider),
+                ("quote_token", quote_token),
+                ("market_data_venue", market_data_venue),
             )
             if value is not None
         }

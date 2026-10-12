@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from ._base import MangroveModel
+from .market_data import MarketSource
 
 
 class RiskScores(MangroveModel):
@@ -62,22 +63,25 @@ class Exchange(MangroveModel):
     is_active: bool | None = None
 
 
-class MarketDataResponse(MangroveModel):
+class MarketDataResponse(MarketSource):
     """Response from GET /crypto-assets/market-data/{symbol}."""
 
     success: bool
     symbol: str
     data: dict[str, Any]
+    market_cap_provider: str | None = None
+    volume_24h_provider: str | None = None
+    price_as_of: str | None = None
+    price_stale: bool | None = None
 
 
-class OHLCVResponse(MangroveModel):
+class OHLCVResponse(MarketSource):
     """Response from GET /crypto-assets/ohlcv/{symbol}."""
 
     success: bool
     symbol: str
     data_points: int | None = None
     data: Any = None
-    provider: str | None = None
     days: int | None = None
     interval: str | None = None
     quality: dict[str, Any] | None = None

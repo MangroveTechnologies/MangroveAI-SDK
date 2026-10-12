@@ -19,7 +19,7 @@ import pytest
 
 from mangrove_ai import MangroveAI
 from mangrove_ai._transport._mock import MockTransport
-from mangrove_ai.exceptions import NotFoundError, ValidationError
+from mangrove_ai.exceptions import APIError, NotFoundError, ValidationError
 from mangrove_ai.models.backtesting import Benchmark
 from mangrove_ai.models.config import ExecutionConfigSchema
 from mangrove_ai.models.market_data import MarketRegime, MarketSegment
@@ -97,6 +97,24 @@ class TestMarketRegime:
 
         assert mock.requests[-1].params == {"lookback_days": 180}
 
+    def test_a_listed_equity_reports_its_venue(self) -> None:
+        mock = MockTransport()
+        spy = {**REGIME, "asset": "SPY", "venue": "yahoo", "bars": 251,
+               "regime": {**REGIME["regime"], "asset": "SPY",
+                          "window": {**REGIME["regime"]["window"], "asset_class": "equity"}}}
+        mock.add_response("GET", "/market-data/regime/SPY", json=spy)
+        out = _client(mock).market_data.get_market_regime("SPY")
+
+        assert out.venue == "yahoo"
+        assert out.bars == 251
+        assert out.regime.window is not None and out.regime.window.asset_class == "equity"
+
+    def test_a_reading_without_a_venue_still_parses(self) -> None:
+        """A backend that predates the venue answers without it."""
+        mock = MockTransport()
+        mock.add_response("GET", "/market-data/regime/BTC", json=REGIME)
+        assert _client(mock).market_data.get_market_regime("BTC").venue is None
+
     def test_a_reading_without_a_window_still_parses(self) -> None:
         """A backend that predates the window block answers without it."""
         mock = MockTransport()
@@ -141,6 +159,20 @@ class TestMarketSegment:
         assert mock.requests[-1].params == {
             "asset": "BTC", "start_date": "2026-02-01", "end_date": "2026-05-01"}
 
+    def test_a_listed_commodity_segment_reports_its_venue(self) -> None:
+        mock = MockTransport()
+        gold = {**SEGMENT, "asset": "GOLD", "venue": "yahoofut"}
+        mock.add_response("GET", "/market-data/segment", json=gold)
+        out = _client(mock).market_data.classify_market_segment(
+            asset="GOLD", start_date="2026-02-02", end_date="2026-05-01")
+        assert out.venue == "yahoofut"
+
+    def test_a_segment_without_a_venue_still_parses(self) -> None:
+        """A backend that predates the venue answers without it."""
+        mock = MockTransport()
+        mock.add_response("GET", "/market-data/segment", json=SEGMENT)
+        assert _client(mock).market_data.classify_market_segment(window_file="w.csv").venue is None
+
     def test_classify_a_catalog_window(self) -> None:
         mock = MockTransport()
         mock.add_response("GET", "/market-data/segment", json=SEGMENT)
@@ -153,6 +185,30 @@ class TestMarketSegment:
             "message": "Supply window_file, or asset with start_date and end_date."})
         with pytest.raises(ValidationError):
             client.market_data.classify_market_segment(asset="BTC")
+
+
+_TOO_SHORT = {
+    "error": "validation_error", "code": "INSUFFICIENT_HISTORY",
+    "message": "Need at least 15 daily bars, got 8: SPY on yahoo 1d from 2026-09-23 to 2026-10-10."}
+
+
+class TestTooLittleHistory:
+    """422 INSUFFICIENT_HISTORY is a ValidationError, which is still an APIError."""
+
+    def test_a_short_regime_lookback_raises_validation_error(self) -> None:
+        client = _erroring_client(422, _TOO_SHORT)
+        with pytest.raises(ValidationError) as info:
+            client.market_data.get_market_regime("SPY", lookback_days=10)
+        assert isinstance(info.value, APIError)
+        assert info.value.status_code == 422
+        assert info.value.code == "INSUFFICIENT_HISTORY"
+        assert "got 8" in info.value.message
+
+    def test_a_short_segment_raises_validation_error(self) -> None:
+        client = _erroring_client(422, _TOO_SHORT)
+        with pytest.raises(ValidationError):
+            client.market_data.classify_market_segment(
+                asset="SPY", start_date="2026-09-23", end_date="2026-10-09")
 
 
 class TestSignalBehavior:

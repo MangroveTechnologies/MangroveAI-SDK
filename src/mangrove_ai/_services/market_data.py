@@ -15,7 +15,11 @@ from ._base import BaseService
 class MarketDataService(BaseService):
     """Regime classification: an asset's current regime, or one named stretch of the past."""
 
-    def get_market_regime(self, asset: str, *, lookback_days: int | None = None) -> MarketRegime:
+    def get_market_regime(
+        self, asset: str, *, lookback_days: int | None = None,
+        provider: str | None = None, quote_token: str | None = None,
+        market_data_venue: str | None = None,
+    ) -> MarketRegime:
         """Classify an asset's current regime from up to 12 months of daily closes.
 
         The return and a bull/neutral/bear band over 90, 180 and 365 days, plus
@@ -25,6 +29,9 @@ class MarketDataService(BaseService):
         Args:
             asset: Asset symbol, e.g. ``"BTC"``.
             lookback_days: Days of daily closes to read, 1-365 (server default 365).
+            provider: Explicit external history source.
+            quote_token: Quote currency; supply with market_data_venue.
+            market_data_venue: Exact exchange; supply with quote_token.
 
         Returns:
             ``MarketRegime`` -- ``asset``, ``bars`` and ``regime`` (``asof``,
@@ -36,8 +43,10 @@ class MarketDataService(BaseService):
             NotFoundError: No price data for the asset.
         """
         params: dict[str, Any] = {}
-        if lookback_days is not None:
-            params["lookback_days"] = lookback_days
+        for key, value in (("lookback_days", lookback_days), ("provider", provider),
+                           ("quote_token", quote_token), ("market_data_venue", market_data_venue)):
+            if value is not None:
+                params[key] = value
         return self._request_model(
             "GET", f"/market-data/regime/{quote(asset, safe='')}", MarketRegime, params=params or None
         )
@@ -50,6 +59,9 @@ class MarketDataService(BaseService):
         end_date: str | None = None,
         candle_size: str | None = None,
         window_file: str | None = None,
+        provider: str | None = None,
+        quote_token: str | None = None,
+        market_data_venue: str | None = None,
     ) -> MarketSegment:
         """Classify one stretch of market in the sweep catalog's labels.
 
@@ -66,6 +78,9 @@ class MarketDataService(BaseService):
             end_date: ISO end of the stretch, inclusive.
             candle_size: Explicit ranges support ``"1d"``; catalogue windows retain their stored interval.
             window_file: A sweep-catalog window's file name.
+            provider: Explicit external source for date-based history.
+            quote_token: Quote currency for date-based history.
+            market_data_venue: Exact exchange; supply with quote_token.
 
         Raises:
             ValidationError: Neither/both of window and range, a malformed or inverted
@@ -80,6 +95,9 @@ class MarketDataService(BaseService):
                 ("end_date", end_date),
                 ("candle_size", candle_size),
                 ("window_file", window_file),
+                ("provider", provider),
+                ("quote_token", quote_token),
+                ("market_data_venue", market_data_venue),
             )
             if value is not None
         }

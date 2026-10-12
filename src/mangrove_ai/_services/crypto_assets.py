@@ -76,17 +76,23 @@ class CryptoAssetsService(BaseService):
         *,
         days: int = 30,
         provider: str | None = None,
+        quote_token: str | None = None,
+        market_data_venue: str | None = None,
     ) -> OHLCVResponse:
         """Get historical OHLCV candlestick data.
 
         Args:
             symbol: Asset symbol (e.g. "BTC").
             days: Number of days of history.
-            provider: Optional provider override; omitted uses the server's fallback chain.
+            provider: Explicit external source; omitted selects a supported market.
+            quote_token: Quote currency; supply with market_data_venue.
+            market_data_venue: Exact exchange; supply with quote_token.
         """
         params: dict[str, Any] = {"days": days}
-        if provider is not None:
-            params["provider"] = provider
+        for key, value in (("provider", provider), ("quote_token", quote_token),
+                           ("market_data_venue", market_data_venue)):
+            if value is not None:
+                params[key] = value
         return self._request_model(
             "GET", f"/crypto-assets/ohlcv/{quote(symbol, safe='')}", OHLCVResponse, params=params
         )
@@ -96,16 +102,22 @@ class CryptoAssetsService(BaseService):
         symbol: str,
         *,
         provider: str | None = None,
+        quote_token: str | None = None,
+        market_data_venue: str | None = None,
     ) -> MarketDataResponse:
         """Get real-time market data (price, market cap, volume).
 
         Args:
             symbol: Asset symbol (e.g. "BTC").
-            provider: Data provider override (default: coingecko).
+            provider: Explicit external source; omitted selects a supported market.
+            quote_token: Quote currency; supply with market_data_venue.
+            market_data_venue: Exact exchange; supply with quote_token.
         """
         params: dict[str, Any] = {}
-        if provider is not None:
-            params["provider"] = provider
+        for key, value in (("provider", provider), ("quote_token", quote_token),
+                           ("market_data_venue", market_data_venue)):
+            if value is not None:
+                params[key] = value
         return self._request_model(
             "GET", f"/crypto-assets/market-data/{quote(symbol, safe='')}", MarketDataResponse,
             params=params if params else None,

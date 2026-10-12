@@ -306,11 +306,15 @@ class SignalsService(BaseService):
         symbol: str | None = None, start_date: str | None = None,
         end_date: str | None = None, chart_timeframe: str = "1h",
         dataset_key: str | None = None,
+        provider: str | None = None, quote_token: str | None = None,
+        market_data_venue: str | None = None,
     ) -> dict[str, Any]:
         """Evaluate a bounded set of signals in one server workflow and one charge."""
         body = {"signals": [] if signals is None else signals, "chart_timeframe": chart_timeframe}
         for key, value in (("symbol", symbol), ("start_date", start_date),
-                           ("end_date", end_date), ("dataset_key", dataset_key)):
+                           ("end_date", end_date), ("dataset_key", dataset_key),
+                           ("provider", provider), ("quote_token", quote_token),
+                           ("market_data_venue", market_data_venue)):
             if value is not None:
                 body[key] = value
         return self._request("POST", "/signals/evaluate-multiple-series", json=body)

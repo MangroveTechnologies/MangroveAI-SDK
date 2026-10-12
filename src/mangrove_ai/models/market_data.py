@@ -12,6 +12,13 @@ from typing import Any
 from ._base import MangroveModel
 
 
+class MarketSource(MangroveModel):
+    base_token: str | None = None
+    quote_token: str | None = None
+    market_data_venue: str | None = None
+    provider: str | None = None
+
+
 class DirectionReading(MangroveModel):
     """The direction band over one horizon.
 
@@ -50,7 +57,7 @@ class RegimeReading(MangroveModel):
     asset: str | None = None
 
 
-class MarketRegime(MangroveModel):
+class MarketRegime(MarketSource):
     """An asset's current market regime (``GET /market-data/regime/{asset}``)."""
 
     asset: str
@@ -70,7 +77,7 @@ class SegmentFeatures(MangroveModel):
     """0 to 1 -- how closely the path tracked a straight line."""
 
 
-class MarketSegment(MangroveModel):
+class MarketSegment(MarketSource):
     """What one named stretch of market was like (``GET /market-data/segment``).
 
     Every field is always present on the wire; one the regime service did not return

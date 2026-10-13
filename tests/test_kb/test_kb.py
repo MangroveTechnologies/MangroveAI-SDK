@@ -27,8 +27,8 @@ def _make_client(mock: MockTransport) -> MangroveAI:
 class TestKBDocuments:
     def test_list(self) -> None:
         mock = MockTransport()
-        mock.add_response("GET", "/documents", json={
-            "total": 2,
+        mock.add_response("GET", "/knowledge/documents", json={
+            "total": 2, "source": {},
             "documents": [
                 {"slug": "risk-management", "title": "Risk Management", "summary": "Guide to risk", "tags": ["risk"], "section_count": 5},
                 {"slug": "signals-quick-ref", "title": "Signals Quick Reference", "summary": "All signals", "tags": ["signals"], "section_count": 12},
@@ -45,7 +45,7 @@ class TestKBDocuments:
 
     def test_get(self) -> None:
         mock = MockTransport()
-        mock.add_response("GET", "/documents/risk-management", json={
+        mock.add_response("GET", "/knowledge/documents/risk-management", json={
             "slug": "risk-management",
             "title": "Risk Management",
             "content": "# Risk Management\n\nFull content here...",
@@ -62,9 +62,9 @@ class TestKBDocuments:
 
     def test_get_sections(self) -> None:
         mock = MockTransport()
-        mock.add_response("GET", "/documents/risk-management/sections", json={
-            "document_slug": "risk-management",
-            "document_title": "Risk Management",
+        mock.add_response("GET", "/knowledge/documents/risk-management", json={
+            "slug": "risk-management",
+            "title": "Risk Management", "content": "",
             "sections": [
                 {"anchor": "overview", "title": "Overview", "level": 2},
                 {"anchor": "position-sizing", "title": "Position Sizing", "level": 2},
@@ -84,9 +84,9 @@ class TestKBDocuments:
 class TestKBSearch:
     def test_query(self) -> None:
         mock = MockTransport()
-        mock.add_response("GET", "/search", json={
+        mock.add_response("GET", "/knowledge/search", json={
             "query": "RSI divergence",
-            "total": 3,
+            "total_results": 3,
             "results": [
                 {"title": "RSI Signals", "document_slug": "signals-quick-ref", "relevance_score": 0.95, "snippet": "RSI divergence occurs when..."},
             ],
@@ -99,7 +99,7 @@ class TestKBSearch:
         assert result.total == 3
         assert result.results[0].relevance_score == 0.95
         assert mock.requests[0].params["q"] == "RSI divergence"
-        assert mock.requests[0].params["tags"] == "signals"
+        assert mock.requests[0].params["tags"] == '["signals"]'
 
 
 # -- Tags --
@@ -128,7 +128,7 @@ class TestKBTags:
         mock = MockTransport()
         mock.add_response("GET", "/tags/signals", json={
             "tag": "signals",
-            "total": 2,
+            "total": 2, "source": {},
             "documents": [
                 {"slug": "signals-quick-ref", "title": "Signals Quick Reference"},
             ],
@@ -164,14 +164,14 @@ class TestKBGlossary:
 
     def test_get(self) -> None:
         mock = MockTransport()
-        mock.add_response("GET", "/glossary/RSI", json={
+        mock.add_response("GET", "/knowledge/glossary", json={"term": "RSI", "source": {}, "entry": {
             "term": "RSI",
             "abbreviation": "RSI",
             "definition": "Relative Strength Index",
             "anchor": "rsi",
             "document_slug": "signals-quick-ref",
             "backlinks": [{"source": "risk-management", "anchor": "volatility"}],
-        })
+        }})
         client = _make_client(mock)
 
         result = client.kb.glossary.get("RSI")
@@ -318,3 +318,13 @@ class TestKBCompute:
         assert isinstance(result, KBComputeResult)
         assert result.indicator == "sma"
         assert len(result.result["sma"]) == 5
+
+
+def test_legacy_search_preserves_multiple_tags_default_limit_and_total():
+    import json
+    mock = MockTransport()
+    mock.add_response('GET', '/knowledge/search', json={'query': 'risk', 'total_results': 7, 'results': []})
+    result = _make_client(mock).kb.search.query('risk', tags=['risk', 'signals'])
+    assert result.total == result.total_results == 7
+    assert json.loads(mock.requests[0].params['tags']) == ['risk', 'signals']
+    assert mock.requests[0].params['limit'] == 20

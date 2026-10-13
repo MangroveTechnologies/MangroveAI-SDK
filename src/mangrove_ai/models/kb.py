@@ -24,10 +24,14 @@ class KBSection(MangroveModel):
     level: int | None = None
     content: str | None = None
     children: list[KBSection] | None = None
+    start_char: int | None = None
+    end_char: int | None = None
+    parent_anchor: str | None = None
+    truncated: bool | None = None
 
 
 class KBDocument(MangroveModel):
-    """Full document with content and sections."""
+    """Document page with text and section metadata."""
 
     slug: str
     title: str
@@ -35,6 +39,16 @@ class KBDocument(MangroveModel):
     summary: str | None = None
     tags: list[str] | None = None
     sections: list[KBSection] | None = None
+    source: dict[str, Any] | None = None
+    view: str = "content"
+    section_anchor: str | None = None
+    offset: int = 0
+    next_offset: int | None = None
+    has_more: bool = False
+    tags_truncated: bool = False
+    content_length: int | None = None
+    returned_chars: int | None = None
+    truncated: bool | None = None
 
 
 class KBDocumentSections(MangroveModel):
@@ -65,6 +79,9 @@ class KBSearchResponse(MangroveModel):
 
     query: str | None = None
     total: int | None = None
+    total_results: int | None = None
+    graph: list[dict[str, Any]] | None = None
+    source: dict[str, Any] | None = None
     results: list[KBSearchResult]
 
 
@@ -144,3 +161,21 @@ class KBComputeResult(MangroveModel):
     signal: str | None = None
     indicator: str | None = None
     result: Any = None
+
+
+class KBDocumentList(MangroveModel):
+    total: int
+    documents: list[KBDocumentSummary]
+    source: dict[str, Any]
+
+
+class KBGlossaryLookup(MangroveModel):
+    term: str
+    entry: KBGlossaryEntry
+    graph: list[dict[str, Any]] | None = None
+    source: dict[str, Any] | None = None
+
+
+class KnowledgeAnswer(MangroveModel):
+    op: str
+    result: dict[str, Any]

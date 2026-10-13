@@ -3,6 +3,7 @@ from __future__ import annotations
 from functools import cached_property
 
 from ..._transport._service import ServiceTransport
+from ..knowledge import KnowledgeService
 from .compute import KBComputeService
 from .documents import KBDocumentsService
 from .glossary import KBGlossaryService
@@ -21,16 +22,17 @@ class KBNamespace:
         client.kb.signals.get("rsi_oversold")
     """
 
-    def __init__(self, transport: ServiceTransport) -> None:
+    def __init__(self, transport: ServiceTransport, knowledge: KnowledgeService) -> None:
         self._transport = transport
+        self._knowledge = knowledge
 
     @cached_property
     def documents(self) -> KBDocumentsService:
-        return KBDocumentsService(self._transport)
+        return KBDocumentsService(self._transport, self._knowledge)
 
     @cached_property
     def search(self) -> KBSearchService:
-        return KBSearchService(self._transport)
+        return KBSearchService(self._transport, self._knowledge)
 
     @cached_property
     def tags(self) -> KBTagsService:
@@ -38,7 +40,7 @@ class KBNamespace:
 
     @cached_property
     def glossary(self) -> KBGlossaryService:
-        return KBGlossaryService(self._transport)
+        return KBGlossaryService(self._transport, self._knowledge)
 
     @cached_property
     def signals(self) -> KBSignalsService:

@@ -140,12 +140,17 @@ class MangroveAI:
         from ._services.ai_copilot import AICopilotService
         return AICopilotService(self._core_transport)
 
+    @cached_property
+    def knowledge(self) -> Any:
+        from ._services.knowledge import KnowledgeService
+        return KnowledgeService(self._core_transport)
+
     # -- Layer 2: Knowledge Base --
 
     @cached_property
     def kb(self) -> Any:
         from ._services.kb import KBNamespace
-        return KBNamespace(self._kb_transport)
+        return KBNamespace(self._kb_transport, self.knowledge)
 
     # -- Layer 3: Stubs --
 

@@ -1,13 +1,17 @@
 from __future__ import annotations
 
-from typing import Any
-
+from ..._transport._service import ServiceTransport
 from ...models.kb import KBSearchResponse
 from .._base import BaseService
+from ..knowledge import KnowledgeService
 
 
 class KBSearchService(BaseService):
-    """KB full-text search."""
+    """Compatibility namespace for canonical document search."""
+
+    def __init__(self, transport: ServiceTransport, knowledge: KnowledgeService) -> None:
+        super().__init__(transport)
+        self._knowledge = knowledge
 
     def query(
         self,
@@ -15,17 +19,9 @@ class KBSearchService(BaseService):
         *,
         tags: list[str] | None = None,
         expand: bool = True,
-        limit: int = 20,
+        limit: int | None = 20,
     ) -> KBSearchResponse:
-        """Search the knowledge base.
-
-        Args:
-            q: Search query text.
-            tags: Optional tag filter (comma-joined in request).
-            expand: Enable synonym/stem expansion.
-            limit: Max results (1-100).
-        """
-        params: dict[str, Any] = {"q": q, "limit": limit, "expand": expand}
-        if tags:
-            params["tags"] = ",".join(tags)
-        return self._request_model("GET", "/search", KBSearchResponse, params=params)
+        result = self._knowledge.search(q, tags=tags, expand=expand, limit=limit)
+        if result.total_results is not None:
+            result.total = result.total_results
+        return result

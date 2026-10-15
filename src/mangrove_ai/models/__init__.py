@@ -111,6 +111,7 @@ from .strategies import (
     StrategyVerification,
     UpdateStrategyRequest,
 )
+from .strategy_workflow import SavedStrategy, SaveStrategyRequest, SkillDocument
 from .users import (
     TokenBreakdown,
     UserBacktest,
@@ -119,6 +120,9 @@ from .users import (
 )
 
 __all__ = [
+    "SaveStrategyRequest",
+    "SavedStrategy",
+    "SkillDocument",
     # Shared
     "SuccessResponse",
     # Auth

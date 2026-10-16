@@ -409,10 +409,37 @@ class TestExecutionEvaluateByObject:
                 observed_at="2026-10-16T15:31:00Z",
                 events=[{**event, "occurred_at": None}],
             )
+        with pytest.raises(ValueError, match="contract_version"):
+            ExternalExecutionRequest(
+                contract_version=2.0,
+                observed_at="2026-10-16T15:31:00Z",
+                events=[{**event, "occurred_at": None}],
+            )
         with pytest.raises(ValueError, match="occurred_at cannot be after observed_at"):
             ExternalExecutionRequest(
                 observed_at="2026-10-16T15:31:00Z",
                 events=[event],
+            )
+
+    def test_external_execution_request_matches_hosted_batch_limit_and_zero_fee_canonicalization(self) -> None:
+        closed = {
+            "kind": "closed", "sequence": 1, "event_id": "e1", "position_id": "p1",
+            "asset": "XLM-USD", "realized_pnl": "0", "fees": "-0.000", "occurred_at": None,
+        }
+        accepted = ExternalExecutionRequest(
+            observed_at="2026-10-16T15:31:00Z",
+            events=[closed],
+        )
+        assert accepted.events[0].fees == "-0.000"
+
+        opened = {
+            "kind": "opened", "event_id": "e", "position_id": "p", "asset": "XLM-USD",
+            "filled_quantity": "1", "occurred_at": None,
+        }
+        with pytest.raises(ValueError, match="at most 512"):
+            ExternalExecutionRequest(
+                observed_at="2026-10-16T15:31:00Z",
+                events=[{**opened, "sequence": index + 1} for index in range(513)],
             )
 
     def test_external_execution_request_requires_events_in_sequence_order(self) -> None:

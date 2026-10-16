@@ -45,7 +45,7 @@ def _exact_decimal(value: str, field: str, *, positive: bool = False, nonnegativ
         raise ValueError(f"{field} must be an exact decimal string") from exc
     if positive and number <= 0:
         raise ValueError(f"{field} must be > 0")
-    if nonnegative and (number < 0 or value.startswith("-")):
+    if nonnegative and number < 0:
         raise ValueError(f"{field} must be >= 0")
     return value
 
@@ -131,7 +131,14 @@ class ExternalExecutionRequest(MangroveModel):
 
     contract_version: Literal[2] = 2
     observed_at: StrictStr
-    events: list[ExternalExecutionEvent]
+    events: list[ExternalExecutionEvent] = Field(max_length=512)
+
+    @field_validator("contract_version", mode="before")
+    @classmethod
+    def _require_exact_contract_version_type(cls, value: Any) -> Any:
+        if type(value) is not int or value != 2:
+            raise ValueError("contract_version must be the integer 2")
+        return value
 
     @field_validator("observed_at")
     @classmethod

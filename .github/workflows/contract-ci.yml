@@ -1,7 +1,8 @@
 name: CI
 
 # Pull requests and pushes run offline checks only. Live contract requests
-# require an explicit workflow_dispatch and an approved GitHub Environment.
+# require an explicit workflow_dispatch and a GitHub Environment. Repository
+# admins must configure production environment reviewers if approval is needed.
 
 on:
   push:

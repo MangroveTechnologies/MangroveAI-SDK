@@ -386,8 +386,7 @@ class OracleService:
         limit: int = 100,
         offset: int = 0,
     ) -> OracleResultsPage:
-        """Read backtest results materializing under an experiment, or
-        across the full corpus when ``experiment_id`` is omitted.
+        """Read backtest results for one experiment or the visible corpus.
 
         Args:
             experiment_id: Optional — when provided, scopes results to a

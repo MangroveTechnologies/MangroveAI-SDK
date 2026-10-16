@@ -48,6 +48,12 @@ def test_retired_whalealert_methods_fail_before_network(client, method, args):
     assert client._http.requests == []
 
 
+def test_onchain_series_rejects_retired_whalealert_provider_before_network(client):
+    with pytest.raises(ValueError, match="omitted or set to 'nansen'"):
+        client.on_chain.get_onchain_series("BTC", ["ExchangeNetflow"], provider="whalealert")
+    assert client._http.requests == []
+
+
 def test_token_flows_label_in_body(client):
     client._http.add_response("POST", "/on-chain/token/WETH/flows", json={
         "success": True, "symbol": "WETH", "label": "whale", "count": 0, "flows": [],

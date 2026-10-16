@@ -363,6 +363,8 @@ class OnChainService(BaseService):
                 Date windows are limited to 366 days.
             top_n: Top-N holders summed for HolderConcentration. Default: 10.
         """
+        if provider not in {None, "nansen"}:
+            raise ValueError("provider must be omitted or set to 'nansen'")
         body: dict[str, Any] = {"symbol": symbol, "metrics": metrics,
                                 "interval": interval, "top_n": top_n}
         if chain is not None:

@@ -1,0 +1,48 @@
+name: Live Oracle contract checks
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: GitHub Environment to use (configure approval on production)
+        required: true
+        type: choice
+        options:
+          - development
+          - production
+        default: development
+      include_simulation:
+        description: Also run simulate_generate/simulate_run, which creates synthetic data
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  oracle-contract:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.target }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install SDK and test dependencies
+        run: pip install -e ".[dev]"
+      - name: Require the selected environment credential
+        env:
+          MANGROVE_API_KEY: ${{ secrets.MANGROVE_API_KEY }}
+        run: test -n "$MANGROVE_API_KEY"
+      - name: Run read-only live contract checks
+        env:
+          MANGROVE_API_KEY: ${{ secrets.MANGROVE_API_KEY }}
+          MANGROVE_BASE_URL: ${{ inputs.target == 'development' && 'https://devapi.mangrove.trade/api/v1' || 'https://api.mangrovedeveloper.ai/api/v1' }}
+        run: pytest tests/integration/test_oracle_live.py -v -rs -m integration -k "not simulate_run"
+      - name: Run synthetic-data simulation checks when explicitly requested
+        if: inputs.include_simulation
+        env:
+          MANGROVE_API_KEY: ${{ secrets.MANGROVE_API_KEY }}
+          MANGROVE_BASE_URL: ${{ inputs.target == 'development' && 'https://devapi.mangrove.trade/api/v1' || 'https://api.mangrovedeveloper.ai/api/v1' }}
+        run: pytest tests/integration/test_oracle_live.py -v -rs -m integration -k "simulate_run"

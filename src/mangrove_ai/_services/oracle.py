@@ -6,7 +6,9 @@ serving, and backtest engine. This service is a thin typed wrapper.
 """
 from __future__ import annotations
 
+import hashlib
 import json
+import math
 from collections.abc import Iterator
 from typing import Any
 
@@ -474,16 +476,26 @@ class OracleService:
         an empty, repeated, malformed, or non-advancing page while reporting
         more results, the method raises ``MalformedResponseError`` instead of
         silently truncating the screening or looping forever. Each fetched
-        page is a separate request. ``max_drawdown`` is applied locally because
-        the server endpoint does not expose that bound; its units match the
-        ``max_drawdown`` value returned in each row. Rows missing that metric
-        are excluded when this filter is set.
+        page is a separate request. If a later page request or validation
+        fails, rows yielded from earlier pages remain yielded; callers must
+        discard any partial collection and must not treat it as complete.
+        ``max_drawdown`` is applied locally because the server endpoint does
+        not expose that bound; its units match the ``max_drawdown`` value
+        returned in each row. Rows missing that metric are excluded when this
+        filter is set.
         """
         if not isinstance(page_size, int) or isinstance(page_size, bool) or not 1 <= page_size <= 500:
             raise ValueError("page_size must be an integer between 1 and 500")
+        if max_drawdown is not None and (
+            isinstance(max_drawdown, bool)
+            or not isinstance(max_drawdown, (int, float))
+            or not math.isfinite(max_drawdown)
+            or max_drawdown < 0
+        ):
+            raise ValueError("max_drawdown must be a finite, non-negative number")
 
         offset = 0
-        seen_pages: set[str] = set()
+        seen_pages: set[bytes] = set()
         while True:
             page = self.list_results(limit=page_size, offset=offset, **filters)
             if page.offset != offset:
@@ -503,7 +515,10 @@ class OracleService:
                     "without advancing."
                 )
             if page.results:
-                fingerprint = json.dumps(page.results, sort_keys=True, separators=(",", ":"))
+                serialized_page = json.dumps(
+                    page.results, sort_keys=True, separators=(",", ":")
+                ).encode("utf-8")
+                fingerprint = hashlib.sha256(serialized_page).digest()
                 if fingerprint in seen_pages:
                     raise MalformedResponseError(
                         f"Oracle results page at offset {offset} repeated an earlier page."
@@ -517,11 +532,17 @@ class OracleService:
                 if value is None:
                     continue
                 try:
+                    if isinstance(value, bool):
+                        raise TypeError
                     drawdown = float(value)
-                except (TypeError, ValueError):
+                except (TypeError, ValueError, OverflowError):
                     raise MalformedResponseError(
                         "Oracle result contains a non-numeric max_drawdown value."
                     ) from None
+                if not math.isfinite(drawdown) or drawdown < 0:
+                    raise MalformedResponseError(
+                        "Oracle result contains an invalid max_drawdown value."
+                    )
                 if drawdown <= max_drawdown:
                     yield row
             if next_offset >= page.total:

@@ -629,6 +629,31 @@ class TestResults:
         assert [offset for offset, _ in calls] == [0, 2]
         assert all("max_drawdown" not in filters for _, filters in calls)
 
+    @pytest.mark.parametrize("bound", [True, -1, float("nan"), float("inf"), "10"])
+    def test_list_results_iter_rejects_invalid_max_drawdown_bound(self, bound) -> None:
+        client = _make_client(MockTransport())
+
+        with pytest.raises(ValueError, match="finite, non-negative number"):
+            list(client.oracle.list_results_iter(max_drawdown=bound))
+
+    @pytest.mark.parametrize("metric", [True, -1, float("nan"), float("inf"), "bad"])
+    def test_list_results_iter_rejects_invalid_max_drawdown_metric(
+        self, monkeypatch, metric
+    ) -> None:
+        client = _make_client(MockTransport())
+        from mangrove_ai.models.oracle import OracleResultsPage
+        monkeypatch.setattr(
+            client.oracle,
+            "list_results",
+            lambda **kwargs: OracleResultsPage(
+                total=1, offset=0, limit=1,
+                results=[{"run_index": 0, "max_drawdown": metric}],
+            ),
+        )
+
+        with pytest.raises(MalformedResponseError):
+            list(client.oracle.list_results_iter(max_drawdown=1.0))
+
 
 # =============================================================================
 # Metadata catalogs

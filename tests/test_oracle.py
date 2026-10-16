@@ -459,17 +459,59 @@ class TestResults:
         client.oracle.list_results(
             experiment_id=None,
             asset="BTC",
+            asset_b="ETH",
             timeframe="1h",
+            trigger_name="rsi",
+            kind="sweep",
+            status="completed",
+            min_trades=0,
             min_sharpe=1.0,
+            min_win_rate=0.5,
+            min_return=0.1,
+            min_irr=0.2,
+            min_delta_vs_benchmark=-0.1,
+            min_delta_vs_asset=-0.2,
+            max_trades=10,
+            max_sharpe=5.0,
+            max_win_rate=1.0,
+            max_return=0.9,
+            max_irr=1.5,
+            max_delta_vs_benchmark=0.5,
+            max_delta_vs_asset=0.4,
+            run_index=0,
+            beats_benchmarks=False,
+            beats_legs=True,
+            beats_fifty_fifty=False,
+            beats_crypto_benchmarks=True,
+            coverage_date="2026-09-30",
+            coverage_from="2026-09-01",
+            coverage_to="2026-09-30",
+            generation="8",
             direction="bull",
+            volatility="high",
+            trend="uptrend",
+            regime_composite="bull_high_uptrend",
+            sort="sharpe_ratio",
+            order="asc",
         )
 
         params = mock.requests[-1].params
         assert params == {
-            "asset": "BTC",
-            "timeframe": "1h",
-            "min_sharpe": 1.0,
-            "direction": "bull",
+            "asset": "BTC", "asset_b": "ETH", "timeframe": "1h",
+            "trigger_name": "rsi", "kind": "sweep", "status": "completed",
+            "min_trades": 0, "min_sharpe": 1.0, "min_win_rate": 0.5,
+            "min_return": 0.1, "min_irr": 0.2,
+            "min_delta_vs_benchmark": -0.1, "min_delta_vs_asset": -0.2,
+            "max_trades": 10, "max_sharpe": 5.0, "max_win_rate": 1.0,
+            "max_return": 0.9, "max_irr": 1.5,
+            "max_delta_vs_benchmark": 0.5, "max_delta_vs_asset": 0.4,
+            "run_index": 0, "beats_benchmarks": False, "beats_legs": True,
+            "beats_fifty_fifty": False, "beats_crypto_benchmarks": True,
+            "coverage_date": "2026-09-30", "coverage_from": "2026-09-01",
+            "coverage_to": "2026-09-30", "generation": "8",
+            "direction": "bull", "volatility": "high", "trend": "uptrend",
+            "regime_composite": "bull_high_uptrend", "sort": "sharpe_ratio",
+            "order": "asc",
             "limit": 100,
             "offset": 0,
         }
@@ -548,6 +590,44 @@ class TestResults:
 
         with pytest.raises(MalformedResponseError, match="does not match"):
             list(client.oracle.list_results_iter(page_size=1))
+
+    def test_list_results_iter_rejects_repeated_page(self, monkeypatch) -> None:
+        client = _make_client(MockTransport())
+        from mangrove_ai.models.oracle import OracleResultsPage
+        pages = iter([
+            OracleResultsPage(total=2, offset=0, limit=1, results=[{"run_index": 0}]),
+            OracleResultsPage(total=2, offset=1, limit=1, results=[{"run_index": 0}]),
+        ])
+        monkeypatch.setattr(client.oracle, "list_results", lambda **kwargs: next(pages))
+
+        with pytest.raises(MalformedResponseError, match="repeated an earlier page"):
+            list(client.oracle.list_results_iter(page_size=1))
+
+    def test_list_results_iter_postfilters_max_drawdown(self, monkeypatch) -> None:
+        client = _make_client(MockTransport())
+        from mangrove_ai.models.oracle import OracleResultsPage
+        pages = iter([
+            OracleResultsPage(total=3, offset=0, limit=2, results=[
+                {"run_index": 0, "max_drawdown": 8.0},
+                {"run_index": 1, "max_drawdown": 12.0},
+            ]),
+            OracleResultsPage(total=3, offset=2, limit=2, results=[
+                {"run_index": 2, "max_drawdown": 5.0},
+            ]),
+        ])
+        calls = []
+
+        def list_results(*, limit, offset, **filters):
+            calls.append((offset, filters))
+            return next(pages)
+
+        monkeypatch.setattr(client.oracle, "list_results", list_results)
+
+        rows = list(client.oracle.list_results_iter(page_size=2, max_drawdown=10.0, asset="BTC"))
+
+        assert [row["run_index"] for row in rows] == [0, 2]
+        assert [offset for offset, _ in calls] == [0, 2]
+        assert all("max_drawdown" not in filters for _, filters in calls)
 
 
 # =============================================================================

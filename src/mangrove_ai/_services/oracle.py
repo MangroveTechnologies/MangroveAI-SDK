@@ -6,6 +6,7 @@ serving, and backtest engine. This service is a thin typed wrapper.
 """
 from __future__ import annotations
 
+import json
 from collections.abc import Iterator
 from typing import Any
 
@@ -450,6 +451,8 @@ class OracleService:
             ("volatility", volatility),
             ("trend", trend),
             ("regime_composite", regime_composite),
+            ("sort", sort),
+            ("order", order),
         ):
             if value is not None:
                 params[name] = value
@@ -463,32 +466,65 @@ class OracleService:
         self,
         *,
         page_size: int = 500,
+        max_drawdown: float | None = None,
         **filters: Any,
     ) -> Iterator[dict[str, Any]]:
-        """Iterate over every result matching the supplied server filters.
+        """Iterate over every result matching the supplied screening filters.
 
         Pages use the server-reported offset and total. If the server returns
-        an empty or non-advancing page while reporting more results, the method
-        raises ``MalformedResponseError`` instead of silently truncating the
-        screening or looping forever. Each fetched page is a separate request.
+        an empty, repeated, malformed, or non-advancing page while reporting
+        more results, the method raises ``MalformedResponseError`` instead of
+        silently truncating the screening or looping forever. Each fetched
+        page is a separate request. ``max_drawdown`` is applied locally because
+        the server endpoint does not expose that bound; its units match the
+        ``max_drawdown`` value returned in each row. Rows missing that metric
+        are excluded when this filter is set.
         """
         if not isinstance(page_size, int) or isinstance(page_size, bool) or not 1 <= page_size <= 500:
             raise ValueError("page_size must be an integer between 1 and 500")
 
         offset = 0
+        seen_pages: set[str] = set()
         while True:
             page = self.list_results(limit=page_size, offset=offset, **filters)
             if page.offset != offset:
                 raise MalformedResponseError(
                     "Oracle results page does not match the requested offset."
                 )
+            if page.total < 0 or page.offset < 0 or page.limit < 1 or page.offset > page.total:
+                raise MalformedResponseError("Oracle results page contains invalid paging metadata.")
+            if len(page.results) > page.limit:
+                raise MalformedResponseError("Oracle results page exceeds its reported limit.")
             next_offset = page.offset + len(page.results)
+            if next_offset > page.total:
+                raise MalformedResponseError("Oracle results page exceeds its reported total.")
             if next_offset <= offset and next_offset < page.total:
                 raise MalformedResponseError(
                     f"Oracle results page at offset {offset} reports more results "
                     "without advancing."
                 )
-            yield from page.results
+            if page.results:
+                fingerprint = json.dumps(page.results, sort_keys=True, separators=(",", ":"))
+                if fingerprint in seen_pages:
+                    raise MalformedResponseError(
+                        f"Oracle results page at offset {offset} repeated an earlier page."
+                    )
+                seen_pages.add(fingerprint)
+            for row in page.results:
+                if max_drawdown is None:
+                    yield row
+                    continue
+                value = row.get("max_drawdown")
+                if value is None:
+                    continue
+                try:
+                    drawdown = float(value)
+                except (TypeError, ValueError):
+                    raise MalformedResponseError(
+                        "Oracle result contains a non-numeric max_drawdown value."
+                    ) from None
+                if drawdown <= max_drawdown:
+                    yield row
             if next_offset >= page.total:
                 return
             offset = next_offset

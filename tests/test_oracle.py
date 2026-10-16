@@ -5,6 +5,7 @@ import pytest
 
 from mangrove_ai import MangroveAI
 from mangrove_ai._transport._mock import MockTransport
+from mangrove_ai.exceptions import MalformedResponseError, ServerError
 from mangrove_ai.models.oracle import (
     DataQueryFilter,
     DataQueryRequest,
@@ -446,6 +447,107 @@ class TestResults:
         assert page.results[0]["irr_annualized"] == 0.42
         params = mock.requests[-1].params
         assert params == {"experiment_id": _EXPERIMENT_ID, "limit": 10, "offset": 0}
+
+    def test_list_results_passes_supported_screening_filters(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/oracle/results", json={
+            "total": 1, "offset": 0, "limit": 10,
+            "results": [{"asset": "BTC", "sharpe_ratio": 1.2}],
+        })
+        client = _make_client(mock)
+
+        client.oracle.list_results(
+            experiment_id=None,
+            asset="BTC",
+            timeframe="1h",
+            min_sharpe=1.0,
+            direction="bull",
+        )
+
+        params = mock.requests[-1].params
+        assert params == {
+            "asset": "BTC",
+            "timeframe": "1h",
+            "min_sharpe": 1.0,
+            "direction": "bull",
+            "limit": 100,
+            "offset": 0,
+        }
+        assert "experiment_id" not in params
+
+    def test_list_results_iter_uses_server_page_progress(self, monkeypatch) -> None:
+        client = _make_client(MockTransport())
+        pages = iter([
+            {"total": 3, "offset": 0, "limit": 2, "results": [{"run_index": 0}]},
+            {"total": 3, "offset": 1, "limit": 2, "results": [{"run_index": 1}, {"run_index": 2}]},
+        ])
+        offsets = []
+
+        def list_results(*, limit, offset, **filters):
+            offsets.append(offset)
+            from mangrove_ai.models.oracle import OracleResultsPage
+            return OracleResultsPage(**next(pages))
+
+        monkeypatch.setattr(client.oracle, "list_results", list_results)
+        rows = list(client.oracle.list_results_iter(page_size=2, asset="BTC"))
+
+        assert rows == [{"run_index": 0}, {"run_index": 1}, {"run_index": 2}]
+        assert offsets == [0, 1]
+
+    def test_list_results_iter_handles_empty_corpus(self, monkeypatch) -> None:
+        client = _make_client(MockTransport())
+        from mangrove_ai.models.oracle import OracleResultsPage
+        monkeypatch.setattr(
+            client.oracle,
+            "list_results",
+            lambda **kwargs: OracleResultsPage(total=0, offset=0, limit=500, results=[]),
+        )
+
+        assert list(client.oracle.list_results_iter()) == []
+
+    def test_list_results_iter_rejects_empty_page_with_more_results(self, monkeypatch) -> None:
+        client = _make_client(MockTransport())
+        from mangrove_ai.models.oracle import OracleResultsPage
+        monkeypatch.setattr(
+            client.oracle,
+            "list_results",
+            lambda **kwargs: OracleResultsPage(total=2, offset=0, limit=500, results=[]),
+        )
+
+        with pytest.raises(MalformedResponseError, match="without advancing"):
+            list(client.oracle.list_results_iter())
+
+    def test_list_results_iter_preserves_page_errors(self, monkeypatch) -> None:
+        client = _make_client(MockTransport())
+        from mangrove_ai.models.oracle import OracleResultsPage
+        pages = iter([
+            OracleResultsPage(total=2, offset=0, limit=1, results=[{"run_index": 0}]),
+        ])
+
+        def list_results(**kwargs):
+            try:
+                return next(pages)
+            except StopIteration:
+                raise ServerError(503, "upstream", "upstream unavailable", "UPSTREAM")
+
+        monkeypatch.setattr(client.oracle, "list_results", list_results)
+        iterator = client.oracle.list_results_iter(page_size=1)
+
+        assert next(iterator) == {"run_index": 0}
+        with pytest.raises(ServerError, match="upstream unavailable"):
+            next(iterator)
+
+    def test_list_results_iter_rejects_wrong_response_offset(self, monkeypatch) -> None:
+        client = _make_client(MockTransport())
+        from mangrove_ai.models.oracle import OracleResultsPage
+        pages = iter([
+            OracleResultsPage(total=2, offset=0, limit=1, results=[{"run_index": 0}]),
+            OracleResultsPage(total=2, offset=0, limit=1, results=[{"run_index": 0}]),
+        ])
+        monkeypatch.setattr(client.oracle, "list_results", lambda **kwargs: next(pages))
+
+        with pytest.raises(MalformedResponseError, match="does not match"):
+            list(client.oracle.list_results_iter(page_size=1))
 
 
 # =============================================================================

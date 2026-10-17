@@ -11,6 +11,8 @@ class StrategyListItem(MangroveModel):
     id: str
     name: str
     asset: str
+    quote_token: str | None = None
+    market_data_venue: str | None = None
     status: str
     created_at: str
     strategy_type: str | None = None
@@ -28,6 +30,13 @@ class StrategyDetail(MangroveModel):
     user_id: str
     org_id: str
     asset: str
+    # Market fields are absent on older strategy responses. On some current
+    # create responses `asset` is the base token while `base_token` remains
+    # omitted, so callers must preserve that distinction rather than infer a
+    # value in the SDK model.
+    base_token: str | None = None
+    quote_token: str | None = None
+    market_data_venue: str | None = None
     rules: dict[str, Any]
     status: str
     created_at: str
@@ -78,6 +87,8 @@ class CreateStrategyRequest(MangroveModel):
 
     name: str
     asset: str
+    quote_token: str | None = None
+    market_data_venue: str | None = None
     entry: list[dict[str, Any]]
     exit: list[dict[str, Any]] | None = None
     reward_factor: float | None = None

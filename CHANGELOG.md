@@ -7,6 +7,23 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Strategy discovery and confirmed execution feedback
+
+- Oracle experiment and result pages support the server's screening filters and
+  validated complete-page iteration. `max_drawdown` is an explicit local filter;
+  iteration errors are raised so callers cannot mistake partial results for a
+  complete corpus.
+- Stateless `evaluate_by_object()` accepts an optional confirmed-execution v2
+  event batch and returns the hosted acknowledgment, active position IDs, and
+  speculative position templates. Omitting the option preserves the legacy
+  request body. Use this only with a deployed backend that implements the v2
+  contract; it does not activate a strategy or submit broker orders.
+- Retired Whale Alert and exchange-flow methods now fail locally with a clear
+  error instead of making requests to removed routes.
+- The release workflow now requires dispatch from `main`, validates both
+  distribution artifacts and the PyPI/tag version boundary before pushing a
+  release tag, and prints the correct `pip install mangroveai` command.
+
 ### Removed (breaking)
 
 - **Breaking:** `MarketSegment.market_era` is removed from the public model.

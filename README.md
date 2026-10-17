@@ -136,7 +136,7 @@ print(f"Trades: {result.trade_count}, Sharpe: {result.metrics.get('sharpe_ratio'
 | `client.signals` | `signals.*` | 8 | Signal discovery, evaluation, validation, `query_signal_behavior` (measured selectivity / firing rate by parameter setting) |
 | `client.crypto_assets` | `crypto_assets.*` | 10 | Assets, approved universe, per-asset exchanges, OHLCV, market data |
 | `client.execution` | `execution.*` | 8 | Accounts, positions, trades, evaluation |
-| `client.on_chain` | `on_chain.*` | 11 | Smart-money flows, DEX/perp trades, token holders, whale activity (Nansen + WhaleAlert) |
+| `client.on_chain` | `on_chain.*` | 11 | Smart-money flows, DEX/perp trades and token holders (Nansen); retired WhaleAlert compatibility methods fail locally |
 | `client.defi` | `defi.*` | 8 | TVL/chain/stablecoins (any plan); token unlocks, perp funding, treasuries, ETF flows, lending rates (DeFiLlama Pro -- requires Pro/Startup/Enterprise, capped at 1,000 calls/account/month) |
 | `client.social` | `social.*` | 3 | Topic sentiment, mentions, user influence (X / Twitter) |
 | `client.docs` | `docs.*` | 2 | Documentation listing and content |
@@ -155,11 +155,11 @@ print(f"Trades: {result.trade_count}, Sharpe: {result.metrics.get('sharpe_ratio'
 
 ### On-chain capability surface
 
-`client.on_chain` covers Mangrove's Nansen Pro plan plus WhaleAlert (Developer tier, 30-day history):
+`client.on_chain` covers Mangrove's supported Nansen Pro operations. Three WhaleAlert methods remain as compatibility stubs and raise locally without making a request:
 
 | Method | Source | What it returns |
 |---|---|---|
-| `get_onchain_series(symbol, metrics, date_from, date_to, interval, provider)` | Nansen (WhaleAlert fallback) | **Per-bar metric time series** (SmartMoneyNetflow, SmartMoneyHoldings, ExchangeNetflow, WhaleNetInflow, HolderConcentration) — one column per metric |
+| `get_onchain_series(symbol, metrics, date_from, date_to, interval, provider)` | Nansen | **Per-bar metric time series** (SmartMoneyNetflow, SmartMoneyHoldings, ExchangeNetflow, WhaleNetInflow, HolderConcentration) — one column per metric |
 | `get_smart_money_sentiment(symbol)` | Nansen | Single-token accumulation/distribution score |
 | `screen_smart_money(chains, timeframe)` | Nansen | Tokens with high smart-money activity |
 | `get_smart_money_historical_holdings(chains, date_range, filters, order_by)` | Nansen | Date-stamped holdings snapshots |
@@ -168,9 +168,6 @@ print(f"Trades: {result.trade_count}, Sharpe: {result.metrics.get('sharpe_ratio'
 | `get_token_holders(symbol)` | Nansen | Holder distribution + concentration |
 | `get_token_dex_trades(symbol, chain, date_range, filters, order_by)` | Nansen | Single-token DEX trades across all participants |
 | `get_token_flows(symbol, chain, date_range, label, filters, order_by)` | Nansen | Per-wallet-category hourly flow rows (`label` scopes to smart_money/exchange/whale/…; excludes stablecoins) |
-| `get_whale_transactions(symbol, min_value, hours_back)` | WhaleAlert | Recent large-value on-chain transactions |
-| `get_exchange_flows(symbol, hours_back)` | WhaleAlert | Aggregated exchange inflows/outflows |
-| `get_whale_activity(symbol, hours_back)` | WhaleAlert | High-level whale activity summary |
 
 **On-chain time series → signals.** `get_onchain_series` returns a per-bar series for any window — the
 same call serves a live trailing window (e.g. last 10 days, ending now) or a long historical range.

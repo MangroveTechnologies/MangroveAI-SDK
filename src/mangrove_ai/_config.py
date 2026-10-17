@@ -69,8 +69,13 @@ class ClientConfig:
         self.environment = self._resolve_environment(environment)
         env_urls = DEFAULT_URLS[self.environment]
 
-        self.core_base_url = base_url or os.environ.get("MANGROVE_BASE_URL") or env_urls["core"]
-        self.core_v2_base_url = base_url.replace("/v1", "/v2") if base_url else env_urls["core_v2"]
+        configured_base_url = base_url or os.environ.get("MANGROVE_BASE_URL")
+        self.core_base_url = configured_base_url or env_urls["core"]
+        self.core_v2_base_url = (
+            configured_base_url.replace("/v1", "/v2")
+            if configured_base_url
+            else env_urls["core_v2"]
+        )
         self.kb_base_url = kb_base_url or os.environ.get("MANGROVE_KB_BASE_URL") or env_urls["kb"]
 
     def _resolve_environment(self, explicit: str | None) -> str:

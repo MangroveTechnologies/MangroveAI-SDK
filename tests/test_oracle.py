@@ -168,6 +168,23 @@ class TestDataQuery:
         assert result.row_count == 1
         assert result.rows[0]["asset"] == "BTC"
 
+    def test_order_by_defaults_to_oracle_ascending_and_preserves_explicit_descending(self) -> None:
+        mock = MockTransport()
+        mock.add_response("POST", "/oracle/data/query", json={"rows": [], "row_count": 0})
+        client = _make_client(mock)
+
+        from mangrove_ai.models.oracle import OrderBy
+
+        client.oracle.data_query(DataQueryRequest(
+            table="results", select=["asset"],
+            order_by=[OrderBy(col="asset"), OrderBy(col="created_at", dir="desc")],
+        ))
+
+        assert mock.requests[-1].json["order_by"] == [
+            {"col": "asset", "dir": "asc"},
+            {"col": "created_at", "dir": "desc"},
+        ]
+
 
 class TestBacktest:
     def test_backtest_sync(self) -> None:

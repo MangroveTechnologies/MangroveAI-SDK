@@ -1,0 +1,13 @@
+{
+  "source_repository": "MangroveTechnologies/MangroveOracle",
+  "source_commit": "f296384b0a8613e770151e72105bf111dcf8cd64",
+  "source_dirty": false,
+  "mangroveai_source_repository": "MangroveTechnologies/MangroveAI",
+  "mangroveai_source_commit": "07c2e49066b6cedf417980d80974b5076e9d5d97",
+  "mangroveai_source_dirty": false,
+  "openapi_version": "3.1.0",
+  "api_title": "MangroveOracle",
+  "api_version": "0.1.0",
+  "schema_sha256": "00920250b859ac99b0f87a286c11092c732517d2a4b4a767c6b5d0477f28e918",
+  "generation": "src.app.app.openapi() with lifespan not started"
+}

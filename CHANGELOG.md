@@ -20,6 +20,9 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   contract; it does not activate a strategy or submit broker orders.
 - Retired Whale Alert and exchange-flow methods now fail locally with a clear
   error instead of making requests to removed routes.
+- Oracle's generated OpenAPI contract now guards the data-query request and
+  response models in CI. `OrderBy.dir` defaults to Oracle's `asc`; callers that
+  omit `dir` now get ascending order, while an explicit `dir="desc"` is unchanged.
 - The release workflow now requires dispatch from `main`, validates both
   distribution artifacts and the PyPI/tag version boundary before pushing a
   release tag, and prints the correct `pip install mangroveai` command.

@@ -107,7 +107,7 @@ class OrderBy(MangroveModel):
     """
 
     col: str
-    dir: Literal["asc", "desc"] = "desc"
+    dir: Literal["asc", "desc"] = "asc"
 
 
 class DataQueryRequest(MangroveModel):

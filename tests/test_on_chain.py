@@ -1,6 +1,9 @@
 """Tests for on-chain series + token-flows label (mocked transport)."""
 from __future__ import annotations
 
+import pytest
+
+from mangrove_ai import NotImplementedLayerError
 from mangrove_ai.models.on_chain import OnChainSeriesResponse, TokenFlowsResponse
 
 
@@ -34,12 +37,21 @@ def test_get_onchain_series_parses_and_sends_body(client):
     assert sent["interval"] == "1h" and sent["top_n"] == 5
 
 
-def test_onchain_series_whalealert_provider(client):
-    client._http.add_response("POST", "/on-chain/series", json={
-        "success": True, "symbol": "btc", "count": 0, "series": [],
-    })
-    client.on_chain.get_onchain_series("btc", ["ExchangeNetflow"], provider="whalealert")
-    assert client._http.requests[-1].json["provider"] == "whalealert"
+@pytest.mark.parametrize("method,args", [
+    ("get_whale_transactions", ()),
+    ("get_exchange_flows", ()),
+    ("get_whale_activity", ("BTC",)),
+])
+def test_retired_whalealert_methods_fail_before_network(client, method, args):
+    with pytest.raises(NotImplementedLayerError, match="retired with the WhaleAlert provider"):
+        getattr(client.on_chain, method)(*args)
+    assert client._http.requests == []
+
+
+def test_onchain_series_rejects_retired_whalealert_provider_before_network(client):
+    with pytest.raises(ValueError, match="omitted or set to 'nansen'"):
+        client.on_chain.get_onchain_series("BTC", ["ExchangeNetflow"], provider="whalealert")
+    assert client._http.requests == []
 
 
 def test_token_flows_label_in_body(client):

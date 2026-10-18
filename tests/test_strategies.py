@@ -44,7 +44,8 @@ class TestStrategiesList:
         mock.add_response("GET", "/strategies/", json={
             "success": True,
             "strategies": [
-                {"id": "s1", "name": "Strat A", "asset": "BTC", "status": "inactive", "created_at": "2026-01-01T00:00:00Z"},
+                {"id": "s1", "name": "Strat A", "asset": "BTC", "quote_token": "USD",
+                 "market_data_venue": "KRAKEN", "status": "inactive", "created_at": "2026-01-01T00:00:00Z"},
                 {"id": "s2", "name": "Strat B", "asset": "ETH", "status": "paper", "created_at": "2026-01-02T00:00:00Z"},
             ],
             "total": 5,
@@ -61,7 +62,11 @@ class TestStrategiesList:
         assert result.has_more is True
         assert isinstance(result.items[0], StrategyListItem)
         assert result.items[0].name == "Strat A"
+        assert result.items[0].quote_token == "USD"
+        assert result.items[0].market_data_venue == "KRAKEN"
         assert result.items[1].asset == "ETH"
+        assert result.items[1].quote_token is None
+        assert result.items[1].market_data_venue is None
 
     def test_list_iter_yields_items(self) -> None:
         mock = MockTransport()
@@ -101,8 +106,60 @@ class TestStrategiesCreate:
         assert isinstance(result, StrategyDetail)
         assert result.id == "strat-uuid-1"
         assert result.rules["entry"][0]["name"] == "rsi_oversold"
+        assert result.base_token is None
+        assert result.quote_token is None
+        assert result.market_data_venue is None
         assert mock.requests[0].json["name"] == "BTC Momentum"
         assert mock.requests[0].json["asset"] == "BTC"
+        assert "quote_token" not in mock.requests[0].json
+        assert "market_data_venue" not in mock.requests[0].json
+
+    def test_create_round_trips_resolved_market_fields(self) -> None:
+        # The hosted create response returns asset + quote + venue today; some
+        # strategy reads may also provide base_token. Do not synthesize it in
+        # the SDK when the field is absent.
+        response_strategy = {
+            **STRATEGY_DETAIL,
+            "asset": "XLM",
+            "quote_token": "USD",
+            "market_data_venue": "KRAKEN",
+        }
+        mock = MockTransport()
+        mock.add_response("POST", "/strategies/", json={
+            "success": True,
+            "strategy": response_strategy,
+        })
+        client = _make_client(mock)
+
+        result = client.strategies.create(CreateStrategyRequest(
+            name="XLM Market Strategy",
+            asset="XLM",
+            quote_token="USD",
+            market_data_venue="KRAKEN",
+            entry=[{"name": "rsi_oversold", "signal_type": "TRIGGER"}],
+        ))
+
+        assert result.asset == "XLM"
+        assert result.base_token is None
+        assert result.quote_token == "USD"
+        assert result.market_data_venue == "KRAKEN"
+        assert mock.requests[0].json["quote_token"] == "USD"
+        assert mock.requests[0].json["market_data_venue"] == "KRAKEN"
+        assert "base_token" not in mock.requests[0].json
+
+        with_base = MockTransport()
+        with_base.add_response("POST", "/strategies/", json={
+            "success": True,
+            "strategy": {**response_strategy, "base_token": "XLM"},
+        })
+        result_with_base = _make_client(with_base).strategies.create(CreateStrategyRequest(
+            name="XLM Market Strategy",
+            asset="XLM",
+            quote_token="USD",
+            market_data_venue="KRAKEN",
+            entry=[{"name": "rsi_oversold", "signal_type": "TRIGGER"}],
+        ))
+        assert result_with_base.base_token == "XLM"
 
 
 class TestStrategiesGet:

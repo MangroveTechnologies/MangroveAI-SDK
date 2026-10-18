@@ -1,24 +1,15 @@
 name: CI
 
-# Runs on every push/PR — the SDK previously had ONLY a manual
-# workflow_dispatch release workflow that *excluded* integration tests, so
-# Oracle response-model drift shipped undetected (validate/pause/data_query/
-# simulate/order_by). This job runs the unit suite always, and the live
-# Oracle round-trip suite (tests/integration/test_oracle_live.py) whenever the
-# MANGROVE_API_KEY secret is available — so contract drift fails a check
-# instead of crashing a customer. (Full codegen-from-OpenAPI is the durable
-# fix — tracked separately; this is the cheap trigger-flip that stops drift
-# re-merging in the meantime.)
+# Pull requests and pushes run offline checks only. Live contract requests
+# require an explicit workflow_dispatch and a GitHub Environment. Repository
+# admins must configure production environment reviewers if approval is needed.
 
 on:
   push:
     branches: [main]
   pull_request:
 
-# Least-privilege GITHUB_TOKEN (CodeQL hardening): this job only reads the
-# repo. Note `on: pull_request` (not pull_request_target) means fork PRs run
-# WITHOUT secrets, so MANGROVE_API_KEY is never exposed to untrusted code —
-# the live contract job simply skips on forks.
+# Least-privilege token; this workflow never receives API credentials.
 permissions:
   contents: read
 
@@ -36,10 +27,3 @@ jobs:
         run: ruff check src/ tests/
       - name: Unit tests
         run: pytest tests/ --ignore=tests/integration -v
-      - name: Live Oracle contract round-trips
-        # Skips automatically (fixture skip) if the secret isn't configured —
-        # so forks/PRs without the secret stay green, but the canonical repo
-        # (secret set) catches SDK<->Oracle drift on every PR.
-        env:
-          MANGROVE_API_KEY: ${{ secrets.MANGROVE_API_KEY }}
-        run: pytest tests/integration/test_oracle_live.py -v -rs -m integration

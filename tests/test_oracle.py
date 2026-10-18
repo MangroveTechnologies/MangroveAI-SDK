@@ -5,6 +5,7 @@ import pytest
 
 from mangrove_ai import MangroveAI
 from mangrove_ai._transport._mock import MockTransport
+from mangrove_ai.exceptions import MalformedResponseError, ServerError
 from mangrove_ai.models.oracle import (
     DataQueryFilter,
     DataQueryRequest,
@@ -166,6 +167,23 @@ class TestDataQuery:
         assert isinstance(result, DataQueryResponse)
         assert result.row_count == 1
         assert result.rows[0]["asset"] == "BTC"
+
+    def test_order_by_defaults_to_oracle_ascending_and_preserves_explicit_descending(self) -> None:
+        mock = MockTransport()
+        mock.add_response("POST", "/oracle/data/query", json={"rows": [], "row_count": 0})
+        client = _make_client(mock)
+
+        from mangrove_ai.models.oracle import OrderBy
+
+        client.oracle.data_query(DataQueryRequest(
+            table="results", select=["asset"],
+            order_by=[OrderBy(col="asset"), OrderBy(col="created_at", dir="desc")],
+        ))
+
+        assert mock.requests[-1].json["order_by"] == [
+            {"col": "asset", "dir": "asc"},
+            {"col": "created_at", "dir": "desc"},
+        ]
 
 
 class TestBacktest:
@@ -446,6 +464,212 @@ class TestResults:
         assert page.results[0]["irr_annualized"] == 0.42
         params = mock.requests[-1].params
         assert params == {"experiment_id": _EXPERIMENT_ID, "limit": 10, "offset": 0}
+
+    def test_list_results_passes_supported_screening_filters(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/oracle/results", json={
+            "total": 1, "offset": 0, "limit": 10,
+            "results": [{"asset": "BTC", "sharpe_ratio": 1.2}],
+        })
+        client = _make_client(mock)
+
+        client.oracle.list_results(
+            experiment_id=None,
+            asset="BTC",
+            asset_b="ETH",
+            timeframe="1h",
+            trigger_name="rsi",
+            kind="sweep",
+            status="completed",
+            min_trades=0,
+            min_sharpe=1.0,
+            min_win_rate=0.5,
+            min_return=0.1,
+            min_irr=0.2,
+            min_delta_vs_benchmark=-0.1,
+            min_delta_vs_asset=-0.2,
+            max_trades=10,
+            max_sharpe=5.0,
+            max_win_rate=1.0,
+            max_return=0.9,
+            max_irr=1.5,
+            max_delta_vs_benchmark=0.5,
+            max_delta_vs_asset=0.4,
+            run_index=0,
+            beats_benchmarks=False,
+            beats_legs=True,
+            beats_fifty_fifty=False,
+            beats_crypto_benchmarks=True,
+            coverage_date="2026-09-30",
+            coverage_from="2026-09-01",
+            coverage_to="2026-09-30",
+            generation="8",
+            direction="bull",
+            volatility="high",
+            trend="uptrend",
+            regime_composite="bull_high_uptrend",
+            sort="sharpe_ratio",
+            order="asc",
+        )
+
+        params = mock.requests[-1].params
+        assert params == {
+            "asset": "BTC", "asset_b": "ETH", "timeframe": "1h",
+            "trigger_name": "rsi", "kind": "sweep", "status": "completed",
+            "min_trades": 0, "min_sharpe": 1.0, "min_win_rate": 0.5,
+            "min_return": 0.1, "min_irr": 0.2,
+            "min_delta_vs_benchmark": -0.1, "min_delta_vs_asset": -0.2,
+            "max_trades": 10, "max_sharpe": 5.0, "max_win_rate": 1.0,
+            "max_return": 0.9, "max_irr": 1.5,
+            "max_delta_vs_benchmark": 0.5, "max_delta_vs_asset": 0.4,
+            "run_index": 0, "beats_benchmarks": False, "beats_legs": True,
+            "beats_fifty_fifty": False, "beats_crypto_benchmarks": True,
+            "coverage_date": "2026-09-30", "coverage_from": "2026-09-01",
+            "coverage_to": "2026-09-30", "generation": "8",
+            "direction": "bull", "volatility": "high", "trend": "uptrend",
+            "regime_composite": "bull_high_uptrend", "sort": "sharpe_ratio",
+            "order": "asc",
+            "limit": 100,
+            "offset": 0,
+        }
+        assert "experiment_id" not in params
+
+    def test_list_results_iter_uses_server_page_progress(self, monkeypatch) -> None:
+        client = _make_client(MockTransport())
+        pages = iter([
+            {"total": 3, "offset": 0, "limit": 2, "results": [{"run_index": 0}]},
+            {"total": 3, "offset": 1, "limit": 2, "results": [{"run_index": 1}, {"run_index": 2}]},
+        ])
+        offsets = []
+
+        def list_results(*, limit, offset, **filters):
+            offsets.append(offset)
+            from mangrove_ai.models.oracle import OracleResultsPage
+            return OracleResultsPage(**next(pages))
+
+        monkeypatch.setattr(client.oracle, "list_results", list_results)
+        rows = list(client.oracle.list_results_iter(page_size=2, asset="BTC"))
+
+        assert rows == [{"run_index": 0}, {"run_index": 1}, {"run_index": 2}]
+        assert offsets == [0, 1]
+
+    def test_list_results_iter_handles_empty_corpus(self, monkeypatch) -> None:
+        client = _make_client(MockTransport())
+        from mangrove_ai.models.oracle import OracleResultsPage
+        monkeypatch.setattr(
+            client.oracle,
+            "list_results",
+            lambda **kwargs: OracleResultsPage(total=0, offset=0, limit=500, results=[]),
+        )
+
+        assert list(client.oracle.list_results_iter()) == []
+
+    def test_list_results_iter_rejects_empty_page_with_more_results(self, monkeypatch) -> None:
+        client = _make_client(MockTransport())
+        from mangrove_ai.models.oracle import OracleResultsPage
+        monkeypatch.setattr(
+            client.oracle,
+            "list_results",
+            lambda **kwargs: OracleResultsPage(total=2, offset=0, limit=500, results=[]),
+        )
+
+        with pytest.raises(MalformedResponseError, match="without advancing"):
+            list(client.oracle.list_results_iter())
+
+    def test_list_results_iter_preserves_page_errors(self, monkeypatch) -> None:
+        client = _make_client(MockTransport())
+        from mangrove_ai.models.oracle import OracleResultsPage
+        pages = iter([
+            OracleResultsPage(total=2, offset=0, limit=1, results=[{"run_index": 0}]),
+        ])
+
+        def list_results(**kwargs):
+            try:
+                return next(pages)
+            except StopIteration:
+                raise ServerError(503, "upstream", "upstream unavailable", "UPSTREAM")
+
+        monkeypatch.setattr(client.oracle, "list_results", list_results)
+        iterator = client.oracle.list_results_iter(page_size=1)
+
+        assert next(iterator) == {"run_index": 0}
+        with pytest.raises(ServerError, match="upstream unavailable"):
+            next(iterator)
+
+    def test_list_results_iter_rejects_wrong_response_offset(self, monkeypatch) -> None:
+        client = _make_client(MockTransport())
+        from mangrove_ai.models.oracle import OracleResultsPage
+        pages = iter([
+            OracleResultsPage(total=2, offset=0, limit=1, results=[{"run_index": 0}]),
+            OracleResultsPage(total=2, offset=0, limit=1, results=[{"run_index": 0}]),
+        ])
+        monkeypatch.setattr(client.oracle, "list_results", lambda **kwargs: next(pages))
+
+        with pytest.raises(MalformedResponseError, match="does not match"):
+            list(client.oracle.list_results_iter(page_size=1))
+
+    def test_list_results_iter_rejects_repeated_page(self, monkeypatch) -> None:
+        client = _make_client(MockTransport())
+        from mangrove_ai.models.oracle import OracleResultsPage
+        pages = iter([
+            OracleResultsPage(total=2, offset=0, limit=1, results=[{"run_index": 0}]),
+            OracleResultsPage(total=2, offset=1, limit=1, results=[{"run_index": 0}]),
+        ])
+        monkeypatch.setattr(client.oracle, "list_results", lambda **kwargs: next(pages))
+
+        with pytest.raises(MalformedResponseError, match="repeated an earlier page"):
+            list(client.oracle.list_results_iter(page_size=1))
+
+    def test_list_results_iter_postfilters_max_drawdown(self, monkeypatch) -> None:
+        client = _make_client(MockTransport())
+        from mangrove_ai.models.oracle import OracleResultsPage
+        pages = iter([
+            OracleResultsPage(total=3, offset=0, limit=2, results=[
+                {"run_index": 0, "max_drawdown": 8.0},
+                {"run_index": 1, "max_drawdown": 12.0},
+            ]),
+            OracleResultsPage(total=3, offset=2, limit=2, results=[
+                {"run_index": 2, "max_drawdown": 5.0},
+            ]),
+        ])
+        calls = []
+
+        def list_results(*, limit, offset, **filters):
+            calls.append((offset, filters))
+            return next(pages)
+
+        monkeypatch.setattr(client.oracle, "list_results", list_results)
+
+        rows = list(client.oracle.list_results_iter(page_size=2, max_drawdown=10.0, asset="BTC"))
+
+        assert [row["run_index"] for row in rows] == [0, 2]
+        assert [offset for offset, _ in calls] == [0, 2]
+        assert all("max_drawdown" not in filters for _, filters in calls)
+
+    @pytest.mark.parametrize("bound", [True, -1, float("nan"), float("inf"), "10"])
+    def test_list_results_iter_rejects_invalid_max_drawdown_bound(self, bound) -> None:
+        client = _make_client(MockTransport())
+
+        with pytest.raises(ValueError, match="finite, non-negative number"):
+            list(client.oracle.list_results_iter(max_drawdown=bound))
+
+    @pytest.mark.parametrize("metric", [True, -1, float("nan"), float("inf"), "bad"])
+    def test_list_results_iter_rejects_invalid_max_drawdown_metric(
+        self, monkeypatch, metric
+    ) -> None:
+        client = _make_client(MockTransport())
+        from mangrove_ai.models.oracle import OracleResultsPage
+        monkeypatch.setattr(
+            client.oracle,
+            "list_results",
+            lambda **kwargs: OracleResultsPage(
+                total=1, offset=0, limit=1,
+                results=[{"run_index": 0, "max_drawdown": metric}],
+            ),
+        )
+
+        with pytest.raises(MalformedResponseError):
+            list(client.oracle.list_results_iter(max_drawdown=1.0))
 
 
 # =============================================================================

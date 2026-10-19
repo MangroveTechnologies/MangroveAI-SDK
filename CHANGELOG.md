@@ -7,6 +7,21 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Strategy workflow (`client.strategy_workflow`)
+
+- `client.strategy_workflow` calls MangroveAI's strategy tools, the same ones its
+  assistant and its MCP server use: `load_skill`, `save_strategy`, `update_strategy`,
+  `get_strategy`, `list_strategies`, `verify_strategy`, `get_execution_config_schema`,
+  `screen_candidates`, `run_backtest`, `get_backtest`, `list_backtests`,
+  `build_strategy_for_regime`, `find_sweep_runs`, `search_marketplace` and
+  `get_marketplace_strategy`.
+- `get_backtest_trades(backtest_id, offset=0, limit=100)` returns one page of a
+  backtest's simulated trades (at most 500 per call), with `trade_count` for paging.
+- `list_backtest_markets(asset)` lists the markets an asset can be backtested on.
+- **Breaking:** `build_strategy_for_regime(asset, timeframe)` is now
+  `build_strategy_for_regime(asset, candle_size=None)`. The candle size is optional;
+  the server picks one when it is left out. Rename the argument in calling code.
+
 ### Removed (breaking)
 
 - **Breaking:** `MarketSegment.market_era` is removed from the public model.

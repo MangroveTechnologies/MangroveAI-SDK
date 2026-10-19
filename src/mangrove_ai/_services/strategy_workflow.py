@@ -61,14 +61,32 @@ class StrategyWorkflowService(BaseService):
             body["strategy_id"] = strategy_id
         return self._request("POST", "/strategy-workflow/list_backtests", json=body)
 
-    def build_strategy_for_regime(self, asset: str, timeframe: str) -> dict[str, Any]:
-        """Find, save and backtest the proven strategy for the current regime.
+    def get_backtest_trades(self, backtest_id: str, *, offset: int = 0,
+                            limit: int = 100) -> dict[str, Any]:
+        """One page of a backtest's simulated trades (at most 500 per call).
 
-        The server fixes the regime, the quality filters and the backtest window; only the
-        asset and timeframe are sent.
+        Page with ``offset`` until ``offset + len(trades)`` reaches ``trade_count``.
         """
-        return self._request("POST", "/strategy-workflow/build_strategy_for_regime",
-                             json={"asset": asset, "timeframe": timeframe})
+        return self._request("POST", "/strategy-workflow/get_backtest_trades", json={
+            "backtest_id": backtest_id, "offset": offset, "limit": limit})
+
+    def list_backtest_markets(self, asset: str) -> dict[str, Any]:
+        """The markets ``asset`` can be backtested on, as the engine supports them."""
+        return self._request("POST", "/strategy-workflow/list_backtest_markets",
+                             json={"asset": asset})
+
+    def build_strategy_for_regime(self, asset: str,
+                                  candle_size: str | None = None) -> dict[str, Any]:
+        """Run the Strategy Engine route: pick a completed run for the current regime,
+        save it and backtest it on current data.
+
+        The server fixes the regime, the floors, the pick and the backtest window; only
+        the asset, and the candle size when one is wanted, are sent.
+        """
+        body: dict[str, Any] = {"asset": asset}
+        if candle_size:
+            body["candle_size"] = candle_size
+        return self._request("POST", "/strategy-workflow/build_strategy_for_regime", json=body)
 
     def find_sweep_runs(self, sort_by: str, **filters: Any) -> dict[str, Any]:
         return self._request("POST", "/strategy-workflow/find_sweep_runs",

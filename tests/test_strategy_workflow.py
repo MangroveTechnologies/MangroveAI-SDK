@@ -41,15 +41,18 @@ def test_save_cannot_forge_a_tenant_or_bypass_draft():
             SaveStrategyRequest(strategy_name='BTC', asset='BTC', **{field: 'other'})
 
 
-def test_the_build_sends_only_asset_and_timeframe():
+def test_the_build_sends_only_asset_and_an_optional_candle_size():
     mock = MockTransport()
-    mock.add_response('POST', '/strategy-workflow/build_strategy_for_regime', json={
-        'regime': {'horizon': '180d', 'band': 'neutral'}, 'strategy': {'status': 'draft'},
-        'backtest': {'verdict': 'PASS'}, 'table': []})
+    for _ in range(2):
+        mock.add_response('POST', '/strategy-workflow/build_strategy_for_regime', json={
+            'regime': {'lookback_days': 180, 'window_direction': 'bull', 'band': 'neutral'},
+            'strategy': {'status': 'draft'}, 'backtest': {'verdict': 'PASS'}, 'table': []})
     client = MangroveAI(api_key='test_key', environment='local', httpx_client=mock)
     result = client.strategy_workflow.build_strategy_for_regime('BTC', '1h')
     assert result['regime']['band'] == 'neutral'
-    assert mock.requests[-1].json == {'asset': 'BTC', 'timeframe': '1h'}
+    assert mock.requests[-1].json == {'asset': 'BTC', 'candle_size': '1h'}
+    client.strategy_workflow.build_strategy_for_regime('BTC')
+    assert mock.requests[-1].json == {'asset': 'BTC'}
 
 
 def test_engine_and_marketplace_reads_use_the_workflow_endpoints():
@@ -61,3 +64,14 @@ def test_engine_and_marketplace_reads_use_the_workflow_endpoints():
     assert client.strategy_workflow.find_sweep_runs('sharpe_ratio', asset='BTC') == {'results': []}
     assert client.strategy_workflow.search_marketplace(asset='BTC') == {'strategies': []}
     assert client.strategy_workflow.get_marketplace_strategy('m1') == {'available': True}
+
+
+def test_backtest_trades_and_markets_use_the_workflow_endpoints():
+    mock = MockTransport()
+    mock.add_response('POST', '/strategy-workflow/get_backtest_trades', json={'found': True, 'trades': []})
+    mock.add_response('POST', '/strategy-workflow/list_backtest_markets', json={'asset': 'BTC', 'markets': []})
+    client = MangroveAI(api_key='test_key', environment='local', httpx_client=mock)
+    assert client.strategy_workflow.get_backtest_trades('b1', offset=500, limit=500)['found'] is True
+    assert mock.requests[-1].json == {'backtest_id': 'b1', 'offset': 500, 'limit': 500}
+    assert client.strategy_workflow.list_backtest_markets('BTC')['asset'] == 'BTC'
+    assert mock.requests[-1].json == {'asset': 'BTC'}

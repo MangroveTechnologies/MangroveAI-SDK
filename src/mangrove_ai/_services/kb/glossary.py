@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from ...models.kb import KBBacklinksResponse, KBGlossaryEntry, KBGlossaryResponse
+from ..._transport._service import ServiceTransport
+from ...models.kb import KBBacklinksResponse, KBGlossaryEntry, KBGlossaryLookup, KBGlossaryResponse
 from .._base import BaseService
 from ..knowledge import KnowledgeService
-from ..._transport._service import ServiceTransport
-from ...models.kb import KBGlossaryLookup
 
 
 class KBGlossaryService(BaseService):

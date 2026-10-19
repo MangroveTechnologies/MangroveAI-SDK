@@ -45,7 +45,8 @@ class StrategyWorkflowService(BaseService):
         return self._request("POST", "/strategy-workflow/get_execution_config_schema", json={})
 
     def screen_candidates(self, asset: str, candidates: list[dict[str, Any]]) -> dict[str, Any]:
-        return self._request("POST", "/strategy-workflow/screen_candidates", json={"asset": asset, "candidates": candidates})
+        return self._request("POST", "/strategy-workflow/screen_candidates",
+                             json={"asset": asset, "candidates": candidates})
 
     def run_backtest(self, strategy_id: str, start_date: str, end_date: str,
                      **options: Any) -> dict[str, Any]:

@@ -91,6 +91,11 @@ class MangroveAI:
         return UsersService(self._core_transport)
 
     @cached_property
+    def strategy_workflow(self) -> Any:
+        from ._services.strategy_workflow import StrategyWorkflowService
+        return StrategyWorkflowService(self._core_transport)
+
+    @cached_property
     def strategies(self) -> Any:
         from ._services.strategies import StrategiesService
         return StrategiesService(self._core_transport)

@@ -81,7 +81,10 @@ class CreateStrategyRequest(MangroveModel):
     entry: list[dict[str, Any]]
     exit: list[dict[str, Any]] | None = None
     reward_factor: float | None = None
-    status: str = "inactive"
+    timeframe: str | None = None
+    quote_token: str | None = None
+    market_data_venue: str | None = None
+    status: str = "draft"
     execution_config: dict[str, Any] | None = None
     session_id: str | None = None
     strategy_type: str | None = None

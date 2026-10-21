@@ -15,6 +15,7 @@ class SaveStrategyRequest(BaseModel):
     regime_override: bool = False
     source_experiment_id: str | None = None
     source_run_index: int | None = None
+    source_config_hash: str | None = None
     quote_token: str | None = None
     market_data_venue: str | None = None
 
@@ -40,6 +41,7 @@ class SkillDocument(BaseModel):
     version: str
     instructions: str
     required_tools: list[str]
+    optional_tools: list[str] = Field(default_factory=list)
     resources: list[str] = Field(default_factory=list)
     section: str | None = None
     resource: str | None = None

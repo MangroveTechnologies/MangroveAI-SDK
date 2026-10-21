@@ -75,3 +75,28 @@ def test_backtest_trades_and_markets_use_the_workflow_endpoints():
     assert mock.requests[-1].json == {'backtest_id': 'b1', 'offset': 500, 'limit': 500}
     assert client.strategy_workflow.list_backtest_markets('BTC')['asset'] == 'BTC'
     assert mock.requests[-1].json == {'asset': 'BTC'}
+
+
+def test_engine_source_hash_is_forwarded_unchanged():
+    mock = MockTransport()
+    mock.add_response('POST', '/strategy-workflow/save_strategy', json={
+        'strategy_id': 's1', 'created': True, 'name': 'BTC', 'asset': 'BTC', 'status': 'draft',
+        'rules': {}, 'resolved_config': {}, 'base_token': 'BTC',
+        'quote_token': 'USDC', 'market_data_venue': 'BINANCE',
+    })
+    client = MangroveAI(api_key='test_key', environment='local', httpx_client=mock)
+    client.strategy_workflow.save_strategy(SaveStrategyRequest(
+        strategy_name='BTC', asset='BTC', source_experiment_id='experiment',
+        source_run_index=0, source_config_hash='selected-config',
+    ))
+    assert mock.requests[-1].json['source_config_hash'] == 'selected-config'
+    assert mock.requests[-1].json['source_run_index'] == 0
+
+
+def test_skill_optional_tools_are_typed_and_backwards_compatible():
+    from mangrove_ai.models.strategy_workflow import SkillDocument
+
+    body = dict(skill='strategy-composition', version='hash', instructions='server',
+                required_tools=['save_strategy'])
+    assert SkillDocument(**body).optional_tools == []
+    assert SkillDocument(**body, optional_tools=['propose_adopt']).optional_tools == ['propose_adopt']

@@ -95,6 +95,7 @@ class EvaluateResult(MangroveModel):
     asset: str | None = None
     current_price: float | None = None
     timestamp: str | None = None
+    bar_evaluated: bool | None = None
     execution_state: dict[str, Any] | None = None
     new_orders: list[dict[str, Any]] | None = None
     # Stateless lane only: present when the request carried caller-owned

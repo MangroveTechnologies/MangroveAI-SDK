@@ -15,6 +15,19 @@ def _make_client(mock: MockTransport) -> MangroveAI:
     return MangroveAI(api_key="test_abc123", environment="local", httpx_client=mock)
 
 
+def test_pause_payment_replacement_preserves_command_identity():
+    from uuid import uuid4
+    mock = MockTransport()
+    mock.add_response('POST', '/pause', json={'state': 'paused'})
+    client = _make_client(mock)
+    strategy, controller, command, payment = (str(uuid4()) for _ in range(4))
+    client.execution.paper_pause(strategy, controller_id=controller, request_id=command)
+    client.execution.paper_pause(strategy, controller_id=controller, request_id=command, payment_operation_id=payment)
+    assert mock.requests[0].json == mock.requests[1].json
+    assert mock.requests[0].headers['X-Payment-Operation-Id'] == command
+    assert mock.requests[1].headers['X-Payment-Operation-Id'] == payment
+
+
 ACCOUNT_JSON = {
     "id": "acct-uuid-1",
     "org_id": "org-uuid-1",
@@ -467,3 +480,17 @@ class TestExecutionGetPortfolio:
 
         with pytest.raises(ValueError, match="Max 100"):
             client.execution.get_portfolio([f"s-{i}" for i in range(101)])
+
+
+def test_paper_tick_has_stable_payment_operation_identity():
+    from uuid import uuid4
+    sid, run, controller = (str(uuid4()) for _ in range(3))
+    mock = MockTransport()
+    for _ in range(3):
+        mock.add_response("POST", f"/execution/paper/{sid}/tick", json={"success": True})
+    client = _make_client(mock)
+    for slot in (10,10,11):
+        assert client.execution.paper_tick(sid, controller_id=controller, run_id=run, slot=slot)["success"]
+    ids = [request.headers["X-Payment-Operation-Id"] for request in mock.requests]
+    assert ids[0] == ids[1]
+    assert ids[1] != ids[2]

@@ -257,3 +257,39 @@ class ExecutionService(BaseService):
             PortfolioResponse,
             params={"strategy_ids": ",".join(strategy_ids)},
         )
+
+    def paper_start(self, strategy_id: str, *, controller_id: str, request_id: str,
+                    interval_seconds: int) -> dict[str, Any]:
+        from uuid import UUID
+        sid = str(UUID(strategy_id))
+        return self._paper_request(f"/execution/paper/{sid}/start", request_id, {
+            "controller_id": controller_id, "request_id": request_id,
+            "interval_seconds": interval_seconds,
+        })
+
+    def paper_pause(self, strategy_id: str, *, controller_id: str, request_id: str,
+                    payment_operation_id: str | None = None) -> dict[str, Any]:
+        from uuid import UUID
+        sid = str(UUID(strategy_id))
+        return self._paper_request(f"/execution/paper/{sid}/pause", payment_operation_id or request_id, {
+            "controller_id": controller_id, "request_id": request_id,
+        })
+
+    def paper_tick(self, strategy_id: str, *, controller_id: str, run_id: str, slot: int) -> dict[str, Any]:
+        from uuid import UUID
+        sid = str(UUID(strategy_id))
+        from uuid import NAMESPACE_URL, uuid5
+        operation_id = str(uuid5(NAMESPACE_URL, f"paper:{run_id}:{slot}"))
+        return self._paper_request(f"/execution/paper/{sid}/tick", operation_id, {
+            "controller_id": controller_id, "run_id": run_id, "slot": slot,
+        })
+
+    def paper_status(self, strategy_id: str) -> dict[str, Any]:
+        from uuid import UUID
+        return self._request("GET", f"/execution/paper/{UUID(strategy_id)}")
+
+    def _paper_request(self, path: str, operation_id: str, body: dict[str, Any]) -> dict[str, Any]:
+        return self._transport.request(
+            "POST", path, json=body,
+            headers={"X-Payment-Operation-Id": operation_id},
+        ).json()

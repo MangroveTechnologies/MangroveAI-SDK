@@ -1,9 +1,50 @@
+import httpx
 import pytest
 from pydantic import ValidationError
 
 from mangrove_ai import MangroveAI
 from mangrove_ai._transport._mock import MockTransport
 from mangrove_ai.models.strategy_workflow import SaveStrategyRequest
+
+
+@pytest.mark.parametrize('name,arguments', [
+    ('list_sweep_markets', {'assets': ['ETH'], 'include_gapped': False}),
+    ('size_sweep', {'assets': ['ETH'], 'draws_per_dataset': 2}),
+    ('get_sweep_limits', {}),
+    ('create_sweep', {'sweep_name': 'ETH search', 'assets': ['ETH']}),
+    ('launch_sweep', {'experiment_id': 'exp1'}),
+    ('get_sweep', {'experiment_id': 'exp1'}),
+    ('list_sweeps', {'limit': 3}),
+    ('list_run_filters', {'experiment_id': 'exp1'}),
+    ('get_sweep_run', {'experiment_id': 'exp1', 'run_index': 0, 'config_hash': 'recorded'}),
+    ('pause_sweep', {'experiment_id': 'exp1'}),
+])
+def test_sweep_calls_preserve_server_arguments_and_results(name, arguments):
+    mock = MockTransport()
+    response = {'status': 'queued', 'cap_applied': True, 'server_extension': {'value': 7}}
+    mock.add_response('POST', '/strategy-workflow/' + name, json=response)
+    client = MangroveAI(api_key='test_key', environment='local', httpx_client=mock)
+    assert getattr(client.strategy_workflow, name)(**arguments) == response
+    assert mock.requests[-1].json == arguments
+    assert len(mock.requests) == 1
+
+
+def test_sweep_launch_gateway_failure_does_not_launch_again():
+    from mangrove_ai.exceptions import ServerError
+    requests = []
+
+    def handler(request):
+        requests.append(request)
+        return httpx.Response(504, json={'error': 'gateway timeout'})
+
+    with httpx.Client(transport=httpx.MockTransport(handler)) as http_client:
+        client = MangroveAI(api_key='test_key', environment='local', httpx_client=http_client)
+        with pytest.raises(ServerError) as exc_info:
+            client.strategy_workflow.launch_sweep('exp1')
+    assert exc_info.value.status_code == 504
+    assert len(requests) == 1
+    assert requests[0].method == 'POST'
+    assert requests[0].url.path.endswith('/strategy-workflow/launch_sweep')
 
 
 def test_skill_is_fetched_live_including_version_and_resource():

@@ -93,6 +93,47 @@ class StrategyWorkflowService(BaseService):
         return self._request("POST", "/strategy-workflow/find_sweep_runs",
                              json={"sort_by": sort_by, **filters})
 
+    def list_sweep_markets(self, **filters: Any) -> dict[str, Any]:
+        return self._request("POST", "/strategy-workflow/list_sweep_markets", json=filters)
+
+    def size_sweep(self, **options: Any) -> dict[str, Any]:
+        """Ask the server to size a search without creating or launching it."""
+        return self._request("POST", "/strategy-workflow/size_sweep", json=options)
+
+    def get_sweep_limits(self) -> dict[str, Any]:
+        return self._request("POST", "/strategy-workflow/get_sweep_limits", json={})
+
+    def create_sweep(self, sweep_name: str, **options: Any) -> dict[str, Any]:
+        return self._request("POST", "/strategy-workflow/create_sweep",
+                             json={"sweep_name": sweep_name, **options})
+
+    def launch_sweep(self, experiment_id: str) -> dict[str, Any]:
+        """Launch the agreed search through the canonical server operation."""
+        return self._request("POST", "/strategy-workflow/launch_sweep",
+                             json={"experiment_id": experiment_id})
+
+    def get_sweep(self, experiment_id: str) -> dict[str, Any]:
+        return self._request("POST", "/strategy-workflow/get_sweep",
+                             json={"experiment_id": experiment_id})
+
+    def list_sweeps(self, **options: Any) -> dict[str, Any]:
+        return self._request("POST", "/strategy-workflow/list_sweeps", json=options)
+
+    def list_run_filters(self, experiment_id: str) -> dict[str, Any]:
+        return self._request("POST", "/strategy-workflow/list_run_filters",
+                             json={"experiment_id": experiment_id})
+
+    def get_sweep_run(self, experiment_id: str, run_index: int,
+                      *, config_hash: str | None = None) -> dict[str, Any]:
+        body: dict[str, Any] = {"experiment_id": experiment_id, "run_index": run_index}
+        if config_hash is not None:
+            body["config_hash"] = config_hash
+        return self._request("POST", "/strategy-workflow/get_sweep_run", json=body)
+
+    def pause_sweep(self, experiment_id: str) -> dict[str, Any]:
+        return self._request("POST", "/strategy-workflow/pause_sweep",
+                             json={"experiment_id": experiment_id})
+
     def search_marketplace(self, **filters: Any) -> dict[str, Any]:
         return self._request("POST", "/strategy-workflow/search_marketplace", json=filters)
 

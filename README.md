@@ -256,6 +256,20 @@ if val.valid:                                                # must pass before 
 results = client.oracle.list_results(experiment_id=created.experiment_id, limit=20)
 ```
 
+### Canonical Sieve and sweep workflows
+
+For the same Sieve and sweep operations advertised by MangroveAI MCP, use
+`client.strategy_workflow.screen_candidates`, `list_sweep_markets`, `size_sweep`,
+`get_sweep_limits`, `create_sweep`, `launch_sweep`, `get_sweep`, `list_sweeps`,
+`find_sweep_runs`, `list_run_filters`, `get_sweep_run`, and `pause_sweep`.
+These methods call `/strategy-workflow/<name>` and leave composition, sizing,
+ranking, ownership and pricing to the server. Load `sweeps` or `sweep-results`
+with `client.strategy_workflow.load_skill` for the current workflow. Creating
+a sweep does not launch it; launch only after agreeing to the server's run count.
+The SDK uses its existing authenticated HTTP transport; it does not add a wallet
+or sign x402 payments. The agent's existing MCP payer handles wallet access.
+The lower-level `client.oracle.*` methods retain their existing raw-engine contracts.
+
 ### Other `client.oracle.*` methods
 
 - **Backtests:** `backtest`, `backtest_async` + `backtest_poll`, `backtest_bulk`

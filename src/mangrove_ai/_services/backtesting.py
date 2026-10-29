@@ -22,6 +22,20 @@ def _iso(value: str | date) -> str:
     return value.isoformat() if isinstance(value, date) else str(value)
 
 
+def _backtest_payload(request: BacktestRequest | BulkBacktestRequest) -> dict:
+    """Send risk options where the engine reads them, preserving explicit nulls."""
+    payload = request.model_dump(exclude_none=True)
+    for key in ("cooldown_model", "max_drawdown_limit", "max_drawdown_halt_limit"):
+        payload.pop(key, None)
+        if key in request.model_fields_set:
+            value = getattr(request, key)
+            config = payload.setdefault("execution_config", {})
+            if key in config and config[key] != value:
+                raise ValueError(f"{key} conflicts with execution_config.{key}")
+            config[key] = value
+    return payload
+
+
 class BacktestingService:
     """Backtest execution and result retrieval."""
 
@@ -74,7 +88,7 @@ class BacktestingService:
             the ``Retry-After`` delay, or run strategies individually via
             ``run()`` (async-backed) for long lookbacks.
         """
-        data = self._core_request("POST", "/backtests/bulk", json=request.model_dump(exclude_none=True))
+        data = self._core_request("POST", "/backtests/bulk", json=_backtest_payload(request))
         return BulkBacktestResult.model_validate(data)
 
     def get(self, backtest_id: str) -> BacktestResult:
@@ -142,7 +156,7 @@ class BacktestingService:
         Returns:
             Submission with backtest_id and initial status.
         """
-        data = self._v2_request("POST", "/backtests/", json=request.model_dump(exclude_none=True))
+        data = self._v2_request("POST", "/backtests/", json=_backtest_payload(request))
         return AsyncBacktestSubmission.model_validate(data)
 
     def poll_status(self, backtest_id: str) -> AsyncBacktestStatus:

@@ -98,11 +98,14 @@ class EvaluateResult(MangroveModel):
     bar_evaluated: bool | None = None
     execution_state: dict[str, Any] | None = None
     new_orders: list[dict[str, Any]] | None = None
-    # Stateless lane only: present when the request carried caller-owned
-    # open_positions. The UPDATED set (surviving + newly entered, resting
-    # bracket orders included) -- persist it and echo it back on the next
-    # evaluation, exactly like execution_state.
+    # Caller-owned authoritative book. Only the executor's actual fills change
+    # it; proposals must never be echoed back as confirmed positions or closes.
     open_positions: list[dict[str, Any]] | None = None
+    # Confirmed engine-owned fills, with net P&L and execution_confirmed=True.
+    closed_trades: list[dict[str, Any]] | None = None
+    # External execution estimates/templates have execution_confirmed=False.
+    proposed_closes: list[dict[str, Any]] | None = None
+    proposed_positions: list[dict[str, Any]] | None = None
     execution_time_seconds: float | None = None
     error: str | None = None
 

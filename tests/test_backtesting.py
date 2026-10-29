@@ -74,6 +74,26 @@ def test_backtest_omitted_risk_defaults_and_explicit_model_are_distinct() -> Non
     assert "cooldown_model" not in mock.requests[-1].json
 
 
+@pytest.mark.parametrize("bulk", [False, True])
+def test_legacy_cooldown_windows_reach_nested_engine_config(bulk: bool) -> None:
+    config = {"1h": {"short_loss_limit": 3, "long_loss_limit": 6,
+                     "short_window_bars": 24, "long_window_bars": 72,
+                     "short_cooldown_bars": 0, "long_cooldown_bars": 0}}
+    mock = MockTransport()
+    client = _make_client(mock)
+    if bulk:
+        mock.add_response("POST", "/backtests/bulk", json={"success": True, "results": []})
+        client.backtesting.run_bulk(BulkBacktestRequest(
+            start_date="2026-01-01", end_date="2026-02-01", strategy_ids=["saved-1"],
+            cooldown_model="bars", cooldown_config=config))
+    else:
+        mock.add_response("POST", "/backtests/", json={"backtest_id": "run-1", "status": "running"})
+        client.backtesting.submit_async(BacktestRequest(
+            interval="1h", strategy_id="saved-1", cooldown_model="bars", cooldown_config=config))
+    assert mock.requests[-1].json["execution_config"] == {"cooldown_model": "bars", "cooldown_config": config}
+    assert "cooldown_config" not in mock.requests[-1].json
+
+
 BACKTEST_REQUEST = BacktestRequest(
     asset="BTC",
     interval="1d",

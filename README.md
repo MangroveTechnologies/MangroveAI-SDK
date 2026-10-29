@@ -122,14 +122,19 @@ setting over the same original history and seed. Reusing or filtering a prior
 trade list cannot measure the changed signals, sizing, fees, exits, and account
 balances produced by a full run.
 
-`BacktestRequest` and `BulkBacktestRequest` accept `cooldown_model`,
+The regular and Oracle single/bulk backtest request models accept `cooldown_model`,
 `max_drawdown_limit`, and `max_drawdown_halt_limit`. The SDK places explicitly
 supplied values in `execution_config`, where the engine reads them. Omitting a
 threshold accepts the server default; explicitly passing `None` disables that
 guard. Conflicting values in both locations raise `ValueError` before sending.
 Disabling drawdown guards alone does not disable loss pauses: a fully unprotected
-control also needs the explicit `bars` model and zero legacy cooldown limits and
-windows. Preserve all other strategy inputs, fees, and sizing between full runs.
+control also needs the explicit `bars` model and zero `short_cooldown_bars` and
+`long_cooldown_bars` for every active timeframe. Keep valid positive loss limits
+and window sizes. Legacy `cooldown_config` supplied on an SDK request is also
+placed inside `execution_config`. Align these settings with any configuration
+embedded in `strategy_json` or individual bulk strategy configs: Oracle's
+per-strategy configuration precedence still applies. Preserve all other strategy
+inputs, fees, and sizing between full runs.
 
 ## Caller-owned execution and confirmed fills
 

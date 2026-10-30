@@ -122,16 +122,12 @@ class TestExecutionAccounts:
 
         assert result.name == "Paper Trading"
 
-    def test_update_account(self) -> None:
-        updated = {**ACCOUNT_JSON, "name": "Renamed Account"}
+    def test_update_account_fails_before_request(self) -> None:
+        from mangrove_ai import NotImplementedLayerError
         mock = MockTransport()
-        mock.add_response("PUT", "/execution/accounts/acct-uuid-1", json=updated)
-        client = _make_client(mock)
-
-        result = client.execution.update_account("acct-uuid-1", name="Renamed Account")
-
-        assert result.name == "Renamed Account"
-        assert mock.requests[0].json == {"name": "Renamed Account"}
+        with pytest.raises(NotImplementedLayerError, match="not supported"):
+            _make_client(mock).execution.update_account("acct-uuid-1", name="Renamed")
+        assert mock.requests == []
 
 
 class TestExecutionPositions:
@@ -156,18 +152,43 @@ class TestExecutionPositions:
 
         params = mock.requests[0].params
         assert params["account_id"] == "acct-uuid-1"
-        assert params["status"] == "open"
+        assert params["open_only"] == "true"
+        assert "status" not in params
 
-    def test_get_position(self) -> None:
+    def test_get_position_fails_before_request(self) -> None:
+        from mangrove_ai import NotImplementedLayerError
         mock = MockTransport()
-        mock.add_response("GET", "/execution/positions/pos-uuid-1", json=POSITION_JSON)
-        client = _make_client(mock)
+        with pytest.raises(NotImplementedLayerError, match="no position-detail"):
+            _make_client(mock).execution.get_position("pos-uuid-1")
+        assert mock.requests == []
 
-        result = client.execution.get_position("pos-uuid-1")
+    def test_closed_filter_uses_all_positions_then_filters_the_server_page(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/execution/positions", json=[
+            POSITION_JSON, {**POSITION_JSON, "id": "closed-1", "open": False},
+        ])
+        positions = _make_client(mock).execution.list_positions(
+            status="closed", strategy_id="s1", asset="BTC", skip=10, limit=20,
+        )
+        assert [position.id for position in positions] == ["closed-1"]
+        assert mock.requests[0].params == {
+            "skip": 10, "limit": 20, "open_only": "false", "strategy_id": "s1", "asset": "BTC",
+        }
 
-        assert isinstance(result, Position)
-        assert result.entry_price == 95000.0
-        assert result.stop_loss_price == 93000.0
+    def test_open_only_false_returns_both_open_and_closed(self) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/execution/positions", json=[
+            POSITION_JSON, {**POSITION_JSON, "id": "closed-1", "open": False},
+        ])
+        positions = _make_client(mock).execution.list_positions(open_only=False)
+        assert [position.open for position in positions] == [True, False]
+
+    def test_contradictory_filters_do_not_make_a_request(self) -> None:
+        from mangrove_ai import ConfigurationError
+        mock = MockTransport()
+        with pytest.raises(ConfigurationError, match="conflicting"):
+            _make_client(mock).execution.list_positions(status="closed", open_only=True)
+        assert mock.requests == []
 
 
 class TestExecutionTrades:

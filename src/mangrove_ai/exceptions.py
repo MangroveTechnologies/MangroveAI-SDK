@@ -10,7 +10,7 @@ class MangroveSDKError(Exception):
 
 
 class APIError(MangroveSDKError):
-    """Server returned a non-2xx response with a parseable error body."""
+    """Server returned a non-2xx response."""
 
     def __init__(
         self,
@@ -20,12 +20,16 @@ class APIError(MangroveSDKError):
         code: str,
         correlation_id: str | None = None,
         retry_after: int | None = None,
+        limit_kind: str | None = None,
+        resource_type: str | None = None,
     ) -> None:
         self.status_code = status_code
         self.error = error
         self.code = code
         self.correlation_id = correlation_id
         self.retry_after = retry_after
+        self.limit_kind = limit_kind
+        self.resource_type = resource_type
         super().__init__(message)
 
     def __str__(self) -> str:
@@ -42,6 +46,11 @@ class AuthenticationError(APIError):
 
 class AuthorizationError(APIError):
     """403 Forbidden."""
+    pass
+
+
+class PaymentRequiredError(APIError):
+    """402 Payment Required. The client never signs or pays automatically."""
     pass
 
 
@@ -104,6 +113,7 @@ STATUS_CODE_EXCEPTIONS: dict[int, type[APIError]] = {
     422: ValidationError,
     401: AuthenticationError,
     403: AuthorizationError,
+    402: PaymentRequiredError,
     404: NotFoundError,
     429: RateLimitError,
     503: ServiceUnavailableError,

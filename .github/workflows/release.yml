@@ -115,6 +115,15 @@ jobs:
           print(f"Verified wheel and source archive for mangroveai {expected}.")
           PY
 
+      - name: Exercise installed wheel and source distribution offline
+        run: |
+          python -m venv .venv-wheel
+          .venv-wheel/bin/pip install dist/*.whl
+          .venv-wheel/bin/python -I scripts/check_installed_distribution.py
+          python -m venv .venv-sdist
+          .venv-sdist/bin/pip install dist/*.tar.gz
+          .venv-sdist/bin/python -I scripts/check_installed_distribution.py
+
       - name: Check published version and release target
         env:
           CURRENT_VERSION: ${{ steps.version.outputs.previous }}
@@ -167,7 +176,7 @@ jobs:
           name: ${{ steps.version.outputs.tag }}
           generate_release_notes: true
           body: |
-            ## mangrove-ai ${{ steps.version.outputs.version }}
+            ## mangroveai ${{ steps.version.outputs.version }}
 
             ```bash
             pip install mangroveai==${{ steps.version.outputs.version }}

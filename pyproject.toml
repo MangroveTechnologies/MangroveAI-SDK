@@ -42,10 +42,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://mangrovedeveloper.ai"
-Repository = "https://github.com/MangroveTechnologies/mangrove-ai-sdk"
-Documentation = "https://github.com/MangroveTechnologies/mangrove-ai-sdk#readme"
-Changelog = "https://github.com/MangroveTechnologies/mangrove-ai-sdk/blob/main/CHANGELOG.md"
+Homepage = "https://mangrove.io"
+Repository = "https://github.com/MangroveTechnologies/MangroveAI-SDK"
+Documentation = "https://github.com/MangroveTechnologies/MangroveAI-SDK#readme"
+Changelog = "https://github.com/MangroveTechnologies/MangroveAI-SDK/blob/main/CHANGELOG.md"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/mangrove_ai", "src/mangroveai"]

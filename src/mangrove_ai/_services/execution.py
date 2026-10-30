@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from ..exceptions import ConfigurationError, NotImplementedLayerError
 from ..models.execution import (
     Account,
     BulkEvaluateResult,
@@ -52,15 +53,9 @@ class ExecutionService(BaseService):
         return self._request_model("GET", f"/execution/accounts/{account_id}", Account)
 
     def update_account(self, account_id: str, **kwargs: Any) -> Account:
-        """Update account settings.
-
-        Args:
-            account_id: UUID of the account.
-            **kwargs: Fields to update (name, risk_params, etc.).
-        """
-        return self._request_model(
-            "PUT", f"/execution/accounts/{account_id}", Account,
-            json=kwargs,
+        """Unsupported: the current API has no account-update operation."""
+        raise NotImplementedLayerError(
+            "Account updates are not supported by the current API. No request was sent."
         )
 
     def list_positions(
@@ -70,28 +65,50 @@ class ExecutionService(BaseService):
         status: str | None = None,
         skip: int = 0,
         limit: int = 100,
+        open_only: bool | None = None,
+        strategy_id: str | None = None,
+        asset: str | None = None,
     ) -> list[Position]:
         """List positions with optional filters.
 
         Args:
             account_id: Filter by account.
-            status: Filter by "open" or "closed".
+            status: Compatibility filter, "open" or "closed". Closed filters
+                the returned server page locally; it may contain fewer than
+                limit rows. Pagination offsets still refer to all matching
+                server rows, not just closed positions.
             skip: Pagination offset.
             limit: Max results.
+            open_only: The API's own filter: True returns open positions;
+                False returns open and closed positions. Defaults to True.
+            strategy_id: Filter by strategy.
+            asset: Filter by asset.
         """
-        params: dict[str, Any] = {"skip": skip, "limit": limit}
+        if status not in {None, "open", "closed"}:
+            raise ConfigurationError("Position status must be 'open' or 'closed'.")
+        if open_only is not None and type(open_only) is not bool:
+            raise ConfigurationError("open_only must be a boolean.")
+        if status is not None and open_only is not None and open_only != (status == "open"):
+            raise ConfigurationError("status and open_only describe conflicting position filters.")
+        effective_open_only = open_only if open_only is not None else status != "closed"
+        params: dict[str, Any] = {"skip": skip, "limit": limit, "open_only": str(effective_open_only).lower()}
         if account_id is not None:
             params["account_id"] = account_id
-        if status is not None:
-            params["status"] = status
+        if strategy_id is not None:
+            params["strategy_id"] = strategy_id
+        if asset is not None:
+            params["asset"] = asset
         data = self._request("GET", "/execution/positions", params=params)
-        if isinstance(data, list):
-            return [Position.model_validate(p) for p in data]
-        return [Position.model_validate(p) for p in data.get("positions", data)]
+        rows = data if isinstance(data, list) else data.get("positions", data)
+        positions = [Position.model_validate(position) for position in rows]
+        return [position for position in positions if not position.open] if status == "closed" else positions
 
     def get_position(self, position_id: str) -> Position:
-        """Get position details by ID."""
-        return self._request_model("GET", f"/execution/positions/{position_id}", Position)
+        """Unsupported: use the paged list_positions resource."""
+        raise NotImplementedLayerError(
+            "The current API has no position-detail endpoint. "
+            "Use list_positions() and inspect its page. No request was sent."
+        )
 
     def list_trades(
         self,

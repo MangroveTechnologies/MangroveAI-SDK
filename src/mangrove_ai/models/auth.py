@@ -17,7 +17,9 @@ class LoginResponse(MangroveModel):
 
     success: bool
     access_token: str
-    refresh_token: str
+    # Current servers keep this token in an httpOnly cookie. Older servers
+    # returned it in JSON; retain that optional field for response compatibility.
+    refresh_token: str | None = None
     user: LoginUser
 
 

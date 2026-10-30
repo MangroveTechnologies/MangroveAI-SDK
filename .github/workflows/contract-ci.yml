@@ -16,14 +16,27 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.12"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
       - name: Install (editable + dev)
         run: pip install -e ".[dev]"
       - name: Lint
         run: ruff check src/ tests/
       - name: Unit tests
         run: pytest tests/ --ignore=tests/integration -v
+      - name: Build and exercise installed distributions offline
+        run: |
+          pip install build
+          python -m build
+          python -m venv .venv-wheel
+          .venv-wheel/bin/pip install dist/*.whl
+          .venv-wheel/bin/python -I scripts/check_installed_distribution.py
+          python -m venv .venv-sdist
+          .venv-sdist/bin/pip install dist/*.tar.gz
+          .venv-sdist/bin/python -I scripts/check_installed_distribution.py

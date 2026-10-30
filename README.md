@@ -39,26 +39,34 @@ $env:MANGROVE_API_KEY = "prod_your_key_here"
 set MANGROVE_API_KEY=prod_your_key_here
 ```
 
-### Or use a `.env` file
+### Private configuration
 
-The SDK can load a `.env` file automatically if you install the optional
-[`python-dotenv`](https://pypi.org/project/python-dotenv/) extra:
+For an agent or local script, keep the key in private configuration outside your
+repository. [examples/first_call.py](examples/first_call.py) reads a JSON file
+containing `api_key` and optional `base_url`, disables dotenv loading, and makes
+one usage request. Restrict the file's permissions and do not commit it.
+Existing environment variable and optional `mangroveai[dotenv]` loading remain
+supported for compatibility; use `load_dotenv=False` to disable file discovery.
 
-```bash
-pip install "mangroveai[dotenv]"
+## First API call
+
+```python
+from mangrove_ai import MangroveAI
+
+# api_key comes from private configuration; do not paste it into source.
+with MangroveAI(api_key=api_key, load_dotenv=False, timeout=15, auto_retry=False) as client:
+    metrics = client.users.get_my_metrics()
+    print(metrics.messages_count)
 ```
 
-Then create a `.env` file in your project root:
+This calls `GET /api/v1/users/me/metrics` with Bearer authentication. It does not
+create a strategy or launch a backtest. The SDK surfaces 401, 402, 403, 429 and
+503 as typed errors, including available retry and correlation fields. It does
+not purchase access or pay automatically.
 
-```dotenv
-MANGROVE_API_KEY=prod_your_key_here
-```
-
-`MangroveAI()` will pick it up with no further code. Real environment variables
-always take precedence over `.env` values, so a `.env` file never overrides a key
-you've already exported. Disable autoloading with `MangroveAI(load_dotenv=False)`.
-If `python-dotenv` isn't installed, the SDK reads `os.environ` only (a `.env`
-file is ignored).
+The following sections also describe features already present in source but not
+yet published in the current PyPI 2.0.0 wheel. See
+[the release handoff](docs/issue-66-release-handoff.md) for release prerequisites.
 
 ## Quickstart
 
@@ -136,7 +144,31 @@ embedded in `strategy_json` or individual bulk strategy configs: Oracle's
 per-strategy configuration precedence still applies. Preserve all other strategy
 inputs, fees, and sizing between full runs.
 
+## Session authentication
+
+API keys use Bearer authentication and do not refresh. `client.auth.login()`
+accepts a Firebase ID token and installs the returned access token for core v1
+and v2 requests. Keep the same client open: refresh uses its scoped `mg_refresh`
+and `mg_csrf` cookies plus `X-CSRF-Token`, with no JSON body. Current login
+responses omit the body refresh token; older missing or null fields are accepted.
+`auto_auth=True` refreshes an expired JWT once, then retries once. Use
+`auto_auth=False` to handle expiration yourself. Supplying a body refresh token
+raises a local configuration error because the current API does not accept it.
+
+## Unsupported compatibility methods
+
+`execution.update_account`, `execution.get_position`, `crypto_assets.risk_analysis`
+and the three retired WhaleAlert methods raise locally before HTTP because the
+current API does not expose those operations. Use the documented resources.
+`execution.list_positions(open_only=False)` includes both states. Legacy
+`status="closed"` filters the returned server page locally; offsets still refer
+to all server rows, so a filtered page can contain fewer than `limit` rows.
+
 ## Caller-owned execution and confirmed fills
+
+Mangrove owns enforcement of configured user limits and approval policy. The SDK
+submits documented requests and preserves Mangrove decisions and audit results;
+it does not implement a separate trading safety policy.
 
 For an external executor, `evaluate_by_object(..., persist=False)` proposes
 orders from the caller's actual ledger. Even an order marked `filled` in an
@@ -351,7 +383,11 @@ The SDK auto-detects the environment from your API key prefix:
 | Prefix | Environment | API Base URL |
 |--------|-------------|-------------|
 | `prod_` | Production | `https://api.mangrovedeveloper.ai/api/v1` |
-| `dev_` | Development | `https://devapi.mangrove.trade/api/v1` |
+| `dev_` | Development | Explicit `base_url` or `MANGROVE_BASE_URL` required |
+
+Development never falls back to production. A `test_` key also requires an
+explicit base URL or local environment. Base URL overrides apply to v1 and v2;
+pass a base ending in `/api/v1`. The Knowledge Base has its own `kb_base_url`.
 
 Override with explicit parameters:
 
@@ -397,8 +433,8 @@ See the [`examples/`](examples/) directory for working scripts.
 ## Development
 
 ```bash
-git clone https://github.com/MangroveTechnologies/mangrove-ai-sdk.git
-cd mangrove-ai-sdk
+git clone https://github.com/MangroveTechnologies/MangroveAI-SDK.git
+cd MangroveAI-SDK
 pip install -e ".[dev]"
 pytest tests/ --ignore=tests/integration  # unit tests
 MANGROVE_API_KEY=... pytest tests/integration/ -m integration  # live tests

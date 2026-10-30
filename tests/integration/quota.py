@@ -13,7 +13,8 @@ from mangrove_ai.exceptions import RateLimitError
 def _limit(exc: RateLimitError) -> str:
     """The limit kind and resource the quota body names, e.g. ``monthly oracle_sieve_calls``.
 
-    The transport keeps a body that carries no ``message`` whole as the exception's message.
+    Current transports expose the two fields directly. Older manually constructed
+    exceptions may still carry a JSON body in their message.
     """
     try:
         body = json.loads(exc.message)
@@ -21,7 +22,9 @@ def _limit(exc: RateLimitError) -> str:
         body = None
     if not isinstance(body, dict):
         body = {}
-    return f"{body.get('limit_kind', 'unknown')} {body.get('resource_type', 'unknown resource')}"
+    kind = exc.limit_kind or body.get("limit_kind", "unknown")
+    resource = exc.resource_type or body.get("resource_type", "unknown resource")
+    return f"{kind} {resource}"
 
 
 @contextmanager

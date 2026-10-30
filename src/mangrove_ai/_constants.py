@@ -1,18 +1,23 @@
 from __future__ import annotations
 
-from enum import StrEnum
+from enum import Enum
 
 
-class Environment(StrEnum):
+class Environment(str, Enum):
     DEV = "dev"
     PROD = "prod"
     LOCAL = "local"
 
+    def __str__(self) -> str:
+        return self.value
+
 
 DEFAULT_URLS: dict[str, dict[str, str]] = {
     Environment.DEV: {
-        "core": "https://devapi.mangrove.trade/api/v1",
-        "core_v2": "https://devapi.mangrove.trade/api/v2",
+        # No verified public development API origin is currently available.
+        # ClientConfig requires an explicit origin instead of using production.
+        "core": "",
+        "core_v2": "",
         "kb": "https://devkb.mangrove.trade/api",
     },
     Environment.PROD: {

@@ -9,7 +9,7 @@ so `from mangroveai import MangroveAI` and `from mangroveai.models
 import Whatever` both continue to work — they're forwarded to the
 `mangrove_ai` package and emit a DeprecationWarning on first import.
 
-Will be removed in v2.0.0.
+Retained in v2.x. Removal requires an announced future major release.
 """
 from __future__ import annotations
 
@@ -17,15 +17,20 @@ import sys
 import warnings
 
 import mangrove_ai as _mangrove_ai
+import mangrove_ai.models  # Load the public model modules before aliasing them.
 
 warnings.warn(
     "`mangroveai` is the deprecated import path. Use `from mangrove_ai import ...` "
     "instead. The PyPI distribution name `mangroveai` is unchanged — only the "
-    "import path was renamed. This shim will be removed in v2.0.0.",
+    "import path was renamed. Removal requires an announced future major release.",
     DeprecationWarning,
     stacklevel=2,
 )
 
-# Alias at the module level so submodule access (mangroveai.models,
-# mangroveai._services, etc.) resolves to the mangrove_ai equivalents.
+# Alias the public models and already loaded modules too. Aliasing only the
+# package makes Python reload models under the old name, creating incompatible
+# class identities for isinstance checks and exception handling.
+for _name, _module in list(sys.modules.items()):
+    if _name.startswith("mangrove_ai."):
+        sys.modules["mangroveai." + _name.removeprefix("mangrove_ai.")] = _module
 sys.modules[__name__] = _mangrove_ai

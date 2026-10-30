@@ -20,7 +20,7 @@ This is the Pillow/PIL pattern (`pip install Pillow` → `from PIL import Image`
 
 **Why we did this:** the old import path `from mangroveai import ...` collided with the `MangroveAI` backend repo directory. A previous attempt to rename the PyPI distribution to `mangrove-ai` was rejected by PyPI's similarity check (it normalizes by stripping non-alphanumerics, so `mangrove-ai` → `mangroveai` collides with the existing project we own). The compromise: keep the PyPI dist name as-is, rename only the import path.
 
-**The shim:** `src/mangroveai/__init__.py` re-exports everything from `mangrove_ai` and emits a `DeprecationWarning` on import. It uses `sys.modules[__name__] = mangrove_ai` so submodule imports (`from mangroveai.models import X`) also forward. The shim is scheduled for removal in v2.0.0.
+**The shim:** `src/mangroveai/__init__.py` re-exports everything from `mangrove_ai` and emits a `DeprecationWarning` on import. It uses `sys.modules[__name__] = mangrove_ai` so submodule imports (`from mangroveai.models import X`) also forward. The shim is retained in v2.x for existing users; removal needs an explicitly announced future major release.
 
 ## Release flow (workflow_dispatch only — never push tags manually)
 
@@ -78,5 +78,5 @@ MANGROVE_API_KEY=prod_... pytest tests/integration
 
 - Don't push tags manually — use `gh workflow run release.yml`.
 - Don't rename the PyPI distribution name without running the similarity check first.
-- Don't remove the `src/mangroveai/__init__.py` shim before v2.0.0 — it's load-bearing for users still on the old import path.
+- Don't remove the `src/mangroveai/__init__.py` compatibility shim without an explicitly announced future major release — it's load-bearing for users still on the old import path.
 - Don't add new code under `src/mangroveai/` — that's the shim only. New code goes in `src/mangrove_ai/`.

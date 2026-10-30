@@ -1,0 +1,68 @@
+name: Release TypeScript client
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Reviewed package.json version to release'
+        required: true
+        type: string
+      dry_run:
+        description: 'Validate and pack without publishing'
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: typescript-client-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment: npm-release
+    steps:
+      - name: Require reviewed default branch
+        if: github.ref != 'refs/heads/main'
+        run: exit 1
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+      - name: Verify selected version is new
+        env:
+          EXPECTED_VERSION: ${{ inputs.version }}
+        run: |
+          node --input-type=module <<'JS'
+          import { readFileSync } from 'node:fs';
+          const pkg = JSON.parse(readFileSync('packages/typescript/package.json', 'utf8'));
+          if (pkg.version !== process.env.EXPECTED_VERSION) throw new Error('Input version does not match reviewed package.json');
+          const response = await fetch(`https://registry.npmjs.org/${encodeURIComponent(pkg.name)}/${pkg.version}`);
+          if (response.status === 200) throw new Error('This version is already published; select a reviewed new version');
+          if (response.status !== 404) throw new Error(`Registry preflight failed: ${response.status}`);
+          JS
+      - run: python scripts/generate_typescript_contract.py --check
+      - run: npm ci --ignore-scripts --prefix packages/typescript
+      - run: npm run typecheck --prefix packages/typescript
+      - run: npm test --prefix packages/typescript
+      - run: node packages/typescript/test/packed-artifact.mjs
+      - name: Validate package without publishing
+        if: inputs.dry_run
+        run: npm publish --dry-run --ignore-scripts --access public
+        working-directory: packages/typescript
+      - name: Publish reviewed package
+        if: ${{ !inputs.dry_run }}
+        run: |
+          test -n "$NODE_AUTH_TOKEN" || { echo 'NPM_TOKEN is required for the maintainer-authorized publish'; exit 1; }
+          npm publish --ignore-scripts --access public --provenance
+        working-directory: packages/typescript
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

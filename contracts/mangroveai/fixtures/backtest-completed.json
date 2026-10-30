@@ -1,0 +1,9 @@
+{
+  "backtest_id": "00000000-0000-4000-8000-000000000001",
+  "equity_curve": [],
+  "metrics": {
+    "total_trades": 0
+  },
+  "status": "completed",
+  "trade_history": []
+}

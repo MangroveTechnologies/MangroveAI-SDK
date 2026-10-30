@@ -1,0 +1,10 @@
+{
+  "access_token": "fixture_access_token",
+  "success": true,
+  "user": {
+    "email": "fixture@example.invalid",
+    "id": "fixture-user",
+    "name": "Fixture",
+    "org_id": "fixture-org"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "has_more": false,
+  "limit": 1,
+  "next_offset": null,
+  "offset": 1,
+  "signals": [
+    {
+      "category": "trend",
+      "name": "fixture_two",
+      "signal_type": "FILTER"
+    }
+  ],
+  "total": 2
+}

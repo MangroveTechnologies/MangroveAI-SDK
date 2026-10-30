@@ -1,0 +1,11 @@
+{
+  "metrics": {
+    "backtests_count": 0,
+    "conversations_count": 2,
+    "estimated_tokens": 123,
+    "messages_count": 7,
+    "strategies_count": 0,
+    "tool_calls": {}
+  },
+  "success": true
+}

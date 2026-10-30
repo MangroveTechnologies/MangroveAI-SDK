@@ -1,0 +1,14 @@
+{
+  "has_more": true,
+  "limit": 1,
+  "next_offset": 1,
+  "offset": 0,
+  "signals": [
+    {
+      "category": "momentum",
+      "name": "fixture_one",
+      "signal_type": "TRIGGER"
+    }
+  ],
+  "total": 2
+}

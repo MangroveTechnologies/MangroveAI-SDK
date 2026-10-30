@@ -15,6 +15,9 @@ client. The existing Python distribution is `mangroveai`, imported as `mangrove_
 
 Keep the API key in server-side configuration, outside browser bundles, prompts
 and logs. The constructor can read `MANGROVE_API_KEY` or accept the key directly.
+Development requires an explicit `baseUrl` or `MANGROVE_BASE_URL`. Keys beginning
+with `test_` also require an explicit origin or `environment: 'local'`; they never
+default to production. This selects routing, not server permission enforcement.
 
 ```js
 import { MangroveAI, APIError } from '@mangrove-ai/client';

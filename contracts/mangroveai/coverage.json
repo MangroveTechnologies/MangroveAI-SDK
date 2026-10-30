@@ -1145,9 +1145,7 @@
     {
       "contract": "openapi.json",
       "operation": "GET /api/v1/on-chain/exchange-flows",
-      "python_direct_bindings": [
-        "OnChainService.get_exchange_flows"
-      ],
+      "python_direct_bindings": [],
       "request": "no-model-or-no-body",
       "response": "opaque-or-no-content",
       "runtime_payload_verified": false,
@@ -1275,9 +1273,7 @@
     {
       "contract": "openapi.json",
       "operation": "GET /api/v1/on-chain/whale-activity/{symbol}",
-      "python_direct_bindings": [
-        "OnChainService.get_whale_activity"
-      ],
+      "python_direct_bindings": [],
       "request": "no-model-or-no-body",
       "response": "opaque-or-no-content",
       "runtime_payload_verified": false,
@@ -1288,9 +1284,7 @@
     {
       "contract": "openapi.json",
       "operation": "GET /api/v1/on-chain/whale-transactions",
-      "python_direct_bindings": [
-        "OnChainService.get_whale_transactions"
-      ],
+      "python_direct_bindings": [],
       "request": "no-model-or-no-body",
       "response": "opaque-or-no-content",
       "runtime_payload_verified": false,

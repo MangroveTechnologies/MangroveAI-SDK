@@ -66,17 +66,22 @@ the legacy imports. Live integration remains manually dispatched and separate.
 ## Release sequence after explicit publication approval
 
 No package, tag, PR or deployment was published as part of the local repair.
-Version files intentionally remain 2.0.0; the existing manual release workflow
-owns the next version, tag and PyPI upload. Local 2.0.0 artifacts are unpublished
+Version files intentionally remain 2.0.0; a manual preparation workflow opens the
+reviewed version PR before separate publication. Local 2.0.0 artifacts are unpublished
 review builds and are not the bytes currently served by PyPI.
 
 1. Reconcile and review PR 60/65 with this combined branch; avoid landing duplicate
    overlapping implementations. Merge only through the authorized review flow.
 2. Require offline CI on 3.10 and 3.12, the installed-distribution gate, and the
    matching backend release for any confirmed-execution features being announced.
-3. After separate publication authorization, dispatch `release.yml` from main
-   with the agreed semver bump. Never push tags manually. The gate checks current
-   PyPI/tag consistency and installed artifacts before creating a release tag.
+3. Dispatch `prepare-release.yml` from main with the agreed semver bump. Review
+   and merge its version PR after CI; the workflow explicitly dispatches CI because
+   PRs created by `GITHUB_TOKEN` do not start it automatically. After separate
+   publication authorization, dispatch `release.yml` from main with that exact
+   committed `version`. It builds unchanged source and only tags the validated
+   `github.sha`; it never pushes a version commit to main. Never push tags manually.
+   Configure required reviewers on `pypi-release` before publishing. The gate checks
+   current PyPI/tag consistency and installed artifacts before creating a release tag.
 4. Verify the exact new PyPI version, wheel/source metadata, download hashes and
    published-package first-call snippet. Then update consumer pins and docs as
    one release handoff. `mangrove-agent/server/requirements.lock` currently pins

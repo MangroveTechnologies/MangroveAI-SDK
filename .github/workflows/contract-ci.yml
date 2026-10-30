@@ -5,6 +5,7 @@ name: CI
 # admins must configure production environment reviewers if approval is needed.
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
   pull_request:

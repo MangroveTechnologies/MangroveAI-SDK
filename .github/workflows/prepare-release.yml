@@ -1,0 +1,72 @@
+name: Prepare Python release PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Version bump for a reviewed release PR"
+        required: true
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+concurrency:
+  group: mangroveai-python-release
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require preparation from main
+        env:
+          RELEASE_REF: ${{ github.ref }}
+        run: test "$RELEASE_REF" = refs/heads/main
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          fetch-tags: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Prepare the version files
+        id: version
+        env:
+          BUMP_TYPE: ${{ inputs.bump }}
+        run: |
+          LATEST_TAG=$(git tag -l 'v*' --sort=-v:refname | head -1)
+          test -n "$LATEST_TAG"
+          python scripts/release_metadata.py prepare --previous "$LATEST_TAG" --bump "$BUMP_TYPE" >> "$GITHUB_OUTPUT"
+
+      - name: Open the version review PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VERSION_TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          RELEASE_BRANCH="codex/release-$VERSION_TAG"
+          git switch -c "$RELEASE_BRANCH"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add pyproject.toml src/mangrove_ai/_version.py
+          git commit -m "release: prepare $VERSION_TAG"
+          git push origin "HEAD:refs/heads/$RELEASE_BRANCH"
+          cat > "$RUNNER_TEMP/release-body.md" <<'BODY'
+          Prepare the Python distribution version for review. The publication workflow
+          will validate and build this exact source after human review and merge.
+
+          No package or release tag is created by this workflow. Run offline CI and
+          installed wheel/source checks before review; authorize publication separately.
+          BODY
+          gh pr create --base main --head "$RELEASE_BRANCH" --title "release: prepare $VERSION_TAG" --body-file "$RUNNER_TEMP/release-body.md"
+          # GITHUB_TOKEN-created PRs do not trigger pull_request workflows.
+          gh workflow run contract-ci.yml --ref "$RELEASE_BRANCH"

@@ -3,15 +3,14 @@ name: Release to PyPI
 on:
   workflow_dispatch:
     inputs:
-      bump:
-        description: "Version bump type"
+      version:
+        description: "Exact version already reviewed and merged into main"
         required: true
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
-        default: patch
+        type: string
+
+concurrency:
+  group: mangroveai-python-release
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -20,6 +19,7 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    environment: pypi-release
     steps:
       - name: Require release dispatch from main
         env:
@@ -33,6 +33,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.sha }}
           fetch-depth: 0
           fetch-tags: true
 
@@ -47,37 +48,21 @@ jobs:
       - name: Run tests
         run: pytest tests/ --ignore=tests/integration -v
 
-      - name: Compute next version
+      - name: Verify reviewed source version
         id: version
         env:
-          BUMP_TYPE: ${{ github.event.inputs.bump }}
+          RELEASE_VERSION: ${{ inputs.version }}
+          SOURCE_SHA: ${{ github.sha }}
         run: |
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          python scripts/release_metadata.py verify --version "$RELEASE_VERSION" >> "$GITHUB_OUTPUT"
           LATEST_TAG=$(git tag -l 'v*' --sort=-v:refname | head -1)
-          if [ -z "$LATEST_TAG" ]; then
-            LATEST_TAG="v0.0.0"
+          test -n "$LATEST_TAG"
+          echo "previous=$LATEST_TAG" >> "$GITHUB_OUTPUT"
+          if git show-ref --verify --quiet "refs/tags/v$RELEASE_VERSION"; then
+            echo "::error::Release tag already exists; reconcile the prior release before retrying."
+            exit 1
           fi
-
-          CURRENT="${LATEST_TAG#v}"
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
-
-          case "$BUMP_TYPE" in
-            major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
-            minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
-            patch) PATCH=$((PATCH + 1)) ;;
-          esac
-
-          NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
-          echo "version=${NEW_VERSION}" >> "$GITHUB_OUTPUT"
-          echo "tag=v${NEW_VERSION}" >> "$GITHUB_OUTPUT"
-          echo "previous=${LATEST_TAG}" >> "$GITHUB_OUTPUT"
-          echo "Releasing: ${LATEST_TAG} -> v${NEW_VERSION}"
-
-      - name: Update version in pyproject.toml
-        env:
-          NEW_VERSION: ${{ steps.version.outputs.version }}
-        run: |
-          sed -i "s/^version = .*/version = \"${NEW_VERSION}\"/" pyproject.toml
-          sed -i "s/^__version__ = .*/__version__ = \"${NEW_VERSION}\"/" src/mangrove_ai/_version.py
 
       - name: Build package
         run: |
@@ -152,17 +137,17 @@ jobs:
           print(f"PyPI {published} matches latest tag; target {target} is unpublished.")
           PY
 
-      - name: Create and push tag
+      - name: Tag the validated source commit
         env:
           VERSION_TAG: ${{ steps.version.outputs.tag }}
-          NEW_VERSION: ${{ steps.version.outputs.version }}
+          SOURCE_SHA: ${{ github.sha }}
         run: |
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain)"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add pyproject.toml src/mangrove_ai/_version.py
-          git diff --cached --quiet || git commit -m "release: v${NEW_VERSION}"
-          git tag -a "$VERSION_TAG" -m "Release $VERSION_TAG"
-          git push origin HEAD:main --follow-tags
+          git tag -a "$VERSION_TAG" "$SOURCE_SHA" -m "Release $VERSION_TAG"
+          git push origin "refs/tags/$VERSION_TAG:refs/tags/$VERSION_TAG"
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1

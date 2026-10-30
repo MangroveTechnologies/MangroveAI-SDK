@@ -214,6 +214,7 @@ export class MangroveAI {
     if (!['prod', 'dev', 'local'].includes(environment)) throw new ConfigurationError('environment must be prod, dev or local');
     const configured = options.baseUrl ?? env['MANGROVE_BASE_URL'];
     if ((environment === 'dev' || this.#apiKey?.startsWith('dev_')) && !configured) throw new ConfigurationError('Development requires an explicit baseUrl or MANGROVE_BASE_URL');
+    if (environment === 'prod' && this.#apiKey?.startsWith('test_') && !configured) throw new ConfigurationError('test_ keys require an explicit baseUrl or local environment; no production fallback');
     const raw = configured ?? (environment === 'local' ? 'http://localhost:5001' : 'https://api.mangrovedeveloper.ai');
     let origin: URL;
     try { origin = new URL(raw); } catch { throw new ConfigurationError('baseUrl must be an absolute HTTP(S) API origin'); }

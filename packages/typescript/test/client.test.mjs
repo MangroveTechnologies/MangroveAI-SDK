@@ -49,6 +49,23 @@ test('environment configuration never sends a dev key to production', () => {
   }
 });
 
+test('test keys require explicit routing and never default to production', () => {
+  const previous = process.env.MANGROVE_BASE_URL;
+  const environment = process.env.MANGROVE_ENVIRONMENT;
+  delete process.env.MANGROVE_BASE_URL;
+  delete process.env.MANGROVE_ENVIRONMENT;
+  try {
+    assert.throws(() => new MangroveAI({ apiKey: 'test_offline_fixture' }), ConfigurationError);
+    assert.throws(() => new MangroveAI({ apiKey: 'test_offline_fixture', environment: 'prod' }), ConfigurationError);
+    assert.equal(new MangroveAI({ apiKey: 'test_offline_fixture', environment: 'local' }).baseUrl, 'http://localhost:5001');
+    assert.equal(new MangroveAI({ apiKey: 'test_offline_fixture', baseUrl: 'https://explicit-test.example.invalid' }).baseUrl, 'https://explicit-test.example.invalid');
+    assert.equal(new MangroveAI({ apiKey: 'local_offline_fixture' }).baseUrl, 'http://localhost:5001');
+  } finally {
+    if (previous === undefined) delete process.env.MANGROVE_BASE_URL; else process.env.MANGROVE_BASE_URL = previous;
+    if (environment === undefined) delete process.env.MANGROVE_ENVIRONMENT; else process.env.MANGROVE_ENVIRONMENT = environment;
+  }
+});
+
 for (const baseUrl of ['http://example.com', 'https://user:password@example.com', 'https://example.com?key=secret', 'https://example.com/#fragment', 'https://example.com/unexpected']) {
   test(`refuses unsafe or ambiguous origin: ${baseUrl.split('?')[0]}`, () => assert.throws(() => new MangroveAI({ baseUrl }), ConfigurationError));
 }

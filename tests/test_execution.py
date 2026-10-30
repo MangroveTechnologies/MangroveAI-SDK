@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import pytest
+
 from mangrove_ai import MangroveAI
 from mangrove_ai._transport._mock import MockTransport
 from mangrove_ai.models.execution import (
     Account,
     CreateAccountRequest,
     EvaluateResult,
+    ExternalExecutionRequest,
     Position,
     Trade,
 )
@@ -321,6 +324,207 @@ class TestExecutionEvaluateByObject:
 
         assert "open_positions" not in mock.requests[-1].json
         assert result.open_positions is None
+
+    def test_evaluate_by_object_sends_typed_external_execution_v2(self) -> None:
+        opened = {
+            "kind": "opened",
+            "sequence": 1,
+            "event_id": "evt-open-1",
+            "position_id": "pos-1",
+            "asset": "XLM-USD",
+            "filled_quantity": "1.2500",
+            "occurred_at": None,
+        }
+        closed = {
+            "kind": "closed",
+            "sequence": 2,
+            "event_id": "evt-close-1",
+            "position_id": "pos-1",
+            "asset": "XLM-USD",
+            "realized_pnl": "-0.1250",
+            "fees": "0.0025",
+            "occurred_at": "2026-10-16T15:30:00Z",
+        }
+        batch = ExternalExecutionRequest(
+            observed_at="2026-10-16T15:31:00Z",
+            events=[opened, closed],
+        )
+        mock = MockTransport()
+        mock.add_response("POST", "/execution/evaluate", json={"success": True})
+        client = _make_client(mock)
+
+        client.execution.evaluate_by_object({"asset": "XLM-USD"}, external_execution=batch)
+
+        assert mock.requests[-1].json == {
+            "strategy": {"asset": "XLM-USD"},
+            "persist": False,
+            "external_execution": {
+                "contract_version": 2,
+                "observed_at": "2026-10-16T15:31:00Z",
+                "events": [opened, closed],
+            },
+        }
+
+    def test_evaluate_by_object_accepts_external_execution_mapping(self) -> None:
+        batch = {
+            "contract_version": 2,
+            "observed_at": "2026-10-16T15:31:00Z",
+            "events": [{
+                "kind": "opened",
+                "sequence": 1,
+                "event_id": "evt-open-1",
+                "position_id": "pos-1",
+                "asset": "XLM-USD",
+                "filled_quantity": "1.25",
+                "occurred_at": None,
+            }],
+        }
+        mock = MockTransport()
+        mock.add_response("POST", "/execution/evaluate", json={"success": True})
+        client = _make_client(mock)
+
+        client.execution.evaluate_by_object({"asset": "XLM-USD"}, external_execution=batch)
+
+        assert mock.requests[-1].json["external_execution"] == batch
+
+    @pytest.mark.parametrize("event,match", [
+        ({"kind": "opened", "sequence": True, "event_id": "e", "position_id": "p",
+          "asset": "X", "filled_quantity": "1", "occurred_at": None}, "sequence"),
+        ({"kind": "opened", "sequence": 1, "event_id": "e", "position_id": "p",
+          "asset": "X", "filled_quantity": "0", "occurred_at": None}, "filled_quantity"),
+        ({"kind": "opened", "sequence": 1, "event_id": "e", "position_id": "p",
+          "asset": "X", "filled_quantity": "NaN", "occurred_at": None}, "exact decimal"),
+        ({"kind": "closed", "sequence": 1, "event_id": "e", "position_id": "p",
+          "asset": "X", "realized_pnl": "Infinity", "fees": "0", "occurred_at": None}, "exact decimal"),
+        ({"kind": "closed", "sequence": 1, "event_id": "e", "position_id": "p",
+          "asset": "X", "realized_pnl": "1", "fees": "-0.01", "occurred_at": None}, "fees"),
+    ])
+    def test_external_execution_request_rejects_invalid_event_values(self, event, match) -> None:
+        with pytest.raises(ValueError, match=match):
+            ExternalExecutionRequest(
+                observed_at="2026-10-16T15:31:00Z",
+                events=[event],
+            )
+
+    def test_external_execution_request_rejects_bool_version_and_late_event_time(self) -> None:
+        event = {
+            "kind": "opened",
+            "sequence": 1,
+            "event_id": "evt-open-1",
+            "position_id": "pos-1",
+            "asset": "XLM-USD",
+            "filled_quantity": "1",
+            "occurred_at": "2026-10-16T15:32:00Z",
+        }
+        with pytest.raises(ValueError, match="contract_version"):
+            ExternalExecutionRequest(
+                contract_version=True,
+                observed_at="2026-10-16T15:31:00Z",
+                events=[{**event, "occurred_at": None}],
+            )
+        with pytest.raises(ValueError, match="contract_version"):
+            ExternalExecutionRequest(
+                contract_version=2.0,
+                observed_at="2026-10-16T15:31:00Z",
+                events=[{**event, "occurred_at": None}],
+            )
+        with pytest.raises(ValueError, match="occurred_at cannot be after observed_at"):
+            ExternalExecutionRequest(
+                observed_at="2026-10-16T15:31:00Z",
+                events=[event],
+            )
+
+    def test_external_execution_request_matches_hosted_batch_limit_and_zero_fee_canonicalization(self) -> None:
+        closed = {
+            "kind": "closed", "sequence": 1, "event_id": "e1", "position_id": "p1",
+            "asset": "XLM-USD", "realized_pnl": "0", "fees": "-0.000", "occurred_at": None,
+        }
+        accepted = ExternalExecutionRequest(
+            observed_at="2026-10-16T15:31:00Z",
+            events=[closed],
+        )
+        assert accepted.events[0].fees == "-0.000"
+
+        opened = {
+            "kind": "opened", "event_id": "e", "position_id": "p", "asset": "XLM-USD",
+            "filled_quantity": "1", "occurred_at": None,
+        }
+        with pytest.raises(ValueError, match="at most 512"):
+            ExternalExecutionRequest(
+                observed_at="2026-10-16T15:31:00Z",
+                events=[{**opened, "sequence": index + 1} for index in range(513)],
+            )
+
+    def test_external_execution_request_requires_events_in_sequence_order(self) -> None:
+        first = {
+            "kind": "opened", "sequence": 2, "event_id": "e2", "position_id": "p2",
+            "asset": "XLM-USD", "filled_quantity": "1", "occurred_at": None,
+        }
+        second = {
+            "kind": "closed", "sequence": 1, "event_id": "e1", "position_id": "p1",
+            "asset": "XLM-USD", "realized_pnl": "0", "fees": "0", "occurred_at": None,
+        }
+        with pytest.raises(ValueError, match="strictly increasing"):
+            ExternalExecutionRequest(
+                observed_at="2026-10-16T15:31:00Z",
+                events=[first, second],
+            )
+
+    def test_evaluate_result_preserves_typed_external_execution_ack_and_legacy_shape(self) -> None:
+        ack = {
+            "contract_version": 2,
+            "applied_through": 2,
+            "receipts": [{
+                "sequence": 2,
+                "event_id": "evt-close-1",
+                "position_id": "pos-1",
+                "kind": "closed",
+                "sha256": "a" * 64,
+                "occurred_at": None,
+                "accounting_at": "2026-10-16T15:31:00Z",
+            }],
+            "active_position_ids": [],
+            "last_observed_at": "2026-10-16T15:31:00Z",
+        }
+        mock = MockTransport()
+        mock.add_response("POST", "/execution/evaluate", json={
+            "success": True,
+            "execution_state": {"cash_balance": 999.0, "external_execution": ack},
+        })
+        client = _make_client(mock)
+        result = client.execution.evaluate_by_object({"asset": "XLM-USD"})
+
+        assert result.external_execution_ack is not None
+        assert result.external_execution_ack.applied_through == 2
+        assert result.external_execution_ack.receipts[0].event_id == "evt-close-1"
+        assert result.execution_state["external_execution"] == ack
+        assert result.model_dump()["execution_state"]["external_execution"] == ack
+        legacy = EvaluateResult.model_validate({"success": True, "execution_state": {"cash_balance": 10}})
+        assert legacy.external_execution_ack is None
+        future_ack = {"contract_version": 3, "cursor": 4, "future_receipts": ["opaque"]}
+        future = EvaluateResult.model_validate({
+            "success": True,
+            "execution_state": {"external_execution": future_ack},
+        })
+        assert future.external_execution_ack is None
+        assert future.model_dump()["execution_state"]["external_execution"] == future_ack
+
+    def test_evaluate_result_exposes_v2_position_templates_and_disposition(self) -> None:
+        template = {"position_id": "model-1", "asset": "XLM-USD", "quantity": 1.25}
+        mock = MockTransport()
+        mock.add_response("POST", "/execution/evaluate", json={
+            "success": True,
+            "position_templates": [template],
+            "external_execution_disposition": "duplicate_bar",
+            "open_positions": [{"position_id": "broker-1", "asset": "XLM-USD"}],
+        })
+        client = _make_client(mock)
+
+        result = client.execution.evaluate_by_object({"asset": "XLM-USD"})
+
+        assert result.position_templates == [template]
+        assert result.external_execution_disposition == "duplicate_bar"
+        assert result.open_positions == [{"position_id": "broker-1", "asset": "XLM-USD"}]
 
 
 # =============================================================================

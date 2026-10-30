@@ -7,6 +7,7 @@ from ..models.execution import (
     BulkEvaluateResult,
     CreateAccountRequest,
     EvaluateResult,
+    ExternalExecutionRequest,
     PortfolioResponse,
     Position,
     Trade,
@@ -138,6 +139,7 @@ class ExecutionService(BaseService):
         *,
         persist: bool = False,
         open_positions: list[dict[str, Any]] | None = None,
+        external_execution: ExternalExecutionRequest | dict[str, Any] | None = None,
     ) -> EvaluateResult:
         """Evaluate an inline strategy object without persisting it first.
 
@@ -166,10 +168,25 @@ class ExecutionService(BaseService):
                 the combination).
             open_positions: Caller-owned open positions from the prior
                 evaluation's ``open_positions`` response field.
+            external_execution: Optional v2 confirmed-execution event
+                batch. When supplied, it is sent as the top-level
+                ``external_execution`` envelope. The response acknowledgment
+                is retained in ``result.execution_state`` and is also
+                available as the typed ``result.external_execution_ack``.
+                Omit it to preserve the existing request body exactly.
         """
         body: dict[str, Any] = {"strategy": strategy, "persist": persist}
         if open_positions is not None:
             body["open_positions"] = open_positions
+        if external_execution is not None:
+            event_batch = (
+                external_execution
+                if isinstance(external_execution, ExternalExecutionRequest)
+                else ExternalExecutionRequest.model_validate(external_execution)
+            )
+            # Keep null `occurred_at` fields: the hosted contract requires the
+            # field to be explicit even when the broker timestamp is unknown.
+            body["external_execution"] = event_batch.model_dump(mode="json")
         return self._request_model(
             "POST", "/execution/evaluate",
             EvaluateResult,

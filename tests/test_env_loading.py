@@ -99,3 +99,25 @@ class TestSoftDependency:
         config = ClientConfig()
 
         assert config.api_key == "prod_from_real_env"
+
+
+class TestBaseUrlResolution:
+    def test_environment_base_url_routes_core_and_v2_to_same_host(self, monkeypatch) -> None:
+        monkeypatch.setenv("MANGROVE_BASE_URL", "https://staging.example/api/v1")
+
+        config = ClientConfig(environment="dev", load_dotenv=False)
+
+        assert config.core_base_url == "https://staging.example/api/v1"
+        assert config.core_v2_base_url == "https://staging.example/api/v2"
+
+    def test_explicit_base_url_overrides_environment_for_core_and_v2(self, monkeypatch) -> None:
+        monkeypatch.setenv("MANGROVE_BASE_URL", "https://staging.example/api/v1")
+
+        config = ClientConfig(
+            environment="dev",
+            base_url="https://override.example/api/v1",
+            load_dotenv=False,
+        )
+
+        assert config.core_base_url == "https://override.example/api/v1"
+        assert config.core_v2_base_url == "https://override.example/api/v2"

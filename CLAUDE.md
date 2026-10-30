@@ -26,14 +26,13 @@ This is the Pillow/PIL pattern (`pip install Pillow` → `from PIL import Image`
 
 The release pipeline is `.github/workflows/release.yml`, triggered via `workflow_dispatch` with a `bump` input (`patch`/`minor`/`major`). The workflow OWNS the entire bump → tag → build → publish lifecycle:
 
-1. Reads `bump=<patch|minor|major>` input.
-2. Computes next version from the latest `v*` tag.
-3. Updates `pyproject.toml` `version` + `src/mangrove_ai/_version.py` `__version__`.
-4. Commits, tags `v<version>`, pushes to main with `--follow-tags`.
-5. Builds wheel via `python -m build`.
-6. Verifies the built wheel's METADATA `Version` field matches the computed version.
-7. Publishes to PyPI via `pypa/gh-action-pypi-publish@release/v1` using `secrets.PYPI_API_TOKEN`.
-8. Creates a GitHub Release via `softprops/action-gh-release@v2`.
+1. Requires the manual dispatch to target `main` and reads `bump=<patch|minor|major>`.
+2. Computes the next version from the latest `v*` tag and updates both version files.
+3. Builds the wheel and source archive and verifies both package names and versions.
+4. Confirms the latest tag matches the current PyPI version and the target version is unpublished.
+5. Commits and pushes the version bump and tag to main with `--follow-tags`.
+6. Publishes to PyPI via `pypa/gh-action-pypi-publish@release/v1` using `secrets.PYPI_API_TOKEN`.
+7. Creates a GitHub Release via `softprops/action-gh-release@v2`.
 
 **Never push a tag manually.** Doing so:
 - Skips the version bump (so `pyproject.toml` and the tag disagree)
@@ -42,7 +41,7 @@ The release pipeline is `.github/workflows/release.yml`, triggered via `workflow
 
 We had to recover from exactly this in May 2026 (orphan tags `v1.0.0` + `v1.0.1` that never published; cleanup required `gh api DELETE /repos/.../git/refs/tags/<name>` because `git push --delete` is hooked by the portfolio's branch-protection script).
 
-To release: `gh workflow run release.yml -f bump=patch --repo MangroveTechnologies/MangroveAI-SDK`. Wait for completion. Verify on PyPI public + check the Releases page.
+To release: `gh workflow run release.yml -f bump=patch --repo MangroveTechnologies/MangroveAI-SDK`. Dispatch from `main`, wait for completion, and verify on PyPI public + the Releases page. The release notes install command must use the PyPI distribution name `mangroveai`.
 
 ## Pre-tag PyPI similarity check (if EVER renaming the dist)
 

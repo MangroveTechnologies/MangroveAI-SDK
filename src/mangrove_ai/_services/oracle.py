@@ -35,6 +35,7 @@ from ..models.oracle import (
     SieveScoreResponse,
     SimulateRunResponse,
 )
+from ._backtest_payload import backtest_payload
 
 SIEVE_MAX_ITEMS_PER_REQUEST = 99
 
@@ -127,7 +128,7 @@ class OracleService:
     def backtest(self, request: OracleBacktestRequest) -> OracleBacktestResult:
         """Run a single-strategy backtest synchronously."""
         data = self._core_request(
-            "POST", "/oracle/backtest", json=request.model_dump(exclude_none=True)
+            "POST", "/oracle/backtest", json=backtest_payload(request)
         )
         return OracleBacktestResult.model_validate(data)
 
@@ -136,7 +137,7 @@ class OracleService:
     ) -> OracleAsyncBacktestSubmission:
         """Submit a backtest for async execution; returns a backtest_id."""
         data = self._core_request(
-            "POST", "/oracle/backtest/async", json=request.model_dump(exclude_none=True)
+            "POST", "/oracle/backtest/async", json=backtest_payload(request)
         )
         return OracleAsyncBacktestSubmission.model_validate(data)
 
@@ -150,7 +151,7 @@ class OracleService:
     ) -> OracleBulkBacktestResult:
         """Evaluate many strategies over a shared date range in one call."""
         data = self._core_request(
-            "POST", "/oracle/backtest/bulk", json=request.model_dump(exclude_none=True)
+            "POST", "/oracle/backtest/bulk", json=backtest_payload(request)
         )
         return OracleBulkBacktestResult.model_validate(data)
 

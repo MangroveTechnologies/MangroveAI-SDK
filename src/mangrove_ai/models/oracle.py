@@ -191,7 +191,12 @@ class OracleBacktestRequest(MangroveModel):
     slippage_pct: float | None = None
     fee_pct: float | None = None
     execution_config: dict[str, Any] | None = None
-    # "full" (default) or "quick"
+    # Explicit options are sent inside execution_config, preserving None.
+    cooldown_model: str | None = None
+    cooldown_config: dict[str, dict[str, Any]] | None = None
+    max_drawdown_limit: float | None = None
+    max_drawdown_halt_limit: float | None = None
+    # "full" (default); "quick" is a compatibility alias for a full run.
     mode: str | None = None
 
 
@@ -220,6 +225,10 @@ class OracleBulkBacktestRequest(MangroveModel):
     strategy_ids: list[str] | None = None
     strategy_configs: list[dict[str, Any]] | None = None
     execution_config: dict[str, Any] | None = None
+    cooldown_model: str | None = None
+    cooldown_config: dict[str, dict[str, Any]] | None = None
+    max_drawdown_limit: float | None = None
+    max_drawdown_halt_limit: float | None = None
     max_hold_time_hours: int | None = None
     slippage_pct: float | None = None
     fee_pct: float | None = None

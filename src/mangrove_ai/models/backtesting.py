@@ -12,9 +12,9 @@ _DEPRECATED_COOLDOWN_FIELDS = ("cooldown_bars", "daily_momentum_limit", "weekly_
 
 _DEPRECATION_MSG = (
     "The top-level field '{field}' is deprecated and will be removed in a future major version. "
-    "Use cooldown_config instead. cooldown_config is a dict keyed by primary timeframe "
-    "(e.g. '5m', '15m', '1h', '1d'), where each value is a dict with: "
-    "max_hold_time_hours, short_loss_limit, long_loss_limit, short_window_bars, long_window_bars."
+    "For the bars model use cooldown_config, keyed by primary timeframe "
+    "(e.g. '5m', '15m', '1h', '1d'). Trades-model breaker keys belong in "
+    "execution_config.circuit_breaker, not in cooldown_config."
 )
 
 
@@ -70,28 +70,26 @@ class BacktestRequest(MangroveModel):
     fee_pct: float | None = None
     execution_config: dict[str, Any] | None = None
     data_source: str | None = None
+    cooldown_model: str | None = None
+    # The service nests these options in execution_config, where the engine
+    # reads them. Omission accepts defaults; explicit None disables a guard.
+    max_drawdown_limit: float | None = None
+    max_drawdown_halt_limit: float | None = None
     cooldown_config: dict[str, dict[str, Any]] | None = None
-    """Per-timeframe cooldown configuration (preferred over legacy top-level fields).
+    """Legacy per-timeframe window configuration for cooldown_model='bars'.
 
     Keyed by primary timeframe string, e.g. "5m", "15m", "1h", "1d".
-    Each value is a dict with the following keys:
-      - max_hold_time_hours (int): maximum bars a position may be held
-      - short_loss_limit (int): number of losses in the short window that triggers a short cooldown
-      - long_loss_limit (int): number of losses in the long window that triggers a long cooldown
-      - short_window_bars (int): rolling lookback bars AND cooldown duration for the short tier
-      - long_window_bars (int): rolling lookback bars AND cooldown duration for the long tier
+    Fetch the complete legacy shape from client.config.execution_defaults().
+    It contains short_loss_limit, long_loss_limit, short_window_bars,
+    long_window_bars, short_cooldown_bars, and long_cooldown_bars.
 
-    Example::
-
-        cooldown_config={
-            "1h": {
-                "max_hold_time_hours": 24,
-                "short_loss_limit": 4,
-                "long_loss_limit": 6,
-                "short_window_bars": 48,
-                "long_window_bars": 144,
-            }
-        }
+    The default trades model instead reads a flat execution_config.circuit_breaker
+    block: consecutive_loss_limit, loss_amount_pct, pause_bars, pause_min_hours,
+    pause_max_days, max_consecutive_pauses, resume_trades, resume_size_fraction,
+    drawdown_pause_bars. A partial breaker block retains omitted server defaults.
+    Its loss pause defaults to 36 bars, clamped to 24 hours through 14 days;
+    drawdown pauses default to 72 bars. The two drawdown thresholds are separate
+    execution_config fields, not members of the circuit_breaker block.
 
     The old top-level fields (cooldown_bars, daily_momentum_limit, weekly_momentum_limit,
     max_hold_time_hours) remain accepted during the deprecation grace period but will be
@@ -145,6 +143,9 @@ class BulkBacktestRequest(MangroveModel):
     slippage_pct: float | None = None
     fee_pct: float | None = None
     execution_config: dict[str, Any] | None = None
+    cooldown_model: str | None = None
+    max_drawdown_limit: float | None = None
+    max_drawdown_halt_limit: float | None = None
     cooldown_config: dict[str, dict[str, Any]] | None = None
     """Per-timeframe cooldown configuration. See BacktestRequest.cooldown_config for full docs."""
 

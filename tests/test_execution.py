@@ -280,8 +280,7 @@ class TestExecutionEvaluateByObject:
         assert mock.requests[-1].json == {"strategy": {"asset": "BTC"}, "persist": True}
 
     def test_evaluate_by_object_round_trips_open_positions(self) -> None:
-        """Stateless lane (MangroveAI#840): open_positions goes up in the
-        request body and the UPDATED set comes back on the result model."""
+        """Caller-owned positions remain separate from proposed fills."""
         position = {
             "id": "pos-1",
             "asset": "ETH-USD",
@@ -698,3 +697,46 @@ def test_paper_tick_has_stable_payment_operation_identity():
     ids = [request.headers["X-Payment-Operation-Id"] for request in mock.requests]
     assert ids[0] == ids[1]
     assert ids[1] != ids[2]
+
+
+@pytest.mark.parametrize("bulk", [False, True])
+def test_confirmed_history_and_proposals_remain_separate(bulk: bool) -> None:
+    """Single and bulk preserve the actual close ledger, never substituting proposals."""
+    close = {"position_id": "confirmed-1", "exit_timestamp": "2026-10-29T10:00:00Z",
+             "booked_at": "2026-10-29T10:01:00Z", "realized_pnl": -7.0}
+    strategy = {"asset": "ETH", "closed_positions": [close],
+                "closed_positions_bootstrap_complete": True}
+    response = {
+        "success": True,
+        "execution_state": {"risk_state": {"recent_close_ids": ["confirmed-1"]}},
+        "open_positions": [],
+        "closed_trades": [],
+        "proposed_closes": [{"position_id": "pending-1", "profit_loss": 5.0,
+                             "execution_confirmed": False}],
+        "proposed_positions": [{"id": "entry-1", "open": False,
+                                "execution_confirmed": False, "orders": [{"id": "bracket-1"}]}],
+    }
+    mock = MockTransport()
+    mock.add_response("POST", "/execution/evaluate/bulk" if bulk else "/execution/evaluate",
+                      json={"success": True, "results": [response]} if bulk else response)
+    client = _make_client(mock)
+    if bulk:
+        result = client.execution.evaluate_bulk(
+            strategy_configs=[{**strategy, "open_positions": []}],
+        ).results[0]
+        sent = mock.requests[-1].json["strategy_configs"][0]
+        assert sent["open_positions"] == []
+    else:
+        result = client.execution.evaluate_by_object(strategy, open_positions=[])
+        sent = mock.requests[-1].json["strategy"]
+        assert mock.requests[-1].json["open_positions"] == []
+    assert sent["closed_positions"] == [close]
+    assert sent["closed_positions_bootstrap_complete"] is True
+    assert "closed_positions" not in mock.requests[-1].json
+    assert "open_positions" not in strategy
+    assert result.open_positions == []
+    assert result.closed_trades == []
+    assert result.proposed_closes == response["proposed_closes"]
+    assert result.proposed_positions == response["proposed_positions"]
+    assert result.execution_state["risk_state"]["recent_close_ids"] == ["confirmed-1"]
+    assert result.model_dump(exclude_none=True) == response

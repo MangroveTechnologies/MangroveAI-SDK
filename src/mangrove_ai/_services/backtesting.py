@@ -16,6 +16,7 @@ from ..models.backtesting import (
     BulkBacktestRequest,
     BulkBacktestResult,
 )
+from ._backtest_payload import backtest_payload
 
 
 def _iso(value: str | date) -> str:
@@ -74,7 +75,7 @@ class BacktestingService:
             the ``Retry-After`` delay, or run strategies individually via
             ``run()`` (async-backed) for long lookbacks.
         """
-        data = self._core_request("POST", "/backtests/bulk", json=request.model_dump(exclude_none=True))
+        data = self._core_request("POST", "/backtests/bulk", json=backtest_payload(request))
         return BulkBacktestResult.model_validate(data)
 
     def get(self, backtest_id: str) -> BacktestResult:
@@ -150,7 +151,7 @@ class BacktestingService:
                 acceptance; do not resubmit blindly without a backtest ID or
                 server-side idempotency key.
         """
-        data = self._v2_request("POST", "/backtests/", json=request.model_dump(exclude_none=True))
+        data = self._v2_request("POST", "/backtests/", json=backtest_payload(request))
         return AsyncBacktestSubmission.model_validate(data)
 
     def poll_status(self, backtest_id: str) -> AsyncBacktestStatus:

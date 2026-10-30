@@ -28,6 +28,34 @@ def _make_client(mock: MockTransport) -> MangroveAI:
     return MangroveAI(api_key="test_abc123", environment="local", httpx_client=mock)
 
 
+@pytest.mark.parametrize("surface", ["sync", "async", "bulk"])
+def test_oracle_explicit_disabled_guards_reach_engine(surface: str) -> None:
+    mock = MockTransport()
+    client = _make_client(mock)
+    options = {"max_drawdown_limit": None, "max_drawdown_halt_limit": None, "cooldown_model": "bars"}
+    if surface == "bulk":
+        mock.add_response("POST", "/oracle/backtest/bulk", json={
+            "success": True, "results": [], "data_fetches": 0, "total_execution_time_seconds": 0})
+        client.oracle.backtest_bulk(OracleBulkBacktestRequest(
+            start_date="2026-01-01", end_date="2026-02-01", initial_balance=10000,
+            min_balance_threshold=.1, min_trade_amount=25, max_open_positions=5,
+            max_trades_per_day=50, max_risk_per_trade=.01, max_units_per_trade=100,
+            max_trade_amount=10000, volatility_window=24, target_volatility=.02,
+            volatility_mode="stddev", enable_volatility_adjustment=False, cooldown_bars=0,
+            daily_momentum_limit=3, weekly_momentum_limit=3, strategy_configs=[{"name": "control"}], **options))
+    else:
+        request = OracleBacktestRequest(asset="ETH", interval="1h", strategy_json='{"entry":[],"exit":[]}', **options)
+        if surface == "sync":
+            mock.add_response("POST", "/oracle/backtest", json={"success": True, "metrics": {}})
+            client.oracle.backtest(request)
+        else:
+            mock.add_response("POST", "/oracle/backtest/async", json={"backtest_id": "run-1", "status": "running"})
+            client.oracle.backtest_async(request)
+    sent = mock.requests[-1].json
+    assert sent["execution_config"] == options
+    assert all(key not in sent for key in options)
+
+
 # Sample fixtures lifted from the real AVAX response in the corpus parity run
 _SIEVE_RESPONSE = {
     "predictions": [

@@ -34,12 +34,9 @@ from mangrove_ai.models.kb import (
     KBTag,
 )
 from mangrove_ai.models.on_chain import (
-    ExchangeFlowsResponse,
     SmartMoneyScreenResponse,
     SmartMoneySentimentResponse,
     TokenHoldersResponse,
-    WhaleActivityResponse,
-    WhaleTransactionsResponse,
 )
 from mangrove_ai.models.shared import SuccessResponse
 from mangrove_ai.models.signals import MatchResponse, Signal
@@ -393,26 +390,3 @@ class TestOnChainLive:
         except Exception as e:
             pytest.skip(f"On-chain provider unavailable: {e}")
 
-    def test_get_whale_transactions(self, client: MangroveAI) -> None:
-        try:
-            result = client.on_chain.get_whale_transactions(min_value=1_000_000, hours_back=24)
-            assert isinstance(result, WhaleTransactionsResponse)
-            assert result.success is True
-        except Exception as e:
-            pytest.skip(f"On-chain provider unavailable: {e}")
-
-    def test_get_exchange_flows(self, client: MangroveAI) -> None:
-        try:
-            result = client.on_chain.get_exchange_flows(symbol="BTC", hours_back=24)
-            assert isinstance(result, ExchangeFlowsResponse)
-            assert result.success is True
-        except Exception as e:
-            pytest.skip(f"On-chain provider unavailable: {e}")
-
-    def test_get_whale_activity(self, client: MangroveAI) -> None:
-        try:
-            result = client.on_chain.get_whale_activity("BTC", hours_back=24)
-            assert isinstance(result, WhaleActivityResponse)
-            assert result.success is True
-        except Exception as e:
-            pytest.skip(f"On-chain provider unavailable: {e}")

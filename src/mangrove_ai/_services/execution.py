@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from typing import Any
 
+from ..exceptions import ConfigurationError, NotImplementedLayerError
 from ..models.execution import (
     Account,
     BulkEvaluateResult,
     CreateAccountRequest,
     EvaluateResult,
+    ExternalExecutionRequest,
     PortfolioResponse,
     Position,
     Trade,
@@ -51,15 +53,9 @@ class ExecutionService(BaseService):
         return self._request_model("GET", f"/execution/accounts/{account_id}", Account)
 
     def update_account(self, account_id: str, **kwargs: Any) -> Account:
-        """Update account settings.
-
-        Args:
-            account_id: UUID of the account.
-            **kwargs: Fields to update (name, risk_params, etc.).
-        """
-        return self._request_model(
-            "PUT", f"/execution/accounts/{account_id}", Account,
-            json=kwargs,
+        """Unsupported: the current API has no account-update operation."""
+        raise NotImplementedLayerError(
+            "Account updates are not supported by the current API. No request was sent."
         )
 
     def list_positions(
@@ -69,28 +65,50 @@ class ExecutionService(BaseService):
         status: str | None = None,
         skip: int = 0,
         limit: int = 100,
+        open_only: bool | None = None,
+        strategy_id: str | None = None,
+        asset: str | None = None,
     ) -> list[Position]:
         """List positions with optional filters.
 
         Args:
             account_id: Filter by account.
-            status: Filter by "open" or "closed".
+            status: Compatibility filter, "open" or "closed". Closed filters
+                the returned server page locally; it may contain fewer than
+                limit rows. Pagination offsets still refer to all matching
+                server rows, not just closed positions.
             skip: Pagination offset.
             limit: Max results.
+            open_only: The API's own filter: True returns open positions;
+                False returns open and closed positions. Defaults to True.
+            strategy_id: Filter by strategy.
+            asset: Filter by asset.
         """
-        params: dict[str, Any] = {"skip": skip, "limit": limit}
+        if status not in {None, "open", "closed"}:
+            raise ConfigurationError("Position status must be 'open' or 'closed'.")
+        if open_only is not None and type(open_only) is not bool:
+            raise ConfigurationError("open_only must be a boolean.")
+        if status is not None and open_only is not None and open_only != (status == "open"):
+            raise ConfigurationError("status and open_only describe conflicting position filters.")
+        effective_open_only = open_only if open_only is not None else status != "closed"
+        params: dict[str, Any] = {"skip": skip, "limit": limit, "open_only": str(effective_open_only).lower()}
         if account_id is not None:
             params["account_id"] = account_id
-        if status is not None:
-            params["status"] = status
+        if strategy_id is not None:
+            params["strategy_id"] = strategy_id
+        if asset is not None:
+            params["asset"] = asset
         data = self._request("GET", "/execution/positions", params=params)
-        if isinstance(data, list):
-            return [Position.model_validate(p) for p in data]
-        return [Position.model_validate(p) for p in data.get("positions", data)]
+        rows = data if isinstance(data, list) else data.get("positions", data)
+        positions = [Position.model_validate(position) for position in rows]
+        return [position for position in positions if not position.open] if status == "closed" else positions
 
     def get_position(self, position_id: str) -> Position:
-        """Get position details by ID."""
-        return self._request_model("GET", f"/execution/positions/{position_id}", Position)
+        """Unsupported: use the paged list_positions resource."""
+        raise NotImplementedLayerError(
+            "The current API has no position-detail endpoint. "
+            "Use list_positions() and inspect its page. No request was sent."
+        )
 
     def list_trades(
         self,
@@ -125,6 +143,10 @@ class ExecutionService(BaseService):
     def evaluate(self, strategy_id: str, *, persist: bool = True) -> EvaluateResult:
         """Evaluate a strategy against current market data.
 
+        ``persist=True`` books engine-owned simulated fills. External venue
+        executors must use caller-owned evaluation with their confirmed ledger;
+        a generated order's ``filled`` status is not a venue confirmation.
+
         Args:
             strategy_id: UUID of the strategy.
             persist: Whether to persist orders/positions/trades.
@@ -138,6 +160,7 @@ class ExecutionService(BaseService):
         *,
         persist: bool = False,
         open_positions: list[dict[str, Any]] | None = None,
+        external_execution: ExternalExecutionRequest | dict[str, Any] | None = None,
     ) -> EvaluateResult:
         """Evaluate an inline strategy object without persisting it first.
 
@@ -145,14 +168,22 @@ class ExecutionService(BaseService):
           - Testing draft strategies before saving to MangroveAI.
           - One-off evaluations against modified parameters.
           - Dry-runs with hand-tuned ``execution_state``.
-          - Fully stateless ticking: pass ``open_positions`` (the value a
-            previous evaluation returned) and the engine evaluates
-            stop-loss / take-profit / signal / time exits against them
-            with zero server-side position storage. The response's
-            ``open_positions`` field carries the UPDATED set (surviving
-            plus newly entered, resting bracket orders included) —
-            persist it and echo it back on the next call, exactly like
-            ``execution_state``.
+          - Caller-owned ticking: pass actual ``open_positions`` and account
+            balances. The engine evaluates exits without booking venue fills.
+            Returned ``open_positions`` retains that confirmed book. New entry
+            templates are in ``proposed_positions`` and exit estimates are in
+            ``proposed_closes``; both have ``execution_confirmed=False``.
+
+        Retain returned risk state and candle cursors, but overlay actual ledger
+        balances and positions before the next evaluation. Include confirmed net
+        closes in ``strategy['closed_positions']`` and explicitly mark a complete
+        initial history with ``strategy['closed_positions_bootstrap_complete']``.
+        The trades model holds new entries until that history is acknowledged,
+        while continuing exits. For a new inline draft, explicitly send an empty
+        ``closed_positions`` list and set the complete-history marker to True.
+        These fields belong inside the strategy, not the outer request. Retry
+        delivery with stable position IDs until acknowledged in risk state.
+        A proposed or rejected order must never become a confirmed close.
 
         Args:
             strategy: Strategy dict — at minimum ``asset``, ``rules``,
@@ -164,12 +195,28 @@ class ExecutionService(BaseService):
                 typically dry-run. Not allowed together with
                 ``open_positions`` (caller-owned state; the API rejects
                 the combination).
-            open_positions: Caller-owned open positions from the prior
-                evaluation's ``open_positions`` response field.
+            open_positions: Authoritative caller-owned open positions, including
+                resting brackets. Pass ``[]`` for a confirmed empty book. Only
+                actual executor fills create or close positions in this list.
+            external_execution: Optional v2 confirmed-execution event
+                batch. When supplied, it is sent as the top-level
+                ``external_execution`` envelope. The response acknowledgment
+                is retained in ``result.execution_state`` and is also
+                available as the typed ``result.external_execution_ack``.
+                Omit it to preserve the existing request body exactly.
         """
         body: dict[str, Any] = {"strategy": strategy, "persist": persist}
         if open_positions is not None:
             body["open_positions"] = open_positions
+        if external_execution is not None:
+            event_batch = (
+                external_execution
+                if isinstance(external_execution, ExternalExecutionRequest)
+                else ExternalExecutionRequest.model_validate(external_execution)
+            )
+            # Keep null `occurred_at` fields: the hosted contract requires the
+            # field to be explicit even when the broker timestamp is unknown.
+            body["external_execution"] = event_batch.model_dump(mode="json")
         return self._request_model(
             "POST", "/execution/evaluate",
             EvaluateResult,
@@ -196,12 +243,15 @@ class ExecutionService(BaseService):
         bypass the DB and require the full strategy shape
         (``asset``, ``rules``, ``execution_config``, ``execution_state``).
 
-        Stateless positions: an inline config may carry its own
-        ``open_positions`` (the list a previous evaluation returned for
-        that strategy). The engine evaluates exits against them without
-        server-side storage and the per-strategy result echoes the
-        updated set back in its ``open_positions`` field. Not allowed
-        with ``persist=True`` or a config carrying a DB id.
+        Each inline config may carry authoritative ``open_positions`` (explicit
+        ``[]`` when flat), ``closed_positions`` and a
+        ``closed_positions_bootstrap_complete`` marker. Returned positions stay
+        confirmed; proposed entries and closes are separate fields, exactly as
+        in ``evaluate_by_object``. Overlay actual fills before the next call.
+        Trades-model entries require acknowledged initial history, even when
+        ``open_positions`` is omitted. A new inline draft can attest an empty
+        complete history explicitly.
+        Caller-owned positions are not allowed with ``persist=True``.
 
         Args:
             strategy_ids: UUIDs to load from the strategy table.

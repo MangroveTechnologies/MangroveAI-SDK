@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from mangrove_ai import MangroveAI
 from mangrove_ai._transport._mock import MockTransport
-from mangrove_ai.models.auth import ApiKey, ApiKeyCreateResponse, LoginResponse, RefreshResponse
+from mangrove_ai.models.auth import ApiKey, ApiKeyCreateResponse, LoginResponse
 from mangrove_ai.models.shared import SuccessResponse
 
 
@@ -40,19 +40,23 @@ class TestAuthLogin:
 
 
 class TestAuthRefresh:
-    def test_refresh_returns_new_access_token(self) -> None:
+    def test_body_refresh_token_fails_before_request(self) -> None:
+        import pytest
+
+        from mangrove_ai import ConfigurationError
         mock = MockTransport()
-        mock.add_response("POST", "/auth/refresh", json={
-            "success": True,
-            "access_token": "new_jwt_access_789",
-        })
-        client = _make_client(mock)
+        with pytest.raises(ConfigurationError, match="Body refresh tokens"):
+            _make_client(mock).auth.refresh("old-body-token")
+        assert mock.requests == []
 
-        result = client.auth.refresh("jwt_refresh_456")
+    def test_refresh_without_session_cookie_fails_before_request(self) -> None:
+        import pytest
 
-        assert isinstance(result, RefreshResponse)
-        assert result.access_token == "new_jwt_access_789"
-        assert mock.requests[0].json == {"refresh_token": "jwt_refresh_456"}
+        from mangrove_ai import ConfigurationError
+        mock = MockTransport()
+        with pytest.raises(ConfigurationError, match="CSRF cookie"):
+            _make_client(mock).auth.refresh()
+        assert mock.requests == []
 
 
 class TestAuthApiKeys:

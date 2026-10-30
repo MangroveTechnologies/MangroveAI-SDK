@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 from urllib.parse import quote
 
+from ..exceptions import NotImplementedLayerError
 from ..models.on_chain import (
     ExchangeFlowsResponse,
     OnChainSeriesResponse,
@@ -98,40 +99,30 @@ class OnChainService(BaseService):
     def get_whale_transactions(
         self, *, symbol: str | None = None, min_value: float = 500_000, hours_back: int = 24,
     ) -> WhaleTransactionsResponse:
-        """Legacy operation: the backend returns UNSUPPORTED_OPERATION (501).
+        """Compatibility stub for the retired WhaleAlert operation.
 
-        Args:
-            symbol: Optional token filter.
-            min_value: Minimum USD value threshold.
-            hours_back: Lookback window in hours.
+        Kept to give existing callers a clear error without sending a request.
         """
-        params: dict[str, Any] = {"min_value": min_value, "hours_back": hours_back}
-        if symbol is not None:
-            params["symbol"] = symbol
-        return self._request_model("GET", "/on-chain/whale-transactions", WhaleTransactionsResponse, params=params)
+        raise NotImplementedLayerError(
+            "get_whale_transactions was retired with the WhaleAlert provider; no request was sent."
+        )
 
     def get_exchange_flows(self, *, symbol: str | None = None, hours_back: int = 24) -> ExchangeFlowsResponse:
-        """Legacy operation: the backend returns UNSUPPORTED_OPERATION (501).
+        """Compatibility stub for the retired WhaleAlert operation.
 
-        Args:
-            symbol: Optional token filter (query param, not path).
-            hours_back: Lookback window in hours.
+        Kept to give existing callers a clear error without sending a request.
         """
-        params: dict[str, Any] = {"hours_back": hours_back}
-        if symbol is not None:
-            params["symbol"] = symbol
-        return self._request_model("GET", "/on-chain/exchange-flows", ExchangeFlowsResponse, params=params)
+        raise NotImplementedLayerError(
+            "get_exchange_flows was retired with the WhaleAlert provider; no request was sent."
+        )
 
     def get_whale_activity(self, symbol: str, *, hours_back: int = 24) -> WhaleActivityResponse:
-        """Legacy operation: the backend returns UNSUPPORTED_OPERATION (501).
+        """Compatibility stub for the retired WhaleAlert operation.
 
-        Args:
-            symbol: Token symbol (e.g. "BTC").
-            hours_back: Lookback window in hours.
+        Kept to give existing callers a clear error without sending a request.
         """
-        params: dict[str, Any] = {"hours_back": hours_back}
-        return self._request_model(
-            "GET", f"/on-chain/whale-activity/{quote(symbol, safe='')}", WhaleActivityResponse, params=params,
+        raise NotImplementedLayerError(
+            "get_whale_activity was retired with the WhaleAlert provider; no request was sent."
         )
 
     # ----- Tier-1 smart-money expansion (Nansen Pro plan) ---------------------
@@ -372,6 +363,8 @@ class OnChainService(BaseService):
                 Date windows are limited to 366 days.
             top_n: Top-N holders summed for HolderConcentration. Default: 10.
         """
+        if provider not in {None, "nansen"}:
+            raise ValueError("provider must be omitted or set to 'nansen'")
         body: dict[str, Any] = {"symbol": symbol, "metrics": metrics,
                                 "interval": interval, "top_n": top_n}
         if chain is not None:

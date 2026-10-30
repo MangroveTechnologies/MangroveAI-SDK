@@ -111,6 +111,9 @@ def main() -> None:
             ],
         },
         "execution_config": {"timeframe": "1h"},
+        # This new draft has no prior confirmed closes.
+        "closed_positions": [],
+        "closed_positions_bootstrap_complete": True,
         "execution_state": {
             "cash_balance": 10_000.0,
             "account_value": 10_000.0,

@@ -21,6 +21,15 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
+      - name: Require release dispatch from main
+        env:
+          RELEASE_REF: ${{ github.ref }}
+        run: |
+          if [ "$RELEASE_REF" != "refs/heads/main" ]; then
+            echo "::error::Releases must be dispatched from the main branch (received $RELEASE_REF)."
+            exit 1
+          fi
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -70,6 +79,79 @@ jobs:
           sed -i "s/^version = .*/version = \"${NEW_VERSION}\"/" pyproject.toml
           sed -i "s/^__version__ = .*/__version__ = \"${NEW_VERSION}\"/" src/mangrove_ai/_version.py
 
+      - name: Build package
+        run: |
+          pip install build
+          python -m build
+
+      - name: Verify distribution metadata
+        env:
+          EXPECTED_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          python - <<'PY'
+          import os
+          import tarfile
+          import zipfile
+          from email.parser import Parser
+          from pathlib import Path
+
+          expected = os.environ["EXPECTED_VERSION"]
+          artifacts = list(Path("dist").glob("*"))
+          wheels = [path for path in artifacts if path.suffix == ".whl"]
+          sources = [path for path in artifacts if path.name.endswith(".tar.gz")]
+          if len(wheels) != 1 or len(sources) != 1 or len(artifacts) != 2:
+              raise SystemExit("Build must produce exactly one wheel and one source archive.")
+          wheel, source = wheels[0], sources[0]
+          with zipfile.ZipFile(wheel) as archive:
+              wheel_metadata = next(name for name in archive.namelist() if name.endswith(".dist-info/METADATA"))
+              wheel_data = archive.read(wheel_metadata).decode("utf-8")
+          with tarfile.open(source, "r:gz") as archive:
+              source_metadata = next(member for member in archive.getmembers() if member.name.endswith("/PKG-INFO"))
+              source_data = archive.extractfile(source_metadata).read().decode("utf-8")
+          for artifact, contents in ((wheel, wheel_data), (source, source_data)):
+              metadata = Parser().parsestr(contents)
+              if metadata.get("Name") != "mangroveai" or metadata.get("Version") != expected:
+                  raise SystemExit(f"Unexpected package metadata in {artifact}: {metadata.get('Name')} {metadata.get('Version')}")
+          print(f"Verified wheel and source archive for mangroveai {expected}.")
+          PY
+
+      - name: Exercise installed wheel and source distribution offline
+        run: |
+          python -m venv .venv-wheel
+          .venv-wheel/bin/pip install dist/*.whl
+          .venv-wheel/bin/python -I scripts/check_installed_distribution.py
+          python -m venv .venv-sdist
+          .venv-sdist/bin/pip install dist/*.tar.gz
+          .venv-sdist/bin/python -I scripts/check_installed_distribution.py
+
+      - name: Check published version and release target
+        env:
+          CURRENT_VERSION: ${{ steps.version.outputs.previous }}
+          NEW_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import urllib.error
+          import urllib.request
+
+          base = "https://pypi.org/pypi/mangroveai"
+          with urllib.request.urlopen(f"{base}/json", timeout=15) as response:
+              published = json.load(response)["info"]["version"]
+          current = os.environ["CURRENT_VERSION"].removeprefix("v")
+          target = os.environ["NEW_VERSION"]
+          if published != current:
+              raise SystemExit(f"Latest Git tag {current} does not match published PyPI version {published}; reconcile release state first.")
+          try:
+              urllib.request.urlopen(f"{base}/{target}/json", timeout=15)
+          except urllib.error.HTTPError as error:
+              if error.code != 404:
+                  raise
+          else:
+              raise SystemExit(f"PyPI already has mangroveai {target}; refusing to create a duplicate release tag.")
+          print(f"PyPI {published} matches latest tag; target {target} is unpublished.")
+          PY
+
       - name: Create and push tag
         env:
           VERSION_TAG: ${{ steps.version.outputs.tag }}
@@ -81,23 +163,6 @@ jobs:
           git diff --cached --quiet || git commit -m "release: v${NEW_VERSION}"
           git tag -a "$VERSION_TAG" -m "Release $VERSION_TAG"
           git push origin HEAD:main --follow-tags
-
-      - name: Build package
-        run: |
-          pip install build
-          python -m build
-
-      - name: Verify built version
-        env:
-          EXPECTED_VERSION: ${{ steps.version.outputs.version }}
-        run: |
-          echo "Expected: ${EXPECTED_VERSION}"
-          BUILT=$(unzip -p dist/*.whl '*/METADATA' | grep '^Version:' | cut -d' ' -f2)
-          echo "Built:    ${BUILT}"
-          if [ "$BUILT" != "$EXPECTED_VERSION" ]; then
-            echo "ERROR: Version mismatch!"
-            exit 1
-          fi
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
@@ -111,8 +176,8 @@ jobs:
           name: ${{ steps.version.outputs.tag }}
           generate_release_notes: true
           body: |
-            ## mangrove-ai ${{ steps.version.outputs.version }}
+            ## mangroveai ${{ steps.version.outputs.version }}
 
             ```bash
-            pip install mangrove-ai==${{ steps.version.outputs.version }}
+            pip install mangroveai==${{ steps.version.outputs.version }}
             ```

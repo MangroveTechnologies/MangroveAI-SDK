@@ -6,7 +6,7 @@ from typing import Any
 import httpx
 
 from ._config import ClientConfig
-from ._transport._auth import ApiKeyAuth, NoAuth
+from ._transport._auth import ApiKeyAuth, JWTAuth, NoAuth
 from ._transport._http import HttpTransport
 from ._transport._retry import RetryConfig
 from ._transport._service import ServiceTransport
@@ -77,13 +77,23 @@ class MangroveAI:
         self._core_transport = ServiceTransport(self._http, self._config.core_base_url, auth)
         self._core_v2_transport = ServiceTransport(self._http, self._config.core_v2_base_url, auth)
         self._kb_transport = ServiceTransport(self._http, self._config.kb_base_url, NoAuth())
+        if auto_auth:
+            self._core_transport.set_session_refresh(self._refresh_session)
+            self._core_v2_transport.set_session_refresh(self._refresh_session)
+
+    def _set_session(self, access_token: str) -> None:
+        self._core_transport.set_auth(JWTAuth(access_token))
+        self._core_v2_transport.set_auth(JWTAuth(access_token))
+
+    def _refresh_session(self) -> None:
+        self.auth.refresh()
 
     # -- Layer 1: Core API services --
 
     @cached_property
     def auth(self) -> Any:
         from ._services.auth import AuthService
-        return AuthService(self._core_transport)
+        return AuthService(self._core_transport, self._set_session)
 
     @cached_property
     def users(self) -> Any:

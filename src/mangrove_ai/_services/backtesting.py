@@ -16,6 +16,7 @@ from ..models.backtesting import (
     BulkBacktestRequest,
     BulkBacktestResult,
 )
+from ._backtest_payload import backtest_payload
 
 
 def _iso(value: str | date) -> str:
@@ -74,7 +75,7 @@ class BacktestingService:
             the ``Retry-After`` delay, or run strategies individually via
             ``run()`` (async-backed) for long lookbacks.
         """
-        data = self._core_request("POST", "/backtests/bulk", json=request.model_dump(exclude_none=True))
+        data = self._core_request("POST", "/backtests/bulk", json=backtest_payload(request))
         return BulkBacktestResult.model_validate(data)
 
     def get(self, backtest_id: str) -> BacktestResult:
@@ -141,8 +142,16 @@ class BacktestingService:
 
         Returns:
             Submission with backtest_id and initial status.
+
+        Raises:
+            APIError: A ``503 SERVICE_BUSY`` response means the server explicitly
+                rejected the submission because its worker pool was full; no job
+                ID was accepted, so the caller may retry later with bounded
+                backoff. A timeout or other server error may have occurred after
+                acceptance; do not resubmit blindly without a backtest ID or
+                server-side idempotency key.
         """
-        data = self._v2_request("POST", "/backtests/", json=request.model_dump(exclude_none=True))
+        data = self._v2_request("POST", "/backtests/", json=backtest_payload(request))
         return AsyncBacktestSubmission.model_validate(data)
 
     def poll_status(self, backtest_id: str) -> AsyncBacktestStatus:
@@ -163,6 +172,12 @@ class BacktestingService:
             request: Backtest configuration.
             poll_interval: Seconds between status checks.
             timeout: Maximum seconds to wait before raising TimeoutError.
+
+        Note:
+            If submission fails with ``503 SERVICE_BUSY``, the server rejected
+            that request before creating a job. Other transport or server errors
+            do not prove rejection; avoid blind resubmission because this API
+            does not accept a caller idempotency key.
         """
         submission = self.submit_async(request)
         backtest_id = submission.backtest_id

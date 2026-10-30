@@ -7,6 +7,29 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Python client contract repair (issue 66)
+
+- Default and explicit HTTP timeouts are preserved at the real httpx boundary;
+  invalid default timeouts fail locally. Development keys require an explicit
+  development API origin and never fall back to production. Base overrides apply
+  to v1 and v2 without replacing host-name fragments.
+- Login accepts omitted or null legacy body refresh tokens. The same client
+  retains scoped session cookies; refresh sends Cookie and X-CSRF-Token with no
+  JSON body and refreshes an expired JWT once. API-key failures do not refresh.
+- Position filters use the API's open_only parameter. The legacy closed filter
+  operates on each returned page. Unsupported account updates, position-detail
+  requests and crypto risk-analysis requests fail locally before HTTP.
+- Usage responses reject malformed success envelopes. Non-JSON successes and
+  redirects fail clearly; typed 402 errors, Retry-After, correlation IDs and quota
+  resource fields are preserved without echoing reflected request credentials.
+- Python 3.10 imports work; distribution name, import path and legacy shim remain
+  compatible. Package metadata points to the actual public source repository.
+- CI checks Python 3.10 and 3.12; both CI and the release gate exercise installed
+  wheel and source archives against offline success/error/pagination fixtures.
+- The usage-only first-call example uses private configuration. Mangrove owns
+  trading limit and approval-policy enforcement; the SDK submits requests and
+  preserves server decisions rather than implementing a separate policy.
+
 ### Strategy workflow (`client.strategy_workflow`)
 
 - `client.strategy_workflow` calls MangroveAI's strategy tools, the same ones its
@@ -21,6 +44,26 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **Breaking:** `build_strategy_for_regime(asset, timeframe)` is now
   `build_strategy_for_regime(asset, candle_size=None)`. The candle size is optional;
   the server picks one when it is left out. Rename the argument in calling code.
+
+### Strategy discovery and confirmed execution feedback
+
+- Oracle experiment and result pages support the server's screening filters and
+  validated complete-page iteration. `max_drawdown` is an explicit local filter;
+  iteration errors are raised so callers cannot mistake partial results for a
+  complete corpus.
+- Stateless `evaluate_by_object()` accepts an optional confirmed-execution v2
+  event batch and returns the hosted acknowledgment, active position IDs, and
+  speculative position templates. Omitting the option preserves the legacy
+  request body. Use this only with a deployed backend that implements the v2
+  contract; it does not activate a strategy or submit broker orders.
+- Retired Whale Alert and exchange-flow methods now fail locally with a clear
+  error instead of making requests to removed routes.
+- Oracle's generated OpenAPI contract now guards the data-query request and
+  response models in CI. `OrderBy.dir` defaults to Oracle's `asc`; callers that
+  omit `dir` now get ascending order, while an explicit `dir="desc"` is unchanged.
+- The release workflow now requires dispatch from `main`, validates both
+  distribution artifacts and the PyPI/tag version boundary before pushing a
+  release tag, and prints the correct `pip install mangroveai` command.
 
 ### Removed (breaking)
 

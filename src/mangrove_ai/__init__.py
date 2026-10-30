@@ -19,6 +19,7 @@ from .exceptions import (
     MangroveSDKError,
     NotFoundError,
     NotImplementedLayerError,
+    PaymentRequiredError,
     RateLimitError,
     ServerError,
     ServiceUnavailableError,
@@ -43,4 +44,5 @@ __all__ = [
     "MalformedResponseError",
     "ConfigurationError",
     "NotImplementedLayerError",
+    "PaymentRequiredError",
 ]

@@ -21,6 +21,79 @@ def _make_client(mock: MockTransport) -> MangroveAI:
     return MangroveAI(api_key="test_abc123", environment="local", httpx_client=mock)
 
 
+@pytest.mark.parametrize("bulk", [False, True])
+@pytest.mark.parametrize("options", [{}, {"max_drawdown_limit": None, "max_drawdown_halt_limit": None},
+                                     {"max_drawdown_limit": 0.1, "max_drawdown_halt_limit": 0.2}])
+def test_backtest_drawdown_settings_reach_engine_config(bulk: bool, options: dict) -> None:
+    mock = MockTransport()
+    client = _make_client(mock)
+    original_config = {"cooldown_model": "bars", "cooldown_config": {"1h": {"short_window_bars": 0}},
+                       "max_drawdown_limit": None}
+    # Omission preserves nested explicit null; an explicit matching top-level
+    # option has the same semantics. Separate values use a non-conflicting config.
+    config = original_config if options.get("max_drawdown_limit") is None else {"cooldown_model": "bars"}
+    if bulk:
+        mock.add_response("POST", "/backtests/bulk", json={"success": True, "results": []})
+        request = BulkBacktestRequest(start_date="2026-01-01", end_date="2026-02-01",
+                                      strategy_ids=["saved-1"], execution_config=config, **options)
+        client.backtesting.run_bulk(request)
+    else:
+        mock.add_response("POST", "/backtests/", json={"backtest_id": "run-1", "status": "running"})
+        request = BacktestRequest(interval="1h", strategy_id="saved-1", execution_config=config, **options)
+        client.backtesting.submit_async(request)
+    sent = mock.requests[-1].json
+    assert sent["execution_config"] == {**config, **options}
+    assert "max_drawdown_limit" not in sent
+    assert "max_drawdown_halt_limit" not in sent
+    assert ("max_drawdown_halt_limit" in sent["execution_config"]) == bool(options)
+    assert request.execution_config == config
+
+
+@pytest.mark.parametrize("bulk", [False, True])
+def test_backtest_risk_options_do_not_silently_override_conflicts(bulk: bool) -> None:
+    mock = MockTransport()
+    client = _make_client(mock)
+    options = {"max_drawdown_limit": None, "execution_config": {"max_drawdown_limit": 0.1}}
+    with pytest.raises(ValueError, match="max_drawdown_limit conflicts"):
+        if bulk:
+            client.backtesting.run_bulk(BulkBacktestRequest(
+                start_date="2026-01-01", end_date="2026-02-01", strategy_ids=["saved-1"], **options))
+        else:
+            client.backtesting.submit_async(BacktestRequest(interval="1h", strategy_id="saved-1", **options))
+    assert mock.requests == []
+
+
+def test_backtest_omitted_risk_defaults_and_explicit_model_are_distinct() -> None:
+    mock = MockTransport()
+    mock.add_response("POST", "/backtests/", json={"backtest_id": "run-1", "status": "running"})
+    client = _make_client(mock)
+    client.backtesting.submit_async(BacktestRequest(interval="1h", strategy_id="saved-1"))
+    assert "execution_config" not in mock.requests[-1].json
+    client.backtesting.submit_async(BacktestRequest(interval="1h", strategy_id="saved-1", cooldown_model="bars"))
+    assert mock.requests[-1].json["execution_config"] == {"cooldown_model": "bars"}
+    assert "cooldown_model" not in mock.requests[-1].json
+
+
+@pytest.mark.parametrize("bulk", [False, True])
+def test_legacy_cooldown_windows_reach_nested_engine_config(bulk: bool) -> None:
+    config = {"1h": {"short_loss_limit": 3, "long_loss_limit": 6,
+                     "short_window_bars": 24, "long_window_bars": 72,
+                     "short_cooldown_bars": 0, "long_cooldown_bars": 0}}
+    mock = MockTransport()
+    client = _make_client(mock)
+    if bulk:
+        mock.add_response("POST", "/backtests/bulk", json={"success": True, "results": []})
+        client.backtesting.run_bulk(BulkBacktestRequest(
+            start_date="2026-01-01", end_date="2026-02-01", strategy_ids=["saved-1"],
+            cooldown_model="bars", cooldown_config=config))
+    else:
+        mock.add_response("POST", "/backtests/", json={"backtest_id": "run-1", "status": "running"})
+        client.backtesting.submit_async(BacktestRequest(
+            interval="1h", strategy_id="saved-1", cooldown_model="bars", cooldown_config=config))
+    assert mock.requests[-1].json["execution_config"] == {"cooldown_model": "bars", "cooldown_config": config}
+    assert "cooldown_config" not in mock.requests[-1].json
+
+
 BACKTEST_REQUEST = BacktestRequest(
     asset="BTC",
     interval="1d",

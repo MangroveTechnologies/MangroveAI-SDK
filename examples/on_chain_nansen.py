@@ -119,7 +119,7 @@ def main() -> None:
         )
 
     # ------------------------------------------------------------------
-    # Pre-existing on-chain routes (also Nansen + WhaleAlert backed)
+    # Pre-existing supported on-chain routes
     # ------------------------------------------------------------------
     print("\n=== Smart Money sentiment (UNI) -- existing route, still works ===")
     sentiment = client.on_chain.get_smart_money_sentiment("UNI")
@@ -127,16 +127,6 @@ def main() -> None:
         f"  {sentiment.symbol}: {sentiment.sentiment}  "
         f"(net flow {sentiment.net_flow_usd:,.0f} USD over 24h)"
     )
-
-    print("\n=== Whale transactions ($1M+ in last 24h) ===")
-    whales = client.on_chain.get_whale_transactions(min_value=1_000_000, hours_back=24)
-    print(f"  {whales.count} transactions >= ${whales.min_value_usd:,.0f}")
-    for tx in (whales.transactions or [])[:3]:
-        print(
-            f"   - {tx.get('symbol', '?').upper()}  ${tx.get('amount_usd', 0):,.0f}  "
-            f"{tx.get('from_owner', '?')} -> {tx.get('to_owner', '?')}"
-        )
-
 
 if __name__ == "__main__":
     main()

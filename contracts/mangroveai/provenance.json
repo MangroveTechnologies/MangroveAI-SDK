@@ -2,7 +2,7 @@
   "contracts": [
     {
       "path": "openapi.json",
-      "sha256": "aea5f274b59b5bf72728f80fed646d53c60bd15d5ba9cbf9354322cefafef5fe"
+      "sha256": "161d2c5bc8afaee24e44c526e1bc40f8e4e3d7e8b23536fc2d76dd5f6ca18059"
     },
     {
       "path": "oracle-proxy-openapi.json",
@@ -10,7 +10,7 @@
     }
   ],
   "generation": "Real application factory in ci; network blocked; startup provider warm-up/directory setup disabled; no business handlers",
-  "source_commit": "13bf85104792bf8b38c4256f521b23de7cae82d6",
+  "source_commit": "e367a743f1a6068815f6b9fae5c6036cf3048596",
   "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "source_dirty": false,
   "source_files": [
@@ -29,6 +29,10 @@
     {
       "path": "src/MangroveAI/domains/backtesting/oracle_proxy.py",
       "sha256": "925ea16aee3b1e9047e4488b2d616944a56a409235d3feab7bb18350d5f9b1ec"
+    },
+    {
+      "path": "src/MangroveAI/domains/backtesting/routes.py",
+      "sha256": "64323aea0aedaad04cc9117b73dd5b4e972fa3b3f6c63219e433d6849df51da1"
     },
     {
       "path": "src/MangroveAI/domains/strategies/workflow_routes.py",

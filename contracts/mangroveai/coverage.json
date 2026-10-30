@@ -2,7 +2,7 @@
   "contracts": [
     {
       "path": "openapi.json",
-      "sha256": "aea5f274b59b5bf72728f80fed646d53c60bd15d5ba9cbf9354322cefafef5fe"
+      "sha256": "161d2c5bc8afaee24e44c526e1bc40f8e4e3d7e8b23536fc2d76dd5f6ca18059"
     },
     {
       "path": "oracle-proxy-openapi.json",

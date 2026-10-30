@@ -647,7 +647,8 @@
       "properties": {
         "base_token": {
           "description": "Recorded canonical base token; null for historical runs",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "core_orders": {
           "description": "position_size_calc \"v3\" only: the core orders of the run (side, quantity, reason, reference_price, timestamp). Absent otherwise.",
@@ -680,7 +681,8 @@
         },
         "market_data_venue": {
           "description": "Recorded market data venue; null for historical runs",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "metrics": {
           "description": "Performance metrics",
@@ -689,7 +691,8 @@
         },
         "quote_token": {
           "description": "Recorded quote token; null for historical runs",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "satellite_pnl": {
           "description": "position_size_calc \"v3\" only: profit and loss of the closed buy and sell trades, in cash. Absent otherwise.",
@@ -1018,7 +1021,8 @@
         },
         "base_token": {
           "description": "Recorded canonical base token; null for historical runs",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "buy_and_hold_return": {
           "description": "The return from holding, as a display string with % attached, e.g. \"12.3456%\"",
@@ -1042,11 +1046,13 @@
         },
         "market_data_venue": {
           "description": "Recorded market data venue; null for historical runs",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "quote_token": {
           "description": "Recorded quote token; null for historical runs",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "start": {
           "description": "Window start (ISO)",
@@ -4560,7 +4566,8 @@
       "properties": {
         "base_token": {
           "description": "Recorded canonical base token; null for historical runs",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "core_orders": {
           "description": "v3 core orders; absent for legacy runs",
@@ -4585,7 +4592,8 @@
         },
         "market_data_venue": {
           "description": "Recorded market data venue; null for historical runs",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "metrics": {
           "description": "Performance metrics (empty dict on failure)",
@@ -4594,7 +4602,8 @@
         },
         "quote_token": {
           "description": "Recorded quote token; null for historical runs",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "satellite_pnl": {
           "description": "v3 satellite profit and loss; absent for legacy runs",
@@ -5679,7 +5688,8 @@
         },
         "base_token": {
           "description": "Recorded canonical base token; null for historical runs",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "completed_at": {
           "description": "ISO timestamp when run finished",
@@ -5704,7 +5714,8 @@
         },
         "market_data_venue": {
           "description": "Recorded market data venue; null for historical runs",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "metrics": {
           "description": "Performance metrics (populated when completed)",
@@ -5713,7 +5724,8 @@
         },
         "quote_token": {
           "description": "Recorded quote token; null for historical runs",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "status": {
           "description": "\"running\" | \"completed\" | \"failed\"",
@@ -5735,15 +5747,18 @@
         },
         "base_token": {
           "description": "Recorded canonical base token; null for historical runs",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "market_data_venue": {
           "description": "Recorded market data venue; null for historical runs",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "quote_token": {
           "description": "Recorded quote token; null for historical runs",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "status": {
           "description": "Initial status (\"running\")",

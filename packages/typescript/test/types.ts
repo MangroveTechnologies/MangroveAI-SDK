@@ -1,4 +1,4 @@
-import { MangroveAI, type UsageMetrics } from '../src/index.js';
+import { MangroveAI, type CoreModels, type UsageMetrics } from '../src/index.js';
 
 const sdk = new MangroveAI({ apiKey: 'prod_fixture', baseUrl: 'https://example.invalid' });
 const metrics: Promise<UsageMetrics> = sdk.users.getMyMetrics();
@@ -18,3 +18,9 @@ void new MangroveAI({ jwt: 'fixture' });
 // @ts-expect-error Metrics are typed counts rather than strings.
 const invalid: UsageMetrics = { messages_count: '7' };
 void invalid;
+
+// Historical backtests preserve the server's null market identities.
+const historical: CoreModels['api2.AsyncBacktestStatusResponse'] = {
+  base_token: null, quote_token: null, market_data_venue: null,
+};
+void historical;

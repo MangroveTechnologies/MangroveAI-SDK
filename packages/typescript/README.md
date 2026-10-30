@@ -150,7 +150,7 @@ available from npm until those steps succeed.
 The separate `Release TypeScript client` workflow is manual, accepts only the
 reviewed `main` branch and defaults to a dry run. Its selected version must match
 the manifest and must not already exist in the registry. It always validates
-contracts, builds, tests and installs the tarball. Maintainers must configure
-the protected `npm-release` environment and its `NPM_TOKEN`, confirm namespace
-rights and the final package name, and explicitly choose a publishing run.
+contracts, builds, tests and installs the tarball. Maintainers must supply the
+repository's `NPM_TOKEN`, confirm namespace rights and the final package name,
+and explicitly choose a publishing run.
 No release workflow was dispatched during implementation.

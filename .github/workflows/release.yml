@@ -19,7 +19,6 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
-    environment: pypi-release
     steps:
       - name: Require release dispatch from main
         env:

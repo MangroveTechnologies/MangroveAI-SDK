@@ -80,8 +80,8 @@ review builds and are not the bytes currently served by PyPI.
    publication authorization, dispatch `release.yml` from main with that exact
    committed `version`. It builds unchanged source and only tags the validated
    `github.sha`; it never pushes a version commit to main. Never push tags manually.
-   Configure required reviewers on `pypi-release` before publishing. The gate checks
-   current PyPI/tag consistency and installed artifacts before creating a release tag.
+   The workflow checks current PyPI/tag consistency and installed artifacts before
+   creating a release tag.
 4. Verify the exact new PyPI version, wheel/source metadata, download hashes and
    published-package first-call snippet. Then update consumer pins and docs as
    one release handoff. `mangrove-agent/server/requirements.lock` currently pins

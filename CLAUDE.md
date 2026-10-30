@@ -32,15 +32,14 @@ pushes a version commit to `main`; human-reviewed PRs own source changes.
    `codex/release-vVERSION` branch, opens a version PR and explicitly dispatches
    offline CI (PRs opened with `GITHUB_TOKEN` do not trigger CI automatically).
 2. Require the version PR's CI and human review, then merge through the normal
-   protected branch process. Agents never merge. Preparation does not tag or publish.
+   PR process. Agents never merge. Preparation does not tag or publish.
 3. After publication authorization, dispatch `.github/workflows/release.yml` from
    `main` with `version=VERSION`, exactly matching the two committed version files.
 4. Publication checks source versions, tests and builds unchanged `github.sha`,
    exercises installed wheel/source artifacts, and checks PyPI/tag consistency.
    Only after validation does it create and push the exact tag at that same SHA.
-5. Publication uses the `pypi-release` environment; maintainers must configure its
-   required reviewers and `PYPI_API_TOKEN`. Verify the actual PyPI files and GitHub
-   Release afterward, then update consumer pins.
+5. Publication uses the repository's `PYPI_API_TOKEN`. Verify the actual PyPI files
+   and GitHub Release afterward, then update consumer pins.
 
 Never stamp versions during publication, push directly to main, or push tags
 manually. A preexisting target tag or PyPI version requires release-state

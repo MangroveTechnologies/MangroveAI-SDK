@@ -159,6 +159,9 @@ class ExecutionService(BaseService):
         balances and positions before the next evaluation. Include confirmed net
         closes in ``strategy['closed_positions']`` and explicitly mark a complete
         initial history with ``strategy['closed_positions_bootstrap_complete']``.
+        The trades model holds new entries until that history is acknowledged,
+        while continuing exits. For a new inline draft, explicitly send an empty
+        ``closed_positions`` list and set the complete-history marker to True.
         These fields belong inside the strategy, not the outer request. Retry
         delivery with stable position IDs until acknowledged in risk state.
         A proposed or rejected order must never become a confirmed close.
@@ -211,6 +214,9 @@ class ExecutionService(BaseService):
         ``closed_positions_bootstrap_complete`` marker. Returned positions stay
         confirmed; proposed entries and closes are separate fields, exactly as
         in ``evaluate_by_object``. Overlay actual fills before the next call.
+        Trades-model entries require acknowledged initial history, even when
+        ``open_positions`` is omitted. A new inline draft can attest an empty
+        complete history explicitly.
         Caller-owned positions are not allowed with ``persist=True``.
 
         Args:

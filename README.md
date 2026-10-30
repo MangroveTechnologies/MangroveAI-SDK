@@ -171,7 +171,11 @@ result = client.execution.evaluate_by_object(
 Each close has a stable `position_id`, `exit_timestamp`, actual `realized_pnl`,
 and the ledger's `booked_at` timestamp. Deliver the complete initial confirmed
 history before marking bootstrap complete; an empty complete history is valid
-for a new account. Keep delivering new closes until the returned risk state
+for a new account. In the `trades` model, new entries are held until that initial
+history is acknowledged. Exits continue, and the returned risk state reports
+`entry_block_reason="close_history_bootstrap_required"`. This also applies to
+inline drafts and requests that omit `open_positions`; omission does not attest
+an empty history. Keep delivering new closes until the returned risk state
 acknowledges their position IDs. Do not clear risk state, reset halts, or turn an
 unfilled proposal into history when retrying. When flat, send explicit
 `open_positions=[]`.

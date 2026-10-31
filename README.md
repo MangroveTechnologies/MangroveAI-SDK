@@ -39,26 +39,34 @@ $env:MANGROVE_API_KEY = "prod_your_key_here"
 set MANGROVE_API_KEY=prod_your_key_here
 ```
 
-### Or use a `.env` file
+### Private configuration
 
-The SDK can load a `.env` file automatically if you install the optional
-[`python-dotenv`](https://pypi.org/project/python-dotenv/) extra:
+For an agent or local script, keep the key in private configuration outside your
+repository. [examples/first_call.py](examples/first_call.py) reads a JSON file
+containing `api_key` and optional `base_url`, disables dotenv loading, and makes
+one usage request. Restrict the file's permissions and do not commit it.
+Existing environment variable and optional `mangroveai[dotenv]` loading remain
+supported for compatibility; use `load_dotenv=False` to disable file discovery.
 
-```bash
-pip install "mangroveai[dotenv]"
+## First API call
+
+```python
+from mangrove_ai import MangroveAI
+
+# api_key comes from private configuration; do not paste it into source.
+with MangroveAI(api_key=api_key, load_dotenv=False, timeout=15, auto_retry=False) as client:
+    metrics = client.users.get_my_metrics()
+    print(metrics.messages_count)
 ```
 
-Then create a `.env` file in your project root:
+This calls `GET /api/v1/users/me/metrics` with Bearer authentication. It does not
+create a strategy or launch a backtest. The SDK surfaces 401, 402, 403, 429 and
+503 as typed errors, including available retry and correlation fields. It does
+not purchase access or pay automatically.
 
-```dotenv
-MANGROVE_API_KEY=prod_your_key_here
-```
-
-`MangroveAI()` will pick it up with no further code. Real environment variables
-always take precedence over `.env` values, so a `.env` file never overrides a key
-you've already exported. Disable autoloading with `MangroveAI(load_dotenv=False)`.
-If `python-dotenv` isn't installed, the SDK reads `os.environ` only (a `.env`
-file is ignored).
+The following sections also describe features already present in source but not
+yet published in the current PyPI 2.0.0 wheel. See
+[the release handoff](docs/issue-66-release-handoff.md) for release prerequisites.
 
 ## Quickstart
 
@@ -105,21 +113,110 @@ result = client.backtesting.run(BacktestRequest(
     max_risk_per_trade=0.02, max_units_per_trade=1000000,
     max_trade_amount=10000000, volatility_window=24,
     target_volatility=0.1,
-    # Optional: per-timeframe cooldown configuration (preferred over legacy flat fields).
-    # Keys are the primary timeframe; each value carries max_hold_time_hours,
-    # short_loss_limit, long_loss_limit, short_window_bars, and long_window_bars.
-    cooldown_config={
-        "1d": {
-            "max_hold_time_hours": 10,
-            "short_loss_limit": 4,
-            "long_loss_limit": 6,
-            "short_window_bars": 20,
-            "long_window_bars": 60,
+    # Partial trades-model overrides retain the other server defaults.
+    # Loss pauses default to 36 bars, clamped to 24 hours through 14 days.
+    execution_config={
+        "circuit_breaker": {
+            "consecutive_loss_limit": 4,
+            "pause_bars": 36,
         }
     },
 ))
 print(f"Trades: {result.trade_count}, Sharpe: {result.metrics.get('sharpe_ratio')}")
 ```
+
+Compare circuit-breaker settings by submitting a complete new backtest for each
+setting over the same original history and seed. Reusing or filtering a prior
+trade list cannot measure the changed signals, sizing, fees, exits, and account
+balances produced by a full run.
+
+The regular and Oracle single/bulk backtest request models accept `cooldown_model`,
+`max_drawdown_limit`, and `max_drawdown_halt_limit`. The SDK places explicitly
+supplied values in `execution_config`, where the engine reads them. Omitting a
+threshold accepts the server default; explicitly passing `None` disables that
+guard. Conflicting values in both locations raise `ValueError` before sending.
+Disabling drawdown guards alone does not disable loss pauses: a fully unprotected
+control also needs the explicit `bars` model and zero `short_cooldown_bars` and
+`long_cooldown_bars` for every active timeframe. Keep valid positive loss limits
+and window sizes. Legacy `cooldown_config` supplied on an SDK request is also
+placed inside `execution_config`. Align these settings with any configuration
+embedded in `strategy_json` or individual bulk strategy configs: Oracle's
+per-strategy configuration precedence still applies. Preserve all other strategy
+inputs, fees, and sizing between full runs.
+
+## Session authentication
+
+API keys use Bearer authentication and do not refresh. `client.auth.login()`
+accepts a Firebase ID token and installs the returned access token for core v1
+and v2 requests. Keep the same client open: refresh uses its scoped `mg_refresh`
+and `mg_csrf` cookies plus `X-CSRF-Token`, with no JSON body. Current login
+responses omit the body refresh token; older missing or null fields are accepted.
+`auto_auth=True` refreshes an expired JWT once, then retries once. Use
+`auto_auth=False` to handle expiration yourself. Supplying a body refresh token
+raises a local configuration error because the current API does not accept it.
+
+## Unsupported compatibility methods
+
+`execution.update_account`, `execution.get_position`, `crypto_assets.risk_analysis`
+and the three retired WhaleAlert methods raise locally before HTTP because the
+current API does not expose those operations. Use the documented resources.
+`execution.list_positions(open_only=False)` includes both states. Legacy
+`status="closed"` filters the returned server page locally; offsets still refer
+to all server rows, so a filtered page can contain fewer than `limit` rows.
+
+## Caller-owned execution and confirmed fills
+
+Mangrove owns enforcement of configured user limits and approval policy. The SDK
+submits documented requests and preserves Mangrove decisions and audit results;
+it does not implement a separate trading safety policy.
+
+For an external executor, `evaluate_by_object(..., persist=False)` proposes
+orders from the caller's actual ledger. Even an order marked `filled` in an
+evaluation is an estimate until that executor confirms it. The result separates:
+
+- `open_positions`: the authoritative input book, unchanged by proposed fills.
+- `proposed_positions`: entry templates with stable position IDs and brackets.
+- `proposed_closes`: estimated net exit results.
+- `closed_trades`: confirmed engine-owned simulated fills only.
+
+Both proposal fields carry `execution_confirmed=False`. Book an entry or close
+only from the executor's actual fill, including its actual fees and net P&L.
+Retain returned `execution_state` risk counters and candle cursors, then overlay
+the actual account balances and position book before evaluating again. Preserve
+gross cumulative deposits and the net funding reference separately.
+
+Confirmed close delivery belongs inside the inline strategy:
+
+```python
+# strategy contains rules/config plus persisted risk state overlaid with the
+# actual ledger. ledger_* values below come from your executor's durable store.
+payload = {
+    **strategy,
+    "closed_positions": ledger_closed_positions,
+    "closed_positions_bootstrap_complete": ledger_history_is_complete,
+}
+result = client.execution.evaluate_by_object(
+    payload, open_positions=ledger_open_positions, persist=False,
+)
+```
+
+Each close has a stable `position_id`, `exit_timestamp`, actual `realized_pnl`,
+and the ledger's `booked_at` timestamp. Deliver the complete initial confirmed
+history before marking bootstrap complete; an empty complete history is valid
+for a new account. In the `trades` model, new entries are held until that initial
+history is acknowledged. Exits continue, and the returned risk state reports
+`entry_block_reason="close_history_bootstrap_required"`. This also applies to
+inline drafts and requests that omit `open_positions`; omission does not attest
+an empty history. Keep delivering new closes until the returned risk state
+acknowledges their position IDs. Do not clear risk state, reset halts, or turn an
+unfilled proposal into history when retrying. When flat, send explicit
+`open_positions=[]`.
+
+For `evaluate_bulk`, put these same three fields, including `open_positions`,
+inside each strategy config. Check each result's `success` independently.
+`persist=True` with a saved strategy ID instead uses the engine's simulated fill
+ledger; it does not confirm execution at an external venue. `persist=True`
+without a strategy ID does not confirm fills.
 
 ## Services
 
@@ -136,7 +233,7 @@ print(f"Trades: {result.trade_count}, Sharpe: {result.metrics.get('sharpe_ratio'
 | `client.signals` | `signals.*` | 8 | Signal discovery, evaluation, validation, `query_signal_behavior` (measured selectivity / firing rate by parameter setting) |
 | `client.crypto_assets` | `crypto_assets.*` | 10 | Assets, approved universe, per-asset exchanges, OHLCV, market data |
 | `client.execution` | `execution.*` | 8 | Accounts, positions, trades, evaluation |
-| `client.on_chain` | `on_chain.*` | 11 | Smart-money flows, DEX/perp trades, token holders, whale activity (Nansen + WhaleAlert) |
+| `client.on_chain` | `on_chain.*` | 11 | Smart-money flows, DEX/perp trades and token holders (Nansen); retired WhaleAlert compatibility methods fail locally |
 | `client.defi` | `defi.*` | 8 | TVL/chain/stablecoins (any plan); token unlocks, perp funding, treasuries, ETF flows, lending rates (DeFiLlama Pro -- requires Pro/Startup/Enterprise, capped at 1,000 calls/account/month) |
 | `client.social` | `social.*` | 3 | Topic sentiment, mentions, user influence (X / Twitter) |
 | `client.docs` | `docs.*` | 2 | Documentation listing and content |
@@ -155,11 +252,11 @@ print(f"Trades: {result.trade_count}, Sharpe: {result.metrics.get('sharpe_ratio'
 
 ### On-chain capability surface
 
-`client.on_chain` covers Mangrove's Nansen Pro plan plus WhaleAlert (Developer tier, 30-day history):
+`client.on_chain` covers Mangrove's supported Nansen Pro operations. Three WhaleAlert methods remain as compatibility stubs and raise locally without making a request:
 
 | Method | Source | What it returns |
 |---|---|---|
-| `get_onchain_series(symbol, metrics, date_from, date_to, interval, provider)` | Nansen (WhaleAlert fallback) | **Per-bar metric time series** (SmartMoneyNetflow, SmartMoneyHoldings, ExchangeNetflow, WhaleNetInflow, HolderConcentration) — one column per metric |
+| `get_onchain_series(symbol, metrics, date_from, date_to, interval, provider)` | Nansen | **Per-bar metric time series** (SmartMoneyNetflow, SmartMoneyHoldings, ExchangeNetflow, WhaleNetInflow, HolderConcentration) — one column per metric |
 | `get_smart_money_sentiment(symbol)` | Nansen | Single-token accumulation/distribution score |
 | `screen_smart_money(chains, timeframe)` | Nansen | Tokens with high smart-money activity |
 | `get_smart_money_historical_holdings(chains, date_range, filters, order_by)` | Nansen | Date-stamped holdings snapshots |
@@ -168,9 +265,6 @@ print(f"Trades: {result.trade_count}, Sharpe: {result.metrics.get('sharpe_ratio'
 | `get_token_holders(symbol)` | Nansen | Holder distribution + concentration |
 | `get_token_dex_trades(symbol, chain, date_range, filters, order_by)` | Nansen | Single-token DEX trades across all participants |
 | `get_token_flows(symbol, chain, date_range, label, filters, order_by)` | Nansen | Per-wallet-category hourly flow rows (`label` scopes to smart_money/exchange/whale/…; excludes stablecoins) |
-| `get_whale_transactions(symbol, min_value, hours_back)` | WhaleAlert | Recent large-value on-chain transactions |
-| `get_exchange_flows(symbol, hours_back)` | WhaleAlert | Aggregated exchange inflows/outflows |
-| `get_whale_activity(symbol, hours_back)` | WhaleAlert | High-level whale activity summary |
 
 **On-chain time series → signals.** `get_onchain_series` returns a per-bar series for any window — the
 same call serves a live trailing window (e.g. last 10 days, ending now) or a long historical range.
@@ -289,7 +383,11 @@ The SDK auto-detects the environment from your API key prefix:
 | Prefix | Environment | API Base URL |
 |--------|-------------|-------------|
 | `prod_` | Production | `https://api.mangrovedeveloper.ai/api/v1` |
-| `dev_` | Development | `https://devapi.mangrove.trade/api/v1` |
+| `dev_` | Development | Explicit `base_url` or `MANGROVE_BASE_URL` required |
+
+Development never falls back to production. A `test_` key also requires an
+explicit base URL or local environment. Base URL overrides apply to v1 and v2;
+pass a base ending in `/api/v1`. The Knowledge Base has its own `kb_base_url`.
 
 Override with explicit parameters:
 
@@ -335,8 +433,8 @@ See the [`examples/`](examples/) directory for working scripts.
 ## Development
 
 ```bash
-git clone https://github.com/MangroveTechnologies/mangrove-ai-sdk.git
-cd mangrove-ai-sdk
+git clone https://github.com/MangroveTechnologies/MangroveAI-SDK.git
+cd MangroveAI-SDK
 pip install -e ".[dev]"
 pytest tests/ --ignore=tests/integration  # unit tests
 MANGROVE_API_KEY=... pytest tests/integration/ -m integration  # live tests

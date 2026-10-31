@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from .._pagination import PaginatedResponse
+from ..exceptions import MalformedResponseError
 from ..models.users import UserBacktest, UserMetrics, UserStrategy
 from ._base import BaseService
 
@@ -20,7 +21,10 @@ class UsersService(BaseService):
         Conversations, messages, estimated token usage (with a per-category
         breakdown), strategy/backtest counts, and tool-call counts.
         """
-        return self._request_model("GET", "/users/me/metrics", UserMetrics, key="metrics")
+        data = self._request("GET", "/users/me/metrics")
+        if not isinstance(data, dict) or data.get("success") is not True or not isinstance(data.get("metrics"), dict):
+            raise MalformedResponseError("Usage response must contain success=true and a metrics object.")
+        return UserMetrics.model_validate(data["metrics"])
 
     def get_my_strategies(
         self,

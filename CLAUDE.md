@@ -20,29 +20,34 @@ This is the Pillow/PIL pattern (`pip install Pillow` → `from PIL import Image`
 
 **Why we did this:** the old import path `from mangroveai import ...` collided with the `MangroveAI` backend repo directory. A previous attempt to rename the PyPI distribution to `mangrove-ai` was rejected by PyPI's similarity check (it normalizes by stripping non-alphanumerics, so `mangrove-ai` → `mangroveai` collides with the existing project we own). The compromise: keep the PyPI dist name as-is, rename only the import path.
 
-**The shim:** `src/mangroveai/__init__.py` re-exports everything from `mangrove_ai` and emits a `DeprecationWarning` on import. It uses `sys.modules[__name__] = mangrove_ai` so submodule imports (`from mangroveai.models import X`) also forward. The shim is scheduled for removal in v2.0.0.
+**The shim:** `src/mangroveai/__init__.py` re-exports everything from `mangrove_ai` and emits a `DeprecationWarning` on import. It uses `sys.modules[__name__] = mangrove_ai` so submodule imports (`from mangroveai.models import X`) also forward. The shim is retained in v2.x for existing users; removal needs an explicitly announced future major release.
 
 ## Release flow (workflow_dispatch only — never push tags manually)
 
-The release pipeline is `.github/workflows/release.yml`, triggered via `workflow_dispatch` with a `bump` input (`patch`/`minor`/`major`). The workflow OWNS the entire bump → tag → build → publish lifecycle:
+Python release preparation and publication are separate manual workflows. Neither
+pushes a version commit to `main`; human-reviewed PRs own source changes.
 
-1. Reads `bump=<patch|minor|major>` input.
-2. Computes next version from the latest `v*` tag.
-3. Updates `pyproject.toml` `version` + `src/mangrove_ai/_version.py` `__version__`.
-4. Commits, tags `v<version>`, pushes to main with `--follow-tags`.
-5. Builds wheel via `python -m build`.
-6. Verifies the built wheel's METADATA `Version` field matches the computed version.
-7. Publishes to PyPI via `pypa/gh-action-pypi-publish@release/v1` using `secrets.PYPI_API_TOKEN`.
-8. Creates a GitHub Release via `softprops/action-gh-release@v2`.
+1. Dispatch `.github/workflows/prepare-release.yml` from `main` with
+   `bump=<patch|minor|major>`. It changes both version files on a
+   `codex/release-vVERSION` branch, opens a version PR and explicitly dispatches
+   offline CI (PRs opened with `GITHUB_TOKEN` do not trigger CI automatically).
+2. Require the version PR's CI and human review, then merge through the normal
+   PR process. Agents never merge. Preparation does not tag or publish.
+3. After publication authorization, dispatch `.github/workflows/release.yml` from
+   `main` with `version=VERSION`, exactly matching the two committed version files.
+4. Publication checks source versions, tests and builds unchanged `github.sha`,
+   exercises installed wheel/source artifacts, and checks PyPI/tag consistency.
+   Only after validation does it create and push the exact tag at that same SHA.
+5. Publication uses the repository's `PYPI_API_TOKEN`. Verify the actual PyPI files
+   and GitHub Release afterward, then update consumer pins.
 
-**Never push a tag manually.** Doing so:
-- Skips the version bump (so `pyproject.toml` and the tag disagree)
-- Skips the PyPI publish (tag exists with no corresponding artifact — orphan)
-- Skips the GitHub Release creation
+Never stamp versions during publication, push directly to main, or push tags
+manually. A preexisting target tag or PyPI version requires release-state
+reconciliation; it is not permission to overwrite a release.
 
-We had to recover from exactly this in May 2026 (orphan tags `v1.0.0` + `v1.0.1` that never published; cleanup required `gh api DELETE /repos/.../git/refs/tags/<name>` because `git push --delete` is hooked by the portfolio's branch-protection script).
-
-To release: `gh workflow run release.yml -f bump=patch --repo MangroveTechnologies/MangroveAI-SDK`. Wait for completion. Verify on PyPI public + check the Releases page.
+The preparation workflow needs Actions write permission to dispatch offline CI and
+repository permission to open PRs. No workflow was dispatched during implementation.
+The package name stays `mangroveai`; `mangrove_ai` is its import path.
 
 ## Pre-tag PyPI similarity check (if EVER renaming the dist)
 
@@ -79,5 +84,5 @@ MANGROVE_API_KEY=prod_... pytest tests/integration
 
 - Don't push tags manually — use `gh workflow run release.yml`.
 - Don't rename the PyPI distribution name without running the similarity check first.
-- Don't remove the `src/mangroveai/__init__.py` shim before v2.0.0 — it's load-bearing for users still on the old import path.
+- Don't remove the `src/mangroveai/__init__.py` compatibility shim without an explicitly announced future major release — it's load-bearing for users still on the old import path.
 - Don't add new code under `src/mangroveai/` — that's the shim only. New code goes in `src/mangrove_ai/`.

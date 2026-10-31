@@ -1,0 +1,41 @@
+name: TypeScript client
+
+on:
+  pull_request:
+    paths:
+      - 'packages/typescript/**'
+      - 'contracts/mangroveai/**'
+      - 'scripts/generate_typescript_contract.py'
+      - 'src/mangrove_ai/_services/**'
+      - '.github/workflows/typescript-*.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'packages/typescript/**'
+      - 'contracts/mangroveai/**'
+      - 'scripts/generate_typescript_contract.py'
+      - 'src/mangrove_ai/_services/**'
+      - '.github/workflows/typescript-*.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  contract-and-package:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: ['20', '22']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: python scripts/generate_typescript_contract.py --check
+      - run: npm ci --ignore-scripts --prefix packages/typescript
+      - run: npm run typecheck --prefix packages/typescript
+      - run: npm test --prefix packages/typescript
+      - run: node packages/typescript/test/packed-artifact.mjs

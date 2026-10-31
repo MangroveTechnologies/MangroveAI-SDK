@@ -117,19 +117,14 @@ class TestCryptoAssetsExchanges:
 
 
 class TestCryptoAssetsRiskAnalysis:
-    def test_risk_analysis_returns_dict(self) -> None:
+    def test_unsupported_operation_fails_before_request(self) -> None:
+        import pytest
+
+        from mangrove_ai import NotImplementedLayerError
         mock = MockTransport()
-        mock.add_response("POST", "/crypto-assets/asset-uuid-1/risk-analysis", json={
-            "success": True,
-            "risk_scores": {"overall": 82.5},
-            "status": "completed",
-        })
-        client = _make_client(mock)
-
-        result = client.crypto_assets.risk_analysis("asset-uuid-1")
-
-        assert result["success"] is True
-        assert result["risk_scores"]["overall"] == 82.5
+        with pytest.raises(NotImplementedLayerError, match="not supported"):
+            _make_client(mock).crypto_assets.risk_analysis("asset-uuid-1")
+        assert mock.requests == []
 
 
 class TestCryptoAssetsOHLCV:

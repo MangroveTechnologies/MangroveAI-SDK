@@ -1,0 +1,6 @@
+{
+  "code": "UNAUTHORIZED",
+  "correlation_id": "fixture-request",
+  "error": "authentication_error",
+  "message": "Authentication required"
+}

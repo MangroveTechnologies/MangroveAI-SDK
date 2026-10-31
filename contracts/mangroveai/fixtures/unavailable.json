@@ -1,0 +1,6 @@
+{
+  "code": "SERVICE_UNAVAILABLE",
+  "correlation_id": "fixture-request",
+  "error": "service_unavailable",
+  "message": "Service temporarily unavailable"
+}

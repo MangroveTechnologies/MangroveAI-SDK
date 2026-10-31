@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import logging
+import math
 import os
 
 from ._constants import DEFAULT_MAX_RETRIES, DEFAULT_TIMEOUT, DEFAULT_URLS, KEY_PREFIX_ENV, Environment
+from .exceptions import ConfigurationError
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +61,12 @@ class ClientConfig:
         if load_dotenv:
             _maybe_load_dotenv()
 
+        if (
+            isinstance(timeout, bool) or not isinstance(timeout, (int, float))
+            or not math.isfinite(timeout) or timeout <= 0
+        ):
+            raise ConfigurationError("timeout must be a finite positive number of seconds.")
+
         self.api_key = api_key or os.environ.get("MANGROVE_API_KEY")
         self.timeout = timeout
         self.max_retries = max_retries
@@ -69,16 +77,39 @@ class ClientConfig:
         self.environment = self._resolve_environment(environment)
         env_urls = DEFAULT_URLS[self.environment]
 
-        self.core_base_url = base_url or os.environ.get("MANGROVE_BASE_URL") or env_urls["core"]
-        self.core_v2_base_url = base_url.replace("/v1", "/v2") if base_url else env_urls["core_v2"]
+        configured_base_url = base_url or os.environ.get("MANGROVE_BASE_URL")
+        if (
+            self.environment == Environment.DEV or (self.api_key and self.api_key.startswith("dev_"))
+        ) and not configured_base_url:
+            raise ConfigurationError(
+                "Development requires an explicit base_url or MANGROVE_BASE_URL for its deployed API. "
+                "No public development default is available; production is never used as a fallback."
+            )
+        if (
+            self.api_key and self.api_key.startswith("test_")
+            and self.environment == Environment.PROD and not configured_base_url
+        ):
+            raise ConfigurationError(
+                "test_ keys require an explicit base_url or local environment; no production fallback."
+            )
+        self.core_base_url = configured_base_url or env_urls["core"]
+        self.core_v2_base_url = (
+            configured_base_url.rstrip("/").removesuffix("/v1") + "/v2"
+            if configured_base_url
+            else env_urls["core_v2"]
+        )
         self.kb_base_url = kb_base_url or os.environ.get("MANGROVE_KB_BASE_URL") or env_urls["kb"]
 
     def _resolve_environment(self, explicit: str | None) -> str:
         if explicit:
+            if explicit not in DEFAULT_URLS:
+                raise ConfigurationError("environment must be dev, prod or local.")
             return explicit
 
         env_var = os.environ.get("MANGROVE_ENVIRONMENT")
         if env_var:
+            if env_var not in DEFAULT_URLS:
+                raise ConfigurationError("MANGROVE_ENVIRONMENT must be dev, prod or local.")
             return env_var
 
         if self.api_key:

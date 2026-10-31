@@ -6,9 +6,14 @@ serving, and backtest engine. This service is a thin typed wrapper.
 """
 from __future__ import annotations
 
+import hashlib
+import json
+import math
+from collections.abc import Iterator
 from typing import Any
 
 from .._transport._service import ServiceTransport
+from ..exceptions import MalformedResponseError
 from ..models.oracle import (
     DataQueryRequest,
     DataQueryResponse,
@@ -30,6 +35,7 @@ from ..models.oracle import (
     SieveScoreResponse,
     SimulateRunResponse,
 )
+from ._backtest_payload import backtest_payload
 
 SIEVE_MAX_ITEMS_PER_REQUEST = 99
 
@@ -122,7 +128,7 @@ class OracleService:
     def backtest(self, request: OracleBacktestRequest) -> OracleBacktestResult:
         """Run a single-strategy backtest synchronously."""
         data = self._core_request(
-            "POST", "/oracle/backtest", json=request.model_dump(exclude_none=True)
+            "POST", "/oracle/backtest", json=backtest_payload(request)
         )
         return OracleBacktestResult.model_validate(data)
 
@@ -131,7 +137,7 @@ class OracleService:
     ) -> OracleAsyncBacktestSubmission:
         """Submit a backtest for async execution; returns a backtest_id."""
         data = self._core_request(
-            "POST", "/oracle/backtest/async", json=request.model_dump(exclude_none=True)
+            "POST", "/oracle/backtest/async", json=backtest_payload(request)
         )
         return OracleAsyncBacktestSubmission.model_validate(data)
 
@@ -145,7 +151,7 @@ class OracleService:
     ) -> OracleBulkBacktestResult:
         """Evaluate many strategies over a shared date range in one call."""
         data = self._core_request(
-            "POST", "/oracle/backtest/bulk", json=request.model_dump(exclude_none=True)
+            "POST", "/oracle/backtest/bulk", json=backtest_payload(request)
         )
         return OracleBulkBacktestResult.model_validate(data)
 
@@ -345,16 +351,60 @@ class OracleService:
         self,
         *,
         experiment_id: str | None = None,
+        asset: str | None = None,
+        asset_b: str | None = None,
+        timeframe: str | None = None,
+        trigger_name: str | None = None,
+        kind: str | None = None,
+        status: str | None = None,
+        min_trades: int | None = None,
+        min_sharpe: float | None = None,
+        min_win_rate: float | None = None,
+        min_return: float | None = None,
+        min_irr: float | None = None,
+        min_delta_vs_benchmark: float | None = None,
+        min_delta_vs_asset: float | None = None,
+        max_trades: int | None = None,
+        max_sharpe: float | None = None,
+        max_win_rate: float | None = None,
+        max_return: float | None = None,
+        max_irr: float | None = None,
+        max_delta_vs_benchmark: float | None = None,
+        max_delta_vs_asset: float | None = None,
+        run_index: int | None = None,
+        beats_benchmarks: bool | None = None,
+        beats_legs: bool | None = None,
+        beats_fifty_fifty: bool | None = None,
+        beats_crypto_benchmarks: bool | None = None,
+        coverage_date: str | None = None,
+        coverage_from: str | None = None,
+        coverage_to: str | None = None,
+        generation: str | None = None,
+        direction: str | None = None,
+        volatility: str | None = None,
+        trend: str | None = None,
+        regime_composite: str | None = None,
+        sort: str | None = None,
+        order: str | None = None,
         limit: int = 100,
         offset: int = 0,
     ) -> OracleResultsPage:
-        """Read backtest results materializing under an experiment, or
-        across the full corpus when ``experiment_id`` is omitted.
+        """Read backtest results for one experiment or the visible corpus.
 
         Args:
             experiment_id: Optional — when provided, scopes results to a
-                single experiment. When omitted, returns the broader
+                single experiment. When omitted, returns the caller-visible
                 cross-experiment view paginated by ``limit`` / ``offset``.
+            asset, asset_b, timeframe, trigger_name, kind, status: Exact result
+                filters supported by the Oracle results endpoint.
+            min_*/max_*: Inclusive numeric bounds for supported result metrics.
+            generation: Comma-separated experiment generations.
+            direction, volatility, trend, regime_composite: Comma-separated
+                market-regime labels.
+            coverage_date, coverage_from, coverage_to: Result data-coverage
+                date filters (YYYY-MM-DD).
+            sort: Supported result column used to order the page.
+            order: ``asc`` or ``desc``.
             limit: Page size, max 500 (server-enforced).
             offset: Pagination offset.
 
@@ -368,13 +418,137 @@ class OracleService:
             that BQ rejected. Fixed in MangroveOracle PR #237.
         """
         params: dict[str, Any] = {"limit": limit, "offset": offset}
-        if experiment_id is not None:
-            params["experiment_id"] = experiment_id
+        for name, value in (
+            ("experiment_id", experiment_id),
+            ("asset", asset),
+            ("asset_b", asset_b),
+            ("timeframe", timeframe),
+            ("trigger_name", trigger_name),
+            ("kind", kind),
+            ("status", status),
+            ("min_trades", min_trades),
+            ("min_sharpe", min_sharpe),
+            ("min_win_rate", min_win_rate),
+            ("min_return", min_return),
+            ("min_irr", min_irr),
+            ("min_delta_vs_benchmark", min_delta_vs_benchmark),
+            ("min_delta_vs_asset", min_delta_vs_asset),
+            ("max_trades", max_trades),
+            ("max_sharpe", max_sharpe),
+            ("max_win_rate", max_win_rate),
+            ("max_return", max_return),
+            ("max_irr", max_irr),
+            ("max_delta_vs_benchmark", max_delta_vs_benchmark),
+            ("max_delta_vs_asset", max_delta_vs_asset),
+            ("run_index", run_index),
+            ("beats_benchmarks", beats_benchmarks),
+            ("beats_legs", beats_legs),
+            ("beats_fifty_fifty", beats_fifty_fifty),
+            ("beats_crypto_benchmarks", beats_crypto_benchmarks),
+            ("coverage_date", coverage_date),
+            ("coverage_from", coverage_from),
+            ("coverage_to", coverage_to),
+            ("generation", generation),
+            ("direction", direction),
+            ("volatility", volatility),
+            ("trend", trend),
+            ("regime_composite", regime_composite),
+            ("sort", sort),
+            ("order", order),
+        ):
+            if value is not None:
+                params[name] = value
         return self._request_model(
             "GET", "/oracle/results",
             OracleResultsPage,
             params=params,
         )
+
+    def list_results_iter(
+        self,
+        *,
+        page_size: int = 500,
+        max_drawdown: float | None = None,
+        **filters: Any,
+    ) -> Iterator[dict[str, Any]]:
+        """Iterate over every result matching the supplied screening filters.
+
+        Pages use the server-reported offset and total. If the server returns
+        an empty, repeated, malformed, or non-advancing page while reporting
+        more results, the method raises ``MalformedResponseError`` instead of
+        silently truncating the screening or looping forever. Each fetched
+        page is a separate request. If a later page request or validation
+        fails, rows yielded from earlier pages remain yielded; callers must
+        discard any partial collection and must not treat it as complete.
+        ``max_drawdown`` is applied locally because the server endpoint does
+        not expose that bound; its units match the ``max_drawdown`` value
+        returned in each row. Rows missing that metric are excluded when this
+        filter is set.
+        """
+        if not isinstance(page_size, int) or isinstance(page_size, bool) or not 1 <= page_size <= 500:
+            raise ValueError("page_size must be an integer between 1 and 500")
+        if max_drawdown is not None and (
+            isinstance(max_drawdown, bool)
+            or not isinstance(max_drawdown, (int, float))
+            or not math.isfinite(max_drawdown)
+            or max_drawdown < 0
+        ):
+            raise ValueError("max_drawdown must be a finite, non-negative number")
+
+        offset = 0
+        seen_pages: set[bytes] = set()
+        while True:
+            page = self.list_results(limit=page_size, offset=offset, **filters)
+            if page.offset != offset:
+                raise MalformedResponseError(
+                    "Oracle results page does not match the requested offset."
+                )
+            if page.total < 0 or page.offset < 0 or page.limit < 1 or page.offset > page.total:
+                raise MalformedResponseError("Oracle results page contains invalid paging metadata.")
+            if len(page.results) > page.limit:
+                raise MalformedResponseError("Oracle results page exceeds its reported limit.")
+            next_offset = page.offset + len(page.results)
+            if next_offset > page.total:
+                raise MalformedResponseError("Oracle results page exceeds its reported total.")
+            if next_offset <= offset and next_offset < page.total:
+                raise MalformedResponseError(
+                    f"Oracle results page at offset {offset} reports more results "
+                    "without advancing."
+                )
+            if page.results:
+                serialized_page = json.dumps(
+                    page.results, sort_keys=True, separators=(",", ":")
+                ).encode("utf-8")
+                fingerprint = hashlib.sha256(serialized_page).digest()
+                if fingerprint in seen_pages:
+                    raise MalformedResponseError(
+                        f"Oracle results page at offset {offset} repeated an earlier page."
+                    )
+                seen_pages.add(fingerprint)
+            for row in page.results:
+                if max_drawdown is None:
+                    yield row
+                    continue
+                value = row.get("max_drawdown")
+                if value is None:
+                    continue
+                try:
+                    if isinstance(value, bool):
+                        raise TypeError
+                    drawdown = float(value)
+                except (TypeError, ValueError, OverflowError):
+                    raise MalformedResponseError(
+                        "Oracle result contains a non-numeric max_drawdown value."
+                    ) from None
+                if not math.isfinite(drawdown) or drawdown < 0:
+                    raise MalformedResponseError(
+                        "Oracle result contains an invalid max_drawdown value."
+                    )
+                if drawdown <= max_drawdown:
+                    yield row
+            if next_offset >= page.total:
+                return
+            offset = next_offset
 
     # ------------------------------------------------------------------ #
     # Metadata catalogs (free / non-billable)

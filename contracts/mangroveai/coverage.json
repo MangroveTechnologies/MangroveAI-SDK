@@ -1,0 +1,3230 @@
+{
+  "contracts": [
+    {
+      "path": "openapi.json",
+      "sha256": "161d2c5bc8afaee24e44c526e1bc40f8e4e3d7e8b23536fc2d76dd5f6ca18059"
+    },
+    {
+      "path": "oracle-proxy-openapi.json",
+      "sha256": "2af733018477db164b4cf1d2f2791590be79efc932f895147090693d468773fd"
+    }
+  ],
+  "limits": "Generated from declarations, not live payload verification. Opaque responses remain unknown. MCP and the separate legacy KB host are not this REST contract.",
+  "operations": [
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/ai-copilot/chat/{session_id}",
+      "python_direct_bindings": [
+        "AICopilotService.chat_async"
+      ],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/ai-copilot/configuration",
+      "python_direct_bindings": [
+        "AICopilotService.configuration"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "DELETE /api/v1/ai-copilot/conversations/{session_id}",
+      "python_direct_bindings": [
+        "AICopilotService.delete_conversation"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/ai-copilot/conversations/{session_id}",
+      "python_direct_bindings": [
+        "AICopilotService.get_conversation"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/ai-copilot/conversations/{session_id}/executions/{execution_id}",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/ai-copilot/conversations/{session_id}/executions/{execution_id}/cancel",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "PUT /api/v1/ai-copilot/conversations/{session_id}/rename",
+      "python_direct_bindings": [
+        "AICopilotService.rename_conversation"
+      ],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/ai-copilot/get_latest_conversation",
+      "python_direct_bindings": [
+        "AICopilotService.get_latest_conversation"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/ai-copilot/list_conversations",
+      "python_direct_bindings": [
+        "AICopilotService.list_conversations"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/ai-copilot/save_strategy",
+      "python_direct_bindings": [
+        "AICopilotService.save_strategy"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/ai-copilot/start_new_conversation",
+      "python_direct_bindings": [
+        "AICopilotService.start_new_conversation"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/auth/allowlist/emails",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/auth/api-keys",
+      "python_direct_bindings": [
+        "AuthService.list_api_keys"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/auth/api-keys",
+      "python_direct_bindings": [
+        "AuthService.create_api_key"
+      ],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "DELETE /api/v1/auth/api-keys/{key_id}",
+      "python_direct_bindings": [
+        "AuthService.revoke_api_key"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/auth/callback",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/auth/is-admin",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/auth/login",
+      "python_direct_bindings": [
+        "AuthService.login"
+      ],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/auth/login/google",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "separate-redirect-flow-required"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/auth/logout",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/auth/markets-context",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/auth/markets-quota",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/auth/profile",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "PUT /api/v1/auth/profile",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/auth/refresh",
+      "python_direct_bindings": [
+        "AuthService.refresh"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/auth/switch-org",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/backtesting/backtest",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/backtesting/backtest/bulk",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/backtesting/backtest/screen",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/backtesting/backtest/{backtest_id}",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/backtesting/backtest/{backtest_id}/trades",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/backtests",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/backtests/",
+      "python_direct_bindings": [
+        "BacktestingService.submit_async"
+      ],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/backtests/benchmark",
+      "python_direct_bindings": [
+        "BacktestingService.get_benchmark"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/backtests/bulk",
+      "python_direct_bindings": [
+        "BacktestingService.run_bulk"
+      ],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/backtests/{backtest_id}",
+      "python_direct_bindings": [
+        "BacktestingService.get"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/backtests/{backtest_id}/archive",
+      "python_direct_bindings": [
+        "BacktestingService.archive"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/backtests/{backtest_id}/trades",
+      "python_direct_bindings": [
+        "BacktestingService.get_trades"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/backtests/{backtest_id}/unarchive",
+      "python_direct_bindings": [
+        "BacktestingService.unarchive"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/batch/job/status",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/batch/job/status/{job_id}",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/config/execution-config-schema",
+      "python_direct_bindings": [
+        "ConfigService.get_execution_config_schema"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/config/execution-defaults",
+      "python_direct_bindings": [
+        "ConfigService.execution_defaults"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/config/trading-defaults",
+      "python_direct_bindings": [
+        "ConfigService.trading_defaults"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/crypto-assets/all",
+      "python_direct_bindings": [
+        "CryptoAssetsService.list"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/crypto-assets/exchanges",
+      "python_direct_bindings": [
+        "CryptoAssetsService.list_exchanges"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/crypto-assets/flow-intelligence/{symbol}",
+      "python_direct_bindings": [
+        "OnChainService.get_smart_money_flows"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/crypto-assets/global-market",
+      "python_direct_bindings": [
+        "CryptoAssetsService.get_global_market"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/crypto-assets/market-data/{symbol}",
+      "python_direct_bindings": [
+        "CryptoAssetsService.get_market_data"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/crypto-assets/ohlcv/{symbol}",
+      "python_direct_bindings": [
+        "CryptoAssetsService.get_ohlcv"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/crypto-assets/query",
+      "python_direct_bindings": [
+        "CryptoAssetsService.list_approved_assets"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/crypto-assets/smart-money/holdings",
+      "python_direct_bindings": [
+        "OnChainService.get_smart_money_holdings"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/crypto-assets/smart-money/netflows",
+      "python_direct_bindings": [
+        "OnChainService.get_smart_money_netflows"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/crypto-assets/symbols",
+      "python_direct_bindings": [
+        "CryptoAssetsService.list_approved_assets"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/crypto-assets/symbols/{symbol}",
+      "python_direct_bindings": [
+        "CryptoAssetsService.get"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/crypto-assets/symbols/{symbol}/exchanges",
+      "python_direct_bindings": [
+        "CryptoAssetsService.get_symbol_exchanges"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/crypto-assets/token-holders/{symbol}",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/crypto-assets/trending",
+      "python_direct_bindings": [
+        "CryptoAssetsService.get_trending"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/defi/chain/{chain}/tvl",
+      "python_direct_bindings": [
+        "DeFiService.get_chain_tvl"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/defi/etf-flows",
+      "python_direct_bindings": [
+        "DeFiService.get_etf_flows"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/defi/lending-rates",
+      "python_direct_bindings": [
+        "DeFiService.get_lending_borrow_rates"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/defi/perp-funding",
+      "python_direct_bindings": [
+        "DeFiService.get_perp_funding"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/defi/protocol/{protocol_name}/tvl",
+      "python_direct_bindings": [
+        "DeFiService.get_protocol_tvl"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/defi/stablecoins/metrics",
+      "python_direct_bindings": [
+        "DeFiService.get_stablecoin_metrics"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/defi/token-unlocks",
+      "python_direct_bindings": [
+        "DeFiService.get_token_unlocks"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/defi/treasuries",
+      "python_direct_bindings": [
+        "DeFiService.get_treasuries"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/docs/content",
+      "python_direct_bindings": [
+        "DocsService.get_content"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/docs/list",
+      "python_direct_bindings": [
+        "DocsService.list"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/execution/accounts",
+      "python_direct_bindings": [
+        "ExecutionService.list_accounts"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/execution/accounts",
+      "python_direct_bindings": [
+        "ExecutionService.create_account"
+      ],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/execution/accounts/{account_id}",
+      "python_direct_bindings": [
+        "ExecutionService.get_account"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/execution/availability",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/execution/evaluate",
+      "python_direct_bindings": [
+        "ExecutionService.evaluate_by_object"
+      ],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/execution/evaluate/bulk",
+      "python_direct_bindings": [
+        "ExecutionService.evaluate_bulk"
+      ],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/execution/evaluate/{strategy_id}",
+      "python_direct_bindings": [
+        "ExecutionService.evaluate"
+      ],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/execution/paper/{strategy_id}",
+      "python_direct_bindings": [
+        "ExecutionService.paper_status"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/execution/paper/{strategy_id}/pause",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/execution/paper/{strategy_id}/start",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/execution/paper/{strategy_id}/tick",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/execution/portfolio",
+      "python_direct_bindings": [
+        "ExecutionService.get_portfolio"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/execution/positions",
+      "python_direct_bindings": [
+        "ExecutionService.list_positions"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/execution/trades",
+      "python_direct_bindings": [
+        "ExecutionService.list_trades"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/health",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/knowledge/documents",
+      "python_direct_bindings": [
+        "KnowledgeService.list_documents"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/knowledge/documents/{slug}",
+      "python_direct_bindings": [
+        "KnowledgeService.get_document"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/knowledge/glossary",
+      "python_direct_bindings": [
+        "KnowledgeService.glossary"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/knowledge/query",
+      "python_direct_bindings": [
+        "KnowledgeService.query"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/knowledge/quick-reference",
+      "python_direct_bindings": [
+        "KnowledgeService.quick_reference"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/knowledge/search",
+      "python_direct_bindings": [
+        "KnowledgeService.search"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/market-data/regime/{asset}",
+      "python_direct_bindings": [
+        "MarketDataService.get_market_regime"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/market-data/segment",
+      "python_direct_bindings": [
+        "MarketDataService.classify_market_segment"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/on-chain/exchange-flows",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/on-chain/series",
+      "python_direct_bindings": [
+        "OnChainService.get_onchain_series"
+      ],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/on-chain/smart-money/dex-trades",
+      "python_direct_bindings": [
+        "OnChainService.get_smart_money_dex_trades"
+      ],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/on-chain/smart-money/historical-holdings",
+      "python_direct_bindings": [
+        "OnChainService.get_smart_money_historical_holdings"
+      ],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/on-chain/smart-money/perp-trades",
+      "python_direct_bindings": [
+        "OnChainService.get_smart_money_perp_trades"
+      ],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/on-chain/smart-money/screen",
+      "python_direct_bindings": [
+        "OnChainService.screen_smart_money"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/on-chain/smart-money/sentiment",
+      "python_direct_bindings": [
+        "OnChainService.get_smart_money_sentiment"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/on-chain/token-holders/{symbol}",
+      "python_direct_bindings": [
+        "OnChainService.get_token_holders"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/on-chain/token/{symbol}/dex-trades",
+      "python_direct_bindings": [
+        "OnChainService.get_token_dex_trades"
+      ],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/on-chain/token/{symbol}/flows",
+      "python_direct_bindings": [
+        "OnChainService.get_token_flows"
+      ],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/on-chain/whale-activity/{symbol}",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/on-chain/whale-transactions",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/organizations/",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/organizations/",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/organizations/invitations/accept",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/organizations/invitations/mine",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/organizations/mine",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/organizations/{org_id}",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "PUT /api/v1/organizations/{org_id}",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/organizations/{org_id}/invitations",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/organizations/{org_id}/invitations",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "DELETE /api/v1/organizations/{org_id}/invitations/{invitation_id}",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/organizations/{org_id}/members",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "DELETE /api/v1/organizations/{org_id}/members/{user_id}",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "PUT /api/v1/organizations/{org_id}/members/{user_id}",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/signals/",
+      "python_direct_bindings": [
+        "SignalsService.list"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/signals/",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/signals/behavior",
+      "python_direct_bindings": [
+        "SignalsService.query_signal_behavior"
+      ],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/signals/evaluate-multiple-series",
+      "python_direct_bindings": [
+        "SignalsService.evaluate_multiple_series"
+      ],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/signals/labels",
+      "python_direct_bindings": [
+        "SignalsService.labels"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/signals/match",
+      "python_direct_bindings": [
+        "SignalsService.match"
+      ],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/signals/playground-data/{dataset_key}",
+      "python_direct_bindings": [
+        "SignalsService.playground_data"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/signals/playground-datasets",
+      "python_direct_bindings": [
+        "SignalsService.playground_datasets"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/signals/search",
+      "python_direct_bindings": [
+        "SignalsService.search"
+      ],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/signals/validate",
+      "python_direct_bindings": [
+        "SignalsService.validate"
+      ],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/signals/validate-execution",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/signals/validate-metadata",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/signals/validate-syntax",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/signals/validate-trades",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/signals/{signal_name}",
+      "python_direct_bindings": [
+        "SignalsService.get"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/signals/{signal_name}/evaluate",
+      "python_direct_bindings": [
+        "SignalsService.evaluate"
+      ],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/signals/{signal_name}/validate-params",
+      "python_direct_bindings": [
+        "SignalsService.validate_params"
+      ],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/social/influence/{username}",
+      "python_direct_bindings": [
+        "SocialService.get_influence_score"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/social/mentions/{topic}",
+      "python_direct_bindings": [
+        "SocialService.get_mentions"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/social/sentiment/{topic}",
+      "python_direct_bindings": [
+        "SocialService.get_sentiment"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/strategies/",
+      "python_direct_bindings": [
+        "StrategiesService.list"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategies/",
+      "python_direct_bindings": [
+        "StrategiesService.create"
+      ],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategies/ensure",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "DELETE /api/v1/strategies/{strategy_id}",
+      "python_direct_bindings": [
+        "StrategiesService.delete"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/strategies/{strategy_id}",
+      "python_direct_bindings": [
+        "StrategiesService.get"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "PUT /api/v1/strategies/{strategy_id}",
+      "python_direct_bindings": [
+        "StrategiesService.update"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategies/{strategy_id}/archive",
+      "python_direct_bindings": [
+        "StrategiesService.archive"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "PATCH /api/v1/strategies/{strategy_id}/execution-state",
+      "python_direct_bindings": [
+        "StrategiesService.update_execution_state"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "PATCH /api/v1/strategies/{strategy_id}/status",
+      "python_direct_bindings": [
+        "StrategiesService.update_status"
+      ],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategies/{strategy_id}/unarchive",
+      "python_direct_bindings": [
+        "StrategiesService.unarchive"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/strategies/{strategy_id}/verify",
+      "python_direct_bindings": [
+        "StrategiesService.verify_strategy"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/build_strategy_for_regime",
+      "python_direct_bindings": [
+        "StrategyWorkflowService.build_strategy_for_regime"
+      ],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/create_sweep",
+      "python_direct_bindings": [
+        "StrategyWorkflowService.create_sweep"
+      ],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/find_sweep_runs",
+      "python_direct_bindings": [
+        "StrategyWorkflowService.find_sweep_runs"
+      ],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/get_backtest",
+      "python_direct_bindings": [
+        "StrategyWorkflowService.get_backtest"
+      ],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/get_backtest_trades",
+      "python_direct_bindings": [
+        "StrategyWorkflowService.get_backtest_trades"
+      ],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/get_execution_config_schema",
+      "python_direct_bindings": [
+        "StrategyWorkflowService.get_execution_config_schema"
+      ],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/get_marketplace_strategy",
+      "python_direct_bindings": [
+        "StrategyWorkflowService.get_marketplace_strategy"
+      ],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/get_strategy",
+      "python_direct_bindings": [
+        "StrategyWorkflowService.get_strategy"
+      ],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/get_sweep",
+      "python_direct_bindings": [
+        "StrategyWorkflowService.get_sweep"
+      ],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/get_sweep_limits",
+      "python_direct_bindings": [
+        "StrategyWorkflowService.get_sweep_limits"
+      ],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/get_sweep_run",
+      "python_direct_bindings": [
+        "StrategyWorkflowService.get_sweep_run"
+      ],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/launch_sweep",
+      "python_direct_bindings": [
+        "StrategyWorkflowService.launch_sweep"
+      ],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/list_backtest_markets",
+      "python_direct_bindings": [
+        "StrategyWorkflowService.list_backtest_markets"
+      ],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/list_backtests",
+      "python_direct_bindings": [
+        "StrategyWorkflowService.list_backtests"
+      ],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/list_platform_strategies",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/list_run_filters",
+      "python_direct_bindings": [
+        "StrategyWorkflowService.list_run_filters"
+      ],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/list_strategies",
+      "python_direct_bindings": [
+        "StrategyWorkflowService.list_strategies"
+      ],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/list_sweep_markets",
+      "python_direct_bindings": [
+        "StrategyWorkflowService.list_sweep_markets"
+      ],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/list_sweeps",
+      "python_direct_bindings": [
+        "StrategyWorkflowService.list_sweeps"
+      ],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/list_trades",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/load_skill",
+      "python_direct_bindings": [
+        "StrategyWorkflowService.load_skill"
+      ],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/pause_sweep",
+      "python_direct_bindings": [
+        "StrategyWorkflowService.pause_sweep"
+      ],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/run_backtest",
+      "python_direct_bindings": [
+        "StrategyWorkflowService.run_backtest"
+      ],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/save_strategy",
+      "python_direct_bindings": [
+        "StrategyWorkflowService.save_strategy"
+      ],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/screen_candidates",
+      "python_direct_bindings": [
+        "StrategyWorkflowService.screen_candidates"
+      ],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/search_marketplace",
+      "python_direct_bindings": [
+        "StrategyWorkflowService.search_marketplace"
+      ],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/size_sweep",
+      "python_direct_bindings": [
+        "StrategyWorkflowService.size_sweep"
+      ],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/update_strategy",
+      "python_direct_bindings": [
+        "StrategyWorkflowService.update_strategy"
+      ],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/verify_strategy",
+      "python_direct_bindings": [
+        "StrategyWorkflowService.verify_strategy"
+      ],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/subscriptions/all-status",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/subscriptions/checkout",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/subscriptions/org-status",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/subscriptions/portal",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/subscriptions/status",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/subscriptions/tiers",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/subscriptions/utilization",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/users/me/backtests",
+      "python_direct_bindings": [
+        "UsersService.get_my_backtests"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/users/me/metrics",
+      "python_direct_bindings": [
+        "UsersService.get_my_metrics"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/users/me/strategies",
+      "python_direct_bindings": [
+        "UsersService.get_my_strategies"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v2/agent/conversations",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v2/agent/conversations",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v2/agent/conversations/latest",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "DELETE /api/v2/agent/conversations/{session_id}",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v2/agent/conversations/{session_id}",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v2/agent/conversations/{session_id}/executions",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v2/agent/conversations/{session_id}/messages",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "PATCH /api/v2/agent/conversations/{session_id}/rename",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v2/backtests/",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v2/backtests/{backtest_id}/status",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "POST /api/v1/oracle/backtest",
+      "python_direct_bindings": [
+        "OracleService.backtest"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "retail-adapter-envelope-unmodelled",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "POST /api/v1/oracle/backtest/async",
+      "python_direct_bindings": [
+        "OracleService.backtest_async"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "retail-adapter-envelope-unmodelled",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/backtest/async/{backtest_id}/status",
+      "python_direct_bindings": [
+        "OracleService.backtest_poll"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "POST /api/v1/oracle/backtest/bulk",
+      "python_direct_bindings": [
+        "OracleService.backtest_bulk"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "retail-adapter-envelope-unmodelled",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "POST /api/v1/oracle/backtest/validate",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/backtest/{backtest_id}",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/backtest/{backtest_id}/trades",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/conditions",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "POST /api/v1/oracle/conditions/preview",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "retail-adapter-envelope-unmodelled",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "POST /api/v1/oracle/conditions/studies",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "retail-adapter-envelope-unmodelled",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/conditions/studies/{study_id}",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "retail-adapter-envelope-unmodelled",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/conditions/studies/{study_id}/billing-evidence",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "retail-adapter-envelope-unmodelled",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "POST /api/v1/oracle/data/query",
+      "python_direct_bindings": [
+        "OracleService.data_query"
+      ],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/datasets",
+      "python_direct_bindings": [
+        "OracleService.list_datasets"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "POST /api/v1/oracle/datasets",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/datasets/detailed",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/datasets/limits",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/datasets/ohlcv/{filename}",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/deployed/strategies",
+      "python_direct_bindings": [
+        "OracleService.list_deployed_strategies"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/deployed/stream",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "proxy-sse-stream",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "separate-stream-or-non-json-client-required"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/deployed/{strategy_id}/events",
+      "python_direct_bindings": [
+        "OracleService.get_deployed_strategy_events"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/deployed/{strategy_id}/state",
+      "python_direct_bindings": [
+        "OracleService.get_deployed_strategy_state"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/exec-config/defaults",
+      "python_direct_bindings": [
+        "OracleService.exec_config_defaults"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/experiments",
+      "python_direct_bindings": [
+        "OracleService.list_experiments"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "POST /api/v1/oracle/experiments",
+      "python_direct_bindings": [
+        "OracleService.create_experiment"
+      ],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/experiments/caps",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "POST /api/v1/oracle/experiments/estimate",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "retail-adapter-envelope-unmodelled",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/experiments/generations",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/experiments/shared",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/experiments/shared-with-me",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "DELETE /api/v1/oracle/experiments/{experiment_id}",
+      "python_direct_bindings": [
+        "OracleService.delete_experiment"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "retail-adapter-envelope-unmodelled",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/experiments/{experiment_id}",
+      "python_direct_bindings": [
+        "OracleService.get_experiment"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "PUT /api/v1/oracle/experiments/{experiment_id}",
+      "python_direct_bindings": [
+        "OracleService.update_experiment"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "retail-adapter-envelope-unmodelled",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/experiments/{experiment_id}/billing-evidence",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "POST /api/v1/oracle/experiments/{experiment_id}/billing-plan",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "retail-adapter-envelope-unmodelled",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/experiments/{experiment_id}/grants",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "POST /api/v1/oracle/experiments/{experiment_id}/grants",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "retail-adapter-envelope-unmodelled",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "DELETE /api/v1/oracle/experiments/{experiment_id}/grants/{principal_type}/{principal_id}",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "retail-adapter-envelope-unmodelled",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "POST /api/v1/oracle/experiments/{experiment_id}/launch",
+      "python_direct_bindings": [
+        "OracleService.launch_experiment"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "retail-adapter-envelope-unmodelled",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "POST /api/v1/oracle/experiments/{experiment_id}/pause",
+      "python_direct_bindings": [
+        "OracleService.pause_experiment"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "retail-adapter-envelope-unmodelled",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/experiments/{experiment_id}/progress",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/experiments/{experiment_id}/progress/stream",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "proxy-sse-stream",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "separate-stream-or-non-json-client-required"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/experiments/{experiment_id}/results",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/experiments/{experiment_id}/results/filters",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/experiments/{experiment_id}/results/{run_index}/ohlcv",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "POST /api/v1/oracle/experiments/{experiment_id}/results/{run_index}/replay/at-original-code",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "retail-adapter-envelope-unmodelled",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "POST /api/v1/oracle/experiments/{experiment_id}/results/{run_index}/replay/at-original-code/async",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "retail-adapter-envelope-unmodelled",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "POST /api/v1/oracle/experiments/{experiment_id}/results/{run_index}/replay/on-latest",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "retail-adapter-envelope-unmodelled",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/experiments/{experiment_id}/results/{run_index}/signals",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/experiments/{experiment_id}/results/{run_index}/stored-visualization",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/experiments/{experiment_id}/results/{run_index}/strategy",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/experiments/{experiment_id}/results/{run_index}/trades",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/experiments/{experiment_id}/results/{run_index}/visualize",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "POST /api/v1/oracle/experiments/{experiment_id}/validate",
+      "python_direct_bindings": [
+        "OracleService.validate_experiment"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "retail-adapter-envelope-unmodelled",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/results",
+      "python_direct_bindings": [
+        "OracleService.list_results"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/results/filters",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "POST /api/v1/oracle/sieve/score",
+      "python_direct_bindings": [
+        "OracleService.sieve_score"
+      ],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/signals",
+      "python_direct_bindings": [
+        "OracleService.list_signals"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/signals/catalogs",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/signals/{name}",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "POST /api/v1/oracle/simulate/generate",
+      "python_direct_bindings": [
+        "OracleService.simulate_generate"
+      ],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/simulate/history",
+      "python_direct_bindings": [
+        "OracleService.simulate_history"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/simulate/presets",
+      "python_direct_bindings": [
+        "OracleService.simulate_presets"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "POST /api/v1/oracle/simulate/run",
+      "python_direct_bindings": [
+        "OracleService.simulate_run"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "retail-adapter-envelope-unmodelled",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/templates",
+      "python_direct_bindings": [
+        "OracleService.list_templates"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "POST /api/v1/oracle/templates",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "DELETE /api/v1/oracle/templates/{name}",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "oracle-proxy-openapi.json",
+      "operation": "GET /api/v1/oracle/templates/{name}",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "upstream-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    }
+  ],
+  "python_inventory": "Direct literal/f-string transport bindings only; helpers delegating to another method are not independent routes. Absence here is not proof that Python cannot call the operation."
+}

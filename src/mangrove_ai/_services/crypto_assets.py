@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 from urllib.parse import quote
 
+from ..exceptions import NotImplementedLayerError
 from ..models.crypto_assets import (
     ApprovedAssetsResponse,
     CryptoAsset,
@@ -63,12 +64,10 @@ class CryptoAssetsService(BaseService):
         return self._request_list("GET", "/crypto-assets/exchanges", Exchange, key="exchanges")
 
     def risk_analysis(self, asset_id: str) -> dict[str, Any]:
-        """Trigger risk analysis for an asset.
-
-        Args:
-            asset_id: UUID of the asset.
-        """
-        return self._request("POST", f"/crypto-assets/{asset_id}/risk-analysis")
+        """Unsupported: the current API has no public risk-analysis operation."""
+        raise NotImplementedLayerError(
+            "Risk-analysis requests are not supported by the current API. No request was sent."
+        )
 
     def get_ohlcv(
         self,

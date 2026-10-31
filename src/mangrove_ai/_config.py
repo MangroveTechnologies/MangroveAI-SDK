@@ -78,7 +78,9 @@ class ClientConfig:
         env_urls = DEFAULT_URLS[self.environment]
 
         configured_base_url = base_url or os.environ.get("MANGROVE_BASE_URL")
-        if self.environment == Environment.DEV and not configured_base_url:
+        if (
+            self.environment == Environment.DEV or (self.api_key and self.api_key.startswith("dev_"))
+        ) and not configured_base_url:
             raise ConfigurationError(
                 "Development requires an explicit base_url or MANGROVE_BASE_URL for its deployed API. "
                 "No public development default is available; production is never used as a fallback."

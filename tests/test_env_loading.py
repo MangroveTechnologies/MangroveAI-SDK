@@ -106,6 +106,26 @@ class TestSoftDependency:
 
 
 class TestBaseUrlResolution:
+    @pytest.mark.parametrize("environment", ["prod", "local"])
+    def test_dev_key_requires_origin_even_with_explicit_environment(self, monkeypatch, environment) -> None:
+        from mangrove_ai import ConfigurationError
+        monkeypatch.delenv("MANGROVE_BASE_URL", raising=False)
+        with pytest.raises(ConfigurationError, match="Development requires"):
+            ClientConfig(api_key="dev_fixture", environment=environment, load_dotenv=False)
+
+    def test_dev_key_does_not_inherit_a_production_environment_default(self, monkeypatch) -> None:
+        from mangrove_ai import ConfigurationError
+        monkeypatch.delenv("MANGROVE_BASE_URL", raising=False)
+        monkeypatch.setenv("MANGROVE_ENVIRONMENT", "prod")
+        with pytest.raises(ConfigurationError, match="Development requires"):
+            ClientConfig(api_key="dev_fixture", load_dotenv=False)
+
+    def test_explicit_origin_still_accepts_cross_environment_dev_key(self) -> None:
+        config = ClientConfig(api_key="dev_fixture", environment="prod",
+                              base_url="https://explicit.example.invalid/api/v1", load_dotenv=False)
+        assert config.core_base_url == "https://explicit.example.invalid/api/v1"
+        assert config.core_v2_base_url == "https://explicit.example.invalid/api/v2"
+
     def test_dev_requires_an_explicit_origin_without_production_fallback(self, monkeypatch) -> None:
         from mangrove_ai import ConfigurationError
         monkeypatch.delenv("MANGROVE_BASE_URL", raising=False)

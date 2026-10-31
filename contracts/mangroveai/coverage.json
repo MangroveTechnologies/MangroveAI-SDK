@@ -1,8 +1,12 @@
 {
   "contracts": [
     {
+      "path": "execution-config.schema.json",
+      "sha256": "a0c4e22f68a287a0d1da471fdd6f046e3e138419ef01dd45d57857ff11a38779"
+    },
+    {
       "path": "openapi.json",
-      "sha256": "161d2c5bc8afaee24e44c526e1bc40f8e4e3d7e8b23536fc2d76dd5f6ca18059"
+      "sha256": "e94e3e45b3f4b29edcd94150fe3235d1ae8033320da780794fdabbf965d2ae02"
     },
     {
       "path": "oracle-proxy-openapi.json",
@@ -511,7 +515,7 @@
         "ConfigService.get_execution_config_schema"
       ],
       "request": "no-model-or-no-body",
-      "response": "opaque-or-no-content",
+      "response": "declared",
       "runtime_payload_verified": false,
       "schema_status": "registered-restx-declaration",
       "typescript": "request(operation, options)",
@@ -1898,7 +1902,7 @@
         "StrategyWorkflowService.get_execution_config_schema"
       ],
       "request": "declared",
-      "response": "opaque-or-no-content",
+      "response": "declared",
       "runtime_payload_verified": false,
       "schema_status": "registered-restx-declaration",
       "typescript": "request(operation, options)",

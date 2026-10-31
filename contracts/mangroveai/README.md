@@ -10,6 +10,16 @@ or account record belongs here.
 reachable through the actual MangroveAI proxy allowlist and forwarded methods.
 Its servers point at MangroveAI, not private upstream deployment hosts.
 
+`execution-config.schema.json` is the backend's normalized authoring schema,
+derived from its parameter metadata, defaults and shared required-field
+declarations. The REST and MCP transport projections preserve accepted legacy
+objects; `x-mangrove-authoring-schema` carries authoring guidance separately.
+Nested schema guidance does not imply that the HTTP boundary validates every
+nested field. Python exposes the additive schema from an explicit configuration
+request; TypeScript exports its generated `ExecutionConfiguration` type and
+retains a legacy-object transport escape hatch. Neither client automatically
+fetches configuration or runs trading-risk validation.
+
 `coverage.json` enumerates every generated REST operation, response modelling
 status and matching direct Python transport bindings. Python wrappers delegating
 to another method are not separate routes; an empty direct-binding list is not
@@ -37,7 +47,7 @@ execution paths enforce that product responsibility.
    actual application factory without executing business handlers.
 2. Run `python3 scripts/generate_typescript_contract.py --check-api-contract-dir
    <export-directory> --check`. A difference identifies drift for review.
-3. Review the schema and capability changes. Copy both reviewed exports and
+3. Review the schema and capability changes. Copy all three reviewed exports and
    their provenance into this directory; keep private upstream source schemas
    in the backend repository.
 4. Run `python3 scripts/generate_typescript_contract.py`, inspect the generated

@@ -73,6 +73,22 @@ transform upstream backtest, simulation, experiment and condition envelopes;
 their types remain opaque, with upstream declarations identified separately.
 Server scopes, tenant access, entitlements and billing still apply.
 
+The generated `ExecutionConfiguration` type describes normalized authoring
+values from the backend's canonical configuration schema, including cooldown
+fields and their required declarations. Transport inputs also accept a legacy
+object escape hatch, preserving server compatibility with numeric strings and
+other existing shapes. To read the server's schema and glossary explicitly:
+
+```ts
+const config = await client.request('GET /api/v1/config/execution-config-schema', {});
+console.log(config.json_schema);
+```
+
+This is one server request and may be billable. The client does not fetch it
+automatically, prevalidate execution configuration or implement risk policy.
+Normalized authoring guidance is separate from the server's accepted transport
+input; nested guidance is not a claim that the HTTP boundary enforces all fields.
+
 The generic JSON transport does not consume SSE, binary or HTML responses. It
 rejects those formats instead of misrepresenting them as JSON. MCP discovery,
 MCP OAuth, x402 signing and the separate legacy KB host are separate interfaces.
@@ -135,7 +151,7 @@ npm test --prefix packages/typescript
 node packages/typescript/test/packed-artifact.mjs
 ```
 
-Updating contracts is a reviewed change. Export both documents from the backend's
+Updating contracts is a reviewed change. Export all three documents from the backend's
 `scripts/export_developer_contracts.py` with network blocked, then regenerate the
 TypeScript declarations and inspect the capability diff. Preserve the recorded
 source revisions and hashes. Changes to the pinned inputs without regeneration

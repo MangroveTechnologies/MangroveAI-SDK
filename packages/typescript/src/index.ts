@@ -1,6 +1,6 @@
 import { operationMetadata, type Operation, type Operations, type CoreModels } from './contract.generated.js';
 
-export type { Operation, Operations, CoreModels, OracleModels } from './contract.generated.js';
+export type { Operation, Operations, CoreModels, OracleModels, ExecutionConfiguration } from './contract.generated.js';
 
 export class ConfigurationError extends Error { override name = 'ConfigurationError'; }
 export class MalformedResponseError extends Error { override name = 'MalformedResponseError'; }

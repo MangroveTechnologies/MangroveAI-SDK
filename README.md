@@ -238,6 +238,15 @@ without a strategy ID does not confirm fills.
 | `client.social` | `social.*` | 3 | Topic sentiment, mentions, user influence (X / Twitter) |
 | `client.docs` | `docs.*` | 2 | Documentation listing and content |
 
+`client.config.get_execution_config_schema()` makes an explicit server request
+and exposes the canonical normalized authoring schema as `result.json_schema`,
+alongside defaults and the parameter glossary. Older servers may omit this
+additive field, in which case it is `None`. Nested glossary metadata includes
+cooldown fields and the backend's required-field declarations. The SDK does not
+fetch this metadata automatically or use it to impose trading policy. Authoring
+guidance is separate from accepted legacy transport shapes; the HTTP boundary
+does not enforce the entire nested authoring schema.
+
 ### Layer 2: Knowledge Base API
 
 | Service | Access | Methods | Description |

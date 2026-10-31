@@ -17,11 +17,18 @@ def literal(value):
     return json.dumps(value, ensure_ascii=True, separators=(",", ":"))
 
 
-def schema_type(schema, namespace):
+def schema_type(schema, namespace, authoring_aliases=None):
     if not isinstance(schema, dict) or not schema:
         return "unknown"
     if schema.get("x-mangrove-raw-json"):
         return "unknown"
+    authoring = schema.get("x-mangrove-authoring-schema")
+    if isinstance(authoring, dict):
+        name = (authoring_aliases or {}).get(authoring.get("$id"))
+        normalized = name or schema_type(authoring, namespace, authoring_aliases)
+        # Existing HTTP/MCP object acceptance is wider than normalized authoring
+        # values. Keep that escape hatch rather than adding client validation.
+        return f"({normalized}) | Record<string, unknown>" if authoring.get("$id") else normalized
     if "$ref" in schema:
         name = schema["$ref"].rsplit("/", 1)[-1].replace("~1", "/").replace("~0", "~")
         result = f"{namespace}[{literal(name)}]"
@@ -30,28 +37,36 @@ def schema_type(schema, namespace):
     elif "enum" in schema:
         result = " | ".join(literal(item) for item in schema["enum"]) or "never"
     elif "allOf" in schema:
-        result = " & ".join("(" + schema_type(item, namespace) + ")" for item in schema["allOf"])
+        result = " & ".join("(" + schema_type(item, namespace, authoring_aliases) + ")" for item in schema["allOf"])
     elif "anyOf" in schema or "oneOf" in schema:
         result = " | ".join(
-            "(" + schema_type(item, namespace) + ")" for item in schema.get("anyOf", schema.get("oneOf", []))
+            "(" + schema_type(item, namespace, authoring_aliases) + ")"
+            for item in schema.get("anyOf", schema.get("oneOf", []))
         )
     else:
         kind = schema.get("type")
         if isinstance(kind, list):
-            return " | ".join(schema_type({**schema, "type": item}, namespace) for item in kind)
+            return " | ".join(schema_type({**schema, "type": item}, namespace, authoring_aliases) for item in kind)
         if kind == "array":
-            result = "Array<" + schema_type(schema.get("items", {}), namespace) + ">"
+            result = "Array<" + schema_type(schema.get("items", {}), namespace, authoring_aliases) + ">"
         elif kind == "object" or "properties" in schema:
             required = schema.get("required", [])
             properties = [
-                f"{literal(key)}{'' if key in required else '?'}: {schema_type(value, namespace)};"
+                f"{literal(key)}{'' if key in required else '?'}: {schema_type(value, namespace, authoring_aliases)};"
                 for key, value in sorted(schema.get("properties", {}).items())
             ]
             extra = schema.get("additionalProperties", True)
             if not properties and isinstance(extra, dict):
-                result = "Record<string, " + schema_type(extra, namespace) + ">"
+                result = "Record<string, " + schema_type(extra, namespace, authoring_aliases) + ">"
             else:
-                if extra is not False:
+                if isinstance(extra, dict):
+                    values = [schema_type(extra, namespace, authoring_aliases)]
+                    values.extend(schema_type(value, namespace, authoring_aliases)
+                                  for value in schema.get("properties", {}).values())
+                    if any(key not in required for key in schema.get("properties", {})):
+                        values.append("undefined")
+                    properties.append("[key: string]: " + " | ".join(dict.fromkeys(values)) + ";")
+                elif extra is not False:
                     properties.append("[key: string]: unknown;")
                 result = "{ " + " ".join(properties) + " }"
         else:
@@ -112,6 +127,31 @@ def generate():
     coverage = []
     digests = {}
     python = python_bindings()
+    canonical = json.loads((CONTRACTS / "execution-config.schema.json").read_bytes())
+    authoring = {canonical["$id"]: canonical}
+    aliases = {}
+    for filename in ("openapi.json", "oracle-proxy-openapi.json"):
+        document = json.loads((CONTRACTS / filename).read_bytes())
+        for model in document.get("definitions", document.get("components", {}).get("schemas", {})).values():
+            if not isinstance(model, dict):
+                continue
+            schema = model.get("x-mangrove-authoring-schema", {})
+            if not isinstance(schema, dict) or not schema.get("$id"):
+                continue
+            identity = schema["$id"]
+            name = "".join(word[0].upper() + word[1:] for word in re.findall(r"[A-Za-z0-9]+", schema["title"]))
+            if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", name):
+                raise ValueError("Canonical authoring schema needs a valid type title")
+            if identity in authoring and authoring[identity] != schema:
+                raise ValueError("Canonical authoring schema differs across API declarations")
+            if name in aliases.values() and aliases.get(identity) != name:
+                raise ValueError("Canonical authoring type titles collide")
+            authoring[identity], aliases[identity] = schema, name
+    if canonical["$id"] not in aliases:
+        raise ValueError("Canonical execution config is missing from the public API models")
+    digests["execution-config.schema.json"] = hashlib.sha256(
+        (CONTRACTS / "execution-config.schema.json").read_bytes()
+    ).hexdigest()
     for filename, namespace in (("openapi.json", "CoreModels"), ("oracle-proxy-openapi.json", "OracleModels")):
         raw = (CONTRACTS / filename).read_bytes()
         digests[filename] = hashlib.sha256(raw).hexdigest()
@@ -119,7 +159,7 @@ def generate():
         models = document.get("definitions", document.get("components", {}).get("schemas", {}))
         definitions.append(f"export interface {namespace} {{")
         definitions.extend(
-            f"  {literal(name)}: {schema_type(schema, namespace)};" for name, schema in sorted(models.items())
+            f"  {literal(name)}: {schema_type(schema, namespace, aliases)};" for name, schema in sorted(models.items())
         )
         definitions.append("}\n")
         for path, entry in sorted(document["paths"].items()):
@@ -155,7 +195,7 @@ def generate():
                         if name not in group["required"]:
                             group["required"].append(name)
                 fields = [
-                    f"{name}{'' if group['required'] else '?'}: {schema_type(group, namespace)};"
+                    f"{name}{'' if group['required'] else '?'}: {schema_type(group, namespace, aliases)};"
                     for name, group in groups.items()
                 ]
                 body = next((item for item in parameters if item.get("in") == "body"), None)
@@ -170,7 +210,8 @@ def generate():
                     body_schema = operation["x-mangrove-request-schema"]
                     body_required = bool(body_schema.get("required"))
                 if body_schema is not None:
-                    fields.append(f"body{'' if body_required else '?'}: {schema_type(body_schema, namespace)};")
+                    body_type = schema_type(body_schema, namespace, aliases)
+                    fields.append(f"body{'' if body_required else '?'}: {body_type};")
                 response_types = []
                 typed_success = False
                 response_media = set()
@@ -184,7 +225,9 @@ def generate():
                     schema = value.get("schema")
                     if schema is None:
                         schema = value.get("content", {}).get("application/json", {}).get("schema")
-                    response_types.append("undefined" if status in {"204", "205"} else schema_type(schema, namespace))
+                    response_types.append(
+                        "undefined" if status in {"204", "205"} else schema_type(schema, namespace, aliases)
+                    )
                     typed_success = typed_success or bool(schema)
                 response = " | ".join(dict.fromkeys(response_types)) or "unknown"
                 if "unknown" in response_types:
@@ -226,6 +269,8 @@ def generate():
                     }
                 )
     source = "// Generated by scripts/generate_typescript_contract.py. Do not edit.\n\n"
+    source += "\n".join(f"export type {aliases[identity]} = {schema_type(schema, 'CoreModels')};"
+                         for identity, schema in sorted(authoring.items())) + "\n\n"
     source += "\n".join(definitions) + "\nexport interface Operations {\n" + "\n".join(operations) + "\n}\n"
     source += "\nexport type Operation = keyof Operations;\n"
     source += (
@@ -262,7 +307,7 @@ def main():
     args = parser.parse_args()
     provenance = json.loads((CONTRACTS / "provenance.json").read_text())
     expected = {entry["path"]: entry["sha256"] for entry in provenance.get("contracts", [])}
-    for name in ("openapi.json", "oracle-proxy-openapi.json"):
+    for name in ("openapi.json", "oracle-proxy-openapi.json", "execution-config.schema.json"):
         raw = (CONTRACTS / name).read_bytes()
         if hashlib.sha256(raw).hexdigest() != expected.get(name):
             raise SystemExit(f"Contract provenance mismatch: {name}")

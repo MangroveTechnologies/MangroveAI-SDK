@@ -47,8 +47,11 @@ def main() -> None:
     # 1. The social signal category ----------------------------------------------
     _hdr("signals.list(category='social')")
     page = client.signals.list(category="social", limit=50)
+    # The X attention signals read the XPostCount column. Older x_* entries in
+    # this category are retired and cannot go into a strategy, so skip them.
     for s in page.items:
-        if s.name.startswith("x_"):
+        requires = (s.metadata.requires if s.metadata else None) or []
+        if "XPostCount" in requires:
             print(f"  {s.name:32s} {s.signal_type or ''}")
 
     # 2. Hourly X post counts ----------------------------------------------------

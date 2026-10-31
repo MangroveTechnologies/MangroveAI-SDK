@@ -3,7 +3,12 @@ from __future__ import annotations
 from typing import Any
 from urllib.parse import quote
 
-from ..models.social import InfluenceScoreResponse, MentionsResponse, SentimentResponse
+from ..models.social import (
+    InfluenceScoreResponse,
+    MentionsResponse,
+    SentimentResponse,
+    XPostCountsResponse,
+)
 from ._base import BaseService
 
 
@@ -40,6 +45,30 @@ class SocialService(BaseService):
             username: X/Twitter username.
         """
         return self._request_model("GET", f"/social/influence/{quote(username, safe='')}", InfluenceScoreResponse)
+
+    def get_x_post_counts(
+        self,
+        symbol: str,
+        *,
+        days_back: int = 7,
+        granularity: str = "hour",
+        x_query: str = "all",
+    ) -> XPostCountsResponse:
+        """Get X post counts for an asset, the series the x_attention signals read.
+
+        Counts are closed buckets, oldest first. They measure how much people post
+        about the ``$SYMBOL`` cashtag, not what they say.
+
+        Args:
+            symbol: Asset ticker, e.g. ``"BTC"`` (counted as the ``$BTC`` cashtag).
+            days_back: Window in days ending now, 1-31.
+            granularity: ``"hour"`` or ``"day"``.
+            x_query: ``"all"`` or ``"en_original"`` (English, no reposts).
+        """
+        params: dict[str, Any] = {"days_back": days_back, "granularity": granularity, "x_query": x_query}
+        return self._request_model(
+            "GET", f"/social/x-post-counts/{quote(symbol, safe='')}", XPostCountsResponse, params=params,
+        )
 
     def get_social_sentiment(self, topic: str, *, hours_back: int = 24) -> SentimentResponse:
         """Canonical-name alias for social sentiment."""

@@ -235,7 +235,7 @@ without a strategy ID does not confirm fills.
 | `client.execution` | `execution.*` | 8 | Accounts, positions, trades, evaluation |
 | `client.on_chain` | `on_chain.*` | 11 | Smart-money flows, DEX/perp trades and token holders (Nansen); retired WhaleAlert compatibility methods fail locally |
 | `client.defi` | `defi.*` | 8 | TVL/chain/stablecoins (any plan); token unlocks, perp funding, treasuries, ETF flows, lending rates (DeFiLlama Pro -- requires Pro/Startup/Enterprise, capped at 1,000 calls/account/month) |
-| `client.social` | `social.*` | 3 | Topic sentiment, mentions, user influence (X / Twitter) |
+| `client.social` | `social.*` | 4 | Topic sentiment, mentions, user influence, `get_x_post_counts` (hourly or daily X post counts, the input of the x_attention signals) |
 | `client.docs` | `docs.*` | 2 | Documentation listing and content |
 
 `client.config.get_execution_config_schema()` makes an explicit server request
@@ -284,6 +284,16 @@ Build a DataFrame with `pd.DataFrame(resp.series).set_index("timestamp")` and fe
 `filters` and `order_by` pass through directly to the upstream Nansen API — restrict by
 `include_smart_money_labels`, set `value_usd` min/max bounds, sort by any field. See
 `examples/on_chain_nansen.py` for raw-method snippets.
+
+### X attention signals
+
+`client.social.get_x_post_counts(symbol, days_back=7, granularity="hour", x_query="all")` returns
+closed buckets of X posts matching the asset's cashtag (`$BTC`), oldest first, for up to 31 days.
+They feed three signals in the `social` category: `x_post_count_spike`, `x_attention_elevated` and
+`x_attention_price_divergence`. These measure how much people post, not what they say. Counts are
+backfilled on demand and cached, so `x_requests == 0` means the call cost no X request. In a
+backtest the engine only reads buckets that had closed by each bar. The server returns 503 when X
+signals are off or X is not configured. End-to-end walkthrough: `examples/x_attention_signals_demo.py`.
 
 ## Oracle — SIEVE + sweep
 

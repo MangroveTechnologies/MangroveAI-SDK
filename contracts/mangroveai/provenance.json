@@ -2,7 +2,7 @@
   "contracts": [
     {
       "path": "openapi.json",
-      "sha256": "e94e3e45b3f4b29edcd94150fe3235d1ae8033320da780794fdabbf965d2ae02"
+      "sha256": "52c14702e3841c468c1ddc4ddfdfe2d71731deff7a0b0d5d385f6f87098d4f4f"
     },
     {
       "path": "oracle-proxy-openapi.json",
@@ -14,7 +14,7 @@
     }
   ],
   "generation": "Real application factory and canonical config metadata in ci; network blocked; startup provider warm-up/directory setup disabled; no business handlers",
-  "source_commit": "876da0ebd2135b9267cb345861e09e19abc2f8cb",
+  "source_commit": "791b737b221929566174dc39f9f637d0072cd7c9",
   "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "source_dirty": false,
   "source_files": [

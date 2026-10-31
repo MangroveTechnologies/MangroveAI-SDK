@@ -187,6 +187,7 @@ export interface CoreModels {
   "api1.ValidateSignalParamsRequest": { "parameters"?: unknown; [key: string]: unknown; };
   "api1.ValidationResult": { "errors"?: Array<string>; "execution_valid"?: boolean; "metadata_valid"?: boolean; "syntax_valid"?: boolean; "trades_valid"?: boolean; "valid": boolean; "warnings"?: Array<string>; [key: string]: unknown; };
   "api1.VolatilityData": { "max_drawdown_30d_pct"?: number; "volatility_30d_pct"?: number; [key: string]: unknown; };
+  "api1.XPostCountsResponse": { "bucket_count"?: number; "buckets"?: Array<unknown>; "buckets_cached"?: number; "days_back"?: number; "granularity"?: "hour" | "day"; "query"?: string; "success"?: boolean; "symbol"?: string; "total_posts"?: number; "x_query"?: "all" | "en_original"; "x_requests"?: number; [key: string]: unknown; };
   "api2.AgentChatRequest": { "execution_id"?: string; "message": string; "turn_id"?: string; [key: string]: unknown; };
   "api2.AsyncBacktestStatusResponse": { "backtest_id"?: string; "base_token"?: (string) | null; "completed_at"?: string; "created_at"?: string; "equity_curve"?: unknown; "error_message"?: string; "execution_time_seconds"?: number; "market_data_venue"?: (string) | null; "metrics"?: unknown; "quote_token"?: (string) | null; "status"?: string; "trade_history"?: unknown; [key: string]: unknown; };
   "api2.AsyncBacktestSubmitResponse": { "backtest_id"?: string; "base_token"?: (string) | null; "market_data_venue"?: (string) | null; "quote_token"?: (string) | null; "status"?: string; [key: string]: unknown; };
@@ -385,6 +386,7 @@ export interface Operations {
   "GET /api/v1/social/influence/{username}": { input: { path: { "username": string; }; }; output: CoreModels["api1.InfluenceScoreResponse"]; };
   "GET /api/v1/social/mentions/{topic}": { input: { path: { "topic": string; }; query?: { "hours_back"?: number; "limit"?: number; }; }; output: CoreModels["api1.MentionsResponse"]; };
   "GET /api/v1/social/sentiment/{topic}": { input: { path: { "topic": string; }; query?: { "hours_back"?: number; }; }; output: CoreModels["api1.SentimentResponse"]; };
+  "GET /api/v1/social/x-post-counts/{symbol}": { input: { path: { "symbol": string; }; query?: { "days_back"?: number; "granularity"?: string; "x_query"?: string; }; }; output: CoreModels["api1.XPostCountsResponse"]; };
   "GET /api/v1/strategies/": { input: { query?: { "include_archived"?: boolean; }; }; output: CoreModels["api1.StrategyListResponse"]; };
   "POST /api/v1/strategies/": { input: { body: CoreModels["api1.CreateStrategyRequest"]; }; output: CoreModels["api1.CreateStrategyResponse"]; };
   "POST /api/v1/strategies/ensure": { input: { body: CoreModels["api1.CreateStrategyRequest"]; }; output: CoreModels["api1.EnsureStrategyExistingResponse"] | CoreModels["api1.EnsureStrategyCreatedResponse"]; };
@@ -1873,6 +1875,19 @@ export const operationMetadata = {
     "required": {
       "path": [
         "topic"
+      ],
+      "query": []
+    }
+  },
+  "GET /api/v1/social/x-post-counts/{symbol}": {
+    "authenticated": true,
+    "bodyRequired": false,
+    "method": "GET",
+    "path": "/api/v1/social/x-post-counts/{symbol}",
+    "queryFormats": {},
+    "required": {
+      "path": [
+        "symbol"
       ],
       "query": []
     }

@@ -289,10 +289,10 @@ Build a DataFrame with `pd.DataFrame(resp.series).set_index("timestamp")` and fe
 
 `client.oracle.*` is Mangrove's strategy-research engine. Two headline tools:
 
-- **SIEVE** scores up to 99 strategy ideas in one call and tells you which are worth
-  testing — a binary go/no-go (`p_trades` vs `p_no_trades`) plus a 4-class outcome head
-  (`losing` / `no_trades` / `wash` / `winning`). Most ideas never trade meaningfully;
-  SIEVE finds the ones that do *before* you spend compute backtesting them.
+- **SIEVE** scores up to 99 strategy ideas in one call and returns binary go/no-go
+  probabilities (`p_trades` vs `p_no_trades`) for whether a strategy will trade.
+  The retired `four_class` outcome head is `None` on current responses; do not use
+  it to predict performance or rank strategies.
 - **Sweep** fans a parameter search into one managed experiment of many backtests and
   ranks the results.
 

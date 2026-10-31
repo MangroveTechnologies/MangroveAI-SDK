@@ -38,6 +38,8 @@ def main() -> None:
         assert request.extensions["timeout"]["read"] == 2
         if request.url.path == "/api/v1/users/me/metrics":
             return httpx.Response(200, json=fixture("usage-success"))
+        if request.url.path == "/api/v1/config/execution-config-schema":
+            return httpx.Response(200, json=fixture("execution-config-success"))
         if request.url.path == "/api/v1/signals/":
             page = "one" if request.url.params["offset"] == "0" else "two"
             return httpx.Response(200, json=fixture(f"signals-page-{page}"))
@@ -56,6 +58,9 @@ def main() -> None:
         httpx_client=httpx.Client(transport=httpx.MockTransport(handler)),
     ) as client:
         assert client.users.get_my_metrics().messages_count == 7
+        config = client.config.get_execution_config_schema()
+        assert config.json_schema == fixture("execution-config-success")["json_schema"]
+        assert config.param_glossary["cooldown_config"].required_fields
         assert [row.name for row in client.signals.list_iter(limit_per_page=1)] == ["fixture_one", "fixture_two"]
         assert [row["result_id"] for row in client.oracle.list_results_iter(page_size=1)] == ["row-0", "row-1"]
         try:
@@ -70,7 +75,7 @@ def main() -> None:
             pass
         else:
             raise AssertionError("Malformed success was accepted")
-    assert len(calls) == 7
+    assert len(calls) == 8
     print(json.dumps({
         "distribution": "mangroveai", "version": mangrove_ai.__version__,
         "requests_intercepted": len(calls),

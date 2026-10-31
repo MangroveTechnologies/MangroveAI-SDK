@@ -29,6 +29,24 @@ test('usage first call consumes the shared fixture and sends exactly Bearer GET'
   assert.equal(calls, 1);
 });
 
+test('execution metadata uses the shared fixture with no automatic schema gate or extra calls', async () => {
+  const value = await fixture('execution-config-success');
+  let calls = 0;
+  const sdk = client(async (url, options) => {
+    calls++;
+    assert.equal(String(url), 'https://api.mangrovedeveloper.ai/api/v1/config/execution-config-schema');
+    assert.equal(options.method, 'GET');
+    assert.equal(options.headers.get('Authorization'), `Bearer ${fakeKey}`);
+    return json(value);
+  });
+  assert.equal(calls, 0);
+  const result = await sdk.request('GET /api/v1/config/execution-config-schema', {});
+  assert.deepEqual(result.json_schema, value.json_schema);
+  assert.deepEqual(result.param_glossary.cooldown_config.required_fields,
+    value.json_schema.properties.cooldown_config.additionalProperties.required);
+  assert.equal(calls, 1);
+});
+
 test('v1 base override routes v2 to the same origin', async () => {
   const requests = [];
   const sdk = client(async url => { requests.push(String(url)); return json(await fixture('backtest-running')); }, { baseUrl: 'https://test-v1.example.invalid/api/v1' });

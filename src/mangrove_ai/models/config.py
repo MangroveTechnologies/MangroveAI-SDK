@@ -28,6 +28,10 @@ class ExecutionConfigParam(MangroveModel):
     gate_field: str | None = None
     gate_required: Any | None = None
     choices: list[Any] | None = None
+    fields: dict[str, ExecutionConfigParam] | None = None
+    """Known nested parameter metadata, derived from the server's canonical glossary."""
+    required_fields: list[str] | None = None
+    metadata_fields: dict[str, ExecutionConfigParam] | None = None
 
 
 class TransactionCosts(MangroveModel):
@@ -47,3 +51,10 @@ class ExecutionConfigSchema(MangroveModel):
     param_glossary: dict[str, ExecutionConfigParam]
     transaction_costs: TransactionCosts
     percent_scale_note: str | None = None
+    json_schema: dict[str, Any] | None = None
+    """Normalized authoring schema. Legacy HTTP coercion and runtime checks remain separate.
+
+    Optional so responses from a receiver predating this additive field still parse.
+    Fetching this metadata remains an explicit API call; the SDK never validates or
+    fetches it automatically before an operation.
+    """

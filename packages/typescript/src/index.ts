@@ -138,14 +138,13 @@ function safeString(value: unknown, secrets: Secrets, fallback: string, maxLengt
 
 function errorEnvelope(value: unknown, secrets: Secrets): unknown {
   // Preserve machine-readable decisions without making credentials part of errors.
-  let raw = JSON.stringify(value, (key, item: unknown) => {
-    if (credentialField(key)) return '[redacted]';
-    return typeof item === 'string' ? safeString(item, secrets, '', item.length) : item;
-  });
-  for (const secret of typeof secrets === 'string' ? [secrets] : secrets ?? []) {
-    if (raw !== undefined && secret) raw = raw.split(JSON.stringify(secret).slice(1, -1)).join('[redacted]');
-  }
-  return raw === undefined ? undefined : JSON.parse(raw) as unknown;
+  if (typeof value === 'string') return safeString(value, secrets, '', Infinity);
+  if (Array.isArray(value)) return value.map(item => errorEnvelope(item, secrets));
+  if (object(value)) return Object.fromEntries(Object.entries(value).map(([key, item]) => [
+    safeString(key, secrets, '', Infinity),
+    credentialField(key) ? '[redacted]' : errorEnvelope(item, secrets),
+  ]));
+  return value;
 }
 
 function requestSecrets(apiKey: string | undefined, headers: Headers, body: string | undefined): string[] {
@@ -409,8 +408,14 @@ export class MangroveAI {
       const self = this;
       return { async *[Symbol.asyncIterator]() {
         let offset = 0;
+        const seenNames = new Set<string>();
         for (;;) {
           const result = await self.signals.list({ ...options, offset });
+          const names = new Set(result.items.map(item => item.name));
+          if (names.size !== result.items.length || result.items.some(item => seenNames.has(item.name))) {
+            throw new MalformedResponseError('Signal pagination repeated a signal identity');
+          }
+          for (const name of names) seenNames.add(name);
           for (const item of result.items) yield item;
           if (!result.hasMore || result.nextOffset === null) return;
           if (result.nextOffset <= offset) throw new MalformedResponseError('Signal pagination did not advance');

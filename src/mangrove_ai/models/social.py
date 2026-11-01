@@ -36,3 +36,27 @@ class InfluenceScoreResponse(MangroveModel):
     score: float | None = None
     followers: int | None = None
     data: dict[str, Any] | None = None
+
+
+class XPostCountBucket(MangroveModel):
+    """One closed bucket of X post counts."""
+
+    start: str
+    end: str
+    count: int
+
+
+class XPostCountsResponse(MangroveModel):
+    """X post counts for an asset: the input the x_attention signals read."""
+
+    success: bool
+    symbol: str
+    query: str | None = None
+    x_query: str | None = None
+    granularity: str | None = None
+    days_back: int | None = None
+    bucket_count: int | None = None
+    total_posts: int | None = None
+    buckets: list[XPostCountBucket] = []
+    x_requests: int | None = None
+    buckets_cached: int | None = None

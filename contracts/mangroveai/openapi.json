@@ -8102,6 +8102,63 @@
       },
       "type": "object"
     },
+    "api1.XPostCountsResponse": {
+      "properties": {
+        "bucket_count": {
+          "type": "integer"
+        },
+        "buckets": {
+          "description": "Closed buckets, oldest first: start, end (ISO-8601 UTC), count",
+          "items": {
+            "type": "object",
+            "x-mangrove-raw-json": true
+          },
+          "type": "array"
+        },
+        "buckets_cached": {
+          "description": "Buckets served from the cache",
+          "type": "integer"
+        },
+        "days_back": {
+          "type": "integer"
+        },
+        "granularity": {
+          "enum": [
+            "hour",
+            "day"
+          ],
+          "example": "hour",
+          "type": "string"
+        },
+        "query": {
+          "description": "The exact X search query counted",
+          "type": "string"
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "total_posts": {
+          "description": "Sum of the bucket counts",
+          "type": "integer"
+        },
+        "x_query": {
+          "enum": [
+            "all",
+            "en_original"
+          ],
+          "example": "all",
+          "type": "string"
+        },
+        "x_requests": {
+          "description": "X API requests made; 0 when fully cached",
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
     "api2.AgentChatRequest": {
       "properties": {
         "execution_id": {
@@ -16135,7 +16192,7 @@
             "type": "string"
           },
           {
-            "description": "Filter by category (momentum, trend, volume, volatility, patterns, onchain)",
+            "description": "Filter by category (momentum, trend, volume, volatility, patterns, onchain, social)",
             "in": "query",
             "name": "category",
             "type": "string"
@@ -17216,6 +17273,87 @@
           "description": "Topic or symbol to analyze (e.g. BTC, ETH, Solana)",
           "in": "path",
           "name": "topic",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    "/api/v1/social/x-post-counts/{symbol}": {
+      "get": {
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "api1_get_x_post_counts",
+        "parameters": [
+          {
+            "description": "Query variant: all (default) or en_original",
+            "in": "query",
+            "name": "x_query",
+            "type": "string"
+          },
+          {
+            "description": "Bucket size: hour (default) or day",
+            "in": "query",
+            "name": "granularity",
+            "type": "string"
+          },
+          {
+            "description": "Window in days ending now, 1-31 (default 7)",
+            "in": "query",
+            "name": "days_back",
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/api1.XPostCountsResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid symbol, window, granularity or x_query",
+            "schema": {
+              "$ref": "#/definitions/api1.SocialError"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/api1.SocialError"
+            }
+          },
+          "502": {
+            "description": "X/Twitter request failed",
+            "schema": {
+              "$ref": "#/definitions/api1.SocialError"
+            }
+          },
+          "503": {
+            "description": "X social signals off or X/Twitter not configured",
+            "schema": {
+              "$ref": "#/definitions/api1.SocialError"
+            }
+          }
+        },
+        "security": [
+          {
+            "MangroveBearer": []
+          }
+        ],
+        "summary": "Get hourly or daily X post counts for an asset (the x_attention signal input)",
+        "tags": [
+          "social"
+        ]
+      },
+      "parameters": [
+        {
+          "description": "Asset ticker, e.g. BTC (counted as the $BTC cashtag)",
+          "in": "path",
+          "name": "symbol",
           "required": true,
           "type": "string"
         }

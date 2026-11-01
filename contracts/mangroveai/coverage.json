@@ -6,7 +6,7 @@
     },
     {
       "path": "openapi.json",
-      "sha256": "e94e3e45b3f4b29edcd94150fe3235d1ae8033320da780794fdabbf965d2ae02"
+      "sha256": "52c14702e3841c468c1ddc4ddfdfe2d71731deff7a0b0d5d385f6f87098d4f4f"
     },
     {
       "path": "oracle-proxy-openapi.json",
@@ -1681,6 +1681,19 @@
       "operation": "GET /api/v1/social/sentiment/{topic}",
       "python_direct_bindings": [
         "SocialService.get_sentiment"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/social/x-post-counts/{symbol}",
+      "python_direct_bindings": [
+        "SocialService.get_x_post_counts"
       ],
       "request": "no-model-or-no-body",
       "response": "declared",

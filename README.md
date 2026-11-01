@@ -235,7 +235,7 @@ without a strategy ID does not confirm fills.
 | `client.execution` | `execution.*` | 8 | Accounts, positions, trades, evaluation |
 | `client.on_chain` | `on_chain.*` | 11 | Smart-money flows, DEX/perp trades and token holders (Nansen); retired WhaleAlert compatibility methods fail locally |
 | `client.defi` | `defi.*` | 8 | TVL/chain/stablecoins (any plan); token unlocks, perp funding, treasuries, ETF flows, lending rates (DeFiLlama Pro -- requires Pro/Startup/Enterprise, capped at 1,000 calls/account/month) |
-| `client.social` | `social.*` | 3 | Topic sentiment, mentions, user influence (X / Twitter) |
+| `client.social` | `social.*` | 4 | Topic sentiment, mentions, user influence, `get_x_post_counts` (hourly or daily X post counts, the input of the x_attention signals) |
 | `client.docs` | `docs.*` | 2 | Documentation listing and content |
 
 `client.config.get_execution_config_schema()` makes an explicit server request
@@ -284,6 +284,23 @@ Build a DataFrame with `pd.DataFrame(resp.series).set_index("timestamp")` and fe
 `filters` and `order_by` pass through directly to the upstream Nansen API — restrict by
 `include_smart_money_labels`, set `value_usd` min/max bounds, sort by any field. See
 `examples/on_chain_nansen.py` for raw-method snippets.
+
+### X attention signals
+
+`client.social.get_x_post_counts(symbol, days_back=7, granularity="hour", x_query="all")` returns
+closed buckets of X posts matching the asset's cashtag (`$BTC`), oldest first; `days_back` is 1-31.
+They feed three signals in the `social` category: `x_post_count_spike`, `x_attention_elevated` and
+`x_attention_price_divergence`, on any timeframe. These measure how much people post, not what they
+say. All three take `x_query` (`"all"` or `"en_original"`); a strategy uses one value across its X
+rules. Counts are hourly, stamped on the bar open time, and a bucket becomes visible to a bar only once
+it has ended plus a 5-minute ingest lag before that bar closes, live and in backtests alike; sub-hourly
+bars reuse the latest visible hourly bucket and any gap evaluates False. Counts come from the X API,
+billed per request ($0.005 for the last 7 days, $0.010 for the full archive; one request covers up to
+31 days of hourly buckets). They are backfilled on demand and cached, so `x_requests == 0` means the call
+cost no X request and a repeat backtest over cached ranges costs nothing. Backfills stop when the shared
+credit balance falls under a floor. The read then returns 503 (as it does when X signals are off or X is
+not configured), and a strategy's X rules evaluate False and are logged.
+End-to-end walkthrough: `examples/x_attention_signals_demo.py`.
 
 ## Oracle — SIEVE + sweep
 

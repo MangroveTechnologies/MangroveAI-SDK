@@ -302,6 +302,36 @@ credit balance falls under a floor. The read then returns 503 (as it does when X
 not configured), and a strategy's X rules evaluate False and are logged.
 End-to-end walkthrough: `examples/x_attention_signals_demo.py`.
 
+### Cambrian social and holder signals
+
+Seven signals read Cambrian data: five in the `social` category and two in the `onchain` category.
+They are found and used like any other signal: list them with `client.signals.list(category="social")`
+or `category="onchain"`, then name them in a strategy's `entry` or `exit`. There is no separate
+`client` method for the underlying Cambrian data.
+
+| Signal | Type | What it reads |
+|---|---|---|
+| `social_sentiment_surge` | TRIGGER | Latest `SocialSentiment` far above its recent baseline, with enough unique authors (`SocialAuthors`) behind it |
+| `social_sentiment_capitulation` | TRIGGER | The same reading far below its baseline (contrarian) |
+| `social_crowd_bullish` | FILTER | Recent mean `SocialNetBullShare` above the longer baseline, so recent posts lean more bullish than the asset's norm |
+| `social_crowd_cooling` | FILTER | Recent mean `SocialNetBullShare` at or below the longer baseline (the complement of `social_crowd_bullish` at margin 0; contrarian) |
+| `social_price_divergence` | TRIGGER | `close` fell over the window while `SocialNetBullShare` stayed at or above its baseline |
+| `holder_growth_trend` | FILTER | `HolderCount` grew by at least a minimum percentage over the window |
+| `whale_share_divergence` | TRIGGER | `close` fell over the window while `WhaleHeldShare` (share of USD held by $100,000+ wallets) rose |
+
+- The social signals read Cambrian Deep42 sentiment, per token. The two holder signals read Cambrian's
+  Solana holder distribution and work on Solana tokens only.
+- You supply no data. In live evaluation and in backtests the server attaches the columns the signals
+  read, and a bar sees only values already known when it closes.
+- If the server's Cambrian data source is off, the catalogue marks the seven signals non-composable, so
+  a new strategy cannot be built on them, and a strategy that already names them gets `False` from
+  each.
+- `client.signals.evaluate(...)` is different: it runs on the `market_data` you send, so include the
+  columns a signal requires in each row, as for any signal that reads alternative data.
+
+End-to-end walkthrough, ending in a backtest that uses `social_crowd_cooling` as a filter:
+`examples/cambrian_signals_demo.py`.
+
 ## Oracle — SIEVE + sweep
 
 `client.oracle.*` is Mangrove's strategy-research engine. Two headline tools:

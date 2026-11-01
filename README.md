@@ -64,9 +64,10 @@ create a strategy or launch a backtest. The SDK surfaces 401, 402, 403, 429 and
 503 as typed errors, including available retry and correlation fields. It does
 not purchase access or pay automatically.
 
-The following sections also describe features already present in source but not
-yet published in the current PyPI 2.0.0 wheel. See
-[the release handoff](docs/issue-66-release-handoff.md) for release prerequisites.
+Python SDK 2.1.0 is published on [PyPI](https://pypi.org/project/mangroveai/2.1.0/).
+The TypeScript client remains a separate, unpublished package. Package publication
+does not deploy the API; see [the release handoff](docs/issue-66-release-handoff.md)
+for the verified release status and remaining rollout boundaries.
 
 ## Quickstart
 

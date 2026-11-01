@@ -2,6 +2,29 @@
 
 Issue: https://github.com/MangroveTechnologies/MangroveAI-SDK/issues/66
 
+## Published status (2026-11-01)
+
+Python SDK 2.1.0 was published from main commit
+`b879241e10c283c45617bf83a2591728b2ccfac0` by the
+[successful release workflow](https://github.com/MangroveTechnologies/MangroveAI-SDK/actions/runs/41242672813).
+The [v2.1.0 GitHub Release](https://github.com/MangroveTechnologies/MangroveAI-SDK/releases/tag/v2.1.0)
+and [PyPI wheel and source distribution](https://pypi.org/project/mangroveai/2.1.0/#files)
+exist; both public artifact hashes and isolated installations were verified.
+[Agent PR230](https://github.com/MangroveTechnologies/mangrove-agent/pull/230)
+has merged with a 2.1.0 pin. API acceptance-harness pin updates are being reviewed
+in [API PR1502](https://github.com/MangroveTechnologies/MangroveAI/pull/1502).
+
+The TypeScript candidate `@mangrove-ai/client` 0.1.0 remains unpublished. Its
+[publication run](https://github.com/MangroveTechnologies/MangroveAI-SDK/actions/runs/41271133519)
+passed contract generation, type checking, tests and package checks, then stopped
+because the effective `NPM_TOKEN` was empty. A maintainer must configure a
+publisher credential with access to that package before retrying publication.
+
+Publication does not establish that the API revision is deployed, that a live
+business request succeeds, or that an installed client has updated. The original
+repair/release-preparation record below is historical; its 2.0.0 version and
+pre-publication statements describe that earlier source snapshot.
+
 This branch repairs the existing `mangroveai` distribution. Its import remains
 `mangrove_ai`; `mangroveai` remains a compatibility shim. It is the Python client
 for the MangroveAI API. MangroveMarkets' Python package is a separate API client.

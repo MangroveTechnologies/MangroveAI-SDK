@@ -288,12 +288,19 @@ Build a DataFrame with `pd.DataFrame(resp.series).set_index("timestamp")` and fe
 ### X attention signals
 
 `client.social.get_x_post_counts(symbol, days_back=7, granularity="hour", x_query="all")` returns
-closed buckets of X posts matching the asset's cashtag (`$BTC`), oldest first, for up to 31 days.
+closed buckets of X posts matching the asset's cashtag (`$BTC`), oldest first; `days_back` is 1-31.
 They feed three signals in the `social` category: `x_post_count_spike`, `x_attention_elevated` and
-`x_attention_price_divergence`. These measure how much people post, not what they say. Counts are
-backfilled on demand and cached, so `x_requests == 0` means the call cost no X request. In a
-backtest the engine only reads buckets that had closed by each bar. The server returns 503 when X
-signals are off or X is not configured. End-to-end walkthrough: `examples/x_attention_signals_demo.py`.
+`x_attention_price_divergence`, on any timeframe. These measure how much people post, not what they
+say. All three take `x_query` (`"all"` or `"en_original"`); a strategy uses one value across its X
+rules. Counts are hourly, stamped on the bar open time, and a bucket becomes visible to a bar only once
+it has ended plus a 5-minute ingest lag before that bar closes, live and in backtests alike; sub-hourly
+bars reuse the latest visible hourly bucket and any gap evaluates False. Counts come from the X API,
+billed per request ($0.005 for the last 7 days, $0.010 for the full archive; one request covers up to
+31 days of hourly buckets). They are backfilled on demand and cached, so `x_requests == 0` means the call
+cost no X request and a repeat backtest over cached ranges costs nothing. Backfills stop when the shared
+credit balance falls under a floor. The read then returns 503 (as it does when X signals are off or X is
+not configured), and a strategy's X rules evaluate False and are logged.
+End-to-end walkthrough: `examples/x_attention_signals_demo.py`.
 
 ## Oracle — SIEVE + sweep
 

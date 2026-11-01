@@ -12,6 +12,7 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `client.social.get_x_post_counts(symbol, days_back, granularity, x_query)` reads
   `GET /api/v1/social/x-post-counts/{symbol}` and returns `XPostCountsResponse` with typed
   `XPostCountBucket` rows (`start`, `end`, `count`). These are the counts the x_attention signals read.
+  `days_back` is 1-31; `x_query` is `"all"` or `"en_original"`. Counts are billed per X request and cached.
 - `signals.list(category="social")` is documented; the server lists the X signals there.
 - Contracts refreshed from MangroveAI#1493 (791b737b): one added path and one response model; no
   other operation changed. TypeScript contract and coverage regenerated.

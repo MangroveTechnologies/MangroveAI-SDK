@@ -19,13 +19,14 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Documentation: Cambrian social and holder signals
 
-- README section on the six Cambrian-backed signals (`social_sentiment_surge`,
-  `social_sentiment_capitulation`, `social_crowd_bullish`, `social_price_divergence` in the `social`
+- README section on the seven Cambrian-backed signals (`social_sentiment_surge`,
+  `social_sentiment_capitulation`, `social_crowd_bullish`, `social_crowd_cooling`,
+  `social_price_divergence` in the `social`
   category; `holder_growth_trend`, `whale_share_divergence` in `onchain`, Solana tokens only). They
   need no client-side data: the server attaches their columns in live evaluation and backtests, while
   `signals.evaluate` needs caller-supplied columns.
 - New example `examples/cambrian_signals_demo.py`: lists the signals by category, then builds and
-  backtests a strategy that uses `social_crowd_bullish` as a filter, through existing methods only.
+  backtests a strategy that uses `social_crowd_cooling` as a filter, through existing methods only.
 - No new method, model or endpoint, and no contract change.
 
 ### Python client contract repair (issue 66)

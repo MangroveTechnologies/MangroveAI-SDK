@@ -1,24 +1,24 @@
 """Cambrian social and holder signals demo: discover the signals, then backtest one.
 
-Six signals read Cambrian data: four in the ``social`` category (Deep42 sentiment) and
+Seven signals read Cambrian data: five in the ``social`` category (Deep42 sentiment) and
 two in the ``onchain`` category (Solana holder distribution). This example needs no
 Cambrian data on your side. The server attaches the columns the signals read, in live
 evaluation and in backtests, so the strategy below is built and backtested through the
 same SDK methods as any other.
 
 Sections:
-    1. List the six signals by category (``social`` and ``onchain``).
+    1. List the seven signals by category (``social`` and ``onchain``).
     2. Read one signal's metadata: the columns it requires and its parameters.
-    3. Build a strategy that enters on an RSI trigger and uses ``social_crowd_bullish``
+    3. Build a strategy that enters on an RSI trigger and uses ``social_crowd_cooling``
        as a FILTER, then backtest it.
 
 Notes:
     * The holder signals (``holder_growth_trend``, ``whale_share_divergence``) work on
-      Solana tokens only. ``social_crowd_bullish`` reads Deep42 sentiment, so pick an
+      Solana tokens only. ``social_crowd_cooling`` reads Deep42 sentiment, so pick an
       asset Deep42 covers. Change ``SYMBOL`` if your asset is not covered.
     * A bar sees only values already known when the bar closes, in a backtest as in
       live evaluation. Deep42 buckets are daily, so the demo uses daily bars.
-    * If the server's Cambrian data source is off, the catalogue marks the six signals
+    * If the server's Cambrian data source is off, the catalogue marks the seven signals
       non-composable and a strategy built on them never fires. Section 3 then reports
       zero trades.
 
@@ -40,12 +40,13 @@ from mangrove_ai.models import BacktestRequest, CreateStrategyRequest
 
 SYMBOL = "BTC"
 
-# The six Cambrian-backed signals, by category.
+# The seven Cambrian-backed signals, by category.
 CAMBRIAN_SIGNALS = {
     "social": [
         "social_sentiment_surge",
         "social_sentiment_capitulation",
         "social_crowd_bullish",
+        "social_crowd_cooling",
         "social_price_divergence",
     ],
     "onchain": [
@@ -65,7 +66,7 @@ def main() -> None:
 
     client = MangroveAI()  # env auto-detected from the key prefix; prod by default
 
-    # 1. The six signals, by category ----------------------------------------------
+    # 1. The seven signals, by category ----------------------------------------------
     _hdr("signals.list(category=...) -- the Cambrian-backed signals")
     composable = True
     for category, names in CAMBRIAN_SIGNALS.items():
@@ -85,8 +86,8 @@ def main() -> None:
                 print(f"      non-composable: {getattr(s, 'reason', None)}")
 
     # 2. One signal's metadata -----------------------------------------------------
-    _hdr("signals.get('social_crowd_bullish')")
-    crowd = client.signals.get("social_crowd_bullish")
+    _hdr("signals.get('social_crowd_cooling')")
+    crowd = client.signals.get("social_crowd_cooling")
     print(f"  {crowd.metadata.description if crowd.metadata else ''}")
     print(f"  params: {crowd.metadata.params if crowd.metadata else None}")
 
@@ -95,18 +96,18 @@ def main() -> None:
         client.close()
         return
 
-    # 3. Build and backtest a strategy with social_crowd_bullish as a filter -------
-    _hdr(f"Strategy: RSI oversold trigger + social_crowd_bullish filter on {SYMBOL}")
+    # 3. Build and backtest a strategy with social_crowd_cooling as a filter -------
+    _hdr(f"Strategy: RSI oversold trigger + social_crowd_cooling filter on {SYMBOL}")
     entry = [
         {"name": "rsi_oversold", "signal_type": "TRIGGER", "timeframe": "1d",
          "params": {"window": 14, "threshold": 30}},
-        {"name": "social_crowd_bullish", "signal_type": "FILTER", "timeframe": "1d",
+        {"name": "social_crowd_cooling", "signal_type": "FILTER", "timeframe": "1d",
          "params": {"window": 7, "window_baseline": 60, "margin": 0.0}},
     ]
     strategy = client.strategies.create(CreateStrategyRequest(
-        name="SDK Demo - RSI dip with bullish crowd",
+        name="SDK Demo - RSI dip with a cooling crowd",
         asset=SYMBOL,
-        description="Buys an RSI oversold dip only while recent posts lean more bullish than the asset's norm",
+        description="Buys an RSI oversold dip only while recent posts lean no more bullish than the asset's norm",
         entry=entry,
         exit=[],
         reward_factor=2.0,

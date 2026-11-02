@@ -47,9 +47,8 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     const lock = JSON.parse(readFileSync('packages/typescript/package-lock.json', 'utf8'));
     const artifact = JSON.parse(readFileSync(process.env.RELEASE_ARTIFACT, 'utf8'));
     const archive = readFileSync(join(dirname(process.env.RELEASE_ARTIFACT), artifact.filename));
-    const transport = githubReleaseTransport(process.env.GITHUB_TOKEN);
     const result = await completeTypeScriptRelease({ manifest, lock, version: process.env.EXPECTED_VERSION, artifact, dryRun, publishedSuccessfully, acceptedUpload: process.env.UPLOAD_ACCEPTED === 'true',
-      finalize: () => ensureGitHubTypeScriptRelease({ artifact, archive, ...transport }),
+      finalize: () => ensureGitHubTypeScriptRelease({ artifact, archive, ...githubReleaseTransport(process.env.GITHUB_TOKEN) }),
       deprecate: (target, message) => execFileSync('npm', ['deprecate', target, message, '--registry=https://registry.npmjs.org'], { cwd: 'packages/typescript', stdio: 'inherit' }),
     });
     console.log(JSON.stringify(result));

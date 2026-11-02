@@ -43,6 +43,13 @@ def test_python_reads_canonical_schema_and_nested_glossary_in_one_explicit_call(
     assert metadata.fields["short_window_bars"].type == "int"
     assert metadata.metadata_fields is not None
     assert metadata.metadata_fields["cadence_reference"].type == "str"
+    assert result.defaults["cooldown_model"] == "trades"
+    breaker = result.param_glossary["circuit_breaker"]
+    assert breaker.fields_shape == "object"
+    assert breaker.additional_properties is False
+    assert set(breaker.fields) == set(result.defaults["circuit_breaker"])
+    assert breaker.fields["consecutive_loss_limit"].type == "int"
+    assert breaker.fields["loss_amount_pct"].min_exclusive is True
 
 
 def test_older_receiver_without_additive_schema_or_nested_metadata_still_parses():
@@ -71,7 +78,16 @@ def test_generated_type_uses_canonical_fields_with_a_legacy_transport_escape_hat
     assert '"max_risk_per_trade"?: number | null;' in normalized
     assert '"short_window_bars": number;' in normalized
     assert '"short_cooldown_bars"?: number;' in normalized
+    assert '"cooldown_model"?: "bars" | "trades" | null;' in normalized
+    assert '"consecutive_loss_limit"?: number;' in normalized
     assert normalized != "unknown"
+
+
+def test_nullable_object_keeps_its_null_branch_in_generated_authoring_types():
+    schema_type = runpy.run_path(str(ROOT / "scripts/generate_typescript_contract.py"))["schema_type"]
+    value = {"type": ["object", "null"], "properties": {"limit": {"type": "integer"}},
+             "additionalProperties": False}
+    assert schema_type(value, "Models") == '{ "limit"?: number; } | null'
 
 
 @pytest.mark.parametrize("metadata", [False, {"type": "integer"}])

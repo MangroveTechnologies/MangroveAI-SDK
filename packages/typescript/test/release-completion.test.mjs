@@ -148,3 +148,11 @@ test('metadata processing cannot grant the archive another ten-minute budget', a
   await assert.rejects(completeTypeScriptRelease({ ...args, acceptedUpload: true, now: () => clock, wait: async ms => { clock += ms; } }), /visibility/);
   assert.equal(clock, 600000); assert.equal(archiveReads, 1);
 });
+
+test('a resumed release leaves versions that already carry the exact notice alone', async () => {
+  const calls = [];
+  const notices = { '@mangrove-ai/sdk@0.1.2': MIGRATION_NOTICE, '@mangrove-ai/sdk@0.2.0': 'an older notice', '@mangrove-ai/sdk@0.3.0': '' };
+  const result = await completeTypeScriptRelease({ ...fixture(), currentNotice: async target => notices[target], deprecate: async target => { calls.push(target); } });
+  assert.deepEqual(calls, ['@mangrove-ai/sdk@0.2.0', '@mangrove-ai/sdk@0.3.0']);
+  assert.deepEqual(result.deprecated, ['@mangrove-ai/sdk@0.1.2', '@mangrove-ai/sdk@0.2.0', '@mangrove-ai/sdk@0.3.0']);
+});

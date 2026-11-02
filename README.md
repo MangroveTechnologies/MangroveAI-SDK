@@ -1,9 +1,44 @@
-# MangroveAI Python SDK
+# MangroveAI SDKs: Python and TypeScript
 
 [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white&style=for-the-badge)](https://discord.gg/xUcn4R6zJR)
 [![PyPI Downloads](https://static.pepy.tech/badge/mangroveai)](https://pepy.tech/projects/mangroveai)
 
-Python SDK for the [MangroveAI](https://mangrovedeveloper.ai) trading strategy platform.
+Python and TypeScript clients for the public [MangroveAI](https://mangrovedeveloper.ai)
+services. Choose the client for your product and language; the Markets SDK is a
+separate product, not the TypeScript version of this API.
+
+## Choose a client
+
+| Product and language | Registry package | Import | Guide |
+|---|---|---|---|
+| MangroveAI Python | PyPI `mangroveai` | `from mangrove_ai import MangroveAI` | [Python install](#install) |
+| MangroveAI TypeScript / Node.js 20+ | npm identity `@mangrove-ai/client` | `import { MangroveAI } from '@mangrove-ai/client'` | [TypeScript SDK guide](packages/typescript/README.md) |
+| MangroveMarkets TypeScript | npm `@mangrove-ai/sdk` | `import { MangroveClient } from '@mangrove-ai/sdk'` | [Markets SDK guide](https://github.com/MangroveTechnologies/MangroveMarkets/tree/main/packages/sdk) |
+
+**Release status checked 2026-11-01:** Python `mangroveai` 2.1.0 is published on
+[PyPI](https://pypi.org/project/mangroveai/2.1.0/). MangroveAI TypeScript
+`@mangrove-ai/client` 0.1.0 is implemented here but is not published on npm at this
+checkpoint. Use a reviewed local tarball as shown in its guide, not
+`@mangrove-ai/sdk` as a substitute. See the [dated release handoff](docs/issue-66-release-handoff.md)
+for publication evidence and remaining rollout boundaries.
+
+The TypeScript client has named `users`, `signals`, `strategyWorkflow` and
+`backtesting` helpers plus a generic typed `request(operation, options)` surface.
+The current public contract classifies 264 method/path operations across core
+and Oracle proxy REST, including 10 v2 operations; this is generated declaration
+coverage, not live endpoint acceptance. Of these, 261 use JSON/no-content, one
+requires a separate redirect flow and two require a streaming/non-JSON client.
+It is not a drop-in copy of Python's service methods. It does not supply MCP/OAuth
+discovery, the separate legacy KB-host client, x402 signing or SSE consumption.
+See the [operation classification](contracts/mangroveai/coverage.json).
+
+Credentials and base URLs belong to the selected product. When using both AI
+and Markets clients, pass separately configured credentials and URLs explicitly;
+do not assume their keys are interchangeable or share one `MANGROVE_BASE_URL`.
+Python AI expects a versioned `/api/v1` base, Python Markets expects an origin,
+and AI TypeScript accepts an origin or a versioned base. The SDKs carry requests
+and preserve Mangrove decisions; Mangrove owns deterministic risk management
+based on live market and account conditions.
 
 ## Install
 
@@ -50,6 +85,8 @@ supported for compatibility; use `load_dotenv=False` to disable file discovery.
 
 ## First API call
 
+### Python
+
 ```python
 from mangrove_ai import MangroveAI
 
@@ -64,10 +101,30 @@ create a strategy or launch a backtest. The SDK surfaces 401, 402, 403, 429 and
 503 as typed errors, including available retry and correlation fields. It does
 not purchase access or pay automatically.
 
-Python SDK 2.1.0 is published on [PyPI](https://pypi.org/project/mangroveai/2.1.0/).
-The TypeScript client remains a separate, unpublished package. Package publication
-does not deploy the API; see [the release handoff](docs/issue-66-release-handoff.md)
-for the verified release status and remaining rollout boundaries.
+### TypeScript
+
+Install the reviewed package as described in the [TypeScript guide](packages/typescript/README.md),
+then use its public ESM import:
+
+```typescript
+import { MangroveAI } from '@mangrove-ai/client';
+
+const client = new MangroveAI({
+  apiKey: process.env.MANGROVE_API_KEY,
+  timeoutMs: 15_000,
+});
+const metrics = await client.users.getMyMetrics();
+console.log({ messages: metrics.messages_count });
+```
+
+This makes the same single usage read with no automatic retry or payment. For
+`dev_` and `test_` keys, configure the intended AI base URL explicitly; see each
+language guide for its format. Keep keys in private server-side configuration,
+not source, browser bundles or prompts. Publication does not deploy an API.
+
+The remaining examples and service reference below describe the Python SDK;
+use the [TypeScript guide](packages/typescript/README.md) for its helper and generic
+request interfaces.
 
 ## Quickstart
 

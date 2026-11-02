@@ -1,6 +1,32 @@
-# MangroveAI Python SDK
+# MangroveAI SDKs: Python and TypeScript
 
-Python SDK for the MangroveAI HTTP API (strategies, signals, backtests, oracle, copilot, etc.). Published to PyPI as `mangroveai`. Source lives at `src/mangrove_ai/`.
+This repository contains clients for the public MangroveAI services in both
+languages. Keep their package identities and capabilities distinct:
+
+- Python: PyPI `mangroveai`, import `from mangrove_ai import MangroveAI`, source
+  `src/mangrove_ai/`. Python 2.1.0 is published; see the dated release handoff.
+- TypeScript: npm identity `@mangrove-ai/client`, import
+  `import { MangroveAI } from '@mangrove-ai/client'`, source `packages/typescript/`.
+  Read [its guide](packages/typescript/README.md) and the [dated release status](docs/issue-66-release-handoff.md)
+  before claiming registry availability. At the 2026-11-01 checkpoint, 0.1.0 is
+  implemented but unpublished; reviewed local tarballs are supported for evaluation.
+- `@mangrove-ai/sdk` is the separate MangroveMarkets client, not this API's
+  TypeScript package. Do not rename, alias or repurpose either package.
+
+TypeScript provides named `users`, `signals`, `strategyWorkflow` and `backtesting`
+helpers and a generated generic `request(operation, options)` surface, not
+Python method parity. The pinned public classification contains 264 core/Oracle
+proxy method/path operations including 10 v2: 261 JSON/no-content, one separate
+redirect flow and two streaming/non-JSON operations. Counts describe declarations,
+not authenticated live coverage. MCP/OAuth discovery, the separate legacy KB
+host, x402 signing and SSE consumption are outside this JSON client.
+
+Do not export private Oracle contracts. Mangrove owns deterministic risk
+management based on live market and account conditions; clients preserve its
+decisions and audit results rather than inventing their own enforcement. Keep
+product-specific credentials and base URLs separate. Python AI expects `/api/v1`,
+Python Markets expects an origin, and AI TypeScript accepts an origin or versioned
+base; do not encourage one shared `MANGROVE_BASE_URL` across products.
 
 Sibling repos:
 - `MangroveAI` — the backend whose HTTP API this SDK wraps. Not to be confused with this SDK.

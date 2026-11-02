@@ -20,6 +20,15 @@ passed contract generation, type checking, tests and package checks, then stoppe
 because the effective `NPM_TOKEN` was empty. A maintainer must configure a
 publisher credential with access to that package before retrying publication.
 
+A fresh public registry readback on 2026-11-01 confirms Python `mangroveai`
+2.1.0 exists, npm `@mangrove-ai/client` returns 404, and the separate Markets
+package `@mangrove-ai/sdk` has latest version 0.3.0. These are dated observations,
+not permanent package properties or evidence that an unclaimed name is reserved.
+The MangroveAI TypeScript implementation remains version 0.1.0 in this repo.
+Its 264 generated method/path keys include 10 v2 operations, with named helpers
+for users, signals, strategy workflow and backtesting; it is not Python helper
+parity. Registry publication and its installed-artifact readback remain separate.
+
 Publication does not establish that the API revision is deployed, that a live
 business request succeeds, or that an installed client has updated. The original
 repair/release-preparation record below is historical; its 2.0.0 version and

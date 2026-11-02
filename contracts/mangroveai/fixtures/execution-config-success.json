@@ -1,6 +1,17 @@
 {
   "defaults": {
     "atr_period": 14,
+    "circuit_breaker": {
+      "consecutive_loss_limit": 4,
+      "drawdown_pause_bars": 72,
+      "loss_amount_pct": 0.06,
+      "max_consecutive_pauses": 3,
+      "pause_bars": 36,
+      "pause_max_days": 14,
+      "pause_min_hours": 24,
+      "resume_size_fraction": 0.5,
+      "resume_trades": 3
+    },
     "cooldown_bars": 24,
     "cooldown_config": {
       "15m": {
@@ -52,6 +63,7 @@
         "short_window_bars": 180
       }
     },
+    "cooldown_model": "trades",
     "daily_momentum_limit": 3,
     "enable_volatility_adjustment": false,
     "exit_on_loss_after_bars": 1000,
@@ -147,6 +159,110 @@
         "x-mangrove-input-coercion": "Top-level validate_execution_config accepts finite numeric strings; integer fields require whole values. Version-specific checks remain separate.",
         "x-mangrove-status": "superseded",
         "x-mangrove-superseded-by": "volatility_tolerance"
+      },
+      "circuit_breaker": {
+        "additionalProperties": false,
+        "default": {
+          "consecutive_loss_limit": 4,
+          "drawdown_pause_bars": 72,
+          "loss_amount_pct": 0.06,
+          "max_consecutive_pauses": 3,
+          "pause_bars": 36,
+          "pause_max_days": 14,
+          "pause_min_hours": 24,
+          "resume_size_fraction": 0.5,
+          "resume_trades": 3
+        },
+        "description": "Parameters for cooldown_model 'trades': pause on consecutive net losses or accumulated loss amount, pause on marked drawdown from the peak (including unrealized changes), resume new alpha positions at a reduced size, and stop after consecutive pauses. Canon defaults are 36 primary bars for a loss pause, 72 for a drawdown pause, and three strikes for a permanent halt. Pause counts are clamped to 24 hours through 14 days by default. max_drawdown_halt_limit separately stops entries on realized loss of cumulative gross deposits. Existing exits remain active during holds.",
+        "properties": {
+          "consecutive_loss_limit": {
+            "default": 4,
+            "description": "Consecutive losing closes on an asset that start a pause. A winning close resets the count.",
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer",
+            "x-mangrove-effect": "Lower pauses sooner after a losing run; higher tolerates longer runs.",
+            "x-mangrove-status": "tunable"
+          },
+          "drawdown_pause_bars": {
+            "default": 72,
+            "description": "Primary-timeframe bars denying entries after a drawdown pause (canon default 72). At drawdown-pause expiry the peak re-baselines to current account value. An alpha resume window opens only once no pause remains and no permanent halt is latched. The count is raised to cover pause_min_hours and lowered to fit pause_max_days (24 hours through 14 days by default).",
+            "maximum": 8760,
+            "minimum": 1,
+            "type": "integer",
+            "x-mangrove-effect": "Longer holds the pause longer before trading can resume.",
+            "x-mangrove-status": "tunable"
+          },
+          "loss_amount_pct": {
+            "default": 0.06,
+            "description": "Accumulated net losses as a fraction of the closed-equity reset baseline that start a loss pause. A winning close clears the accumulation and resets the baseline. An asset loss pause clears it at the start and re-baselines at expiry; a global drawdown pause does not itself reset it.",
+            "exclusiveMinimum": 0.0,
+            "maximum": 1.0,
+            "type": "number",
+            "x-mangrove-effect": "Lower pauses after smaller cumulative losses; higher tolerates larger ones.",
+            "x-mangrove-status": "tunable"
+          },
+          "max_consecutive_pauses": {
+            "default": 3,
+            "description": "Strikes that stop the strategy until a manual restart. A strike is one pause started, of any kind (consecutive losses, loss amount, drawdown, a resume window that lost money). Strikes reset to 0 only on a new equity high: a close that leaves closed equity above the high-water mark the strategy had when the first strike of the run was recorded. A winning close below that mark does not reset them, and a deposit or withdrawal does not count as a high.",
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer",
+            "x-mangrove-effect": "Lower stops the strategy sooner; higher tolerates more repeated pauses.",
+            "x-mangrove-status": "tunable"
+          },
+          "pause_bars": {
+            "default": 36,
+            "description": "Primary-timeframe bars denying entries after a loss pause (canon default 36). The count is raised to cover pause_min_hours and lowered to fit pause_max_days on that timeframe (24 hours through 14 days by default).",
+            "maximum": 8760,
+            "minimum": 1,
+            "type": "integer",
+            "x-mangrove-effect": "Longer sits out more of a bad regime; shorter resumes sooner.",
+            "x-mangrove-status": "tunable"
+          },
+          "pause_max_days": {
+            "default": 14,
+            "description": "A pause lasts at most this many days on every timeframe: the bar count is lowered to fit it.",
+            "exclusiveMinimum": 0.0,
+            "maximum": 365,
+            "type": "number",
+            "x-mangrove-effect": "Lower ends every pause sooner on long timeframes; higher leaves the bar count to decide.",
+            "x-mangrove-status": "tunable"
+          },
+          "pause_min_hours": {
+            "default": 24,
+            "description": "A pause lasts at least this many hours on every timeframe: the bar count of pause_bars or drawdown_pause_bars is raised to cover it.",
+            "exclusiveMinimum": 0.0,
+            "maximum": 336,
+            "type": "number",
+            "x-mangrove-effect": "Higher makes every pause at least that long on short timeframes; lower leaves the bar count to decide.",
+            "x-mangrove-status": "tunable"
+          },
+          "resume_size_fraction": {
+            "default": 0.5,
+            "description": "Fraction of normal size for new alpha positions while a resume window is open (canon default 0.5). Eligible confirmed position closes count toward resume_trades; a negative net result starts another loss pause and strike, while zero or a profit restores full alpha size. Core orders keep their normal allocation quantities after pause expiry: they are not positions and do not consume resume-trade counts. 1.0 disables the alpha size reduction.",
+            "exclusiveMinimum": 0.0,
+            "maximum": 1.0,
+            "type": "number",
+            "x-mangrove-effect": "Lower risks less while the strategy proves itself again after a pause; higher resumes closer to full size.",
+            "x-mangrove-status": "tunable"
+          },
+          "resume_trades": {
+            "default": 3,
+            "description": "Eligible confirmed position closes booked in a resume window (canon default three). When the window completes, a negative net realized result starts a new loss pause and strike; zero or a profit restores full alpha size. A pause cancels the active window; a new one opens only once no pause remains and no permanent halt is latched. Core orders do not count as position closes.",
+            "maximum": 50,
+            "minimum": 1,
+            "type": "integer",
+            "x-mangrove-effect": "Higher judges the resumed strategy over more trades before full size returns; lower decides sooner.",
+            "x-mangrove-status": "tunable"
+          }
+        },
+        "type": [
+          "object",
+          "null"
+        ],
+        "x-mangrove-effect": "Tighter limits pause and stop sooner; looser limits keep trading through losing runs.",
+        "x-mangrove-status": "guardrail"
       },
       "cooldown_bars": {
         "default": 24,
@@ -790,6 +906,21 @@
         },
         "x-mangrove-status": "tunable"
       },
+      "cooldown_model": {
+        "default": "trades",
+        "description": "Loss-streak breaker model. 'bars' counts losing closes inside rolling windows of the primary timeframe (cooldown_config). 'trades' counts consecutive losing closes and realized loss amount, pauses for circuit_breaker bars of the primary timeframe (at least pause_min_hours and at most pause_max_days), and stops after repeated pauses (circuit_breaker). An absent model adopts the canonical 'trades' defaults; explicit 'bars' retains the legacy model.",
+        "enum": [
+          "bars",
+          "trades",
+          null
+        ],
+        "type": [
+          "string",
+          "null"
+        ],
+        "x-mangrove-effect": "'trades' trips on trade count and loss size regardless of how far apart trades are spaced; 'bars' trips only when losses land inside the window. cooldown_config is ignored under 'trades'.",
+        "x-mangrove-status": "guardrail"
+      },
       "daily_momentum_limit": {
         "default": 3,
         "description": "Daily momentum-based trade limit.",
@@ -854,27 +985,27 @@
       },
       "max_drawdown_halt_limit": {
         "default": 0.2,
-        "description": "HARD capital-floor kill switch (0.20 = 20%). Distinct from max_drawdown_limit: measured from the strategy's INITIAL DEPLOYED CAPITAL (initial_balance, fixed at creation), not a rolling peak, on CLOSED (realized) equity, checked before each bar. Live (the eval service, single and bulk): once realized losses reach this fraction of deployed capital, new entries are denied that bar AND the strategy status flips to 'inactive' so it stops ticking -- a ONE-WAY halt that requires the user to MANUALLY restart the strategy (unlike the auto-resuming max_drawdown_limit); exits still run on the breach bar and the halt reason is recorded in execution_state.halt. Backtest: enforced only when the caller passes enforce_capital_floor=True to managers.services.evaluate_bar; from the breach bar to the end of the run no new entries are placed, open positions keep exiting via their own stops and exit rules (nothing is force-closed), and the halt record is on risk_manager.halt. null disables the floor.",
+        "description": "Permanent capital-floor entry halt (0.20 = 20%). Closed, realized equity is compared with cumulative gross deposits (execution_state.cumulative_deposits), not a rolling peak or the signed net-funding balance; withdrawals do not reduce this reference. Legacy requests without cumulative_deposits use execution_config.initial_balance. The shared live/paper evaluator checks before each bar and latches execution_state.halt. New alpha entries and v3 core allocations are denied, while authoritative positions retain protective exits and exits_pending until physically flat. Engine-owned strategies become inactive only after that book is flat; caller-owned executors retain their exit monitor. An explicit manual restart is required to clear the latch. Backtests enforce the same floor when evaluate_bar receives enforce_capital_floor=True, managing open-position exits through the final bar. Applies to both cooldown models; null disables new floor trips, while an existing halt remains latched.",
         "exclusiveMinimum": 0.0,
         "maximum": 1.0,
         "type": [
           "number",
           "null"
         ],
-        "x-mangrove-effect": "The absolute stop-loss on deployed capital. Lower protects more capital but ends the strategy sooner; higher tolerates a deeper loss before the one-way halt. Not a sizing knob. Where it is enforced (live eval always; backtests with enforce_capital_floor=True), do not build a separate floor.",
+        "x-mangrove-effect": "Lower protects more of gross deposited capital before a permanent entry halt; higher tolerates a deeper realized loss. This does not resize positions or stop protective exit evaluation. Do not add a separate floor where the shared evaluator enforces it.",
         "x-mangrove-input-coercion": "Top-level validate_execution_config accepts finite numeric strings; integer fields require whole values. Version-specific checks remain separate.",
         "x-mangrove-status": "guardrail"
       },
       "max_drawdown_limit": {
         "default": 0.2,
-        "description": "SOFT max-drawdown circuit breaker (0.20 = 20%). A binary halt: once CLOSED (realized) equity draws down this far from its high-water mark, the risk manager denies all new entries (last_denial_reason='max_drawdown'). Peak-relative and measured on closed equity (an unrealized round-trip does NOT trip it). On trip it latches a cooldown equal to the strategy's per-timeframe long cooldown bars; existing positions still exit during that window, and when the cooldown expires the high-water mark re-baselines to current equity so the strategy AUTO-RESUMES from a clean slate (it does NOT stay halted forever, even when flat). null disables the breaker.",
+        "description": "Peak-relative entry pause (0.20 = 20%). The canonical 'trades' model measures marked equity against its high-water mark. A breach starts one drawdown pause and strike; circuit_breaker.drawdown_pause_bars defaults to 72 primary bars, clamped to pause_min_hours and pause_max_days (24 hours and 14 days by default). At drawdown-pause expiry the peak re-baselines; a reduced-size alpha resume window opens only once no pause remains and no permanent halt is latched. Explicit 'bars' retains the legacy closed-equity measurement and per-timeframe long cooldown. Both models deny new entries while allowing existing positions to exit; automatic v3 core allocations honor the hold too. null disables new drawdown trips.",
         "exclusiveMinimum": 0.0,
         "maximum": 1.0,
         "type": [
           "number",
           "null"
         ],
-        "x-mangrove-effect": "Lower halts new entries sooner on a losing run (safer, but can sit out a recovery); higher lets the strategy draw down further before stopping. This is a safety backstop, not a strategy-character knob -- it does NOT resize positions. Enforced by RiskManager.can_place_trade whenever the RiskManager is built with this limit: the live eval service (single and bulk) always builds it that way; a backtest enforces it only when its RiskManager is built with managers.services.risk_manager_from_execution_config (or otherwise given max_drawdown_limit). Where it is enforced, do not build a separate drawdown stop.",
+        "x-mangrove-effect": "Lower pauses entries after a smaller drawdown; higher tolerates a deeper drawdown. The shared entry breaker enforces this in single/bulk live and paper evaluation, v3 core allocation and backtests built with risk_manager_from_execution_config. Alpha resume sizing is a separate control; do not add a second drawdown stop.",
         "x-mangrove-input-coercion": "Top-level validate_execution_config accepts finite numeric strings; integer fields require whole values. Version-specific checks remain separate.",
         "x-mangrove-status": "guardrail"
       },
@@ -1214,6 +1345,92 @@
     "x-mangrove-boundary-validation": "top-level numeric bounds after legacy coercion; null means unset"
   },
   "param_glossary": {
+    "circuit_breaker": {
+      "additional_properties": false,
+      "description": "Parameters for cooldown_model 'trades': pause on consecutive net losses or accumulated loss amount, pause on marked drawdown from the peak (including unrealized changes), resume new alpha positions at a reduced size, and stop after consecutive pauses. Canon defaults are 36 primary bars for a loss pause, 72 for a drawdown pause, and three strikes for a permanent halt. Pause counts are clamped to 24 hours through 14 days by default. max_drawdown_halt_limit separately stops entries on realized loss of cumulative gross deposits. Existing exits remain active during holds.",
+      "effect": "Tighter limits pause and stop sooner; looser limits keep trading through losing runs.",
+      "fields": {
+        "consecutive_loss_limit": {
+          "description": "Consecutive losing closes on an asset that start a pause. A winning close resets the count.",
+          "effect": "Lower pauses sooner after a losing run; higher tolerates longer runs.",
+          "max": 100,
+          "min": 1,
+          "status": "tunable",
+          "type": "int"
+        },
+        "drawdown_pause_bars": {
+          "description": "Primary-timeframe bars denying entries after a drawdown pause (canon default 72). At drawdown-pause expiry the peak re-baselines to current account value. An alpha resume window opens only once no pause remains and no permanent halt is latched. The count is raised to cover pause_min_hours and lowered to fit pause_max_days (24 hours through 14 days by default).",
+          "effect": "Longer holds the pause longer before trading can resume.",
+          "max": 8760,
+          "min": 1,
+          "status": "tunable",
+          "type": "int"
+        },
+        "loss_amount_pct": {
+          "description": "Accumulated net losses as a fraction of the closed-equity reset baseline that start a loss pause. A winning close clears the accumulation and resets the baseline. An asset loss pause clears it at the start and re-baselines at expiry; a global drawdown pause does not itself reset it.",
+          "effect": "Lower pauses after smaller cumulative losses; higher tolerates larger ones.",
+          "max": 1.0,
+          "min": 0.0,
+          "min_exclusive": true,
+          "status": "tunable",
+          "type": "float"
+        },
+        "max_consecutive_pauses": {
+          "description": "Strikes that stop the strategy until a manual restart. A strike is one pause started, of any kind (consecutive losses, loss amount, drawdown, a resume window that lost money). Strikes reset to 0 only on a new equity high: a close that leaves closed equity above the high-water mark the strategy had when the first strike of the run was recorded. A winning close below that mark does not reset them, and a deposit or withdrawal does not count as a high.",
+          "effect": "Lower stops the strategy sooner; higher tolerates more repeated pauses.",
+          "max": 100,
+          "min": 1,
+          "status": "tunable",
+          "type": "int"
+        },
+        "pause_bars": {
+          "description": "Primary-timeframe bars denying entries after a loss pause (canon default 36). The count is raised to cover pause_min_hours and lowered to fit pause_max_days on that timeframe (24 hours through 14 days by default).",
+          "effect": "Longer sits out more of a bad regime; shorter resumes sooner.",
+          "max": 8760,
+          "min": 1,
+          "status": "tunable",
+          "type": "int"
+        },
+        "pause_max_days": {
+          "description": "A pause lasts at most this many days on every timeframe: the bar count is lowered to fit it.",
+          "effect": "Lower ends every pause sooner on long timeframes; higher leaves the bar count to decide.",
+          "max": 365,
+          "min": 0.0,
+          "min_exclusive": true,
+          "status": "tunable",
+          "type": "float"
+        },
+        "pause_min_hours": {
+          "description": "A pause lasts at least this many hours on every timeframe: the bar count of pause_bars or drawdown_pause_bars is raised to cover it.",
+          "effect": "Higher makes every pause at least that long on short timeframes; lower leaves the bar count to decide.",
+          "max": 336,
+          "min": 0.0,
+          "min_exclusive": true,
+          "status": "tunable",
+          "type": "float"
+        },
+        "resume_size_fraction": {
+          "description": "Fraction of normal size for new alpha positions while a resume window is open (canon default 0.5). Eligible confirmed position closes count toward resume_trades; a negative net result starts another loss pause and strike, while zero or a profit restores full alpha size. Core orders keep their normal allocation quantities after pause expiry: they are not positions and do not consume resume-trade counts. 1.0 disables the alpha size reduction.",
+          "effect": "Lower risks less while the strategy proves itself again after a pause; higher resumes closer to full size.",
+          "max": 1.0,
+          "min": 0.0,
+          "min_exclusive": true,
+          "status": "tunable",
+          "type": "float"
+        },
+        "resume_trades": {
+          "description": "Eligible confirmed position closes booked in a resume window (canon default three). When the window completes, a negative net realized result starts a new loss pause and strike; zero or a profit restores full alpha size. A pause cancels the active window; a new one opens only once no pause remains and no permanent halt is latched. Core orders do not count as position closes.",
+          "effect": "Higher judges the resumed strategy over more trades before full size returns; lower decides sooner.",
+          "max": 50,
+          "min": 1,
+          "status": "tunable",
+          "type": "int"
+        }
+      },
+      "fields_shape": "object",
+      "status": "guardrail",
+      "type": "object"
+    },
     "cooldown_config": {
       "description": "Per-timeframe loss-streak cooldown windows (short/long loss limits and cooldown bar counts).",
       "fields": {
@@ -1268,6 +1485,16 @@
       ],
       "status": "tunable",
       "type": "object"
+    },
+    "cooldown_model": {
+      "choices": [
+        "bars",
+        "trades"
+      ],
+      "description": "Loss-streak breaker model. 'bars' counts losing closes inside rolling windows of the primary timeframe (cooldown_config). 'trades' counts consecutive losing closes and realized loss amount, pauses for circuit_breaker bars of the primary timeframe (at least pause_min_hours and at most pause_max_days), and stops after repeated pauses (circuit_breaker). An absent model adopts the canonical 'trades' defaults; explicit 'bars' retains the legacy model.",
+      "effect": "'trades' trips on trade count and loss size regardless of how far apart trades are spaced; 'bars' trips only when losses land inside the window. cooldown_config is ignored under 'trades'.",
+      "status": "guardrail",
+      "type": "str"
     }
   },
   "percent_scale_note": "Synthetic offline fixture; percent metrics use 0-100.",

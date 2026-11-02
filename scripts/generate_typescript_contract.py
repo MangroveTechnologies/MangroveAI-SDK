@@ -49,7 +49,7 @@ def schema_type(schema, namespace, authoring_aliases=None):
             return " | ".join(schema_type({**schema, "type": item}, namespace, authoring_aliases) for item in kind)
         if kind == "array":
             result = "Array<" + schema_type(schema.get("items", {}), namespace, authoring_aliases) + ">"
-        elif kind == "object" or "properties" in schema:
+        elif kind == "object" or (kind is None and "properties" in schema):
             required = schema.get("required", [])
             properties = [
                 f"{literal(key)}{'' if key in required else '?'}: {schema_type(value, namespace, authoring_aliases)};"

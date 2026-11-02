@@ -39,6 +39,26 @@ void invalidNormalized;
 // @ts-expect-error All four actual engine entry fields are required, including for aliases.
 const missingCooldown: ExecutionConfiguration = { cooldown_config: { '1D': { short_window_bars: 1 } } };
 void missingCooldown;
+
+const tradeBreaker: ExecutionConfiguration = {
+  cooldown_model: 'trades',
+  circuit_breaker: { consecutive_loss_limit: 2, resume_size_fraction: 0.5 },
+};
+const legacyBreaker: ExecutionConfiguration = { cooldown_model: 'bars', circuit_breaker: null };
+void tradeBreaker;
+void legacyBreaker;
+// @ts-expect-error The canonical model is a declared choice, not an arbitrary string.
+const invalidModel: ExecutionConfiguration = { cooldown_model: 'invented' };
+// @ts-expect-error Normalized breaker counts are numbers, not numeric strings.
+const invalidBreakerCount: ExecutionConfiguration = { circuit_breaker: { consecutive_loss_limit: '2' } };
+// @ts-expect-error Normalized pause bars are numbers, not numeric strings.
+const invalidPauseBars: ExecutionConfiguration = { circuit_breaker: { pause_bars: '36' } };
+// @ts-expect-error The finite breaker object has no invented knobs.
+const invalidBreakerField: ExecutionConfiguration = { circuit_breaker: { invented_limit: 2 } };
+void invalidModel;
+void invalidBreakerCount;
+void invalidPauseBars;
+void invalidBreakerField;
 // Legacy objects remain accepted by the SDK transport contract; no new local gate.
 void sdk.request('POST /api/v1/strategy-workflow/save_strategy', {
   body: { strategy_name: 'Fixture', asset: 'ETH', constraints: { max_risk_per_trade: '0.01', unknown_legacy: [1, null] } },

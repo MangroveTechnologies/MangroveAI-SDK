@@ -1,13 +1,15 @@
 # TypeScript package migration: MangroveAI and Markets
 
-Naming decision: 2026-11-02. These source changes are not registry publication.
+Naming decision: 2026-11-02. The initial product rename is complete.
+Registry checkpoint: AI 1.1.0 and Markets 0.4.0 are published; this source prepares
+AI 1.2.0, which remains a candidate until its official release is verified.
 
-| Product | Package to use after verified publication | Public import |
+| Product | Published package | Public import |
 |---|---|---|
-| MangroveAI | `@mangrove-ai/sdk` 1.0.0 | `import { MangroveAI } from '@mangrove-ai/sdk'` |
+| MangroveAI | `@mangrove-ai/sdk` 1.1.0 | `import { MangroveAI } from '@mangrove-ai/sdk'` |
 | MangroveMarkets | `@mangrove-ai/markets` 0.4.0 | `import { MangroveClient } from '@mangrove-ai/markets'` |
 
-Python names and versions do not change: `mangroveai` 2.1.0 imports as
+Published Python names: `mangroveai` 2.2.0 imports as
 `mangrove_ai`; `mangrovemarkets` 1.1.1 imports as `mangrove_markets`.
 
 ## Existing Markets applications
@@ -17,16 +19,15 @@ Those artifacts remain historical and are not overwritten. The new AI 1.0.0
 package does not preserve their API, exports, configuration or product semantics.
 Do not upgrade an existing Markets app to `@mangrove-ai/sdk` 1.x.
 
-Once the new Markets package is published and verified, change the dependency to
+For an existing Markets application, change the dependency to
 `@mangrove-ai/markets` 0.4.0 and keep its existing `MangroveClient` import name:
 
 ```typescript
 import { MangroveClient } from '@mangrove-ai/markets';
 ```
 
-Until then, install the reviewed `mangrove-ai-markets-0.4.0.tgz` archive in a test
-consumer using its actual path. Do not treat an unpublished name as available
-from the registry. Pin and inspect package identities in the lockfile. Normal
+For an unpublished future patch, use a reviewed archive until its own registry
+release is verified. Pin and inspect package identities in the lockfile. Normal
 0.x caret ranges do not select 1.0.0, but an unpinned `latest` install can select a
 different major product after publication. There is no cross-product export alias.
 
@@ -34,15 +35,16 @@ different major product after publication. There is no cross-product export alia
 
 The prior `@mangrove-ai/client` 0.1.0 archive was an unpublished review candidate.
 It will not be published or retained as a registry alias. Replace that local
-dependency and import with the reviewed `@mangrove-ai/sdk` 1.0.0 archive, or the
-exact 1.0.0 registry release after its publication is verified:
+dependency and import with the published `@mangrove-ai/sdk` 1.1.0 package, or a reviewed local archive for an
+unpublished candidate:
 
 ```typescript
 import { MangroveAI } from '@mangrove-ai/sdk';
 ```
 
 The AI runtime, public class and generated operation contracts are preserved.
-Its named helpers are `users`, `signals`, `strategyWorkflow` and `backtesting`,
+The 1.2.0 candidate adds `strategies.localDeployment`; published 1.1.0 has named
+`users`, `signals`, `strategyWorkflow` and `backtesting` helpers,
 with generic typed `request` for the reviewed REST declarations. It is not Python
 helper parity or a Markets client. MCP/OAuth discovery, the separate legacy KB
 host, x402 signing and SSE consumption remain separate interfaces. See the
@@ -56,37 +58,40 @@ products or assume their API keys are interchangeable. Mangrove owns determinist
 risk management based on live market and account conditions; SDKs preserve its
 decisions rather than running their own enforcement policy.
 
-## Release order and recovery
+## Current release order and recovery
 
-1. Review and human-merge both source PRs. No package publication follows merely
-   from a source claim, a local tarball or this migration page.
-2. Publish and verify the exact `@mangrove-ai/markets` 0.4.0 artifact from the
-   Markets repository first. Confirm its real `MangroveClient` import and release
-   identity before changing application pins.
-3. From reviewed SDK `main`, use `.github/workflows/typescript-release.yml` with
-   `version=1.0.0`, first `dry_run=true`, then `dry_run=false` for the authorized
-   release. It checks package/lock/repository identity, derives real npm `gitHead`
-   from the normal checkout, and verifies the Markets prerequisite. It publishes
-   only an absent AI version, then downloads the registry archive and checks its
-   SHA512 and SHA-256 against the exact source build.
-4. The native workflow creates or reads back annotated `typescript-v1.0.0`, checks
-   its dereferenced source commit, and creates/verifies the source/checksum-bound
-   GitHub Release and immutable assets. It then applies migration notices only to
-   `@mangrove-ai/sdk@0.1.2`, `@mangrove-ai/sdk@0.2.0` and `@mangrove-ai/sdk@0.3.0`.
-   There is no whole-name deprecation, unpublish or forced tag/asset overwrite.
-5. Verify installed consumers and reference material separately. For a partial
-   release, set `release_commit` to the original full main-ancestor SHA. The
-   current main workflow rebuilds that source and resumes only an exactly
-   matching npm `gitHead`/archive, annotated tag and release/assets. Missing assets
-   can be completed; a conflicting identity stops. Do not invent another version
-   or retag an artifact to work around an uncertain result.
+The first Markets 0.4.0 / AI 1.0.0 product migration is historical and complete;
+there is no need to publish either original version again. The three exact old
+Markets versions keep their migration notices, with already matching notices
+skipped by the AI controller. Never publish `@mangrove-ai/client`.
+
+1. Review the current source candidates, exact-head CI and actual installed
+   artifacts. New local-deployment coverage in Python 2.3.0 / TypeScript 1.2.0
+   requires backend 7.11.0 and its actual serving acceptance first. The independent
+   [SDK PR82](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/82) /
+   [API PR1518](https://github.com/MangroveTechnologies/MangroveAI/pull/1518) default-loss proposal is not part of these candidates.
+2. Human-merge reviewed SDK source. From actual current main, run the native
+   `typescript-release.yml` with `version=1.2.0`, first `dry_run=true`, then
+   authorized publication with `dry_run=false`. Python uses its separate
+   `release.yml` with `version=2.3.0`. Both source versions are already prepared;
+   no duplicate version-preparation PR is needed.
+3. The TypeScript controller checks the actual source, npm-prepared gitHead,
+   identity and archive checksums. Only an absent target may be uploaded from
+   fresh main. A just-accepted upload can wait through GET-only metadata/archive
+   HTTP 404 processing delays under one shared ten-minute budget. Other failures
+   stop without another upload.
+4. Verify actual registry bytes, source, annotated version tag, GitHub Release
+   and immutable assets. Existing matching objects are reused; conflicts fail
+   without overwrite. GitHub's separate 120-second budget starts after npm bytes
+   have been verified. Complete matching historical notices cause no deprecate
+   command; the controller owns the exact approved scope and message.
+5. Update and test affected consumers after actual registry publication. For an
+   interrupted already-published release, `release_commit` may select only its
+   original full main-ancestor SHA. The current main controller verifies that
+   original artifact; an older source cannot start a new publication or move
+   latest backwards. The completed 1.1.0 recovery remains tied to original 92f6d840.
 
 A package release is separate from backend serving, OAuth availability, reference
-publication and live acceptance. An uncertain release attempt requires registry
-and artifact reconciliation before another attempt; it is not permission to
-publish a different version or change a tag automatically.
-
-For a new unpublished version, the selected source must still be fresh `main`
-immediately before publishing. An older main ancestor is accepted only to finish
-an already published artifact whose exact source and bytes were verified. It
-cannot start a new publication or move npm `latest` back to stale source.
+publication and live acceptance. Cloud/domain/venue migration and frontend
+publication remain held. No tag, package, deployment or notice mutation is
+performed merely by preparing this source.

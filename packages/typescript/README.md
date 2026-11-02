@@ -2,16 +2,19 @@
 
 Server-side `@mangrove-ai/sdk` for Node.js 20+, imported as
 `import { MangroveAI } from '@mangrove-ai/sdk'`. This is the MangroveAI API
-client in version 1.x. The separate Markets client moves to `@mangrove-ai/markets`;
+client in version 1.x. The separate Markets client is published as `@mangrove-ai/markets`;
 Python MangroveAI uses the PyPI distribution `mangroveai` and import `mangrove_ai`.
 
 **Major product migration:** `@mangrove-ai/sdk` 0.1.2, 0.2.0 and 0.3.0 are
 historical Markets packages. Version 1.0.0 is the MangroveAI SDK and does not
 provide their `MangroveClient` API. Markets applications must install
-`@mangrove-ai/markets` 0.4.0 after that release is verified, or use its reviewed
-archive. Read the [migration notice](https://github.com/MangroveTechnologies/MangroveAI-SDK/blob/main/docs/typescript-package-migration.md)
+published `@mangrove-ai/markets` 0.4.0. Read the [migration notice](https://github.com/MangroveTechnologies/MangroveAI-SDK/blob/main/docs/typescript-package-migration.md)
 before changing a pin. The old `@mangrove-ai/client` candidate was never published
 and will not become a registry alias.
+
+Published checkpoint: November 2, 2026: AI 1.1.0 and Markets 0.4.0 are available.
+This source prepares AI 1.2.0; its local-deployment helper requires backend 7.11.0
+and actual capability serving acceptance, not merely an installed package.
 
 Check the [dated repository release status](https://github.com/MangroveTechnologies/MangroveAI-SDK/blob/main/docs/issue-66-release-handoff.md)
 for registry availability and verified versions. Source, a local package and a
@@ -28,7 +31,7 @@ is written there, with a name based on that revision's `package.json` version.
 Then install that reviewed archive in the consuming project, using its actual path:
 
 ```sh
-npm install /path/to/reviewed/mangrove-ai-sdk-1.1.0.tgz
+npm install /path/to/reviewed/mangrove-ai-sdk-1.2.0.tgz
 ```
 
 When installing a registry release, verify its exact version and package identity
@@ -61,13 +64,30 @@ try {
 This sends one Bearer-authenticated usage read. It does not create a wallet,
 launch compute, connect a broker, invoke an MCP tool or send a payment.
 
+## Local deployment snapshot (1.2.0 candidate)
+
+```typescript
+const snapshot = await client.strategies.localDeployment(strategyId, {
+  assetClass: 'crypto',
+  timeoutMs: 15_000,
+});
+console.log({ ready: snapshot.activation_ready, blocker: snapshot.activation_blocker });
+```
+
+This makes one authenticated, billable read of the versioned server snapshot.
+Pass `crypto` or `equity` explicitly. The helper preserves the service's decision,
+errors and full snapshot; it does not activate a runner or implement risk policy.
+A server conflict remains an `APIError` with its HTTP status and diagnostics.
+The generated generic operation supports the same path/query/response contract.
+No automatic retry or payment is added.
+
 ## Supported surface
 
-The named helpers are `users`, `signals`, `strategyWorkflow` and `backtesting`.
+The named helpers are `users`, `signals`, `strategies`, `strategyWorkflow` and `backtesting`.
 Other declared REST operations use `client.request(operation, options)`, with
 generated path, parameter, body and response types. This is not Python helper
-parity. The current classification has 264 core/Oracle proxy method/path keys,
-including 10 v2 operations: 261 JSON/no-content, one separate redirect flow and
+parity. The current classification has 266 core/Oracle proxy method/path keys,
+including 10 v2 operations: 263 JSON/no-content, one separate redirect flow and
 two streaming/non-JSON operations. Counts describe pinned declarations, not live
 endpoint acceptance. The JSON transport does not perform the redirect or consume
 those streams. Operation keys include the HTTP method and exact versioned path:

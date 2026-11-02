@@ -44,6 +44,12 @@ export interface RequestControls {
   timeoutMs?: number;
 }
 
+export interface LocalDeploymentOptions extends RequestControls {
+  assetClass: 'crypto' | 'equity';
+}
+
+export type LocalDeployment = Operations['GET /api/v1/strategies/{strategy_id}/local-deployment']['output'];
+
 export type RequestOptions<K extends Operation> = Operations[K]['input'] & RequestControls;
 type Input = { path?: Record<string, unknown>; query?: Record<string, unknown>;
   headers?: Record<string, string>; body?: unknown; signal?: AbortSignal; timeoutMs?: number };
@@ -422,6 +428,23 @@ export class MangroveAI {
           offset = result.nextOffset;
         }
       } };
+    },
+  };
+
+  readonly strategies = {
+    /** Read the server-owned versioned snapshot and readiness; never activate trading. */
+    localDeployment: async (strategyId: string, options: LocalDeploymentOptions): Promise<LocalDeployment> => {
+      if (typeof strategyId !== 'string' || !/^[a-f\d]{8}-(?:[a-f\d]{4}-){3}[a-f\d]{12}$/i.test(strategyId)) {
+        throw new ConfigurationError('strategyId must be a UUID');
+      }
+      if (!object(options) || !['crypto', 'equity'].includes(options.assetClass)) {
+        throw new ConfigurationError('assetClass must be crypto or equity');
+      }
+      const { assetClass, signal, timeoutMs } = options;
+      return this.request('GET /api/v1/strategies/{strategy_id}/local-deployment', {
+        path: { strategy_id: strategyId.toLowerCase() }, query: { asset_class: assetClass },
+        ...(signal ? { signal } : {}), ...(timeoutMs !== undefined ? { timeoutMs } : {}),
+      });
     },
   };
 

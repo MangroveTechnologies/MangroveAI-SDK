@@ -5,7 +5,8 @@ and TypeScript clients. `provenance.json` records the backend source commit,
 source hashes and exported-document hashes. No real user, API key, session token
 or account record belongs here.
 
-`openapi.json` preserves the registered RESTX v1/v2 contract in Swagger 2.0.
+`openapi.json` preserves the registered RESTX v1/v2 contract in its public OpenAPI 3.1 projection,
+including the source-declared x402 alternatives and payment metadata.
 `oracle-proxy-openapi.json` uses OpenAPI 3.1 and describes only upstream paths
 reachable through the actual MangroveAI proxy allowlist and forwarded methods.
 Its servers point at MangroveAI, not private upstream deployment hosts.
@@ -34,7 +35,7 @@ are separate surfaces. Canonical knowledge routes on MangroveAI remain in the
 registered REST contract.
 
 Canonical workflow bodies use the actual server JSON Schema stored in
-`x-mangrove-request-schema`, including unions Swagger 2.0 cannot express.
+`x-mangrove-request-schema`, including canonical authoring unions.
 `x-mangrove-raw-json` marks unconstrained serializer values. Opaque response
 envelopes remain `unknown` in TypeScript. In particular, some retail Oracle
 adapters transform upstream envelopes; their upstream declarations are evidence,

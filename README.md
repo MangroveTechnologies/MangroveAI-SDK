@@ -15,12 +15,14 @@ separate product, not the TypeScript version of this API.
 | MangroveAI TypeScript / Node.js 20+ | npm `@mangrove-ai/sdk` 1.x | `import { MangroveAI } from '@mangrove-ai/sdk'` | [TypeScript SDK guide](packages/typescript/README.md) |
 | MangroveMarkets TypeScript | npm `@mangrove-ai/markets` | `import { MangroveClient } from '@mangrove-ai/markets'` | [Markets SDK guide](https://github.com/MangroveTechnologies/MangroveMarkets/tree/main/packages/sdk) |
 
-Check the [AI 1.0.0 npm release target](https://registry.npmjs.org/@mangrove-ai%2fsdk/1.0.0)
-and [TypeScript GitHub Release](https://github.com/MangroveTechnologies/MangroveAI-SDK/releases/tag/typescript-v1.0.0)
+Check the [AI 1.1.0 npm release](https://registry.npmjs.org/@mangrove-ai%2fsdk/1.1.0)
+and [TypeScript GitHub Release](https://github.com/MangroveTechnologies/MangroveAI-SDK/releases/tag/typescript-v1.1.0)
 for availability; a source version does not establish publication. The
 [TypeScript guide](packages/typescript/README.md) covers registry and reviewed
 archive installation. Dated publication checkpoints are in the [release handoff](docs/issue-66-release-handoff.md).
-Python `mangroveai` 2.1.0 is published on [PyPI](https://pypi.org/project/mangroveai/2.1.0/).
+Python `mangroveai` 2.2.0 is published on [PyPI](https://pypi.org/project/mangroveai/2.2.0/).
+This source prepares Python 2.3.0 and TypeScript 1.2.0; these candidates remain
+unpublished until their official release workflows and registry verification.
 
 **Breaking product boundary:** published `@mangrove-ai/sdk` 0.1.2, 0.2.0 and 0.3.0
 are historical Markets clients. The new 1.0.0 package is MangroveAI and does not
@@ -29,11 +31,11 @@ not upgrade to the AI SDK. See the [migration notice](docs/typescript-package-mi
 and [dated release handoff](docs/issue-66-release-handoff.md). The former
 `@mangrove-ai/client` name was an unpublished AI candidate and will not be published.
 
-The TypeScript client has named `users`, `signals`, `strategyWorkflow` and
+The TypeScript client has named `users`, `signals`, `strategies`, `strategyWorkflow` and
 `backtesting` helpers plus a generic typed `request(operation, options)` surface.
-The current public contract classifies 264 method/path operations across core
+The current public contract classifies 266 method/path operations across core
 and Oracle proxy REST, including 10 v2 operations; this is generated declaration
-coverage, not live endpoint acceptance. Of these, 261 use JSON/no-content, one
+coverage, not live endpoint acceptance. Of these, 263 use JSON/no-content, one
 requires a separate redirect flow and two require a streaming/non-JSON client.
 It is not a drop-in copy of Python's service methods. It does not supply MCP/OAuth
 discovery, the separate legacy KB-host client, x402 signing or SSE consumption.
@@ -132,6 +134,32 @@ not source, browser bundles or prompts. Publication does not deploy an API.
 The remaining examples and service reference below describe the Python SDK;
 use the [TypeScript guide](packages/typescript/README.md) for its helper and generic
 request interfaces.
+
+## Local deployment snapshot (prepared versions)
+
+Python 2.3.0 and TypeScript 1.2.0 add matching reads of the server-owned local
+Robinhood snapshot. This requires backend 7.11.0 and deployed local-deployment
+capability; current package publication alone does not establish availability.
+The read is authenticated and billable. It returns the server's readiness and
+blocker, owner, fingerprint and snapshot; it does not activate or fund trading.
+Mangrove retains validation and deterministic risk enforcement.
+
+```python
+snapshot = client.strategies.local_deployment(strategy_id, asset_class="crypto")
+print(snapshot["activation_ready"], snapshot["activation_blocker"])
+```
+
+```typescript
+const snapshot = await client.strategies.localDeployment(strategyId, { assetClass: 'crypto' });
+console.log(snapshot.activation_ready, snapshot.activation_blocker);
+```
+
+Pass `crypto` or `equity` explicitly. Neither client retries or pays automatically.
+The Python canonical import remains `mangrove_ai`; the supported deprecated
+`mangroveai` root/models/exceptions imports remain aliases. The compatibility
+shim is now a single file so it can coexist with the private engine directory
+on a case-insensitive filesystem; the private engine also needs its distinct
+distribution identity. No public SDK package is renamed.
 
 ## Quickstart
 

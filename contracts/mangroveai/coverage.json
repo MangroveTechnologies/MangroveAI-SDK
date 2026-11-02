@@ -6,11 +6,11 @@
     },
     {
       "path": "openapi.json",
-      "sha256": "d207250c81c82892666706f408cc2225c793807619a164edb0f0d716e1a5c180"
+      "sha256": "373675ac8be82ef2048ecf2398dd1b7d9dcecbf5d18186958e0fad3c93e27f79"
     },
     {
       "path": "oracle-proxy-openapi.json",
-      "sha256": "2af733018477db164b4cf1d2f2791590be79efc932f895147090693d468773fd"
+      "sha256": "d8e2061293ec7f71604a3c4167ef06d57352314cfeebaa068644bf6807bc3a0a"
     }
   ],
   "limits": "Generated from declarations, not live payload verification. Opaque responses remain unknown. MCP and the separate legacy KB host are not this REST contract.",
@@ -1799,6 +1799,19 @@
       ],
       "request": "no-model-or-no-body",
       "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/strategies/{strategy_id}/local-deployment",
+      "python_direct_bindings": [
+        "StrategiesService.local_deployment"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
       "runtime_payload_verified": false,
       "schema_status": "registered-restx-declaration",
       "typescript": "request(operation, options)",

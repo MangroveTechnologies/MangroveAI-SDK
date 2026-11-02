@@ -2,6 +2,39 @@
 
 Issue: https://github.com/MangroveTechnologies/MangroveAI-SDK/issues/66
 
+## Current packages and prepared releases (2026-11-02)
+
+Published packages are Python [`mangroveai` 2.2.0](https://pypi.org/project/mangroveai/2.2.0/)
+and npm [`@mangrove-ai/sdk` 1.1.0](https://www.npmjs.com/package/@mangrove-ai/sdk/v/1.1.0).
+The TypeScript release remains bound to original source
+`92f6d8405103c6e4435fedf9fbe2f1fbedf21b50`; a later controller's recovery does
+not change its package bytes or source identity. Markets' separate published
+clients are Python 1.1.1 and npm `@mangrove-ai/markets` 0.4.0.
+
+This branch prepares Python 2.3.0 and TypeScript 1.2.0 with matching local-deployment
+snapshot reads and reviewed filtered contracts. They require backend 7.11.0 and
+actual local-deployment serving acceptance. The default loss limit remains four;
+[SDK PR82](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/82) and
+[API PR1518](https://github.com/MangroveTechnologies/MangroveAI/pull/1518)'s
+proposed limit of two remain separate unfinished feature work.
+
+The public Python distribution name and canonical/legacy imports remain
+`mangroveai`, `mangrove_ai` and deprecated `mangroveai`. The legacy alias is a
+single file, preserving supported public root/models/exceptions imports while
+avoiding a physical directory collision with the private engine. Coexistence
+requires the engine's distinct distribution and SDK 2.3.0 or later; qualify the
+actual wheels together rather than inferring compatibility from metadata names.
+
+These versions are already prepared in the reviewed source PR. After human
+merge and current-main CI, the authorized Python publisher takes `version=2.3.0`;
+TypeScript takes `version=1.2.0`, first `dry_run=true`, then authorized publication.
+Do not create another version PR or rerun a completed old release to ship this
+new content. Original packages, tags and assets remain immutable. Fresh source,
+publication, installed consumers, backend serving and live acceptance are distinct.
+
+<details>
+<summary>Historical first naming plan (before the November 2 registry releases)</summary>
+
 ## Current TypeScript naming decision (2026-11-02)
 
 The user selected `@mangrove-ai/sdk` for MangroveAI and `@mangrove-ai/markets`
@@ -31,6 +64,9 @@ For a new unpublished version, the selected source must still be fresh `main`
 immediately before publishing. An older main ancestor is accepted only to finish
 an already published artifact whose exact source and bytes were verified. It
 cannot start a new publication or move npm `latest` back to stale source.
+
+
+</details>
 
 ## Historical publication status (2026-11-01)
 

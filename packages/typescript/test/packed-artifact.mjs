@@ -10,13 +10,20 @@ const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const scratch = mkdtempSync(join(tmpdir(), 'mangrove-sdk-package-'));
 const fixture = JSON.parse(readFileSync(join(packageRoot, '../../contracts/mangroveai/fixtures/usage-success.json'), 'utf8'));
 const configFixture = JSON.parse(readFileSync(join(packageRoot, '../../contracts/mangroveai/fixtures/execution-config-success.json'), 'utf8'));
+const localFixture = JSON.parse(readFileSync(join(packageRoot, '../../contracts/mangroveai/fixtures/local-deployment-not-ready.json'), 'utf8'));
 let calls = 0;
 const server = createServer((request, response) => {
   calls++;
   assert.equal(request.method, 'GET');
   assert.equal(request.headers.authorization, 'Bearer prod_fixture_package_key');
+  if (request.url === `/api/v1/strategies/${localFixture.strategy_id}/local-deployment?asset_class=equity`) {
+    response.writeHead(409, { 'Content-Type': 'application/json', 'X-Correlation-Id': 'local-fixture-conflict' });
+    response.end(JSON.stringify({ error: 'DEPLOYMENT_CONFLICT', message: 'Server validation decision' }));
+    return;
+  }
   const body = request.url === '/api/v1/users/me/metrics' ? fixture
-    : request.url === '/api/v1/config/execution-config-schema' ? configFixture : null;
+    : request.url === '/api/v1/config/execution-config-schema' ? configFixture
+    : request.url === `/api/v1/strategies/${localFixture.strategy_id}/local-deployment?asset_class=crypto` ? localFixture : null;
   assert.ok(body, 'Unexpected request from installed package');
   response.writeHead(200, { 'Content-Type': 'application/json' });
   response.end(JSON.stringify(body));
@@ -33,9 +40,11 @@ try {
   const installedPackage = JSON.parse(readFileSync(join(scratch, 'node_modules/@mangrove-ai/sdk/package.json'), 'utf8'));
   assert.equal(installedPackage.name, packed.name);
   assert.equal(installedPackage.version, packed.version);
+  writeFileSync(join(scratch, 'local-fixture.json'), JSON.stringify(localFixture));
   writeFileSync(join(scratch, 'smoke.mjs'), `
     import assert from 'node:assert/strict';
-    import { MangroveAI } from '@mangrove-ai/sdk';
+    import { readFileSync } from 'node:fs';
+    import { MangroveAI, APIError } from '@mangrove-ai/sdk';
     const sdk = new MangroveAI({apiKey:'prod_fixture_package_key',baseUrl:process.env.SDK_FIXTURE_ORIGIN});
     const metrics = await sdk.users.getMyMetrics();
     assert.equal(metrics.messages_count,7);
@@ -47,13 +56,21 @@ try {
     assert.equal(config.json_schema.properties.circuit_breaker.additionalProperties,false);
     assert.equal(config.param_glossary.circuit_breaker.fields.consecutive_loss_limit.type,'int');
     assert.ok(import.meta.resolve('@mangrove-ai/sdk').includes('/node_modules/'));
-    console.log('Packed artifact usage and execution configuration examples passed');
+    const localFixture = JSON.parse(readFileSync('local-fixture.json', 'utf8'));
+    assert.deepEqual(await sdk.strategies.localDeployment(localFixture.strategy_id, {assetClass:'crypto'}), localFixture);
+    await assert.rejects(sdk.strategies.localDeployment(localFixture.strategy_id, {assetClass:'equity'}), error => {
+      assert.ok(error instanceof APIError);
+      assert.equal(error.status,409);
+      assert.equal(error.correlationId,'local-fixture-conflict');
+      return true;
+    });
+    console.log('Packed artifact usage/configuration/local snapshot and conflict examples passed');
   `);
   const { spawn } = await import('node:child_process');
   const child = spawn(process.execPath, ['smoke.mjs'], { cwd: scratch, env: { ...process.env, SDK_FIXTURE_ORIGIN: `http://127.0.0.1:${server.address().port}` }, stdio: 'inherit' });
   const exitCode = await new Promise(resolve => child.once('exit', resolve));
   assert.equal(exitCode, 0);
-  assert.equal(calls, 2);
+  assert.equal(calls, 4);
 } finally {
   server.closeAllConnections();
   await new Promise(resolve => server.close(resolve));

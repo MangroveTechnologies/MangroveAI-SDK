@@ -78,6 +78,77 @@ test('untrusted tarball origins and oversized archives stop before finalization'
   await assert.rejects(completeTypeScriptRelease(args), /size limit/);
 });
 
+test('accepted upload waits for metadata and archive visibility before finalization or notices', async () => {
+  let clock = 0, metadataReads = 0, archiveReads = 0, mutations = 0, cancelled = 0;
+  const args = fixture(); const request = args.request;
+  args.request = async (url, options) => {
+    if (url.includes('%2Fmarkets/')) return request(url, options);
+    assert.equal(options.method, 'GET'); assert.equal(options.redirect, 'error');
+    if (url.endsWith('.tgz') ? ++archiveReads === 1 : ++metadataReads === 1) {
+      assert.equal(mutations, 0);
+      return { status: 404, body: { cancel: async () => { cancelled++; } } };
+    }
+    return request(url, options);
+  };
+  args.finalize = args.deprecate = async () => { mutations++; };
+  await completeTypeScriptRelease({ ...args, acceptedUpload: true, now: () => clock, wait: async ms => { clock += ms; } });
+  assert.equal(clock, 60000); assert.equal(metadataReads, 2); assert.equal(archiveReads, 2);
+  assert.equal(cancelled, 2); assert.equal(mutations, 4);
+});
+test('accepted upload has one finite visibility budget and performs no writes on timeout', async () => {
+  let clock = 0, reads = 0;
+  const args = fixture(); const request = args.request;
+  args.request = async (url, options) => url.includes('%2Fmarkets/') ? request(url, options) : (reads++, { status: 404 });
+  args.finalize = args.deprecate = async () => assert.fail('No mutation before visibility');
+  await assert.rejects(completeTypeScriptRelease({ ...args, acceptedUpload: true, now: () => clock, wait: async ms => { clock += ms; } }), /visibility/);
+  assert.equal(clock, 600000); assert.equal(reads, 20);
+});
+test('existing-artifact recovery does not wait or retry an ordinary404', async () => {
+  let reads = 0, waits = 0;
+  const args = fixture(); const request = args.request;
+  args.request = async (url, options) => url.includes('%2Fmarkets/') ? request(url, options) : (reads++, { status: 404 });
+  args.finalize = args.deprecate = async () => assert.fail('No mutation for absent artifact');
+  await assert.rejects(completeTypeScriptRelease({ ...args, wait: async () => { waits++; } }), /not verified/);
+  assert.equal(reads, 1); assert.equal(waits, 0);
+});
+for (const status of [401, 403, 429, 500]) {
+  test(`accepted upload does not retry HTTP${status}`, async () => {
+    let reads = 0, waits = 0;
+    const args = fixture(); const request = args.request;
+    args.request = async (url, options) => url.includes('%2Fmarkets/') ? request(url, options) : (reads++, { status });
+    args.finalize = args.deprecate = async () => assert.fail('No mutation for failed visibility');
+    await assert.rejects(completeTypeScriptRelease({ ...args, acceptedUpload: true, wait: async () => { waits++; } }), /not verified/);
+    assert.equal(reads, 1); assert.equal(waits, 0);
+  });
+}
+test('accepted upload does not retry network failures or conflicting metadata', async () => {
+  for (const conflict of [false, true]) {
+    let waits = 0, reads = 0;
+    const args = fixture(); const request = args.request;
+    args.request = async (url, options) => {
+      if (url.includes('%2Fmarkets/')) return request(url, options);
+      reads++;
+      if (!conflict) throw new Error('fixture network failure');
+      return { status: 200, json: async () => ({ ...published, gitHead: 'b'.repeat(40) }) };
+    };
+    args.finalize = args.deprecate = async () => assert.fail('No mutation for failed artifact');
+    await assert.rejects(completeTypeScriptRelease({ ...args, acceptedUpload: true, wait: async () => { waits++; } }));
+    assert.equal(reads, 1); assert.equal(waits, 0);
+  }
+});
+test('metadata processing cannot grant the archive another ten-minute budget', async () => {
+  let clock = 0, reads = 0, archiveReads = 0;
+  const args = fixture(); const request = args.request;
+  args.request = async (url, options) => {
+    if (url.includes('%2Fmarkets/')) return request(url, options);
+    if (url.endsWith('.tgz')) { archiveReads++; return { status: 404 }; }
+    return ++reads < 20 ? { status: 404 } : request(url, options);
+  };
+  args.finalize = args.deprecate = async () => assert.fail('No mutation on timeout');
+  await assert.rejects(completeTypeScriptRelease({ ...args, acceptedUpload: true, now: () => clock, wait: async ms => { clock += ms; } }), /visibility/);
+  assert.equal(clock, 600000); assert.equal(archiveReads, 1);
+});
+
 test('a resumed release leaves versions that already carry the exact notice alone', async () => {
   const calls = [];
   const notices = { '@mangrove-ai/sdk@0.1.2': MIGRATION_NOTICE, '@mangrove-ai/sdk@0.2.0': 'an older notice', '@mangrove-ai/sdk@0.3.0': '' };

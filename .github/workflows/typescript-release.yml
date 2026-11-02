@@ -120,6 +120,7 @@ jobs:
           EXPECTED_VERSION: ${{ inputs.version }}
           DRY_RUN: ${{ inputs.dry_run }}
           PUBLISH_SUCCEEDED: 'true'
+          UPLOAD_ACCEPTED: ${{ steps.publish.outcome == 'success' && steps.preflight.outputs.publish_required == 'true' }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node ../release-controller/scripts/complete_typescript_release.mjs

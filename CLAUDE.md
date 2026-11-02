@@ -4,10 +4,10 @@ This repository contains clients for the public MangroveAI services in both
 languages. Keep their package identities and capabilities distinct:
 
 - Python: PyPI `mangroveai`, import `from mangrove_ai import MangroveAI`, source
-  `src/mangrove_ai/`. Python 2.1.0 is published; see the dated release handoff.
+  `src/mangrove_ai/`. Python 2.2.0 is published; see the dated release handoff.
 - TypeScript: npm `@mangrove-ai/sdk` 1.x, import
   `import { MangroveAI } from '@mangrove-ai/sdk'`, source `packages/typescript/`.
-  The source package version is 1.0.0; use the [guide](packages/typescript/README.md),
+  The source package version is 1.1.0 (1.0.0 is the first published AI release); use the [guide](packages/typescript/README.md),
   [migration notice](docs/typescript-package-migration.md) and [dated release status](docs/issue-66-release-handoff.md)
   before claiming registry availability.
 - MangroveMarkets moves to `@mangrove-ai/markets` 0.4.0 with its existing
@@ -105,6 +105,15 @@ an ancestor of actual fetched `main`; mutable refs and feature heads are refused
 The current reviewed main workflow controls finalization while the original
 source is rebuilt. Matching npm/tag/release/assets resume without clobbering;
 conflicts fail. Package publication never proves backend serving or live execution.
+
+After this run successfully uploads a previously absent version, finalization
+waits only for temporary registry metadata or archive HTTP 404 responses, using
+GET requests every 30 seconds under one ten-minute visibility deadline. Other
+errors stop immediately. No upload is retried; existing-artifact recovery and
+ordinary preflight do not wait. A visibility timeout requires reconciliation
+of the accepted upload before another release attempt.
+The separate two-minute GitHub finalization budget starts after the npm artifact
+has been verified; registry processing cannot consume that budget in advance.
 
 For a new unpublished version, the selected source must still be fresh `main`
 immediately before publishing. An older main ancestor is accepted only to finish

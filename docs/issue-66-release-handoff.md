@@ -2,6 +2,68 @@
 
 Issue: https://github.com/MangroveTechnologies/MangroveAI-SDK/issues/66
 
+## Current TypeScript naming decision (2026-11-02)
+
+The user selected `@mangrove-ai/sdk` for MangroveAI and `@mangrove-ai/markets`
+for MangroveMarkets. This source prepares the AI package at 1.0.0; the separate
+Markets source prepares 0.4.0. `@mangrove-ai/client` was an unpublished candidate
+and will not be published. No alias is introduced.
+
+Published `@mangrove-ai/sdk` 0.1.2, 0.2.0 and 0.3.0 are historical Markets
+packages. Their bytes and provenance stay intact; AI 1.0.0 is a breaking product
+move rather than a compatible Markets upgrade. See the [migration notice](typescript-package-migration.md).
+After both source PRs are human-merged, verify the Markets 0.4.0 publication
+before the AI 1.0.0 publishing run. The existing manual workflow file remains
+`typescript-release.yml`, with inputs `version=1.0.0` and `dry_run=true` for
+validation, then `dry_run=false` for authorized publication from `main`.
+The workflow verifies exact npm archive bytes and source metadata before creating
+or reading back annotated `typescript-v1.0.0`, the GitHub Release and immutable
+checksum assets. The three exact historical Markets versions receive native
+migration notices last; no whole-name deprecation is allowed. For a partial
+release, `release_commit` may select only a full original main-ancestor SHA.
+Existing matching publication/tag/release/assets resume; mismatches fail without
+overwrite. Do not dispatch the older workflow/source revision for `@mangrove-ai/client`.
+Python stays at its published 2.1.0 version. Source, registry publication,
+installed consumers, backend serving and live acceptance remain separate facts.
+The dated section below preserves the previous naming and publication record.
+
+For a new unpublished version, the selected source must still be fresh `main`
+immediately before publishing. An older main ancestor is accepted only to finish
+an already published artifact whose exact source and bytes were verified. It
+cannot start a new publication or move npm `latest` back to stale source.
+
+## Historical publication status (2026-11-01)
+
+Python SDK 2.1.0 was published from main commit
+`b879241e10c283c45617bf83a2591728b2ccfac0` by the
+[successful release workflow](https://github.com/MangroveTechnologies/MangroveAI-SDK/actions/runs/41242672813).
+The [v2.1.0 GitHub Release](https://github.com/MangroveTechnologies/MangroveAI-SDK/releases/tag/v2.1.0)
+and [PyPI wheel and source distribution](https://pypi.org/project/mangroveai/2.1.0/#files)
+exist; both public artifact hashes and isolated installations were verified.
+[Agent PR230](https://github.com/MangroveTechnologies/mangrove-agent/pull/230)
+has merged with a 2.1.0 pin. API acceptance-harness pin updates are being reviewed
+in [API PR1502](https://github.com/MangroveTechnologies/MangroveAI/pull/1502).
+
+The TypeScript candidate `@mangrove-ai/client` 0.1.0 remains unpublished. Its
+[publication run](https://github.com/MangroveTechnologies/MangroveAI-SDK/actions/runs/41271133519)
+passed contract generation, type checking, tests and package checks, then stopped
+because the effective `NPM_TOKEN` was empty. A maintainer must configure a
+publisher credential with access to that package before retrying publication.
+
+A fresh public registry readback on 2026-11-01 confirms Python `mangroveai`
+2.1.0 exists, npm `@mangrove-ai/client` returns 404, and the separate Markets
+package `@mangrove-ai/sdk` has latest version 0.3.0. These are dated observations,
+not permanent package properties or evidence that an unclaimed name is reserved.
+At that checkpoint, the MangroveAI TypeScript implementation was version 0.1.0.
+Its 264 generated method/path keys include 10 v2 operations, with named helpers
+for users, signals, strategy workflow and backtesting; it is not Python helper
+parity. Registry publication and its installed-artifact readback remain separate.
+
+Publication does not establish that the API revision is deployed, that a live
+business request succeeds, or that an installed client has updated. The original
+repair/release-preparation record below is historical; its 2.0.0 version and
+pre-publication statements describe that earlier source snapshot.
+
 This branch repairs the existing `mangroveai` distribution. Its import remains
 `mangrove_ai`; `mangroveai` remains a compatibility shim. It is the Python client
 for the MangroveAI API. MangroveMarkets' Python package is a separate API client.

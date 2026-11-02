@@ -24,11 +24,18 @@ const server = createServer((request, response) => {
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 try {
   const packed = JSON.parse(execFileSync('npm', ['pack', '--ignore-scripts', '--json', '--pack-destination', scratch], { cwd: packageRoot, encoding: 'utf8' }))[0];
+  const sourcePackage = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'));
+  assert.equal(packed.name, '@mangrove-ai/sdk');
+  assert.equal(packed.version, sourcePackage.version);
+  assert.match(packed.version, /^[1-9]\d*\./);
   writeFileSync(join(scratch, 'package.json'), JSON.stringify({ private: true, type: 'module' }));
   execFileSync('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund', join(scratch, packed.filename)], { cwd: scratch, stdio: 'pipe' });
+  const installedPackage = JSON.parse(readFileSync(join(scratch, 'node_modules/@mangrove-ai/sdk/package.json'), 'utf8'));
+  assert.equal(installedPackage.name, packed.name);
+  assert.equal(installedPackage.version, packed.version);
   writeFileSync(join(scratch, 'smoke.mjs'), `
     import assert from 'node:assert/strict';
-    import { MangroveAI } from '@mangrove-ai/client';
+    import { MangroveAI } from '@mangrove-ai/sdk';
     const sdk = new MangroveAI({apiKey:'prod_fixture_package_key',baseUrl:process.env.SDK_FIXTURE_ORIGIN});
     const metrics = await sdk.users.getMyMetrics();
     assert.equal(metrics.messages_count,7);
@@ -36,7 +43,7 @@ try {
     assert.equal(config.json_schema.$schema,'https://json-schema.org/draft/2020-12/schema');
     assert.equal(config.json_schema.properties.cooldown_config.additionalProperties.properties.short_window_bars.type,'integer');
     assert.ok(config.param_glossary.cooldown_config.required_fields.includes('short_window_bars'));
-    assert.ok(import.meta.resolve('@mangrove-ai/client').includes('/node_modules/'));
+    assert.ok(import.meta.resolve('@mangrove-ai/sdk').includes('/node_modules/'));
     console.log('Packed artifact usage and execution configuration examples passed');
   `);
   const { spawn } = await import('node:child_process');

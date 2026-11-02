@@ -1,5 +1,9 @@
 # Changelog
 
+This is the Python release history. TypeScript package naming is independent:
+`@mangrove-ai/sdk` 1.x is MangroveAI; historical `@mangrove-ai/sdk` 0.x references describe Markets,
+which moves to `@mangrove-ai/markets`. See the [migration notice](docs/typescript-package-migration.md).
+
 All notable changes to the MangroveAI Python SDK will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).

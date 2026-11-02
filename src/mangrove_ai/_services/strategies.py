@@ -68,6 +68,22 @@ class StrategiesService(BaseService):
         data = self._request("GET", f"/strategies/{strategy_id}")
         return StrategyDetail.model_validate(data["strategy"])
 
+    def local_deployment(self, strategy_id: str, *, asset_class: str) -> dict:
+        """Read an owner-scoped, validated snapshot for local Robinhood execution.
+
+        This does not activate trading. Uses the existing authenticated/billable
+        strategy-detail transport and returns the versioned server contract.
+        """
+        from uuid import UUID
+
+        strategy_id = str(UUID(strategy_id))
+        if asset_class not in {"crypto", "equity"}:
+            raise ValueError("asset_class must be crypto or equity")
+        return self._request(
+            "GET", f"/strategies/{strategy_id}/local-deployment",
+            params={"asset_class": asset_class},
+        )
+
     def update(self, strategy_id: str, request: UpdateStrategyRequest) -> StrategyDetail:
         """Update a strategy.
 

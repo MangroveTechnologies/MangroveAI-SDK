@@ -22,16 +22,26 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   one response model and the `social` category on the signals list; no other operation changed. TypeScript contract and coverage regenerated.
 - New example `examples/x_attention_signals_demo.py`.
 
-### Documentation: Cambrian social and holder signals
+### Documentation: Cambrian signals (one exit signal, six disabled)
 
-- README section on the seven Cambrian-backed signals (`social_sentiment_surge`,
-  `social_sentiment_capitulation`, `social_crowd_bullish`, `social_crowd_cooling`,
-  `social_price_divergence` in the `social`
-  category; `holder_growth_trend`, `whale_share_divergence` in `onchain`, Solana tokens only). They
-  need no client-side data: the server attaches their columns in live evaluation and backtests, while
-  `signals.evaluate` needs caller-supplied columns.
-- New example `examples/cambrian_signals_demo.py`: lists the signals by category, then builds and
-  backtests a strategy that uses `social_crowd_cooling` as a filter, through existing methods only.
+- README section on the Cambrian-backed signals. `social_price_divergence` (`social` category) is
+  documented as an exit for long positions, never an entry: it fires when close fell at least
+  `min_drop_pct` over `window` bars while the mean `SocialNetBullShare` over the same bars stayed at
+  or above its prior `window_baseline` mean. Defaults `window=7`, `min_drop_pct=3.0`,
+  `window_baseline=60`. It needs no client-side data: the server attaches its columns in live
+  evaluation and backtests when its Cambrian data flag is on (that server change is not released),
+  and the catalogue marks it non-composable when the flag is off. `signals.evaluate` needs
+  caller-supplied columns.
+- The README states that `social_sentiment_surge`, `social_sentiment_capitulation`,
+  `social_crowd_bullish`, `social_crowd_cooling`, `whale_share_divergence` and
+  `holder_growth_trend` are disabled for new strategies (still executable for stored ones). They
+  lost money or added nothing in Oracle engine strategy backtests (424 configurations, every
+  strategy with a trigger and a price filter, settings chosen on an early window and checked
+  untouched on a later one). Source: MangroveKnowledgeBase#161.
+- New example `examples/cambrian_signals_demo.py`: lists the Cambrian signals and their status,
+  reads `social_price_divergence`, then builds and backtests a strategy with an `rsi_cross_up`
+  trigger, an `is_above_sma` filter and `social_price_divergence` as the exit, through existing
+  methods only.
 - No new method, model or endpoint, and no contract change.
 
 ### Python client contract repair (issue 66)

@@ -11,6 +11,14 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Contracts synced to MangroveAI: default loss trigger is two losing closes
+
+- The pinned MangroveAI contracts now declare `circuit_breaker.consecutive_loss_limit` default 2
+  (was 4), the best tested setting in the circuit breaker study. The server applies it to
+  strategies that do not set their own value; the clients do not enforce it.
+- The same sync adds the `GET /api/v1/strategies/{strategy_id}/local-deployment` declaration,
+  which `StrategiesService.local_deployment` already calls.
+
 ### X post counts and the social signal category (targets 2.2.0, after 2.1.1)
 
 - `client.social.get_x_post_counts(symbol, days_back, granularity, x_query)` reads

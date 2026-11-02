@@ -2,11 +2,11 @@
   "contracts": [
     {
       "path": "execution-config.schema.json",
-      "sha256": "2d3cc9db2204f05471d5eeb8ff902dcd25b4bff3c240078c99d1afd33b9bf360"
+      "sha256": "2bb0fe59481cac434158491707b790c11d927fd1b21244172345220098e8265a"
     },
     {
       "path": "openapi.json",
-      "sha256": "d207250c81c82892666706f408cc2225c793807619a164edb0f0d716e1a5c180"
+      "sha256": "a8ffae417f49cfe5c92759881ab23c876510be41606d7234a5279f12e0ab1ca5"
     },
     {
       "path": "oracle-proxy-openapi.json",
@@ -1796,6 +1796,19 @@
       "operation": "PATCH /api/v1/strategies/{strategy_id}/execution-state",
       "python_direct_bindings": [
         "StrategiesService.update_execution_state"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/strategies/{strategy_id}/local-deployment",
+      "python_direct_bindings": [
+        "StrategiesService.local_deployment"
       ],
       "request": "no-model-or-no-body",
       "response": "opaque-or-no-content",

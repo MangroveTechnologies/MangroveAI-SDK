@@ -2,7 +2,7 @@
   "defaults": {
     "atr_period": 14,
     "circuit_breaker": {
-      "consecutive_loss_limit": 4,
+      "consecutive_loss_limit": 2,
       "drawdown_pause_bars": 72,
       "loss_amount_pct": 0.06,
       "max_consecutive_pauses": 3,
@@ -163,7 +163,7 @@
       "circuit_breaker": {
         "additionalProperties": false,
         "default": {
-          "consecutive_loss_limit": 4,
+          "consecutive_loss_limit": 2,
           "drawdown_pause_bars": 72,
           "loss_amount_pct": 0.06,
           "max_consecutive_pauses": 3,

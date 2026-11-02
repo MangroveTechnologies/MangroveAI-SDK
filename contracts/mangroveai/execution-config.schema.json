@@ -70,7 +70,7 @@
     "circuit_breaker": {
       "additionalProperties": false,
       "default": {
-        "consecutive_loss_limit": 4,
+        "consecutive_loss_limit": 2,
         "drawdown_pause_bars": 72,
         "loss_amount_pct": 0.06,
         "max_consecutive_pauses": 3,
@@ -83,7 +83,7 @@
       "description": "Parameters for cooldown_model 'trades': pause on consecutive net losses or accumulated loss amount, pause on marked drawdown from the peak (including unrealized changes), resume new alpha positions at a reduced size, and stop after consecutive pauses. Canon defaults are 36 primary bars for a loss pause, 72 for a drawdown pause, and three strikes for a permanent halt. Pause counts are clamped to 24 hours through 14 days by default. max_drawdown_halt_limit separately stops entries on realized loss of cumulative gross deposits. Existing exits remain active during holds.",
       "properties": {
         "consecutive_loss_limit": {
-          "default": 4,
+          "default": 2,
           "description": "Consecutive losing closes on an asset that start a pause. A winning close resets the count.",
           "maximum": 100,
           "minimum": 1,

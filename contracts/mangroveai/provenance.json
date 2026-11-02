@@ -2,7 +2,7 @@
   "contracts": [
     {
       "path": "openapi.json",
-      "sha256": "d207250c81c82892666706f408cc2225c793807619a164edb0f0d716e1a5c180"
+      "sha256": "a8ffae417f49cfe5c92759881ab23c876510be41606d7234a5279f12e0ab1ca5"
     },
     {
       "path": "oracle-proxy-openapi.json",
@@ -10,11 +10,11 @@
     },
     {
       "path": "execution-config.schema.json",
-      "sha256": "2d3cc9db2204f05471d5eeb8ff902dcd25b4bff3c240078c99d1afd33b9bf360"
+      "sha256": "2bb0fe59481cac434158491707b790c11d927fd1b21244172345220098e8265a"
     }
   ],
   "generation": "Real application factory and canonical config metadata in ci; network blocked; startup provider warm-up/directory setup disabled; no business handlers",
-  "source_commit": "4b96fad63b98b3d164f8608ffc056a669cc1c20d",
+  "source_commit": "62f993d7937b33f2154bf14ce86f4f7864e7c9f8",
   "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "source_dirty": false,
   "source_files": [
@@ -52,11 +52,11 @@
     },
     {
       "path": "src/MangroveAI/domains/config/trading_defaults.json",
-      "sha256": "1891da22019518493b8ca9f4f8da68ff143934acdec18534b81bd01fd01f7df8"
+      "sha256": "8995bce13649f8a224234a27d6642d0ae13d1f4cb23977655f1b599fb1e942cb"
     },
     {
       "path": "src/MangroveAI/domains/managers/risk_manager.py",
-      "sha256": "09be1155fe1420861a23b76a7f938cdb00066e7c965b8140ed7a6f7030c51a73"
+      "sha256": "98532a49a72df0197528c5c197f6a8c9608b2fcf80b5555ddbddcf8d80275dfe"
     },
     {
       "path": "src/MangroveAI/domains/managers/account_manager.py",

@@ -28,7 +28,7 @@ is written there, with a name based on that revision's `package.json` version.
 Then install that reviewed archive in the consuming project, using its actual path:
 
 ```sh
-npm install /path/to/reviewed/mangrove-ai-sdk-1.0.0.tgz
+npm install /path/to/reviewed/mangrove-ai-sdk-1.1.0.tgz
 ```
 
 When installing a registry release, verify its exact version and package identity

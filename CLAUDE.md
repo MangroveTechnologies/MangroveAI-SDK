@@ -106,6 +106,13 @@ The current reviewed main workflow controls finalization while the original
 source is rebuilt. Matching npm/tag/release/assets resume without clobbering;
 conflicts fail. Package publication never proves backend serving or live execution.
 
+After this run successfully uploads a previously absent version, finalization
+waits only for temporary registry metadata or archive HTTP 404 responses, using
+GET requests every 30 seconds under one ten-minute visibility deadline. Other
+errors stop immediately. No upload is retried; existing-artifact recovery and
+ordinary preflight do not wait. A visibility timeout requires reconciliation
+of the accepted upload before another release attempt.
+
 For a new unpublished version, the selected source must still be fresh `main`
 immediately before publishing. An older main ancestor is accepted only to finish
 an already published artifact whose exact source and bytes were verified. It

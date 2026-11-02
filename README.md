@@ -12,15 +12,22 @@ separate product, not the TypeScript version of this API.
 | Product and language | Registry package | Import | Guide |
 |---|---|---|---|
 | MangroveAI Python | PyPI `mangroveai` | `from mangrove_ai import MangroveAI` | [Python install](#install) |
-| MangroveAI TypeScript / Node.js 20+ | npm identity `@mangrove-ai/client` | `import { MangroveAI } from '@mangrove-ai/client'` | [TypeScript SDK guide](packages/typescript/README.md) |
-| MangroveMarkets TypeScript | npm `@mangrove-ai/sdk` | `import { MangroveClient } from '@mangrove-ai/sdk'` | [Markets SDK guide](https://github.com/MangroveTechnologies/MangroveMarkets/tree/main/packages/sdk) |
+| MangroveAI TypeScript / Node.js 20+ | npm `@mangrove-ai/sdk` 1.x | `import { MangroveAI } from '@mangrove-ai/sdk'` | [TypeScript SDK guide](packages/typescript/README.md) |
+| MangroveMarkets TypeScript | npm `@mangrove-ai/markets` | `import { MangroveClient } from '@mangrove-ai/markets'` | [Markets SDK guide](https://github.com/MangroveTechnologies/MangroveMarkets/tree/main/packages/sdk) |
 
-**Release status checked 2026-11-01:** Python `mangroveai` 2.1.0 is published on
-[PyPI](https://pypi.org/project/mangroveai/2.1.0/). MangroveAI TypeScript
-`@mangrove-ai/client` 0.1.0 is implemented here but is not published on npm at this
-checkpoint. Use a reviewed local tarball as shown in its guide, not
-`@mangrove-ai/sdk` as a substitute. See the [dated release handoff](docs/issue-66-release-handoff.md)
-for publication evidence and remaining rollout boundaries.
+Check the [AI 1.0.0 npm release target](https://registry.npmjs.org/@mangrove-ai%2fsdk/1.0.0)
+and [TypeScript GitHub Release](https://github.com/MangroveTechnologies/MangroveAI-SDK/releases/tag/typescript-v1.0.0)
+for availability; a source version does not establish publication. The
+[TypeScript guide](packages/typescript/README.md) covers registry and reviewed
+archive installation. Dated publication checkpoints are in the [release handoff](docs/issue-66-release-handoff.md).
+Python `mangroveai` 2.1.0 is published on [PyPI](https://pypi.org/project/mangroveai/2.1.0/).
+
+**Breaking product boundary:** published `@mangrove-ai/sdk` 0.1.2, 0.2.0 and 0.3.0
+are historical Markets clients. The new 1.0.0 package is MangroveAI and does not
+preserve the Markets API. Markets applications must move to `@mangrove-ai/markets`,
+not upgrade to the AI SDK. See the [migration notice](docs/typescript-package-migration.md)
+and [dated release handoff](docs/issue-66-release-handoff.md). The former
+`@mangrove-ai/client` name was an unpublished AI candidate and will not be published.
 
 The TypeScript client has named `users`, `signals`, `strategyWorkflow` and
 `backtesting` helpers plus a generic typed `request(operation, options)` surface.
@@ -107,7 +114,7 @@ Install the reviewed package as described in the [TypeScript guide](packages/typ
 then use its public ESM import:
 
 ```typescript
-import { MangroveAI } from '@mangrove-ai/client';
+import { MangroveAI } from '@mangrove-ai/sdk';
 
 const client = new MangroveAI({
   apiKey: process.env.MANGROVE_API_KEY,

@@ -1,7 +1,9 @@
 {
-  "name": "@mangrove-ai/client",
-  "version": "0.1.0",
-  "description": "Server-side TypeScript client for the MangroveAI public REST API",
+  "name": "@mangrove-ai/sdk",
+  "version": "1.0.0",
+  "description": "Server-side TypeScript SDK for the MangroveAI public REST and Oracle proxy APIs",
+  "homepage": "https://github.com/MangroveTechnologies/MangroveAI-SDK/tree/main/packages/typescript",
+  "keywords": ["mangroveai", "sdk", "typescript", "rest"],
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

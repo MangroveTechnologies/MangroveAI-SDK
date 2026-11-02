@@ -1,9 +1,17 @@
 # MangroveAI TypeScript SDK
 
-Server-side `@mangrove-ai/client` for Node.js 20+, imported as
-`import { MangroveAI } from '@mangrove-ai/client'`. This is the MangroveAI API
-client. `@mangrove-ai/sdk` is the separate Markets client; Python MangroveAI uses
-the PyPI distribution `mangroveai` and import `mangrove_ai`.
+Server-side `@mangrove-ai/sdk` for Node.js 20+, imported as
+`import { MangroveAI } from '@mangrove-ai/sdk'`. This is the MangroveAI API
+client in version 1.x. The separate Markets client moves to `@mangrove-ai/markets`;
+Python MangroveAI uses the PyPI distribution `mangroveai` and import `mangrove_ai`.
+
+**Major product migration:** `@mangrove-ai/sdk` 0.1.2, 0.2.0 and 0.3.0 are
+historical Markets packages. Version 1.0.0 is the MangroveAI SDK and does not
+provide their `MangroveClient` API. Markets applications must install
+`@mangrove-ai/markets` 0.4.0 after that release is verified, or use its reviewed
+archive. Read the [migration notice](https://github.com/MangroveTechnologies/MangroveAI-SDK/blob/main/docs/typescript-package-migration.md)
+before changing a pin. The old `@mangrove-ai/client` candidate was never published
+and will not become a registry alias.
 
 Check the [dated repository release status](https://github.com/MangroveTechnologies/MangroveAI-SDK/blob/main/docs/issue-66-release-handoff.md)
 for registry availability and verified versions. Source, a local package and a
@@ -20,7 +28,7 @@ is written there, with a name based on that revision's `package.json` version.
 Then install that reviewed archive in the consuming project, using its actual path:
 
 ```sh
-npm install /path/to/reviewed/mangrove-ai-client-0.1.0.tgz
+npm install /path/to/reviewed/mangrove-ai-sdk-1.0.0.tgz
 ```
 
 When installing a registry release, verify its exact version and package identity
@@ -35,7 +43,7 @@ with `test_` also require an explicit origin or `environment: 'local'`; they nev
 default to production. This selects routing, not server permission enforcement.
 
 ```js
-import { MangroveAI, APIError } from '@mangrove-ai/client';
+import { MangroveAI, APIError } from '@mangrove-ai/sdk';
 
 const client = new MangroveAI({ apiKey: process.env.MANGROVE_API_KEY, timeoutMs: 30_000 });
 try {
@@ -183,10 +191,30 @@ deployment before a maintainer publishes. Then read back the registry artifact
 and update the consumer pins and public guide. Do not advertise a source candidate as
 available from npm until those steps succeed.
 
-The separate `Release TypeScript client` workflow is manual, accepts only the
-reviewed `main` branch and defaults to a dry run. Its selected version must match
-the manifest and must not already exist in the registry. It always validates
-contracts, builds, tests and installs the tarball. Maintainers must supply the
-repository's `NPM_TOKEN`, confirm namespace rights and the final package name,
-and explicitly choose a publishing run.
-A validated source tree or dry run does not establish registry publication.
+The separate `Release MangroveAI TypeScript SDK` workflow is manual, runs from
+reviewed `main` and defaults to `dry_run=true`. Its selected version must match
+the manifest and lock, identify this repository's `@mangrove-ai/sdk` with major
+version at least 1, and pass installed-package checks. Publishing first requires
+verified `@mangrove-ai/markets` 0.4.0. It uses directory publication after official
+npm preparation proves the selected source `gitHead`; it does not guess that
+publishing a tarball adds source metadata.
+
+After publishing, actual npm archive bytes must match the local SHA512 and
+SHA-256. The native workflow then creates/verifies annotated
+`typescript-v1.0.0`, a source/checksum-bound GitHub Release and immutable tarball,
+checksum and provenance assets. Exact old Markets versions 0.1.2, 0.2.0 and 0.3.0
+receive migration notices only after those checks. No package version, tag or
+asset is overwritten, and the whole package name is never deprecated.
+
+An optional full main-ancestor `release_commit` supports an interrupted release.
+An already published artifact can resume only when its name, repository,
+`gitHead`, integrity and downloaded bytes match the rebuilt original source.
+Existing tags are dereferenced to their annotated commit; matching release
+bodies/assets are retained and missing assets can be completed. Conflicts stop.
+Dry runs never publish, tag, create releases or deprecate versions. Package
+publication remains separate from deployed API and live acceptance.
+
+For a new unpublished version, the selected source must still be fresh `main`
+immediately before publishing. An older main ancestor is accepted only to finish
+an already published artifact whose exact source and bytes were verified. It
+cannot start a new publication or move npm `latest` back to stale source.

@@ -5,13 +5,17 @@ languages. Keep their package identities and capabilities distinct:
 
 - Python: PyPI `mangroveai`, import `from mangrove_ai import MangroveAI`, source
   `src/mangrove_ai/`. Python 2.1.0 is published; see the dated release handoff.
-- TypeScript: npm identity `@mangrove-ai/client`, import
-  `import { MangroveAI } from '@mangrove-ai/client'`, source `packages/typescript/`.
-  Read [its guide](packages/typescript/README.md) and the [dated release status](docs/issue-66-release-handoff.md)
-  before claiming registry availability. At the 2026-11-01 checkpoint, 0.1.0 is
-  implemented but unpublished; reviewed local tarballs are supported for evaluation.
-- `@mangrove-ai/sdk` is the separate MangroveMarkets client, not this API's
-  TypeScript package. Do not rename, alias or repurpose either package.
+- TypeScript: npm `@mangrove-ai/sdk` 1.x, import
+  `import { MangroveAI } from '@mangrove-ai/sdk'`, source `packages/typescript/`.
+  The source package version is 1.0.0; use the [guide](packages/typescript/README.md),
+  [migration notice](docs/typescript-package-migration.md) and [dated release status](docs/issue-66-release-handoff.md)
+  before claiming registry availability.
+- MangroveMarkets moves to `@mangrove-ai/markets` 0.4.0 with its existing
+  `MangroveClient` export. Published `@mangrove-ai/sdk` 0.1.2, 0.2.0 and 0.3.0
+  are historical Markets releases, not the AI SDK. Never overwrite those versions.
+- The user's explicit 2026-11-02 naming decision replaces the earlier naming plan.
+  `@mangrove-ai/client` was unpublished and must not be published or kept as an alias.
+  AI 1.0.0 is a breaking product move, not Markets API compatibility.
 
 TypeScript provides named `users`, `signals`, `strategyWorkflow` and `backtesting`
 helpers and a generated generic `request(operation, options)` surface, not
@@ -74,6 +78,38 @@ reconciliation; it is not permission to overwrite a release.
 The preparation workflow needs Actions write permission to dispatch offline CI and
 repository permission to open PRs. No workflow was dispatched during implementation.
 The package name stays `mangroveai`; `mangrove_ai` is its import path.
+
+## TypeScript release order
+
+Keep Python versioning unchanged. Both TypeScript source PRs must be reviewed and
+human-merged first. Publish and verify `@mangrove-ai/markets` 0.4.0 from the Markets
+repository before publishing `@mangrove-ai/sdk` 1.0.0 here. Historical Markets
+`@mangrove-ai/sdk` versions remain immutable. Never publish `@mangrove-ai/client`.
+
+The existing `.github/workflows/typescript-release.yml` manual workflow uses
+`version=1.0.0` and `dry_run=true` for validation, then `dry_run=false` for the
+authorized release from `main`. It builds and tests the selected clean main
+source, verifies official npm directory-prepared `gitHead`, and packs exact
+SHA-256/SHA512 identities. An absent target may publish; an existing npm version
+resumes only if name, repository, source `gitHead`, integrity and downloaded
+archive bytes match. Nothing is overwritten.
+
+After registry verification, the native workflow creates or verifies annotated
+`typescript-v1.0.0`, its exact commit, the GitHub Release and checksum-bound assets.
+Only then does it deprecate exact historical Markets versions 0.1.2, 0.2.0 and
+0.3.0 with their migration notice. Dry runs and failed publication perform no
+such writes. There is no manual tag push or whole-name deprecation.
+
+For interrupted releases, optional `release_commit` must be a full SHA that is
+an ancestor of actual fetched `main`; mutable refs and feature heads are refused.
+The current reviewed main workflow controls finalization while the original
+source is rebuilt. Matching npm/tag/release/assets resume without clobbering;
+conflicts fail. Package publication never proves backend serving or live execution.
+
+For a new unpublished version, the selected source must still be fresh `main`
+immediately before publishing. An older main ancestor is accepted only to finish
+an already published artifact whose exact source and bytes were verified. It
+cannot start a new publication or move npm `latest` back to stale source.
 
 ## Pre-tag PyPI similarity check (if EVER renaming the dist)
 

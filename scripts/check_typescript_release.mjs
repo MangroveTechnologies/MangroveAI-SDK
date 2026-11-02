@@ -65,12 +65,13 @@ export async function verifyPublishedAiArtifact(metadata, { manifest, artifact, 
   return bytes;
 }
 
-export async function checkTypeScriptRelease({ manifest, lock, version, artifact, currentMainSha, requireMarketsRelease = false, request = globalThis.fetch }) {
+export async function checkTypeScriptRelease({ manifest, lock, version, artifact, currentMainSha, workflowSha, requireMarketsRelease = false, request = globalThis.fetch }) {
   validateReleaseIdentity({ manifest, lock, version });
   const response = await request(`https://registry.npmjs.org/${encodeURIComponent(manifest.name)}/${manifest.version}`, registryOptions());
   let publishRequired;
   if (response.status === 404) {
     if (requireMarketsRelease && (!artifact?.sourceSha || artifact.sourceSha !== currentMainSha)) throw new Error('New publication requires the fresh current main source; old ancestors are recovery-only');
+    if (requireMarketsRelease && artifact.sourceSha !== workflowSha) throw new Error('New publication requires the workflow GITHUB_SHA to match the source for npm provenance');
     publishRequired = true;
   }
   else if (response.status === 200) {
@@ -86,7 +87,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
   const lock = JSON.parse(readFileSync('packages/typescript/package-lock.json', 'utf8'));
   const artifact = JSON.parse(readFileSync(process.env.RELEASE_ARTIFACT, 'utf8'));
   const currentMainSha = execFileSync('git', ['ls-remote', 'origin', 'refs/heads/main'], { encoding: 'utf8' }).trim().split(/\s+/)[0];
-  const result = await checkTypeScriptRelease({ manifest, lock, currentMainSha, version: process.env.EXPECTED_VERSION, artifact, requireMarketsRelease: process.env.REQUIRE_MARKETS_RELEASE === 'true' });
+  const result = await checkTypeScriptRelease({ manifest, lock, currentMainSha, workflowSha: process.env.GITHUB_SHA, version: process.env.EXPECTED_VERSION, artifact, requireMarketsRelease: process.env.REQUIRE_MARKETS_RELEASE === 'true' });
   if (process.env.GITHUB_OUTPUT) appendFileSync(process.env.GITHUB_OUTPUT, `publish_required=${result.publishRequired}\n`);
   console.log(JSON.stringify(result));
 }

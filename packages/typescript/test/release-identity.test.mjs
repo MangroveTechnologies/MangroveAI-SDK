@@ -1,13 +1,16 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createHash } from 'node:crypto';
+import { spawnSync } from 'node:child_process';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { checkTypeScriptRelease } from '../../../scripts/check_typescript_release.mjs';
 
 const mainSha = 'a'.repeat(40);
 const identity = (name = '@mangrove-ai/sdk', version = '1.0.0') => ({
   manifest: { name, version, repository: { url: 'https://github.com/MangroveTechnologies/MangroveAI-SDK.git', directory: 'packages/typescript' } },
   lock: { name, version, packages: { '': { name, version } } },
-  version, currentMainSha: mainSha, artifact: { sourceSha: mainSha },
+  version, currentMainSha: mainSha, workflowSha: mainSha, artifact: { sourceSha: mainSha },
 });
 const response = (status, body) => ({ status, json: async () => body });
 const noNetwork = async () => { throw new Error('Local identity rejection must precede registry calls'); };
@@ -80,4 +83,32 @@ test('a stale main ancestor cannot start an absent new version but can resume an
   assert.equal(result.publishRequired, false);
   const current = await checkTypeScriptRelease({ ...identity(), requireMarketsRelease: true, request: async url => response(url.includes('%2Fmarkets/') ? 200 : 404, markets) });
   assert.equal(current.publishRequired, true);
+});
+
+test('new publication rejects fresh main when npm provenance would identify an older workflow source', async () => {
+  let publications = 0;
+  await assert.rejects(async () => {
+    const result = await checkTypeScriptRelease({ ...identity(), workflowSha: 'b'.repeat(40), requireMarketsRelease: true, request: async url => response(url.includes('%2Fmarkets/') ? 200 : 404, { name: '@mangrove-ai/markets', version: '0.4.0', repository: 'https://github.com/MangroveTechnologies/MangroveMarkets' }) });
+    if (result.publishRequired) publications += 1;
+  }, /workflow.*provenance/i);
+  assert.equal(publications, 0);
+});
+
+test('the actual publish shell rejects mismatched workflow provenance before invoking npm', () => {
+  const workflow = readFileSync(new URL('../../../.github/workflows/typescript-release.yml', import.meta.url), 'utf8');
+  const script = workflow.match(/- name: Publish new reviewed package[\s\S]*?        run: \|\n([\s\S]*?)        working-directory:/)?.[1].replace(/^          /gm, '');
+  assert.ok(script, 'The native publisher run block must be available');
+  const fixture = mkdtempSync(join(process.cwd(), '.release-publish-fixture-'));
+  const log = join(fixture, 'npm-calls');
+  try {
+    writeFileSync(join(fixture, 'git'), '#!/bin/sh\nif [ "$1" = "rev-parse" ]; then printf "%s\\n" "$FIXTURE_MAIN_SHA"; fi\n', { mode: 0o700 });
+    writeFileSync(join(fixture, 'npm'), '#!/bin/sh\nprintf "%s\\n" "$*" >> "$PUBLISH_LOG"\n', { mode: 0o700 });
+    const run = (workflowSha, currentMainSha = mainSha) => spawnSync('bash', ['-e', '-c', script], { encoding: 'utf8', env: { PATH: fixture + ':' + process.env.PATH, SOURCE_SHA: mainSha, GITHUB_SHA: workflowSha, FIXTURE_MAIN_SHA: currentMainSha, NODE_AUTH_TOKEN: 'offline-fixture', PUBLISH_LOG: log } });
+    const mismatch = run('b'.repeat(40));
+    assert.notEqual(mismatch.status, 0); assert.match(mismatch.stdout, /workflow.*provenance/i); assert.equal(existsSync(log), false);
+    assert.notEqual(run(mainSha, 'c'.repeat(40)).status, 0); assert.equal(existsSync(log), false);
+    const sameSource = run(mainSha);
+    assert.equal(sameSource.status, 0, sameSource.stderr);
+    assert.equal(readFileSync(log, 'utf8'), 'publish --ignore-scripts --access public --provenance --tag latest --registry=https://registry.npmjs.org\n');
+  } finally { rmSync(fixture, { recursive: true, force: true }); }
 });

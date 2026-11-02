@@ -104,6 +104,10 @@ jobs:
             echo 'New publication requires fresh main; rerun from current main'
             exit 1
           fi
+          if [ "$GITHUB_SHA" != "$SOURCE_SHA" ]; then
+            echo 'New publication requires matching workflow source for npm provenance'
+            exit 1
+          fi
           npm publish --ignore-scripts --access public --provenance --tag latest --registry=https://registry.npmjs.org
         working-directory: release-source/packages/typescript
         env:

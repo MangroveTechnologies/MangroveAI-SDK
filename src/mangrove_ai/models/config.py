@@ -30,6 +30,9 @@ class ExecutionConfigParam(MangroveModel):
     choices: list[Any] | None = None
     fields: dict[str, ExecutionConfigParam] | None = None
     """Known nested parameter metadata, derived from the server's canonical glossary."""
+    fields_shape: str | None = None
+    """Whether nested fields describe a finite object rather than a timeframe map."""
+    additional_properties: bool | None = None
     required_fields: list[str] | None = None
     metadata_fields: dict[str, ExecutionConfigParam] | None = None
 

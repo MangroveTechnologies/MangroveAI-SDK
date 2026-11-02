@@ -1,5 +1,9 @@
 # Changelog
 
+This is the Python release history. TypeScript package naming is independent:
+`@mangrove-ai/sdk` 1.x is MangroveAI; historical `@mangrove-ai/sdk` 0.x references describe Markets,
+which moves to `@mangrove-ai/markets`. See the [migration notice](docs/typescript-package-migration.md).
+
 All notable changes to the MangroveAI Python SDK will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
@@ -7,15 +11,15 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### X post counts and the social signal category
+### X post counts and the social signal category (targets 2.2.0, after 2.1.1)
 
 - `client.social.get_x_post_counts(symbol, days_back, granularity, x_query)` reads
   `GET /api/v1/social/x-post-counts/{symbol}` and returns `XPostCountsResponse` with typed
   `XPostCountBucket` rows (`start`, `end`, `count`). These are the counts the x_attention signals read.
   `days_back` is 1-31; `x_query` is `"all"` or `"en_original"`. Counts are billed per X request and cached.
 - `signals.list(category="social")` is documented; the server lists the X signals there.
-- Contracts refreshed from MangroveAI#1493 (791b737b): one added path and one response model; no
-  other operation changed. TypeScript contract and coverage regenerated.
+- Contracts refreshed from MangroveAI#1493 (4b96fad6, current MangroveAI main plus X): one added path,
+  one response model and the `social` category on the signals list; no other operation changed. TypeScript contract and coverage regenerated.
 - New example `examples/x_attention_signals_demo.py`.
 
 ### Python client contract repair (issue 66)

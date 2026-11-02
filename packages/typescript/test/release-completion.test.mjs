@@ -77,3 +77,11 @@ test('untrusted tarball origins and oversized archives stop before finalization'
   args.finalize = async () => assert.fail('No oversized archive');
   await assert.rejects(completeTypeScriptRelease(args), /size limit/);
 });
+
+test('a resumed release leaves versions that already carry the exact notice alone', async () => {
+  const calls = [];
+  const notices = { '@mangrove-ai/sdk@0.1.2': MIGRATION_NOTICE, '@mangrove-ai/sdk@0.2.0': 'an older notice', '@mangrove-ai/sdk@0.3.0': '' };
+  const result = await completeTypeScriptRelease({ ...fixture(), currentNotice: async target => notices[target], deprecate: async target => { calls.push(target); } });
+  assert.deepEqual(calls, ['@mangrove-ai/sdk@0.2.0', '@mangrove-ai/sdk@0.3.0']);
+  assert.deepEqual(result.deprecated, ['@mangrove-ai/sdk@0.1.2', '@mangrove-ai/sdk@0.2.0', '@mangrove-ai/sdk@0.3.0']);
+});

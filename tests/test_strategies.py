@@ -38,6 +38,24 @@ def _make_client(mock: MockTransport) -> MangroveAI:
     return MangroveAI(api_key="test_abc123", environment="local", httpx_client=mock)
 
 
+def test_local_deployment_uses_existing_strategy_transport():
+    sid = "11111111-2222-3333-4444-555555555555"
+    mock = MockTransport()
+    contract = {"contract_version": 1, "strategy_id": sid, "fingerprint": "a" * 64}
+    mock.add_response("GET", f"/strategies/{sid}/local-deployment", json=contract)
+    result = _make_client(mock).strategies.local_deployment(sid, asset_class="crypto")
+    assert result == contract
+    assert mock.requests[0].params == {"asset_class": "crypto"}
+
+
+@pytest.mark.parametrize("sid,asset_class", [("not-a-uuid", "crypto"), ("11111111-2222-3333-4444-555555555555", "options")])
+def test_local_deployment_rejects_bad_arguments_before_transport(sid, asset_class):
+    mock = MockTransport()
+    with pytest.raises(ValueError):
+        _make_client(mock).strategies.local_deployment(sid, asset_class=asset_class)
+    assert not mock.requests
+
+
 class TestStrategiesList:
     def test_list_returns_paginated_response(self) -> None:
         mock = MockTransport()

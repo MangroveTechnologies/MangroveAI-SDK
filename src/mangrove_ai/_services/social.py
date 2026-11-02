@@ -57,13 +57,18 @@ class SocialService(BaseService):
         """Get X post counts for an asset, the series the x_attention signals read.
 
         Counts are closed buckets, oldest first. They measure how much people post
-        about the ``$SYMBOL`` cashtag, not what they say.
+        about the ``$SYMBOL`` cashtag, not what they say. Each X request is billed
+        ($0.005 for the last 7 days, $0.010 for the full archive) and covers up to
+        31 days of hourly buckets; results are cached, so ``x_requests`` is 0 for a
+        cached window. The call returns 503 when X signals are off, X is not
+        configured or the shared credit balance is under its floor.
 
         Args:
             symbol: Asset ticker, e.g. ``"BTC"`` (counted as the ``$BTC`` cashtag).
-            days_back: Window in days ending now, 1-31.
+            days_back: Window in days ending now, 1-31 (the API limit per read).
             granularity: ``"hour"`` or ``"day"``.
-            x_query: ``"all"`` or ``"en_original"`` (English, no reposts).
+            x_query: ``"all"`` or ``"en_original"`` (English, no reposts). A strategy
+                uses one value across all of its X rules.
         """
         params: dict[str, Any] = {"days_back": days_back, "granularity": granularity, "x_query": x_query}
         return self._request_model(

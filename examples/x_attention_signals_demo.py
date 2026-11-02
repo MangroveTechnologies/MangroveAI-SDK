@@ -11,16 +11,25 @@ Sections:
     2. Fetch a week of hourly X post counts for BTC.
     3. Build the XPostCount column and evaluate ``x_post_count_spike`` locally.
 
-The server backfills counts on demand and caches them, so a repeat call for the
-same window makes no X request (``x_requests == 0``). In a backtest the engine
-reads only buckets that had closed by each bar, so a strategy never sees a
-count from its own future.
+Counts are hourly, stamped on the bar open time. The server backfills them on
+demand from the X API and caches them, so a repeat call for the same window makes
+no X request (``x_requests == 0``). Each X request is billed ($0.005 for the last
+7 days, $0.010 for the full archive) and covers up to 31 days of hourly buckets,
+which is also the ``days_back`` limit of ``get_x_post_counts`` (1-31). A bucket
+becomes visible to a bar only once it has ended plus a 5-minute ingest lag before
+that bar closes, live and in backtests alike, so a strategy never sees a count
+from its own future. Any gap makes the signal evaluate False. All three signals
+take ``x_query`` ("all" or "en_original"); a strategy uses one value across its
+X rules.
 
 Getting started:
     1. Create an account at https://mangrovedeveloper.ai
     2. Settings > API Keys > Generate a key (starts with `prod_`).
     3. export MANGROVE_API_KEY=prod_your_key_here
-    4. For section 3: pip install pandas "mangrove-kb>=<the release with the X signals>"
+    4. For section 3: pip install pandas
+       (the X signals ship in the MangroveAI service for now; the mangrove-kb
+       3.9.0 release will carry the same signals, and section 3 prints "Skipped"
+       until the installed mangrove-kb has them)
 
 Run:
     python examples/x_attention_signals_demo.py
@@ -71,7 +80,7 @@ def main() -> None:
     except ImportError:
         RuleRegistry = None
     if RuleRegistry is None or not RuleRegistry.has("x_post_count_spike"):
-        print("  Skipped: install pandas and a mangrove-kb release that includes the X signals.")
+        print("  Skipped: install pandas and a mangrove-kb release that includes the X signals (3.9.0 and later).")
         return
 
     df = pd.DataFrame(

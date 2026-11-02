@@ -1,34 +1,65 @@
-name: Release TypeScript client
+name: Release MangroveAI TypeScript SDK
 
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Reviewed package.json version to release'
+        description: 'Reviewed @mangrove-ai/sdk version (1.0.0 or later)'
         required: true
         type: string
       dry_run:
-        description: 'Validate and pack without publishing'
+        description: 'Validate and pack without publishing, tagging or deprecating'
         required: true
         default: true
         type: boolean
+      release_commit:
+        description: 'Optional full main-ancestor SHA for an interrupted release'
+        required: false
+        type: string
 
 permissions:
   contents: read
-  id-token: write
 
 concurrency:
-  group: typescript-client-release
+  group: mangroveai-typescript-sdk-release
   cancel-in-progress: false
 
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
     steps:
-      - name: Require reviewed default branch
+      - name: Require reviewed default-branch workflow
         if: github.ref != 'refs/heads/main'
         run: exit 1
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: release-controller
+          fetch-depth: 0
+      - name: Select exact reviewed main source
+        id: source
+        working-directory: release-controller
+        env:
+          REQUESTED_RELEASE_COMMIT: ${{ inputs.release_commit }}
+        run: |
+          SELECTED_SOURCE="${REQUESTED_RELEASE_COMMIT:-$GITHUB_SHA}"
+          if [[ ! "$SELECTED_SOURCE" =~ ^[0-9a-f]{40}$ ]]; then
+            echo 'release_commit must be a full commit SHA'
+            exit 1
+          fi
+          git fetch --no-tags origin main
+          git cat-file -e "$SELECTED_SOURCE^{commit}"
+          git merge-base --is-ancestor "$SELECTED_SOURCE" FETCH_HEAD
+          echo "sha=$SELECTED_SOURCE" >> "$GITHUB_OUTPUT"
+          echo "RELEASE_ARTIFACT_DIR=$RUNNER_TEMP/mangrove-ai-typescript-release" >> "$GITHUB_ENV"
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.source.outputs.sha }}
+          path: release-source
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -36,32 +67,59 @@ jobs:
         with:
           node-version: '22'
           registry-url: 'https://registry.npmjs.org'
-      - name: Verify selected version is new
+      - run: python scripts/generate_typescript_contract.py --check
+        working-directory: release-source
+      - run: npm ci --ignore-scripts --prefix packages/typescript
+        working-directory: release-source
+      - run: npm run typecheck --prefix packages/typescript
+        working-directory: release-source
+      - run: npm test --prefix packages/typescript
+        working-directory: release-source
+      - run: node packages/typescript/test/packed-artifact.mjs
+        working-directory: release-source
+      - name: Pack and bind exact source and checksums
+        working-directory: release-source
         env:
           EXPECTED_VERSION: ${{ inputs.version }}
-        run: |
-          node --input-type=module <<'JS'
-          import { readFileSync } from 'node:fs';
-          const pkg = JSON.parse(readFileSync('packages/typescript/package.json', 'utf8'));
-          if (pkg.version !== process.env.EXPECTED_VERSION) throw new Error('Input version does not match reviewed package.json');
-          const response = await fetch(`https://registry.npmjs.org/${encodeURIComponent(pkg.name)}/${pkg.version}`);
-          if (response.status === 200) throw new Error('This version is already published; select a reviewed new version');
-          if (response.status !== 404) throw new Error(`Registry preflight failed: ${response.status}`);
-          JS
-      - run: python scripts/generate_typescript_contract.py --check
-      - run: npm ci --ignore-scripts --prefix packages/typescript
-      - run: npm run typecheck --prefix packages/typescript
-      - run: npm test --prefix packages/typescript
-      - run: node packages/typescript/test/packed-artifact.mjs
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
+        run: node ../release-controller/scripts/prepare_typescript_release.mjs
+      - name: Verify package identity and publish-or-resume state
+        id: preflight
+        working-directory: release-source
+        env:
+          EXPECTED_VERSION: ${{ inputs.version }}
+          REQUIRE_MARKETS_RELEASE: ${{ !inputs.dry_run }}
+        run: node ../release-controller/scripts/check_typescript_release.mjs
       - name: Validate package without publishing
         if: inputs.dry_run
-        run: npm publish --dry-run --ignore-scripts --access public
-        working-directory: packages/typescript
-      - name: Publish reviewed package
-        if: ${{ !inputs.dry_run }}
+        run: npm publish --dry-run --ignore-scripts --access public --tag latest --registry=https://registry.npmjs.org
+        working-directory: release-source/packages/typescript
+      - name: Publish new reviewed package
+        id: publish
+        if: ${{ !inputs.dry_run && steps.preflight.outputs.publish_required == 'true' }}
         run: |
-          test -n "$NODE_AUTH_TOKEN" || { echo 'NPM_TOKEN is required for the maintainer-authorized publish'; exit 1; }
-          npm publish --ignore-scripts --access public --provenance
-        working-directory: packages/typescript
+          test -n "$NODE_AUTH_TOKEN" || { echo 'NPM_TOKEN is required for the authorized publish'; exit 1; }
+          git fetch --no-tags origin main
+          if [ "$(git rev-parse FETCH_HEAD)" != "$SOURCE_SHA" ]; then
+            echo 'New publication requires fresh main; rerun from current main'
+            exit 1
+          fi
+          if [ "$GITHUB_SHA" != "$SOURCE_SHA" ]; then
+            echo 'New publication requires matching workflow source for npm provenance'
+            exit 1
+          fi
+          npm publish --ignore-scripts --access public --provenance --tag latest --registry=https://registry.npmjs.org
+        working-directory: release-source/packages/typescript
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
+      - name: Verify registry, annotated tag, release assets and exact migration notices
+        if: ${{ success() && !inputs.dry_run && (steps.publish.outcome == 'success' || steps.preflight.outputs.publish_required == 'false') }}
+        working-directory: release-source
+        env:
+          EXPECTED_VERSION: ${{ inputs.version }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          PUBLISH_SUCCEEDED: 'true'
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node ../release-controller/scripts/complete_typescript_release.mjs

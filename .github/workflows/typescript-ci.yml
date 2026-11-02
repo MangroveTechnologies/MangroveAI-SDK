@@ -6,6 +6,11 @@ on:
       - 'packages/typescript/**'
       - 'contracts/mangroveai/**'
       - 'scripts/generate_typescript_contract.py'
+      - 'scripts/check_typescript_release.mjs'
+      - 'scripts/complete_typescript_release.mjs'
+      - 'scripts/prepare_typescript_release.mjs'
+      - 'scripts/github_typescript_release.mjs'
+      - 'scripts/npm_publish_context.mjs'
       - 'src/mangrove_ai/_services/**'
       - '.github/workflows/typescript-*.yml'
   push:
@@ -14,6 +19,11 @@ on:
       - 'packages/typescript/**'
       - 'contracts/mangroveai/**'
       - 'scripts/generate_typescript_contract.py'
+      - 'scripts/check_typescript_release.mjs'
+      - 'scripts/complete_typescript_release.mjs'
+      - 'scripts/prepare_typescript_release.mjs'
+      - 'scripts/github_typescript_release.mjs'
+      - 'scripts/npm_publish_context.mjs'
       - 'src/mangrove_ai/_services/**'
       - '.github/workflows/typescript-*.yml'
 

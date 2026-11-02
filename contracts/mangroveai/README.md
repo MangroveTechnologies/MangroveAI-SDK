@@ -20,6 +20,12 @@ request; TypeScript exports its generated `ExecutionConfiguration` type and
 retains a legacy-object transport escape hatch. Neither client automatically
 fetches configuration or runs trading-risk validation.
 
+`ExecutionConfiguration` names `cooldown_model` and the partial `circuit_breaker`
+object, including its nine server-declared controls. Python preserves their
+defaults and nested glossary in the explicit schema response. These authoring
+declarations do not add a client-side trading gate; the legacy transport escape
+hatch and server-owned risk decisions remain unchanged.
+
 `coverage.json` enumerates every generated REST operation, response modelling
 status and matching direct Python transport bindings. Python wrappers delegating
 to another method are not separate routes; an empty direct-binding list is not

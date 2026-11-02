@@ -4,10 +4,10 @@ This repository contains clients for the public MangroveAI services in both
 languages. Keep their package identities and capabilities distinct:
 
 - Python: PyPI `mangroveai`, import `from mangrove_ai import MangroveAI`, source
-  `src/mangrove_ai/`. Python 2.1.0 is published; see the dated release handoff.
+  `src/mangrove_ai/`. Python 2.2.0 is published; see the dated release handoff.
 - TypeScript: npm `@mangrove-ai/sdk` 1.x, import
   `import { MangroveAI } from '@mangrove-ai/sdk'`, source `packages/typescript/`.
-  The source package version is 1.0.0; use the [guide](packages/typescript/README.md),
+  The source package version is 1.1.0 (1.0.0 is the first published AI release); use the [guide](packages/typescript/README.md),
   [migration notice](docs/typescript-package-migration.md) and [dated release status](docs/issue-66-release-handoff.md)
   before claiming registry availability.
 - MangroveMarkets moves to `@mangrove-ai/markets` 0.4.0 with its existing

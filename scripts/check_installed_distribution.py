@@ -61,6 +61,10 @@ def main() -> None:
         config = client.config.get_execution_config_schema()
         assert config.json_schema == fixture("execution-config-success")["json_schema"]
         assert config.param_glossary["cooldown_config"].required_fields
+        assert config.defaults["cooldown_model"] == "trades"
+        assert config.param_glossary["circuit_breaker"].fields_shape == "object"
+        assert config.param_glossary["circuit_breaker"].additional_properties is False
+        assert config.param_glossary["circuit_breaker"].fields["consecutive_loss_limit"].type == "int"
         assert [row.name for row in client.signals.list_iter(limit_per_page=1)] == ["fixture_one", "fixture_two"]
         assert [row["result_id"] for row in client.oracle.list_results_iter(page_size=1)] == ["row-0", "row-1"]
         try:

@@ -2,11 +2,11 @@
   "contracts": [
     {
       "path": "execution-config.schema.json",
-      "sha256": "a0c4e22f68a287a0d1da471fdd6f046e3e138419ef01dd45d57857ff11a38779"
+      "sha256": "2d3cc9db2204f05471d5eeb8ff902dcd25b4bff3c240078c99d1afd33b9bf360"
     },
     {
       "path": "openapi.json",
-      "sha256": "e94e3e45b3f4b29edcd94150fe3235d1ae8033320da780794fdabbf965d2ae02"
+      "sha256": "3fb8b2b4f2d0742990d7227c58a4f1a711d555287fabc2d265ebb9c01c66f967"
     },
     {
       "path": "oracle-proxy-openapi.json",

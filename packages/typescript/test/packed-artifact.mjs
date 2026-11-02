@@ -36,6 +36,9 @@ try {
     assert.equal(config.json_schema.$schema,'https://json-schema.org/draft/2020-12/schema');
     assert.equal(config.json_schema.properties.cooldown_config.additionalProperties.properties.short_window_bars.type,'integer');
     assert.ok(config.param_glossary.cooldown_config.required_fields.includes('short_window_bars'));
+    assert.equal(config.defaults.cooldown_model,'trades');
+    assert.equal(config.json_schema.properties.circuit_breaker.additionalProperties,false);
+    assert.equal(config.param_glossary.circuit_breaker.fields.consecutive_loss_limit.type,'int');
     assert.ok(import.meta.resolve('@mangrove-ai/client').includes('/node_modules/'));
     console.log('Packed artifact usage and execution configuration examples passed');
   `);

@@ -395,6 +395,7 @@ export interface Operations {
   "PUT /api/v1/strategies/{strategy_id}": { input: { path: { "strategy_id": string; }; }; output: CoreModels["api1.UpdateStrategyResponse"]; };
   "POST /api/v1/strategies/{strategy_id}/archive": { input: { path: { "strategy_id": string; }; }; output: CoreModels["api1.StrategyArchiveResponse"]; };
   "PATCH /api/v1/strategies/{strategy_id}/execution-state": { input: { path: { "strategy_id": string; }; }; output: unknown; };
+  "GET /api/v1/strategies/{strategy_id}/local-deployment": { input: { path: { "strategy_id": string; }; }; output: unknown; };
   "PATCH /api/v1/strategies/{strategy_id}/status": { input: { path: { "strategy_id": string; }; body: CoreModels["api1.UpdateStrategyStatusRequest"]; }; output: CoreModels["api1.UpdateStrategyStatusResponse"]; };
   "POST /api/v1/strategies/{strategy_id}/unarchive": { input: { path: { "strategy_id": string; }; }; output: CoreModels["api1.StrategyArchiveResponse"]; };
   "GET /api/v1/strategies/{strategy_id}/verify": { input: { path: { "strategy_id": string; }; }; output: CoreModels["api1.StrategyVerification"]; };
@@ -1907,6 +1908,18 @@ export const operationMetadata = {
     "bodyRequired": false,
     "method": "GET",
     "path": "/api/v1/strategies/{strategy_id}",
+    "queryFormats": {},
+    "required": {
+      "path": [
+        "strategy_id"
+      ]
+    }
+  },
+  "GET /api/v1/strategies/{strategy_id}/local-deployment": {
+    "authenticated": true,
+    "bodyRequired": false,
+    "method": "GET",
+    "path": "/api/v1/strategies/{strategy_id}/local-deployment",
     "queryFormats": {},
     "required": {
       "path": [

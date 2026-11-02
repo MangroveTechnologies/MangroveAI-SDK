@@ -182,7 +182,7 @@ result = client.backtesting.run(BacktestRequest(
     # Loss pauses default to 36 bars, clamped to 24 hours through 14 days.
     execution_config={
         "circuit_breaker": {
-            "consecutive_loss_limit": 4,
+            "consecutive_loss_limit": 2,
             "pause_bars": 36,
         }
     },

@@ -47,7 +47,7 @@ class SignalsService(BaseService):
                 to continue, or ``list_iter`` to page automatically.
             offset: Index of the first record to return.
             category: Signal library module, e.g. "momentum", "trend", "volume",
-                "volatility", "patterns", "onchain".
+                "volatility", "patterns", "onchain", "social".
             regime_direction: Market regime band to narrow to, e.g. "bull", "bear",
                 "neutral", as reported by a market regime lookup. Keeps only signals
                 admissible for that regime.

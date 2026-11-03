@@ -11,6 +11,7 @@ const scratch = mkdtempSync(join(tmpdir(), 'mangrove-sdk-package-'));
 const fixture = JSON.parse(readFileSync(join(packageRoot, '../../contracts/mangroveai/fixtures/usage-success.json'), 'utf8'));
 const configFixture = JSON.parse(readFileSync(join(packageRoot, '../../contracts/mangroveai/fixtures/execution-config-success.json'), 'utf8'));
 const localFixture = JSON.parse(readFileSync(join(packageRoot, '../../contracts/mangroveai/fixtures/local-deployment-not-ready.json'), 'utf8'));
+const signalFixtures = ['one', 'two'].map(page => JSON.parse(readFileSync(join(packageRoot, `../../contracts/mangroveai/fixtures/signals-page-${page}.json`), 'utf8')));
 let calls = 0;
 const server = createServer((request, response) => {
   calls++;
@@ -23,6 +24,7 @@ const server = createServer((request, response) => {
   }
   const body = request.url === '/api/v1/users/me/metrics' ? fixture
     : request.url === '/api/v1/config/execution-config-schema' ? configFixture
+    : request.url.startsWith('/api/v1/signals/?') ? signalFixtures[Number(new URL(request.url, 'http://localhost').searchParams.get('offset'))]
     : request.url === `/api/v1/strategies/${localFixture.strategy_id}/local-deployment?asset_class=crypto` ? localFixture : null;
   assert.ok(body, 'Unexpected request from installed package');
   response.writeHead(200, { 'Content-Type': 'application/json' });
@@ -56,6 +58,9 @@ try {
     assert.equal(config.json_schema.properties.circuit_breaker.additionalProperties,false);
     assert.equal(config.param_glossary.circuit_breaker.fields.consecutive_loss_limit.type,'int');
     assert.ok(import.meta.resolve('@mangrove-ai/sdk').includes('/node_modules/'));
+    const signals = [];
+    for await (const item of sdk.signals.listIter({limit:1})) signals.push(item);
+    assert.deepEqual(signals.map(row => [row.evaluation_mode,row.data_provider]), [['frame',null],['live','x']]);
     const localFixture = JSON.parse(readFileSync('local-fixture.json', 'utf8'));
     assert.deepEqual(await sdk.strategies.localDeployment(localFixture.strategy_id, {assetClass:'crypto'}), localFixture);
     await assert.rejects(sdk.strategies.localDeployment(localFixture.strategy_id, {assetClass:'equity'}), error => {
@@ -70,7 +75,7 @@ try {
   const child = spawn(process.execPath, ['smoke.mjs'], { cwd: scratch, env: { ...process.env, SDK_FIXTURE_ORIGIN: `http://127.0.0.1:${server.address().port}` }, stdio: 'inherit' });
   const exitCode = await new Promise(resolve => child.once('exit', resolve));
   assert.equal(exitCode, 0);
-  assert.equal(calls, 4);
+  assert.equal(calls, 6);
 } finally {
   server.closeAllConnections();
   await new Promise(resolve => server.close(resolve));

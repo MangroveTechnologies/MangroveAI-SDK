@@ -82,7 +82,9 @@ def main() -> None:
         assert config.param_glossary["circuit_breaker"].fields_shape == "object"
         assert config.param_glossary["circuit_breaker"].additional_properties is False
         assert config.param_glossary["circuit_breaker"].fields["consecutive_loss_limit"].type == "int"
-        assert [row.name for row in client.signals.list_iter(limit_per_page=1)] == ["fixture_one", "fixture_two"]
+        signals = list(client.signals.list_iter(limit_per_page=1))
+        assert [row.name for row in signals] == ["fixture_one", "fixture_two"]
+        assert [(row.evaluation_mode, row.data_provider) for row in signals] == [("frame", None), ("live", "x")]
         assert [row["result_id"] for row in client.oracle.list_results_iter(page_size=1)] == ["row-0", "row-1"]
         local = fixture("local-deployment-not-ready")
         assert client.strategies.local_deployment(local["strategy_id"], asset_class="crypto") == local

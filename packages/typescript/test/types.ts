@@ -1,6 +1,21 @@
 import { MangroveAI, type CoreModels, type UsageMetrics, type ExecutionConfiguration, type LocalDeployment } from '../src/index.js';
 
 const sdk = new MangroveAI({ apiKey: 'prod_fixture', baseUrl: 'https://example.invalid' });
+void sdk.signals.list().then(page => {
+  const mode: string | undefined = page.items[0]?.evaluation_mode;
+  const provider: string | null | undefined = page.items[0]?.data_provider;
+  void mode; void provider;
+});
+const historicalSignal: CoreModels['api1.Signal'] = {
+  name: 'fixture', category: 'social', evaluation_mode: 'frame', data_provider: null,
+};
+const legacySignal: CoreModels['api1.Signal'] = { name: 'fixture', category: 'social' };
+void historicalSignal; void legacySignal;
+// @ts-expect-error The capability is text rather than an untyped extra property.
+const invalidSignalMode: CoreModels['api1.Signal']['evaluation_mode'] = 123;
+// @ts-expect-error The optional provider is nullable text, not a number.
+const invalidSignalProvider: CoreModels['api1.Signal']['data_provider'] = 123;
+void invalidSignalMode; void invalidSignalProvider;
 const metrics: Promise<UsageMetrics> = sdk.users.getMyMetrics();
 void metrics;
 void sdk.request('GET /api/v1/strategies/{strategy_id}', { path: { strategy_id: 'fixture' } });

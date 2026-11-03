@@ -7,6 +7,8 @@
     {
       "category": "trend",
       "name": "fixture_two",
+      "evaluation_mode": "live",
+      "data_provider": "x",
       "signal_type": "FILTER"
     }
   ],

@@ -6663,8 +6663,20 @@
           "category": {
             "type": "string"
           },
+          "data_provider": {
+            "description": "Live data provider; null for frame-only signals",
+            "type": [
+              "string",
+              "null"
+            ],
+            "x-nullable": true
+          },
           "display_name": {
             "description": "Readable technical name",
+            "type": "string"
+          },
+          "evaluation_mode": {
+            "description": "frame for supplied data, live for current provider data",
             "type": "string"
           },
           "friendly_name": {

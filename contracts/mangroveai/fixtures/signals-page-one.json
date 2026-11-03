@@ -6,6 +6,8 @@
   "signals": [
     {
       "category": "momentum",
+      "evaluation_mode": "frame",
+      "data_provider": null,
       "name": "fixture_one",
       "signal_type": "TRIGGER"
     }

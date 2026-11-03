@@ -7,8 +7,9 @@ fell at least ``min_drop_pct`` over ``window`` bars while the crowd's mean net b
 the ``window_baseline`` readings before them. True means exit the long. Defaults: window=7,
 min_drop_pct=3.0, window_baseline=60.
 
-Six other Cambrian signals are disabled for new strategies (stored strategies keep evaluating
-them): social_sentiment_surge, social_sentiment_capitulation, social_crowd_bullish,
+Six other Cambrian signals are disabled for new strategies until they are validated in
+strategy backtests across market regimes (stored strategies keep evaluating them):
+social_sentiment_surge, social_sentiment_capitulation, social_crowd_bullish,
 social_crowd_cooling, whale_share_divergence, holder_growth_trend.
 
 This example needs no Cambrian data on your side. The server attaches the columns the signal
@@ -23,15 +24,14 @@ Sections:
 
 Notes:
     * ``social_price_divergence`` is typed TRIGGER because the knowledge base has no
-      exit-only type. Put it in ``exit`` only; as a long entry it lost money in every form
-      tested.
+      exit-only type. Put it in ``exit`` only.
     * A bar sees only values already known when the bar closes, in a backtest as in live
       evaluation. Deep42 buckets are daily, so the demo uses daily bars.
-    * The server attaches Cambrian columns only when its Cambrian data flag is on, and that
-      server change is not released yet. With the flag off the catalogue marks the signal
-      non-composable and section 3 is skipped.
-    * The disabled status of the six, and the exit defaults above, reach the catalogue when the
-      server pins the knowledge-base release that carries them.
+    * The server attaches Cambrian columns only when its Cambrian data flag is on, and this
+      requires a MangroveAI release that is not yet deployed. With the flag off the catalogue
+      marks the signal non-composable and section 3 is skipped.
+    * The catalogue reports the disabled status of the six, and the exit defaults above, from a
+      knowledge-base release that the server does not yet pin.
 
 Getting started:
     1. Create an account at https://mangrovedeveloper.ai

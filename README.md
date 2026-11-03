@@ -383,30 +383,23 @@ rules. There is no separate `client` method for the underlying Cambrian data.
   `window + window_baseline - 1` bars, 66 at the defaults. Deep42 buckets are daily.
 - Exit only, never an entry. The catalogue types it `TRIGGER` because the knowledge base has no
   exit-only type, so nothing stops you from putting it in `entry`; do not. Use it in the exit rules
-  of a strategy that already has its own entry trigger and a price filter. As a long entry it lost
-  money in every form tested.
-- Evidence (Oracle engine strategy backtests on BTC, ETH, SOL, XRP, DOGE, BNB and LINK, daily bars,
-  platform default execution config; settings chosen on 2025-04-01 to 2026-01-31, then reported
-  untouched on 2026-02-01 to 2026-11-01): as the exit of `rsi_cross_up` with `is_above_sma` at the
-  defaults above, the holdout return was 4.00% against 3.25% without it, Sharpe 1.12 against 0.61,
-  better on 6 of 7 coins. On three filtered strategies it was never below the strategy without it in
-  either window, over 31 signal exits. The effect is small.
+  of a strategy that has its own entry trigger and a price filter.
 - You supply no data. In live evaluation and in backtests the server attaches the columns the signal
   reads, and a bar sees only values already known when it closes. The server does this only when its
-  Cambrian data flag (`CAMBRIAN_SIGNALS_ENABLED`) is on, and that server change is not released yet.
-  With the flag off the catalogue marks the signal non-composable, so a new strategy cannot be built
-  on it, and a strategy that already names it gets `False` from it, so it never exits.
+  Cambrian data flag (`CAMBRIAN_SIGNALS_ENABLED`) is on, and it requires a MangroveAI release that is
+  not yet deployed. With the flag off the catalogue marks the signal non-composable, so a new
+  strategy cannot be built on it, and a strategy that names it gets `False` from it, so it never
+  exits.
 - `client.signals.evaluate(...)` is different: it runs on the `market_data` you send, so include
   `close` and `SocialNetBullShare` in each row, as for any signal that reads alternative data.
 
 Six other Cambrian signals are disabled for new strategies: `social_sentiment_surge`,
 `social_sentiment_capitulation`, `social_crowd_bullish` and `social_crowd_cooling` (`social`), and
-`whale_share_divergence` and `holder_growth_trend` (`onchain`, Solana holder distribution). They lost
-money or added nothing in the same kind of backtests (424 configurations across the seven signals,
-every strategy with a trigger and a price filter). The catalogue still lists them, with
-`composable=False`, `status="disabled"` and the reason, and a stored strategy that already names one
-keeps evaluating it. This status, and `social_price_divergence` as an exit with the defaults above,
-reach the catalogue when the server pins the knowledge-base release that carries the change.
+`whale_share_divergence` and `holder_growth_trend` (`onchain`, Solana holder distribution). They are
+disabled until they are validated in strategy backtests across market regimes. The catalogue lists
+them with `composable=False`, `status="disabled"` and the reason, and a stored strategy that names
+one keeps evaluating it. The catalogue reports this status, and `social_price_divergence` as an exit
+with the defaults above, from a knowledge-base release that the server does not yet pin.
 
 End-to-end walkthrough, ending in a backtest of an RSI trigger with a price filter and
 `social_price_divergence` as the exit: `examples/cambrian_signals_demo.py`.

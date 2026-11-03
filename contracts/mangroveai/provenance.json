@@ -14,7 +14,7 @@
     }
   ],
   "generation": "Real application factory and canonical config metadata in ci; temporary HelpBot namespace registration only; TCP/DNS attempts refused and fail export; bundled LiteLLM cost metadata; startup provider warm-up/directory setup disabled; overrides restored; no business handlers",
-  "source_commit": "6d6b56d015dddaf537e0cc19aaf0d79db5d1dd1b",
+  "source_commit": "1092316a551030bd3e581111633f579777567a1d",
   "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "source_dirty": false,
   "source_files": [
@@ -36,7 +36,7 @@
     },
     {
       "path": "src/MangroveAI/config/configuration-keys.json",
-      "sha256": "33e77ceb15053c86183f3a1d44979d9013975ddfe4df62a2499392ec5a673b50"
+      "sha256": "ca1c224bb80b2bc9e6dca1c9c5802cb36024f545b7ba13591fff3cabda3b158f"
     },
     {
       "path": "src/MangroveAI/domains/help_bot/routes.py",
@@ -108,7 +108,7 @@
     },
     {
       "path": "src/MangroveAI/domains/backtesting/routes.py",
-      "sha256": "93b45ba19ab432942960feb624268410fcbd2f7fdfe19127feaa704b70a63311"
+      "sha256": "bd6be3ba60225a3c6ab6904c659139688798149dad140604887a43a408c7aa92"
     },
     {
       "path": "src/MangroveAI/domains/strategies/workflow_routes.py",

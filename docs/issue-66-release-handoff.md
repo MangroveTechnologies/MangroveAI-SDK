@@ -12,7 +12,7 @@ not change its package bytes or source identity. Markets' separate published
 clients are Python 1.1.1 and npm `@mangrove-ai/markets` 0.4.0.
 
 This branch prepares Python 2.3.0 and TypeScript 1.2.0 with matching local-deployment
-snapshot reads and reviewed filtered contracts. They require backend 7.11.0 and
+snapshot reads and reviewed filtered contracts. They require backend 7.11.0 or later and
 actual local-deployment serving acceptance. The default loss limit remains four;
 [SDK PR82](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/82) and
 [API PR1518](https://github.com/MangroveTechnologies/MangroveAI/pull/1518)'s
@@ -22,7 +22,7 @@ The public Python distribution name and canonical/legacy imports remain
 `mangroveai`, `mangrove_ai` and deprecated `mangroveai`. The legacy alias is a
 single file, preserving supported public root/models/exceptions imports while
 avoiding a physical directory collision with the private engine. Coexistence
-requires the engine's distinct distribution and SDK 2.3.0 or later; qualify the
+requires the engine's distinct distribution (prepared for 7.12.0) and SDK 2.3.0 or later; qualify the
 actual wheels together rather than inferring compatibility from metadata names.
 
 These versions are already prepared in the reviewed source PR. After human

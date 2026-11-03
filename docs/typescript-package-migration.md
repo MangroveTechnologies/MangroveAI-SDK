@@ -67,7 +67,7 @@ skipped by the AI controller. Never publish `@mangrove-ai/client`.
 
 1. Review the current source candidates, exact-head CI and actual installed
    artifacts. New local-deployment coverage in Python 2.3.0 / TypeScript 1.2.0
-   requires backend 7.11.0 and its actual serving acceptance first. The independent
+   requires backend 7.11.0 or later and its actual serving acceptance first. The independent
    [SDK PR82](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/82) /
    [API PR1518](https://github.com/MangroveTechnologies/MangroveAI/pull/1518) default-loss proposal is not part of these candidates.
 2. Human-merge reviewed SDK source. From actual current main, run the native

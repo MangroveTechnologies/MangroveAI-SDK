@@ -13,7 +13,7 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Prepare the existing owner-scoped `strategies.local_deployment` snapshot read
   for release, with matching TypeScript 1.2.0 `strategies.localDeployment` and
-  current public-filtered contracts. Requires backend 7.11.0 serving acceptance.
+  current public-filtered contracts. Requires backend 7.11.0 or later serving acceptance.
 - Retain server default loss limit of four; [SDK PR82](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/82) /
   [API PR1518](https://github.com/MangroveTechnologies/MangroveAI/pull/1518)'s proposed limit of two is separate
   unfinished feature work, not included here.

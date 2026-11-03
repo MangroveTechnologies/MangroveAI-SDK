@@ -13,7 +13,7 @@ before changing a pin. The old `@mangrove-ai/client` candidate was never publish
 and will not become a registry alias.
 
 Published checkpoint: November 2, 2026: AI 1.1.0 and Markets 0.4.0 are available.
-This source prepares AI 1.2.0; its local-deployment helper requires backend 7.11.0
+This source prepares AI 1.2.0; its local-deployment helper requires backend 7.11.0 or later
 and actual capability serving acceptance, not merely an installed package.
 
 Check the [dated repository release status](https://github.com/MangroveTechnologies/MangroveAI-SDK/blob/main/docs/issue-66-release-handoff.md)
@@ -86,9 +86,9 @@ No automatic retry or payment is added.
 The named helpers are `users`, `signals`, `strategies`, `strategyWorkflow` and `backtesting`.
 Other declared REST operations use `client.request(operation, options)`, with
 generated path, parameter, body and response types. This is not Python helper
-parity. The current classification has 266 core/Oracle proxy method/path keys,
-including 10 v2 operations: 263 JSON/no-content, one separate redirect flow and
-two streaming/non-JSON operations. Counts describe pinned declarations, not live
+parity. The current classification has 269 core/Oracle proxy method/path keys,
+including 10 v2 operations: 265 JSON/no-content, one separate redirect flow and
+three streaming/non-JSON operations. Counts describe pinned declarations, not live
 endpoint acceptance. The JSON transport does not perform the redirect or consume
 those streams. Operation keys include the HTTP method and exact versioned path:
 

@@ -6,7 +6,7 @@
     },
     {
       "path": "openapi.json",
-      "sha256": "7ce553ed856807e0f15a316e317806c11dc861636abf503fb44cd5e2420e9836"
+      "sha256": "11527db25c4c83250946f7f9c0ddd8c744edc67165e75543e0d780721c1d151d"
     },
     {
       "path": "oracle-proxy-openapi.json",
@@ -1034,6 +1034,39 @@
     {
       "contract": "openapi.json",
       "operation": "GET /api/v1/health",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/help/ask",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/help/ask/stream",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "separate-stream-or-non-json-client-required"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/help/conversations/{session_id}",
       "python_direct_bindings": [],
       "request": "no-model-or-no-body",
       "response": "declared",

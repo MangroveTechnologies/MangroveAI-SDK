@@ -19,9 +19,9 @@ languages. Keep their package identities and capabilities distinct:
 
 TypeScript provides named `users`, `signals`, `strategies`, `strategyWorkflow` and `backtesting`
 helpers and a generated generic `request(operation, options)` surface, not
-Python method parity. The pinned public classification contains 266 core/Oracle
-proxy method/path operations including 10 v2: 263 JSON/no-content, one separate
-redirect flow and two streaming/non-JSON operations. Counts describe declarations,
+Python method parity. The pinned public classification contains 269 core/Oracle
+proxy method/path operations including 10 v2: 265 JSON/no-content, one separate
+redirect flow and three streaming/non-JSON operations. Counts describe declarations,
 not authenticated live coverage. MCP/OAuth discovery, the separate legacy KB
 host, x402 signing and SSE consumption are outside this JSON client.
 
@@ -96,7 +96,7 @@ and first `dry_run=true`; authorized publication uses `dry_run=false`.
 No agent pushes a tag manually or merges a PR. Keep the default-loss change in
 [SDK PR82](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/82) /
 [API PR1518](https://github.com/MangroveTechnologies/MangroveAI/pull/1518) separate: this candidate preserves the current default of four.
-The new local-deployment helper requires the reviewed backend 7.11.0 capability
+The new local-deployment helper requires the reviewed backend 7.11.0 or later capability
 and actual serving acceptance before it is advertised as available.
 
 The source version for an absent npm target must remain fresh main immediately

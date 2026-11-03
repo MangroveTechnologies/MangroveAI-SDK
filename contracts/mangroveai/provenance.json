@@ -2,7 +2,7 @@
   "contracts": [
     {
       "path": "openapi.json",
-      "sha256": "b71627d258dd34f596083e8172299f27d10f4df4758c073c1114abc3a89dcf5b"
+      "sha256": "b68c1bd6917383fe2f0f9f0b046d647dd106840aa1dbc1f0e6e9a2c9ad34c273"
     },
     {
       "path": "oracle-proxy-openapi.json",
@@ -14,7 +14,7 @@
     }
   ],
   "generation": "Real application factory and canonical config metadata in ci; temporary HelpBot namespace registration only; TCP/DNS attempts refused and fail export; bundled LiteLLM cost metadata; startup provider warm-up/directory setup disabled; overrides restored; no business handlers",
-  "source_commit": "7917649252ade37fb728655613a41fd6cbec3237",
+  "source_commit": "8abd50020ae509d021d3a14ce8667c25feefac09",
   "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "source_dirty": false,
   "source_files": [
@@ -44,7 +44,7 @@
     },
     {
       "path": "src/MangroveAI/public_openapi.py",
-      "sha256": "5c78d87a90a33295ac91b64329986b84282855f472a0f9e9d164a2cf9e150d0d"
+      "sha256": "1b0207bddeede5fdf31b9964f4ba60e462c764430c5698d282dc8d6d32595196"
     },
     {
       "path": "src/MangroveAI/public_openapi3.py",

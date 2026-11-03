@@ -14,9 +14,22 @@ const localFixture = JSON.parse(readFileSync(join(packageRoot, '../../contracts/
 const signalFixtures = ['one', 'two'].map(page => JSON.parse(readFileSync(join(packageRoot, `../../contracts/mangroveai/fixtures/signals-page-${page}.json`), 'utf8')));
 let calls = 0;
 let streamCalls = 0;
+const backtestPaths = [];
 const server = createServer((request, response) => {
   calls++;
   assert.equal(request.headers.authorization, 'Bearer prod_fixture_package_key');
+  if (['/api/v1/backtests/', '/api/v1/backtests'].includes(request.url)) {
+    assert.equal(request.method, 'POST');
+    backtestPaths.push(request.url);
+    let body = '';
+    request.on('data', chunk => { body += chunk; });
+    request.on('end', () => {
+      assert.deepEqual(JSON.parse(body), { strategy_id: 'alias-fixture' });
+      response.writeHead(200, { 'Content-Type': 'application/json' });
+      response.end(JSON.stringify({ compatibility: true, server_decision: null }));
+    });
+    return;
+  }
   if (request.url === '/api/v1/help/ask/stream') {
     streamCalls++;
     response.writeHead(200, { 'Content-Type': 'text/event-stream' });
@@ -83,6 +96,9 @@ try {
       assert.equal(error.correlationId,'local-fixture-conflict');
       return true;
     });
+    for (const key of ['POST /api/v1/backtests/', 'POST /api/v1/backtests']) {
+      assert.deepEqual(await sdk.request(key, {body:{strategy_id:'alias-fixture'}}), {compatibility:true,server_decision:null});
+    }
     const answer = await sdk.request('POST /api/v1/help/ask', { body: { message: 'Fixture question' } });
     assert.equal(answer.answer, 'Fixture answer');
     assert.deepEqual(answer.citations, []);
@@ -96,7 +112,8 @@ try {
   const child = spawn(process.execPath, ['smoke.mjs'], { cwd: scratch, env: { ...process.env, SDK_FIXTURE_ORIGIN: `http://127.0.0.1:${server.address().port}` }, stdio: 'inherit' });
   const exitCode = await new Promise(resolve => child.once('exit', resolve));
   assert.equal(exitCode, 0);
-  assert.equal(calls, 8);
+  assert.equal(calls, 10);
+  assert.deepEqual(backtestPaths, ['/api/v1/backtests/', '/api/v1/backtests']);
   assert.equal(streamCalls, 0);
 } finally {
   server.closeAllConnections();

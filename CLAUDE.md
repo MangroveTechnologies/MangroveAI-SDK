@@ -19,8 +19,8 @@ languages. Keep their package identities and capabilities distinct:
 
 TypeScript provides named `users`, `signals`, `strategies`, `strategyWorkflow` and `backtesting`
 helpers and a generated generic `request(operation, options)` surface, not
-Python method parity. The pinned public classification contains 269 core/Oracle
-proxy method/path operations including 10 v2: 265 JSON/no-content, one separate
+Python method parity. The pinned public classification contains 268 core/Oracle
+proxy method/path operations including 10 v2: 264 JSON/no-content, one separate
 redirect flow and three streaming/non-JSON operations. Counts describe declarations,
 not authenticated live coverage. MCP/OAuth discovery, the separate legacy KB
 host, x402 signing and SSE consumption are outside this JSON client.
@@ -160,3 +160,5 @@ MANGROVE_API_KEY=prod_... pytest tests/integration
 - Don't rename the PyPI distribution name without running the similarity check first.
 - Don't remove the `src/mangroveai.py` compatibility shim without an explicitly announced future major release — it's load-bearing for users still on the old import path.
 - Don't add new SDK functionality to `src/mangroveai.py` — that's the shim only. New code goes in `src/mangrove_ai/`.
+
+The canonical inventory excludes one deprecated SDK compatibility alias, `POST /api/v1/backtests/`, retained from TypeScript1.1.0. It inherits the canonical backtest contract while preserving its original HTTP path; new callers should use `POST /api/v1/backtests`.

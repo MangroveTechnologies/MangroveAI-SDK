@@ -288,7 +288,6 @@ export interface Operations {
   "GET /api/v1/backtesting/backtest/{backtest_id}": { input: { path: { "backtest_id": string; }; }; output: unknown; };
   "GET /api/v1/backtesting/backtest/{backtest_id}/trades": { input: { path: { "backtest_id": string; }; }; output: unknown; };
   "POST /api/v1/backtests": { input: { body: CoreModels["api1.BacktestRequest"]; }; output: CoreModels["api1.BacktestResult"]; };
-  "POST /api/v1/backtests/": { input: { body: CoreModels["api1.BacktestRequest"]; }; output: CoreModels["api1.BacktestResult"]; };
   "GET /api/v1/backtests/benchmark": { input: { query?: { "asset"?: string; "end_date"?: string; "start_date"?: string; }; }; output: CoreModels["api1.BuyAndHoldBenchmark"]; };
   "POST /api/v1/backtests/bulk": { input: { body: CoreModels["api1.BulkBacktestRequest"]; }; output: CoreModels["api1.BulkBacktestResult"]; };
   "GET /api/v1/backtests/{backtest_id}": { input: { path: { "backtest_id": string; }; }; output: unknown; };
@@ -525,6 +524,11 @@ export interface Operations {
   "POST /api/v1/oracle/templates": { input: { body: { [key: string]: unknown; }; }; output: Record<string, string>; };
   "DELETE /api/v1/oracle/templates/{name}": { input: { path: { "name": string; }; }; output: Record<string, string>; };
   "GET /api/v1/oracle/templates/{name}": { input: { path: { "name": string; }; }; output: { [key: string]: unknown; }; };
+}
+
+export interface Operations {
+  /** @deprecated Use POST /api/v1/backtests. */
+  "POST /api/v1/backtests/": Operations["POST /api/v1/backtests"];
 }
 
 export type Operation = keyof Operations;
@@ -2399,15 +2403,6 @@ export const operationMetadata = {
     "required": {},
     "transport": "json-or-no-content"
   },
-  "POST /api/v1/backtests/": {
-    "authenticated": true,
-    "bodyRequired": true,
-    "method": "POST",
-    "path": "/api/v1/backtests/",
-    "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
-  },
   "POST /api/v1/backtests/bulk": {
     "authenticated": true,
     "bodyRequired": true,
@@ -3443,6 +3438,17 @@ export const operationMetadata = {
         "strategy_id"
       ]
     },
+    "transport": "json-or-no-content"
+  }
+} as const;
+export const compatibilityOperationMetadata = {
+  "POST /api/v1/backtests/": {
+    "authenticated": true,
+    "bodyRequired": true,
+    "method": "POST",
+    "path": "/api/v1/backtests/",
+    "queryFormats": {},
+    "required": {},
     "transport": "json-or-no-content"
   }
 } as const;

@@ -33,9 +33,9 @@ and [dated release handoff](docs/issue-66-release-handoff.md). The former
 
 The TypeScript client has named `users`, `signals`, `strategies`, `strategyWorkflow` and
 `backtesting` helpers plus a generic typed `request(operation, options)` surface.
-The current public contract classifies 269 method/path operations across core
+The current public contract classifies 268 method/path operations across core
 and Oracle proxy REST, including 10 v2 operations; this is generated declaration
-coverage, not live endpoint acceptance. Of these, 265 use JSON/no-content, one
+coverage, not live endpoint acceptance. Of these, 264 use JSON/no-content, one
 requires a separate redirect flow and three require a streaming/non-JSON client.
 It is not a drop-in copy of Python's service methods. It does not supply MCP/OAuth
 discovery, the separate legacy KB-host client, x402 signing or SSE consumption.
@@ -558,3 +558,5 @@ pip install -e ".[dev]"
 pytest tests/ --ignore=tests/integration  # unit tests
 MANGROVE_API_KEY=... pytest tests/integration/ -m integration  # live tests
 ```
+
+The canonical inventory excludes one deprecated SDK compatibility alias, `POST /api/v1/backtests/`, retained from TypeScript1.1.0. It inherits the canonical backtest contract while preserving its original HTTP path; new callers should use `POST /api/v1/backtests`.

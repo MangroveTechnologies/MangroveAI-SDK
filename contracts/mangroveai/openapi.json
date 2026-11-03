@@ -11543,10 +11543,10 @@
       "name": "Mangrove Technologies",
       "url": "https://mangrovedeveloper.ai"
     },
-    "description": "The public REST v1 and v2 operations documented by the running Mangrove API. Send Authorization: Bearer <API_KEY> for authenticated REST requests. An API key's scopes, organization role and subscription still apply. X-API-Key is supported by hosted MCP, not by the direct REST auth decorator. MCP tools and their current schemas are discovered separately at /mcp/. MCP OAuth access tokens are resource-bound and cannot authenticate direct REST calls. Some operations are billable; inspect current prices and obtain approval before compute or trading. Unregistered blueprint/proxy routes are not represented by the RESTX schema. Operations that declare x-payment-info accept x402 payment in USDC on Base without an API key.",
+    "description": "Mangrove gives trading agents guardrails. Built-in risk management enforces circuit breakers, drawdown and daily loss limits, automatic risk-based position sizing, and automatic stop-loss and take-profit orders. 100+ tools cover strategy R&D across 12+ venues. The public REST v1 and v2 operations documented by the running Mangrove API. Send Authorization: Bearer <API_KEY> for authenticated REST requests. An API key's scopes, organization role and subscription still apply. X-API-Key is supported by hosted MCP, not by the direct REST auth decorator. MCP tools and their current schemas are discovered separately at /mcp/. MCP OAuth access tokens are resource-bound and cannot authenticate direct REST calls. Some operations are billable; inspect current prices and obtain approval before compute or trading. Unregistered blueprint/proxy routes are not represented by the RESTX schema. Operations that declare x-payment-info accept x402 payment in USDC on Base without an API key.",
     "title": "Mangrove Developer REST API",
     "version": "1.0",
-    "x-guidance": "Mangrove is an API for crypto market data, on-chain and social signals, strategy building, backtesting and paper or live execution. Send an API key as Authorization: Bearer <API_KEY>. Operations that declare x-payment-info can instead be paid per call with x402 v2 in USDC on Base (eip155:8453), with no account: request the operation without credentials, read the base64 JSON PAYMENT-REQUIRED response header, sign the payment and repeat the request with a PAYMENT-SIGNATURE header. The live 402 challenge is authoritative for the price. Operations without x-payment-info need an API key unless they declare no security. Hosted MCP tools are listed at /mcp/. Operations that create, change or delete strategies, accounts or trades act on the payer's own data."
+    "x-guidance": "Mangrove gives trading agents guardrails. Built-in risk management enforces circuit breakers, drawdown and daily loss limits, automatic risk-based position sizing, and automatic stop-loss and take-profit orders. 100+ tools cover strategy R&D across 12+ venues. Send an API key as Authorization: Bearer <API_KEY>. Operations that declare x-payment-info can instead be paid per call with x402 v2 in USDC on Base (eip155:8453), with no account: request the operation without credentials, read the base64 JSON PAYMENT-REQUIRED response header, sign the payment and repeat the request with a PAYMENT-SIGNATURE header. The live 402 challenge is authoritative for the price. Operations without x-payment-info need an API key unless they declare no security. Hosted MCP tools are listed at /mcp/. Operations that create, change or delete strategies, accounts or trades act on the payer's own data."
   },
   "openapi": "3.1.0",
   "paths": {
@@ -21681,7 +21681,7 @@
           },
           {}
         ],
-        "summary": "DEPRECATED: archive a strategy (strategies are never hard-deleted)",
+        "summary": "DEPRECATED: archive a strategy (strategies are archived, not hard-deleted)",
         "tags": [
           "strategies"
         ],
@@ -22016,7 +22016,7 @@
           },
           {}
         ],
-        "summary": "Validate a versioned local Robinhood snapshot; never activate trading",
+        "summary": "Validate a versioned local Robinhood snapshot; it does not activate trading",
         "tags": [
           "strategies"
         ],

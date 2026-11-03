@@ -1,4 +1,4 @@
-import { MangroveAI, type CoreModels, type UsageMetrics, type ExecutionConfiguration, type LocalDeployment } from '../src/index.js';
+import { MangroveAI, type CoreModels, type Operations, type UsageMetrics, type ExecutionConfiguration, type LocalDeployment } from '../src/index.js';
 
 const sdk = new MangroveAI({ apiKey: 'prod_fixture', baseUrl: 'https://example.invalid' });
 void sdk.signals.list().then(page => {
@@ -107,3 +107,13 @@ const opaqueLocalField: unknown = typedLocal.snapshot['any_server_owned_field'];
 // @ts-expect-error snapshot field values remain opaque until narrowed.
 const invalidOpaqueLocal: string = typedLocal.snapshot['any_server_owned_field'];
 void localUserId; void localOrgId; void opaqueLocalField; void invalidOpaqueLocal;
+
+// Public HelpBot declarations retain their request and response constraints.
+const helpRequest: Operations['POST /api/v1/help/ask']['input'] = { body: { message: 'Fixture question' } };
+void helpRequest;
+// @ts-expect-error The declared HelpBot JSON request requires a message.
+const missingHelpMessage: Operations['POST /api/v1/help/ask']['input'] = { body: {} };
+void missingHelpMessage;
+// @ts-expect-error Confidence is the server's declared enum, not an arbitrary string.
+const invalidHelpConfidence: Operations['POST /api/v1/help/ask']['output'] = { confidence: 'invented' };
+void invalidHelpConfidence;

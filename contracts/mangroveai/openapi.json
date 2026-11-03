@@ -5238,6 +5238,112 @@
         ],
         "type": "object"
       },
+      "api1.HelpBotAskRequest": {
+        "properties": {
+          "history": {
+            "description": "Recent turns (server also uses persisted state)",
+            "items": {
+              "$ref": "#/components/schemas/api1.HelpBotHistoryTurn"
+            },
+            "type": "array"
+          },
+          "message": {
+            "description": "User question (4-500 chars)",
+            "type": "string"
+          },
+          "session_id": {
+            "description": "Existing session UUID; omit or null to start a new one",
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "type": "object"
+      },
+      "api1.HelpBotAskResponse": {
+        "properties": {
+          "answer": {
+            "type": "string"
+          },
+          "citations": {
+            "items": {
+              "$ref": "#/components/schemas/api1.HelpBotCitation"
+            },
+            "type": "array"
+          },
+          "confidence": {
+            "enum": [
+              "normal",
+              "low"
+            ],
+            "example": "normal",
+            "type": "string"
+          },
+          "session_id": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "api1.HelpBotCitation": {
+        "properties": {
+          "doc_url": {
+            "type": "string"
+          },
+          "section_anchor": {
+            "type": "string"
+          },
+          "section_title": {
+            "type": "string"
+          },
+          "source_file": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "api1.HelpBotConversation": {
+        "properties": {
+          "message_count": {
+            "type": "integer"
+          },
+          "messages": {
+            "items": {
+              "type": "object",
+              "x-mangrove-raw-json": true
+            },
+            "type": "array"
+          },
+          "session_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "api1.HelpBotHistoryTurn": {
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "user",
+              "assistant"
+            ],
+            "example": "user",
+            "type": "string"
+          }
+        },
+        "required": [
+          "content",
+          "role"
+        ],
+        "type": "object"
+      },
       "api1.InfluenceScoreResponse": {
         "properties": {
           "data": {
@@ -17754,6 +17860,136 @@
           "health"
         ]
       }
+    },
+    "/api/v1/help/ask": {
+      "post": {
+        "operationId": "api1_post_help_bot_ask",
+        "parameters": [
+          {
+            "description": "An optional fields mask",
+            "in": "header",
+            "name": "X-Fields",
+            "schema": {
+              "format": "mask",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/api1.HelpBotAskRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api1.HelpBotAskResponse"
+                }
+              }
+            },
+            "description": "Success"
+          }
+        },
+        "security": [
+          {
+            "MangroveBearer": []
+          }
+        ],
+        "summary": "Post help bot ask",
+        "tags": [
+          "help"
+        ]
+      }
+    },
+    "/api/v1/help/ask/stream": {
+      "post": {
+        "operationId": "api1_post_help_bot_ask_stream",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/api1.HelpBotAskRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Server-Sent Events"
+          }
+        },
+        "security": [
+          {
+            "MangroveBearer": []
+          }
+        ],
+        "summary": "Post help bot ask stream",
+        "tags": [
+          "help"
+        ]
+      }
+    },
+    "/api/v1/help/conversations/{session_id}": {
+      "get": {
+        "operationId": "api1_get_help_bot_conversation",
+        "parameters": [
+          {
+            "description": "An optional fields mask",
+            "in": "header",
+            "name": "X-Fields",
+            "schema": {
+              "format": "mask",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api1.HelpBotConversation"
+                }
+              }
+            },
+            "description": "Success"
+          }
+        },
+        "security": [
+          {
+            "MangroveBearer": []
+          }
+        ],
+        "summary": "Get help bot conversation",
+        "tags": [
+          "help"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "session_id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
     },
     "/api/v1/knowledge/documents": {
       "get": {

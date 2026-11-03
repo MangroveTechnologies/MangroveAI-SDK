@@ -2,7 +2,7 @@
   "contracts": [
     {
       "path": "openapi.json",
-      "sha256": "abd10d90d5c5cd911bc8ab22df2e28ab879f9807c6bd1479f463a42ff21b11c0"
+      "sha256": "b71627d258dd34f596083e8172299f27d10f4df4758c073c1114abc3a89dcf5b"
     },
     {
       "path": "oracle-proxy-openapi.json",
@@ -13,14 +13,34 @@
       "sha256": "2d3cc9db2204f05471d5eeb8ff902dcd25b4bff3c240078c99d1afd33b9bf360"
     }
   ],
-  "generation": "Real application factory and canonical config metadata in ci; network blocked; startup provider warm-up/directory setup disabled; no business handlers",
-  "source_commit": "4c17daafe002cda7805490427841af6a88143b7f",
+  "generation": "Real application factory and canonical config metadata in ci; temporary HelpBot namespace registration only; TCP/DNS attempts refused and fail export; bundled LiteLLM cost metadata; startup provider warm-up/directory setup disabled; overrides restored; no business handlers",
+  "source_commit": "7917649252ade37fb728655613a41fd6cbec3237",
   "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "source_dirty": false,
   "source_files": [
     {
       "path": "scripts/export_developer_contracts.py",
-      "sha256": "5aa4e62b27d135a328c09990abbdb8d08a1c63c296084b676542909adb9f7e70"
+      "sha256": "2832c6dfb0b92778d675e1e998b5933ff4e3c20a72692beb090aaedef5e1ac5e"
+    },
+    {
+      "path": "src/MangroveAI/__init__.py",
+      "sha256": "9e302b93ef92184e41945186980c902a91dc63da285a52addf966c1867131e7b"
+    },
+    {
+      "path": "src/MangroveAI/config.py",
+      "sha256": "a948c222bac007806cbcbad3952e8246c7c7022d5ac074f8c57af0b168bb21f0"
+    },
+    {
+      "path": "src/MangroveAI/config/ci-config.json",
+      "sha256": "60468b9b8fc5e9582a3461f06b5a31714bbbfd822301bf0d812842d98b6e784f"
+    },
+    {
+      "path": "src/MangroveAI/config/configuration-keys.json",
+      "sha256": "33e77ceb15053c86183f3a1d44979d9013975ddfe4df62a2499392ec5a673b50"
+    },
+    {
+      "path": "src/MangroveAI/domains/help_bot/routes.py",
+      "sha256": "6d5959f87c8088d5ae7a00acd11cc976ed1758c760e115996d88c100c2ad56cb"
     },
     {
       "path": "src/MangroveAI/public_openapi.py",

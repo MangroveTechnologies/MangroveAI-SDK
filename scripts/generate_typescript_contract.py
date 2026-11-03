@@ -229,12 +229,21 @@ def generate():
                         "undefined" if status in {"204", "205"} else schema_type(schema, namespace, aliases)
                     )
                     typed_success = typed_success or bool(schema)
+                has_redirect = any(str(status).startswith("3") for status in operation.get("responses", {}))
+                transport = (
+                    "separate-stream-or-non-json-client-required"
+                    if response_media and not any(item == "application/json" or item.endswith("+json") for item in response_media)
+                    else "separate-redirect-flow-required"
+                    if has_redirect and not has_success
+                    else "json-or-no-content"
+                )
                 response = " | ".join(dict.fromkeys(response_types)) or "unknown"
                 if "unknown" in response_types:
                     response = "unknown"
                 operations.append(f"  {literal(key)}: {{ input: {{ {' '.join(fields)} }}; output: {response}; }};")
                 required = {name: group["required"] for name, group in groups.items()}
                 metadata[key] = {
+                    "transport": transport,
                     "method": method.upper(),
                     "path": path,
                     "required": required,
@@ -257,14 +266,7 @@ def generate():
                         "schema_status": operation.get("x-mangrove-schema-status", "registered-restx-declaration"),
                         "typescript": "request(operation, options)",
                         "runtime_payload_verified": False,
-                        "typescript_transport": (
-                            "separate-stream-or-non-json-client-required"
-                            if response_media
-                            and not any(item == "application/json" or item.endswith("+json") for item in response_media)
-                            else "separate-redirect-flow-required"
-                            if not has_success
-                            else "json-or-no-content"
-                        ),
+                        "typescript_transport": transport,
                         "python_direct_bindings": sorted(set(python.get(re.sub(r"\{[^}]*\}", "{}", key), []))),
                     }
                 )

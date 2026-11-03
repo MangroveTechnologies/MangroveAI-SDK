@@ -54,7 +54,8 @@ export type RequestOptions<K extends Operation> = Operations[K]['input'] & Reque
 type Input = { path?: Record<string, unknown>; query?: Record<string, unknown>;
   headers?: Record<string, string>; body?: unknown; signal?: AbortSignal; timeoutMs?: number };
 type Metadata = { method: string; path: string; required: Record<string, readonly string[]>;
-  bodyRequired: boolean; authenticated: boolean; queryFormats: Record<string, string> };
+  bodyRequired: boolean; authenticated: boolean; queryFormats: Record<string, string>;
+  transport: 'json-or-no-content' | 'separate-stream-or-non-json-client-required' | 'separate-redirect-flow-required' };
 
 export interface UsageMetrics {
   conversations_count?: number | null;
@@ -245,6 +246,8 @@ export class MangroveAI {
     if (metadata.authenticated && !this.#apiKey) throw new ConfigurationError('This operation requires an API credential');
     if (input.signal?.aborted) throw new RequestAbortedError('Request was cancelled');
     if (metadata.bodyRequired && input.body === undefined) throw new ConfigurationError('This operation requires a request body');
+    if (metadata.transport === 'separate-stream-or-non-json-client-required') throw new ConfigurationError('This operation requires a separate streaming or non-JSON client');
+    if (metadata.transport === 'separate-redirect-flow-required') throw new ConfigurationError('This operation requires a separate redirect flow');
     const headers = new Headers({ Accept: 'application/json' });
     for (const [key, value] of Object.entries(input.headers ?? {})) {
       if (['authorization', 'host', 'content-length'].includes(key.toLowerCase())) throw new ConfigurationError('A protected header cannot be overridden');

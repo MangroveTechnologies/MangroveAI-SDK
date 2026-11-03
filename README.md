@@ -33,10 +33,10 @@ and [dated release handoff](docs/issue-66-release-handoff.md). The former
 
 The TypeScript client has named `users`, `signals`, `strategies`, `strategyWorkflow` and
 `backtesting` helpers plus a generic typed `request(operation, options)` surface.
-The current public contract classifies 266 method/path operations across core
+The current public contract classifies 269 method/path operations across core
 and Oracle proxy REST, including 10 v2 operations; this is generated declaration
-coverage, not live endpoint acceptance. Of these, 263 use JSON/no-content, one
-requires a separate redirect flow and two require a streaming/non-JSON client.
+coverage, not live endpoint acceptance. Of these, 265 use JSON/no-content, one
+requires a separate redirect flow and three require a streaming/non-JSON client.
 It is not a drop-in copy of Python's service methods. It does not supply MCP/OAuth
 discovery, the separate legacy KB-host client, x402 signing or SSE consumption.
 See the [operation classification](contracts/mangroveai/coverage.json).
@@ -138,7 +138,7 @@ request interfaces.
 ## Local deployment snapshot (prepared versions)
 
 Python 2.3.0 and TypeScript 1.2.0 add matching reads of the server-owned local
-Robinhood snapshot. This requires backend 7.11.0 and deployed local-deployment
+Robinhood snapshot. This requires backend 7.11.0 or later and deployed local-deployment
 capability; current package publication alone does not establish availability.
 The read is authenticated and billable. It returns the server's readiness and
 blocker, owner, fingerprint and snapshot; it does not activate or fund trading.

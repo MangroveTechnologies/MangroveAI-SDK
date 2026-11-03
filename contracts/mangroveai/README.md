@@ -68,3 +68,11 @@ should exercise their actual transport, pagination and error handling, rather
 than silently restating hand-written response assumptions in isolated models.
 Package releases, registry readbacks, consumer adoption and deployed acceptance
 are separate from a passing local generation check.
+
+The current declaration includes the three public HelpBot routes even when the
+exporter's execution flag is disabled. TypeScript's generic JSON transport
+accepts the two JSON operations and rejects the declared SSE operation before
+sending a request. Redirect-only declarations are also refused before transport;
+JSON successes and opaque JSON declarations remain usable. Python has no dedicated
+HelpBot service in its direct-binding inventory. These statements describe client
+coverage, not provider activation or live HelpBot acceptance.

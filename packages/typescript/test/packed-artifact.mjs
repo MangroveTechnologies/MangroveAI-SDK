@@ -13,10 +13,23 @@ const configFixture = JSON.parse(readFileSync(join(packageRoot, '../../contracts
 const localFixture = JSON.parse(readFileSync(join(packageRoot, '../../contracts/mangroveai/fixtures/local-deployment-not-ready.json'), 'utf8'));
 const signalFixtures = ['one', 'two'].map(page => JSON.parse(readFileSync(join(packageRoot, `../../contracts/mangroveai/fixtures/signals-page-${page}.json`), 'utf8')));
 let calls = 0;
+let streamCalls = 0;
 const server = createServer((request, response) => {
   calls++;
-  assert.equal(request.method, 'GET');
   assert.equal(request.headers.authorization, 'Bearer prod_fixture_package_key');
+  if (request.url === '/api/v1/help/ask/stream') {
+    streamCalls++;
+    response.writeHead(200, { 'Content-Type': 'text/event-stream' });
+    response.end('data: fixture\n\n');
+    return;
+  }
+  if (request.url === '/api/v1/help/ask') {
+    assert.equal(request.method, 'POST');
+    response.writeHead(200, { 'Content-Type': 'application/json' });
+    response.end(JSON.stringify({ session_id: localFixture.strategy_id, answer: 'Fixture answer', citations: [], confidence: 'normal' }));
+    return;
+  }
+  assert.equal(request.method, 'GET');
   if (request.url === `/api/v1/strategies/${localFixture.strategy_id}/local-deployment?asset_class=equity`) {
     response.writeHead(409, { 'Content-Type': 'application/json', 'X-Correlation-Id': 'local-fixture-conflict' });
     response.end(JSON.stringify({ error: 'DEPLOYMENT_CONFLICT', message: 'Server validation decision' }));
@@ -25,7 +38,8 @@ const server = createServer((request, response) => {
   const body = request.url === '/api/v1/users/me/metrics' ? fixture
     : request.url === '/api/v1/config/execution-config-schema' ? configFixture
     : request.url.startsWith('/api/v1/signals/?') ? signalFixtures[Number(new URL(request.url, 'http://localhost').searchParams.get('offset'))]
-    : request.url === `/api/v1/strategies/${localFixture.strategy_id}/local-deployment?asset_class=crypto` ? localFixture : null;
+    : request.url === `/api/v1/strategies/${localFixture.strategy_id}/local-deployment?asset_class=crypto` ? localFixture
+    : request.url === `/api/v1/help/conversations/${localFixture.strategy_id}` ? { session_id: localFixture.strategy_id, messages: [{ role: 'assistant', content: 'Fixture answer' }], message_count: 1 } : null;
   assert.ok(body, 'Unexpected request from installed package');
   response.writeHead(200, { 'Content-Type': 'application/json' });
   response.end(JSON.stringify(body));
@@ -46,7 +60,7 @@ try {
   writeFileSync(join(scratch, 'smoke.mjs'), `
     import assert from 'node:assert/strict';
     import { readFileSync } from 'node:fs';
-    import { MangroveAI, APIError } from '@mangrove-ai/sdk';
+    import { MangroveAI, APIError, ConfigurationError } from '@mangrove-ai/sdk';
     const sdk = new MangroveAI({apiKey:'prod_fixture_package_key',baseUrl:process.env.SDK_FIXTURE_ORIGIN});
     const metrics = await sdk.users.getMyMetrics();
     assert.equal(metrics.messages_count,7);
@@ -69,13 +83,21 @@ try {
       assert.equal(error.correlationId,'local-fixture-conflict');
       return true;
     });
-    console.log('Packed artifact usage/configuration/local snapshot and conflict examples passed');
+    const answer = await sdk.request('POST /api/v1/help/ask', { body: { message: 'Fixture question' } });
+    assert.equal(answer.answer, 'Fixture answer');
+    assert.deepEqual(answer.citations, []);
+    const conversation = await sdk.request('GET /api/v1/help/conversations/{session_id}', { path: { session_id: localFixture.strategy_id } });
+    assert.equal(conversation.message_count, 1);
+    await assert.rejects(sdk.request('POST /api/v1/help/ask/stream', { body: { message: 'Fixture question' } }), ConfigurationError);
+    await assert.rejects(sdk.request("GET /api/v1/auth/login/google", {}), ConfigurationError);
+    console.log('Packed usage/configuration/local snapshot/HelpBot JSON and preflight stream checks passed');
   `);
   const { spawn } = await import('node:child_process');
   const child = spawn(process.execPath, ['smoke.mjs'], { cwd: scratch, env: { ...process.env, SDK_FIXTURE_ORIGIN: `http://127.0.0.1:${server.address().port}` }, stdio: 'inherit' });
   const exitCode = await new Promise(resolve => child.once('exit', resolve));
   assert.equal(exitCode, 0);
-  assert.equal(calls, 6);
+  assert.equal(calls, 8);
+  assert.equal(streamCalls, 0);
 } finally {
   server.closeAllConnections();
   await new Promise(resolve => server.close(resolve));

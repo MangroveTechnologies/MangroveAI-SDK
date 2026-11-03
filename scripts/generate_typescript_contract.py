@@ -232,7 +232,9 @@ def generate():
                 has_redirect = any(str(status).startswith("3") for status in operation.get("responses", {}))
                 transport = (
                     "separate-stream-or-non-json-client-required"
-                    if response_media and not any(item == "application/json" or item.endswith("+json") for item in response_media)
+                    if response_media and not any(
+                        item == "application/json" or item.endswith("+json") for item in response_media
+                    )
                     else "separate-redirect-flow-required"
                     if has_redirect and not has_success
                     else "json-or-no-content"
@@ -274,15 +276,30 @@ def generate():
     source += "\n".join(f"export type {aliases[identity]} = {schema_type(schema, 'CoreModels')};"
                          for identity, schema in sorted(authoring.items())) + "\n\n"
     source += "\n".join(definitions) + "\nexport interface Operations {\n" + "\n".join(operations) + "\n}\n"
+    # This exact public 1.1.0 key remains valid at runtime after upstream deduplication.
+    # Keep it separate from canonical declarations and coverage, preserving its HTTP path.
+    legacy, target = "POST /api/v1/backtests/", "POST /api/v1/backtests"
+    if target not in metadata:
+        raise SystemExit("Released backtest compatibility target is absent from the contract")
+    compatibility = {}
+    if legacy not in metadata:
+        source += ('\nexport interface Operations {\n'
+                   '  /** @deprecated Use POST /api/v1/backtests. */\n'
+                   f'  "{legacy}": Operations["{target}"];\n' + '}\n')
+        compatibility[legacy] = {**metadata[target], "path": "/api/v1/backtests/"}
     source += "\nexport type Operation = keyof Operations;\n"
     source += (
         "export const operationMetadata = "
         + json.dumps(metadata, sort_keys=True, ensure_ascii=True, indent=2)
         + " as const;\n"
     )
+    source += ("export const compatibilityOperationMetadata = "
+               + json.dumps(compatibility, indent=2, sort_keys=True) + " as const;\n")
     report = {
         "contracts": [{"path": name, "sha256": digest} for name, digest in sorted(digests.items())],
         "operations": coverage,
+        "compatibility_aliases": [{"operation": key, "canonical_operation": target}
+                                  for key in compatibility],
         "python_inventory": (
             "Direct literal/f-string transport bindings only; helpers delegating to another method "
             "are not independent routes. Absence here is not proof that Python cannot call the operation."

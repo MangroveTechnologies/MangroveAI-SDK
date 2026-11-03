@@ -1,4 +1,4 @@
-import { operationMetadata, type Operation, type Operations, type CoreModels } from './contract.generated.js';
+import { operationMetadata, compatibilityOperationMetadata, type Operation, type Operations, type CoreModels } from './contract.generated.js';
 
 export type { Operation, Operations, CoreModels, OracleModels, ExecutionConfiguration } from './contract.generated.js';
 
@@ -56,6 +56,7 @@ type Input = { path?: Record<string, unknown>; query?: Record<string, unknown>;
 type Metadata = { method: string; path: string; required: Record<string, readonly string[]>;
   bodyRequired: boolean; authenticated: boolean; queryFormats: Record<string, string>;
   transport: 'json-or-no-content' | 'separate-stream-or-non-json-client-required' | 'separate-redirect-flow-required' };
+const reviewedOperations: Readonly<Record<string, Metadata>> = { ...operationMetadata, ...compatibilityOperationMetadata };
 
 export interface UsageMetrics {
   conversations_count?: number | null;
@@ -238,9 +239,9 @@ export class MangroveAI {
   }
 
   async request<K extends Operation>(operation: K, options: RequestOptions<K>): Promise<Operations[K]['output']> {
-    if (typeof operation !== 'string' || !Object.hasOwn(operationMetadata, operation)) throw new ConfigurationError('Operation is absent from the reviewed contract');
+    if (typeof operation !== 'string' || !Object.hasOwn(reviewedOperations, operation)) throw new ConfigurationError('Operation is absent from the reviewed contract');
     if (!object(options)) throw new ConfigurationError('Request options must be an object');
-    const metadata: Metadata | undefined = operationMetadata[operation];
+    const metadata: Metadata | undefined = reviewedOperations[operation];
     if (!metadata) throw new ConfigurationError('Operation is absent from the reviewed contract');
     const input = options as Input;
     if (metadata.authenticated && !this.#apiKey) throw new ConfigurationError('This operation requires an API credential');

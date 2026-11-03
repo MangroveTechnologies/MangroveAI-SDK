@@ -102,3 +102,12 @@ void missingHelpMessage;
 // @ts-expect-error Confidence is the server's declared enum, not an arbitrary string.
 const invalidHelpConfidence: Operations['POST /api/v1/help/ask']['output'] = { confidence: 'invented' };
 void invalidHelpConfidence;
+
+// Preserve the exact generic operation key published in TypeScript1.1.0.
+declare const canonicalBacktest: Operations['POST /api/v1/backtests'];
+const legacyBacktest: Operations['POST /api/v1/backtests/'] = canonicalBacktest;
+const canonicalAgain: Operations['POST /api/v1/backtests'] = legacyBacktest;
+void canonicalAgain;
+void sdk.request('POST /api/v1/backtests/', canonicalBacktest.input);
+// @ts-expect-error the compatibility key inherits the canonical required body.
+void sdk.request('POST /api/v1/backtests/', {});

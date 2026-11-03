@@ -6,7 +6,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 import { ConfigurationError, MangroveAI } from '../dist/index.js';
-import { operationMetadata } from '../dist/contract.generated.js';
+import { operationMetadata, compatibilityOperationMetadata } from '../dist/contract.generated.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const root = resolve(packageRoot, '../..');
@@ -76,5 +76,31 @@ test('generated classification keeps mixed JSON success and opaque operations us
     const coverage = JSON.parse(readFileSync(join(scratch, 'contracts/mangroveai/coverage.json'), 'utf8'));
     for (const row of coverage.operations) assert.equal(candidateMetadata[row.operation].transport, row.typescript_transport);
     assert.equal(operationMetadata['POST /api/v1/help/ask/stream'].transport, 'separate-stream-or-non-json-client-required');
+    delete schema.paths['/api/v1/backtests'];
+    writeFileSync(source, JSON.stringify(schema));
+    provenance.contracts.find(item => item.path === 'openapi.json').sha256 = createHash('sha256').update(readFileSync(source)).digest('hex');
+    writeFileSync(provenancePath, JSON.stringify(provenance));
+    const missingTarget = spawnSync('python3', ['scripts/generate_typescript_contract.py'], { cwd: scratch, encoding: 'utf8' });
+    assert.notEqual(missingTarget.status, 0);
+    assert.match(missingTarget.stderr, /Released backtest compatibility target is absent/);
   } finally { rmSync(scratch, { recursive: true, force: true }); }
+});
+
+// Public 1.1.0 accepted this key; upstream now declares only its unslashed twin.
+test('released slashed backtest key preserves its HTTP request as a compatibility alias', async () => {
+  assert.deepEqual(Object.keys(compatibilityOperationMetadata), ['POST /api/v1/backtests/']);
+  assert.deepEqual(compatibilityOperationMetadata['POST /api/v1/backtests/'], { ...operationMetadata['POST /api/v1/backtests'], path:'/api/v1/backtests/' });
+  const requests = [];
+  const client = new MangroveAI({apiKey:'prod_alias_fixture', fetch:async (url, init) => {
+    requests.push({url:String(url), method:init.method, authorization:new Headers(init.headers).get('authorization'), body:JSON.parse(init.body)});
+    return new Response('{"server_decision":"preserved"}', {headers:{'content-type':'application/json'}});
+  }});
+  assert.deepEqual(await client.request('POST /api/v1/backtests/', {body:{strategy_id:'fixture'}}), {server_decision:'preserved'});
+  assert.deepEqual(requests,[{url:'https://api.mangrovedeveloper.ai/api/v1/backtests/',method:'POST',authorization:'Bearer prod_alias_fixture',body:{strategy_id:'fixture'}}]);
+  const coverage=JSON.parse(readFileSync(join(root,'contracts/mangroveai/coverage.json'),'utf8'));
+  assert.ok(!coverage.operations.some(row=>row.operation==='POST /api/v1/backtests/'));
+  assert.ok(coverage.operations.some(row=>row.operation==='POST /api/v1/backtests'));
+  assert.deepEqual(coverage.compatibility_aliases, [{operation:'POST /api/v1/backtests/',canonical_operation:'POST /api/v1/backtests'}]);
+  await assert.rejects(client.request('POST /api/v1/backtests//', {body:{}}), ConfigurationError);
+  assert.equal(requests.length,1);
 });

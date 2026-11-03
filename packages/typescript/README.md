@@ -86,8 +86,8 @@ No automatic retry or payment is added.
 The named helpers are `users`, `signals`, `strategies`, `strategyWorkflow` and `backtesting`.
 Other declared REST operations use `client.request(operation, options)`, with
 generated path, parameter, body and response types. This is not Python helper
-parity. The current classification has 269 core/Oracle proxy method/path keys,
-including 10 v2 operations: 265 JSON/no-content, one separate redirect flow and
+parity. The current classification has 268 core/Oracle proxy method/path keys,
+including 10 v2 operations: 264 JSON/no-content, one separate redirect flow and
 three streaming/non-JSON operations. Counts describe pinned declarations, not live
 endpoint acceptance. The JSON transport does not perform the redirect or consume
 those streams. Operation keys include the HTTP method and exact versioned path:
@@ -238,3 +238,5 @@ For a new unpublished version, the selected source must still be fresh `main`
 immediately before publishing. An older main ancestor is accepted only to finish
 an already published artifact whose exact source and bytes were verified. It
 cannot start a new publication or move npm `latest` back to stale source.
+
+The canonical inventory excludes one deprecated SDK compatibility alias, `POST /api/v1/backtests/`, retained from TypeScript1.1.0. It inherits the canonical backtest contract while preserving its original HTTP path; new callers should use `POST /api/v1/backtests`.

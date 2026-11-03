@@ -1,4 +1,10 @@
 {
+  "compatibility_aliases": [
+    {
+      "canonical_operation": "POST /api/v1/backtests",
+      "operation": "POST /api/v1/backtests/"
+    }
+  ],
   "contracts": [
     {
       "path": "execution-config.schema.json",
@@ -6,7 +12,7 @@
     },
     {
       "path": "openapi.json",
-      "sha256": "11527db25c4c83250946f7f9c0ddd8c744edc67165e75543e0d780721c1d151d"
+      "sha256": "dd212b7c9fff062825d25076109b6db1c7cddfc28b3c33d0b0d501a8ab5f0498"
     },
     {
       "path": "oracle-proxy-openapi.json",
@@ -388,19 +394,6 @@
       "contract": "openapi.json",
       "operation": "POST /api/v1/backtests",
       "python_direct_bindings": [],
-      "request": "declared",
-      "response": "declared",
-      "runtime_payload_verified": false,
-      "schema_status": "registered-restx-declaration",
-      "typescript": "request(operation, options)",
-      "typescript_transport": "json-or-no-content"
-    },
-    {
-      "contract": "openapi.json",
-      "operation": "POST /api/v1/backtests/",
-      "python_direct_bindings": [
-        "BacktestingService.submit_async"
-      ],
       "request": "declared",
       "response": "declared",
       "runtime_payload_verified": false,

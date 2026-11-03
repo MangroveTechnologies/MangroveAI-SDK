@@ -14,7 +14,7 @@
     }
   ],
   "generation": "Real application factory and canonical config metadata in ci; temporary HelpBot namespace registration only; TCP/DNS attempts refused and fail export; bundled LiteLLM cost metadata; startup provider warm-up/directory setup disabled; overrides restored; no business handlers",
-  "source_commit": "25c41c2f6d2808f38555a46d7cc508f8472ee811",
+  "source_commit": "d88381c19bad7b45b711a2bd2e1ead54db92aac0",
   "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "source_dirty": false,
   "source_files": [
@@ -24,7 +24,7 @@
     },
     {
       "path": "src/MangroveAI/__init__.py",
-      "sha256": "0216d5994d905b8301c0f6282e0b15f19ffb49d955a41da10e4f9b230d8b5155"
+      "sha256": "199a370dcd5b08c0a30d3ac5f4bcbf5bf2e7a959d71caf0343a217e3a61219da"
     },
     {
       "path": "src/MangroveAI/config.py",

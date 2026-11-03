@@ -369,6 +369,11 @@ End-to-end walkthrough: `examples/x_attention_signals_demo.py`.
 
 ### Cambrian social and holder signals
 
+The connected server's catalogue is authoritative for availability, composability and parameter
+defaults. The definitions below describe knowledge-base policy; a deployment on an earlier KB
+release can report a different status. Check `client.signals.list` or `client.signals.get` before
+composing a strategy.
+
 One Cambrian-backed signal is available for new strategies: `social_price_divergence`, in the
 `social` category, as an exit for long positions. It reads Cambrian Deep42 sentiment. Find it like
 any other signal with `client.signals.list(category="social")` and name it in a strategy's `exit`
@@ -385,7 +390,9 @@ rules. There is no separate `client` method for the underlying Cambrian data.
   exit-only type, so nothing stops you from putting it in `entry`; do not. Use it in the exit rules
   of a strategy that has its own entry trigger and a price filter.
 - You supply no data. In live evaluation and in backtests the server attaches the columns the signal
-  reads, and a bar sees only values already known when it closes. The server does this only when its
+  reads, aligning each Deep42 daily bucket to bars from the next midnight UTC. Deep42 serves older
+  buckets as scored today, so this alignment does not establish point-in-time historical availability.
+  The server does this only when its
   Cambrian data flag (`CAMBRIAN_SIGNALS_ENABLED`) is on, and it requires a MangroveAI release that is
   not yet deployed. With the flag off the catalogue marks the signal non-composable, so a new
   strategy cannot be built on it, and a strategy that names it gets `False` from it, so it never

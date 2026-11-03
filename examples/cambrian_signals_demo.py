@@ -99,6 +99,11 @@ def main() -> None:
             if name == EXIT_SIGNAL:
                 exit_composable = composable
 
+    if not exit_composable:
+        print(f"\n  Skipping the strategy: {EXIT_SIGNAL} is missing or non-composable on this server.")
+        client.close()
+        return
+
     # 2. The exit signal's metadata -----------------------------------------------
     _hdr(f"signals.get({EXIT_SIGNAL!r})")
     sig = client.signals.get(EXIT_SIGNAL)
@@ -106,11 +111,6 @@ def main() -> None:
     print(f"  {meta.description if meta else ''}")
     print(f"  requires: {', '.join((meta.requires if meta else None) or [])}")
     print(f"  params: {meta.params if meta else None}")
-
-    if not exit_composable:
-        print(f"\n  Skipping the strategy: {EXIT_SIGNAL} is missing or non-composable on this server.")
-        client.close()
-        return
 
     # 3. Price trigger + price filter, with social_price_divergence as the exit ----
     _hdr(f"Strategy: rsi_cross_up + is_above_sma, exit on {EXIT_SIGNAL}, on {SYMBOL}")

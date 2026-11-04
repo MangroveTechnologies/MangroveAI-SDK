@@ -22,6 +22,54 @@ class TestDefiProMethods:
         assert r.success is True
         assert r.count == 2
         assert r.data[0]["token"] == "ARB"
+        assert client._http.requests[-1].params == {"limit": 20, "offset": 0}
+        assert r.has_more is None  # Legacy envelopes do not claim completeness.
+        assert r.next_offset is None
+
+    def test_token_unlock_pagination_preserves_server_cursor_and_complete_records(self) -> None:
+        import httpx
+
+        from mangrove_ai import MangroveAI
+
+        first = {"token": "SYNTHETIC-A", "schedule": [{"timestamp": 123, "amount": "42.5"}]}
+        second = {"token": "SYNTHETIC-B", "schedule": []}
+        seen = []
+
+        def respond(request):
+            seen.append(dict(request.url.params))
+            offset = int(request.url.params["offset"])
+            page = [first] if offset == 0 else [second]
+            return httpx.Response(200, json={
+                "success": True, "provider": "defillama", "count": 1,
+                "data": page, "records": page, "total_count": 2,
+                "limit": 20, "offset": offset, "has_more": offset == 0,
+                "next_offset": 1 if offset == 0 else None,
+            })
+
+        with httpx.Client(transport=httpx.MockTransport(respond)) as transport:
+            with MangroveAI(api_key="test_fixture", base_url="https://fixture.invalid/api/v1",
+                            httpx_client=transport, load_dotenv=False, auto_retry=False) as sdk:
+                page_one = sdk.defi.get_token_unlocks()
+                assert len(seen) == 1  # Reading a page never automatically bills another call.
+                assert page_one.records == page_one.data == [first]
+                assert page_one.count == 1 and page_one.total_count == 2
+                assert page_one.has_more is True and page_one.next_offset == 1
+                page_two = sdk.defi.get_token_unlocks(limit=20, offset=page_one.next_offset)
+                assert page_two.data == [second]
+                assert page_two.offset == 1 and page_two.limit == 20
+                assert page_two.has_more is False and page_two.next_offset is None
+        assert seen == [{"limit": "20", "offset": "0"}, {"limit": "20", "offset": "1"}]
+
+    def test_token_unlock_empty_page_remains_empty(self, client) -> None:
+        client._http.add_response("GET", "/defi/token-unlocks", json={
+            "success": True, "count": 0, "data": [], "records": [],
+            "total_count": 2, "limit": 5, "offset": 7, "has_more": False, "next_offset": None,
+        })
+        page = client.defi.get_token_unlocks(limit=5, offset=7)
+        assert page.data == page.records == []
+        assert page.count == 0 and page.total_count == 2
+        assert page.next_offset is None and page.has_more is False
+        assert client._http.requests[-1].params == {"limit": 5, "offset": 7}
 
     def test_get_perp_funding(self, client) -> None:
         client._http.add_response(

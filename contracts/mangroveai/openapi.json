@@ -6685,6 +6685,60 @@
         },
         "type": "object"
       },
+      "api1.TokenUnlocksResponse": {
+        "properties": {
+          "count": {
+            "description": "Whole token records returned on this page",
+            "type": "integer"
+          },
+          "data": {
+            "description": "Bounded page with complete source records",
+            "items": {
+              "type": "object",
+              "x-mangrove-raw-json": true
+            },
+            "type": "array"
+          },
+          "has_more": {
+            "type": "boolean"
+          },
+          "limit": {
+            "description": "Requested page limit, default 20, maximum 100",
+            "type": "integer"
+          },
+          "next_offset": {
+            "description": "Offset after actual returned records; null on final page",
+            "type": [
+              "integer",
+              "null"
+            ],
+            "x-nullable": true
+          },
+          "offset": {
+            "description": "Starting token-record offset",
+            "type": "integer"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "records": {
+            "description": "Same bounded page as data",
+            "items": {
+              "type": "object",
+              "x-mangrove-raw-json": true
+            },
+            "type": "array"
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "total_count": {
+            "description": "Full provider snapshot record count",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "api1.Trade": {
         "properties": {
           "account_id": {
@@ -13315,18 +13369,28 @@
     },
     "/api/v1/defi/token-unlocks": {
       "get": {
-        "description": "Pro.",
+        "description": "No arguments returns the first page.",
         "operationId": "api1_get_token_unlocks",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api1.DefiProResponse"
+                  "$ref": "#/components/schemas/api1.TokenUnlocksResponse"
                 }
               }
             },
             "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api1.DefiError"
+                }
+              }
+            },
+            "description": "Invalid pagination"
           },
           "402": {
             "content": {
@@ -13365,6 +13429,16 @@
               }
             },
             "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api1.DefiError"
+                }
+              }
+            },
+            "description": "Invalid or oversized provider record"
           }
         },
         "security": [
@@ -13373,7 +13447,7 @@
           },
           {}
         ],
-        "summary": "Token unlock schedules + supply metrics (supply-shock signal)",
+        "summary": "Token unlock schedules in bounded whole-record pages",
         "tags": [
           "defi"
         ],
@@ -13395,7 +13469,31 @@
             }
           ]
         }
-      }
+      },
+      "parameters": [
+        {
+          "description": "Pagination offset in the result units documented by the tool; zero starts the first page.",
+          "in": "query",
+          "name": "offset",
+          "schema": {
+            "default": 0,
+            "maximum": 2147483647,
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        {
+          "description": "Maximum results.",
+          "in": "query",
+          "name": "limit",
+          "schema": {
+            "default": 20,
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          }
+        }
+      ]
     },
     "/api/v1/defi/treasuries": {
       "get": {

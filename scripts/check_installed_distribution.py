@@ -49,6 +49,15 @@ def main() -> None:
                 "total": 2, "offset": offset, "limit": 1,
                 "results": [{"result_id": f"row-{offset}", "max_drawdown": 0.1}],
             })
+        if request.url.path == "/api/v1/defi/token-unlocks":
+            offset = int(request.url.params["offset"])
+            assert request.url.params["limit"] == "20"
+            rows = [{"token": f"synthetic-{offset}", "schedule": [{"amount": "42.5"}]}]
+            return httpx.Response(200, json={
+                "success": True, "provider": "defillama", "data": rows, "records": rows,
+                "count": 1, "total_count": 2, "offset": offset, "limit": 20,
+                "has_more": offset == 0, "next_offset": 1 if offset == 0 else None,
+            })
         if request.url.path == "/api/v1/fixture/payment":
             return httpx.Response(402, json={"error": "payment_required", "message": fixture_key})
         return httpx.Response(200, text="not JSON")
@@ -67,6 +76,12 @@ def main() -> None:
         assert config.param_glossary["circuit_breaker"].fields["consecutive_loss_limit"].type == "int"
         assert [row.name for row in client.signals.list_iter(limit_per_page=1)] == ["fixture_one", "fixture_two"]
         assert [row["result_id"] for row in client.oracle.list_results_iter(page_size=1)] == ["row-0", "row-1"]
+        first = client.defi.get_token_unlocks()
+        assert first.count == 1 and first.total_count == 2
+        assert first.data == first.records and first.has_more and first.next_offset == 1
+        last = client.defi.get_token_unlocks(offset=first.next_offset)
+        assert last.data[0]["token"] == "synthetic-1"
+        assert last.has_more is False and last.next_offset is None
         try:
             client._core_transport.request("GET", "/fixture/payment")
         except PaymentRequiredError as exc:
@@ -79,7 +94,7 @@ def main() -> None:
             pass
         else:
             raise AssertionError("Malformed success was accepted")
-    assert len(calls) == 8
+    assert len(calls) == 10
     print(json.dumps({
         "distribution": "mangroveai", "version": mangrove_ai.__version__,
         "requests_intercepted": len(calls),

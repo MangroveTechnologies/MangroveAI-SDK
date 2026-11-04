@@ -49,6 +49,13 @@ based on live market and account conditions.
 
 ## Install
 
+Token unlocks use bounded pages: `client.defi.get_token_unlocks()` returns the
+first page (default 20 records, maximum 100), and a byte budget can shorten it.
+When `has_more` is true, pass the returned `next_offset` to the next explicit
+request. Each page is a separate metered call; the SDK does not fetch all pages
+automatically. An absent pagination field from an older server is unknown, not
+proof that all records were returned. See [the DeFi example](examples/defi_pro.py).
+
 ```bash
 pip install mangroveai
 ```

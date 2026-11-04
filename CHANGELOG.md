@@ -11,6 +11,16 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Bounded token-unlock pages
+
+- `client.defi.get_token_unlocks(limit=20, offset=0)` reads one page of whole
+  provider records. The server can return fewer than `limit` to stay within its
+  response byte budget; use `has_more` and `next_offset` rather than assuming a
+  no-argument call contains every token. Pagination metadata and the `records`
+  compatibility alias are typed in Python and the generated TypeScript contract.
+- Requires the matching MangroveAI bounded-token-unlock API before adopting the
+  new pagination parameters; this source preparation does not publish a package.
+
 ### X post counts and the social signal category (targets 2.2.0, after 2.1.1)
 
 - `client.social.get_x_post_counts(symbol, days_back, granularity, x_query)` reads

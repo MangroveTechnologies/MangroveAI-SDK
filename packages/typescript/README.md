@@ -34,6 +34,26 @@ npm install /path/to/reviewed/mangrove-ai-sdk-1.1.0.tgz
 When installing a registry release, verify its exact version and package identity
 first.
 
+## Token-unlock pages
+
+The generic request reads one bounded page; an omitted query uses the server's
+first-page default of 20 records (maximum 100). The byte budget can shorten a
+page. Follow the returned `next_offset` while `has_more` is true, rather than
+adding the requested limit. Each explicit request is separately metered; no
+automatic page fetch is performed. Provider refreshes can change the dataset
+between requests.
+
+```ts
+const page = await client.request('GET /api/v1/defi/token-unlocks', {
+  query: { limit: 20, offset: 0 },
+});
+if (page.has_more && page.next_offset != null) {
+  // Request another page only when needed, using offset: page.next_offset.
+}
+```
+
+These parameters require the matching bounded-token-unlock API to be deployed.
+
 ## First request
 
 Keep the API key in server-side configuration, outside browser bundles, prompts

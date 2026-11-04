@@ -32,7 +32,9 @@ def main() -> None:
 
     try:
         unlocks = client.defi.get_token_unlocks()
-        print(f"[token unlocks]  {unlocks.count} tokens tracked")
+        print(f"[token unlocks]  {unlocks.count} records on this page, {unlocks.total_count} total")
+        if unlocks.has_more:
+            print(f"  More records: request the next page with offset={unlocks.next_offset}")
         if unlocks.data:
             top = unlocks.data[0]
             print(f"  e.g. {top.get('name')}: circSupply={top.get('circSupply')}")

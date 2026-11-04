@@ -171,6 +171,7 @@ export interface CoreModels {
   "api1.TokenDexTradesResponse": { "chain"?: string; "contract_address"?: string; "count"?: number; "date_range"?: unknown; "filters"?: unknown; "order_by"?: unknown; "success"?: boolean; "symbol"?: string; "trades"?: Array<unknown>; [key: string]: unknown; };
   "api1.TokenFlowsResponse": { "chain"?: string; "contract_address"?: string; "count"?: number; "date_range"?: unknown; "filters"?: unknown; "flows"?: Array<unknown>; "order_by"?: unknown; "success"?: boolean; "symbol"?: string; [key: string]: unknown; };
   "api1.TokenHoldersResponse": { "data"?: unknown; "success"?: boolean; "symbol"?: string; [key: string]: unknown; };
+  "api1.TokenUnlocksResponse": { "count"?: number; "data"?: Array<unknown>; "has_more"?: boolean; "limit"?: number; "next_offset"?: number | null; "offset"?: number; "provider"?: string; "records"?: Array<unknown>; "success"?: boolean; "total_count"?: number; [key: string]: unknown; };
   "api1.Trade": { "account_id"?: string; "asset"?: string; "beginning_balance"?: number; "closed_at"?: string; "ending_balance"?: number; "entry_price"?: number; "exchange"?: string; "exit_price"?: number; "id"?: string; "org_id"?: string; "outcome"?: string; "position_id"?: string; "position_size"?: number; "profit_loss"?: number; "profit_loss_pct"?: number; "strategy_name"?: string; "user_id"?: string; [key: string]: unknown; };
   "api1.TradesValidationResult": { "errors"?: Array<string>; "valid": boolean; [key: string]: unknown; };
   "api1.TrendingAssetsResponse": { "count"?: number; "success"?: boolean; "trending"?: Array<unknown>; [key: string]: unknown; };
@@ -313,7 +314,7 @@ export interface Operations {
   "GET /api/v1/defi/perp-funding": { input: {  }; output: CoreModels["api1.DefiProResponse"]; };
   "GET /api/v1/defi/protocol/{protocol_name}/tvl": { input: { path: { "protocol_name": string; }; }; output: CoreModels["api1.ProtocolTVLResponse"]; };
   "GET /api/v1/defi/stablecoins/metrics": { input: {  }; output: CoreModels["api1.StablecoinMetricsResponse"]; };
-  "GET /api/v1/defi/token-unlocks": { input: {  }; output: CoreModels["api1.DefiProResponse"]; };
+  "GET /api/v1/defi/token-unlocks": { input: { query?: { "limit"?: number; "offset"?: number; }; }; output: CoreModels["api1.TokenUnlocksResponse"]; };
   "GET /api/v1/defi/treasuries": { input: {  }; output: CoreModels["api1.DefiProResponse"]; };
   "GET /api/v1/docs/content": { input: { query?: { "path"?: string; }; }; output: CoreModels["api1.DocContent"]; };
   "GET /api/v1/docs/list": { input: {  }; output: CoreModels["api1.DocsList"]; };
@@ -1047,7 +1048,9 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/defi/token-unlocks",
     "queryFormats": {},
-    "required": {}
+    "required": {
+      "query": []
+    }
   },
   "GET /api/v1/defi/treasuries": {
     "authenticated": true,

@@ -46,9 +46,19 @@ class DeFiService(BaseService):
 
     # --- Pro (require a Pro / Startup / Enterprise plan) ---------------------
 
-    def get_token_unlocks(self) -> TokenUnlocksResponse:
-        """Pro: token unlock schedules + supply metrics (supply-shock signal)."""
-        return self._request_model("GET", "/defi/token-unlocks", TokenUnlocksResponse)
+    def get_token_unlocks(self, *, limit: int = 20, offset: int = 0) -> TokenUnlocksResponse:
+        """Pro: one bounded page of complete token unlock records.
+
+        A no-argument call returns the first page, not every token. The server
+        accepts limits from 1 to 100 and may shorten a page to its byte budget.
+        Follow ``next_offset`` while ``has_more`` is true; do not calculate the
+        next offset from the requested limit. Each page is a separate request.
+        Provider refreshes can change the dataset between calls.
+        """
+        return self._request_model(
+            "GET", "/defi/token-unlocks", TokenUnlocksResponse,
+            params={"limit": limit, "offset": offset},
+        )
 
     def get_perp_funding(self) -> PerpFundingResponse:
         """Pro: aggregated DeFi perpetual funding rates across venues."""

@@ -45,12 +45,18 @@ class StablecoinMetricsResponse(MangroveModel):
 
 
 class TokenUnlocksResponse(MangroveModel):
-    """Token unlock schedules + supply metrics (supply-shock signal). Pro."""
+    """One bounded token-unlock page; absent metadata supports older servers."""
 
     success: bool
     provider: str | None = None
     count: int | None = None
     data: list[dict[str, Any]] | dict[str, Any] | None = None
+    records: list[dict[str, Any]] | dict[str, Any] | None = None
+    total_count: int | None = None
+    limit: int | None = None
+    offset: int | None = None
+    has_more: bool | None = None
+    next_offset: int | None = None
 
 
 class PerpFundingResponse(MangroveModel):

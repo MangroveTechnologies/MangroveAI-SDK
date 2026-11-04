@@ -6,6 +6,14 @@ void metrics;
 void sdk.request('GET /api/v1/strategies/{strategy_id}', { path: { strategy_id: 'fixture' } });
 void sdk.strategyWorkflow.getStrategy({ body: { strategy_id: 'fixture' } });
 void sdk.strategyWorkflow.getSweepLimits({});
+void sdk.request('GET /api/v1/defi/token-unlocks', { query: { limit: 20, offset: 1 } });
+const unlocks: CoreModels['api1.TokenUnlocksResponse'] = {
+  count: 1, total_count: 1, offset: 0, limit: 20, has_more: false, next_offset: null,
+  data: [{ token: 'synthetic', schedule: [] }], records: [{ token: 'synthetic', schedule: [] }],
+};
+void unlocks;
+// @ts-expect-error Token-unlock pagination takes numeric query values.
+void sdk.request('GET /api/v1/defi/token-unlocks', { query: { offset: '1' } });
 
 // @ts-expect-error The contract requires the path identity.
 void sdk.request('GET /api/v1/strategies/{strategy_id}', {});

@@ -2,7 +2,7 @@
   "contracts": [
     {
       "path": "openapi.json",
-      "sha256": "142c70bfcf498b65f9b3d81b98f4b09bac10b36abcaca7eeafa0a53c58d5e440"
+      "sha256": "feb2d3bb4d8b2e6287e0b016f96f03ae2f01b8281fa16023cabdb376c676d7f2"
     },
     {
       "path": "oracle-proxy-openapi.json",
@@ -14,13 +14,13 @@
     }
   ],
   "generation": "Real application factory and canonical config metadata in ci; network blocked; startup provider warm-up/directory setup disabled; no business handlers",
-  "source_commit": "5c28c49bffefb86b297d8e5285ce92294f1d9b08",
+  "source_commit": "f820b33e0f7250ecbbb2d9a204eccb06fde2a4eb",
   "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "source_dirty": false,
   "source_files": [
     {
       "path": "scripts/export_developer_contracts.py",
-      "sha256": "b1cba3234f96553566b570040e725a1e657cb65fd29f941957bd39aec3aca5e1"
+      "sha256": "c16031cbc27fe214bb18b32666cdf3dda3d095a06c86443bcbb2d6ec6788757f"
     },
     {
       "path": "src/MangroveAI/public_openapi.py",
@@ -37,6 +37,22 @@
     {
       "path": "src/MangroveAI/public_references.py",
       "sha256": "84ecec863774bd16722563eee4f7ebb76489bd3cffe18577e279e0efc3f9730f"
+    },
+    {
+      "path": "src/MangroveAI/domains/defi/routes.py",
+      "sha256": "5353bdec20c7c51e5db12267c7d71363739e6b00dd49d7f975a3cb0b24808f34"
+    },
+    {
+      "path": "src/MangroveAI/domains/defi/operations/reads.py",
+      "sha256": "61efb02f7bedbda8e56b75a7ed8beb285685cdc81d902d3a187300f5bd6a5233"
+    },
+    {
+      "path": "src/MangroveAI/domains/defi/operations/token_unlocks.py",
+      "sha256": "47bb5bde177017ebc04f50fe75d87b67c728d8a4ce88c3e0d24220742a545833"
+    },
+    {
+      "path": "src/MangroveAI/domains/agent/tooling/provider_reads.py",
+      "sha256": "eb767692c1a129c7052896b57d90701c30f42e6af9c7562f8d343ddb70fbcb53"
     },
     {
       "path": "src/MangroveAI/domains/config/services.py",

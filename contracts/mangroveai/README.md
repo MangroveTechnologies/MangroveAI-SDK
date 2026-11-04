@@ -23,7 +23,12 @@ fetches configuration or runs trading-risk validation.
 
 `ExecutionConfiguration` names `cooldown_model` and the partial `circuit_breaker`
 object, including its nine server-declared controls. Python preserves their
-defaults and nested glossary in the explicit schema response. These authoring
+defaults and nested glossary in the explicit schema response. The default trades
+schema omits the four bars-only keys (`cooldown_config`, `cooldown_bars`,
+`daily_momentum_limit`, `weekly_momentum_limit`), matching the canonical server.
+Explicit bars/legacy objects remain transport-compatible. The shared default
+fixture comes from the offline source service; the separate bars fixture verifies
+older/explicit response compatibility without claiming a public mode selector. These authoring
 declarations do not add a client-side trading gate; the legacy transport escape
 hatch and server-owned risk decisions remain unchanged.
 

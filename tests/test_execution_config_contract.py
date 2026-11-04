@@ -14,6 +14,7 @@ from mangrove_ai.models.config import ExecutionConfigSchema
 
 ROOT = Path(__file__).parents[1]
 FIXTURE = json.loads((ROOT / "contracts/mangroveai/fixtures/execution-config-success.json").read_text())
+BARS_FIXTURE = json.loads((ROOT / "contracts/mangroveai/fixtures/execution-config-bars.json").read_text())
 
 
 def test_python_reads_canonical_schema_and_nested_glossary_in_one_explicit_call():
@@ -37,12 +38,10 @@ def test_python_reads_canonical_schema_and_nested_glossary_in_one_explicit_call(
     assert len(calls) == 1
     assert result.json_schema == FIXTURE["json_schema"]
     assert result.defaults == FIXTURE["defaults"]
-    metadata = result.param_glossary["cooldown_config"]
-    assert metadata.required_fields == FIXTURE["param_glossary"]["cooldown_config"]["required_fields"]
-    assert metadata.fields is not None
-    assert metadata.fields["short_window_bars"].type == "int"
-    assert metadata.metadata_fields is not None
-    assert metadata.metadata_fields["cadence_reference"].type == "str"
+    for key in ("cooldown_config", "cooldown_bars", "daily_momentum_limit", "weekly_momentum_limit"):
+        assert key not in result.defaults
+        assert key not in result.param_glossary
+        assert key not in result.json_schema["properties"]
     assert result.defaults["cooldown_model"] == "trades"
     breaker = result.param_glossary["circuit_breaker"]
     assert breaker.fields_shape == "object"
@@ -53,7 +52,7 @@ def test_python_reads_canonical_schema_and_nested_glossary_in_one_explicit_call(
 
 
 def test_older_receiver_without_additive_schema_or_nested_metadata_still_parses():
-    old = copy.deepcopy(FIXTURE)
+    old = copy.deepcopy(BARS_FIXTURE)
     old.pop("json_schema")
     old["param_glossary"]["cooldown_config"].pop("fields")
     old["param_glossary"]["cooldown_config"].pop("required_fields")
@@ -77,8 +76,8 @@ def test_generated_type_uses_canonical_fields_with_a_legacy_transport_escape_hat
     )
     normalized = schema_type(canonical, "CoreModels")
     assert '"max_risk_per_trade"?: number | null;' in normalized
-    assert '"short_window_bars": number;' in normalized
-    assert '"short_cooldown_bars"?: number;' in normalized
+    assert '"cooldown_config"' not in normalized
+    assert '"cooldown_bars"' not in normalized
     assert '"cooldown_model"?: "bars" | "trades" | null;' in normalized
     assert '"consecutive_loss_limit"?: number;' in normalized
     assert normalized != "unknown"
@@ -95,3 +94,12 @@ def test_nullable_object_keeps_its_null_branch_in_generated_authoring_types():
 def test_unconstrained_raw_values_are_still_opaque(metadata):
     schema_type = runpy.run_path(str(ROOT / "scripts/generate_typescript_contract.py"))["schema_type"]
     assert schema_type({"x-mangrove-raw-json": True, "type": "object", "additionalProperties": metadata}, "Models") == "unknown"
+
+
+def test_bars_response_preserves_nested_metadata_without_client_policy():
+    result = ExecutionConfigSchema.model_validate(BARS_FIXTURE)
+    assert result.defaults["cooldown_model"] == "bars"
+    metadata = result.param_glossary["cooldown_config"]
+    assert metadata.required_fields == BARS_FIXTURE["param_glossary"]["cooldown_config"]["required_fields"]
+    assert metadata.fields["short_window_bars"].type == "int"
+    assert result.json_schema == BARS_FIXTURE["json_schema"]

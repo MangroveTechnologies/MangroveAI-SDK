@@ -42,18 +42,15 @@ void historical;
 
 const normalized: ExecutionConfiguration = {
   max_risk_per_trade: 0.02,
-  cooldown_config: {
-    '1D': { short_window_bars: 1, long_window_bars: 4, short_loss_limit: 1, long_loss_limit: 2 },
-    cadence_reference: '1h',
-  },
+  cooldown_model: 'trades',
 };
 void normalized;
 // @ts-expect-error Normalized authoring values are numbers; transport compatibility is separate.
 const invalidNormalized: ExecutionConfiguration = { max_risk_per_trade: '0.02' };
 void invalidNormalized;
-// @ts-expect-error All four actual engine entry fields are required, including for aliases.
-const missingCooldown: ExecutionConfiguration = { cooldown_config: { '1D': { short_window_bars: 1 } } };
-void missingCooldown;
+// Additional properties retain legacy transport compatibility; no local policy gate.
+const legacyCooldown: ExecutionConfiguration = { cooldown_config: { '1D': { short_window_bars: 1 } } };
+void legacyCooldown;
 
 const tradeBreaker: ExecutionConfiguration = {
   cooldown_model: 'trades',
@@ -74,6 +71,11 @@ void invalidModel;
 void invalidBreakerCount;
 void invalidPauseBars;
 void invalidBreakerField;
+// Explicit bars objects remain accepted by the transport compatibility branch.
+const barsTransport: CoreModels['api1.ExecutionConfiguration'] = {
+  cooldown_model: 'bars', cooldown_config: { '1h': { short_window_bars: 1 } },
+};
+void barsTransport;
 // Legacy objects remain accepted by the SDK transport contract; no new local gate.
 void sdk.request('POST /api/v1/strategy-workflow/save_strategy', {
   body: { strategy_name: 'Fixture', asset: 'ETH', constraints: { max_risk_per_trade: '0.01', unknown_legacy: [1, null] } },

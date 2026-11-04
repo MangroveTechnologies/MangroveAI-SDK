@@ -12,59 +12,7 @@
       "resume_size_fraction": 0.5,
       "resume_trades": 3
     },
-    "cooldown_bars": 24,
-    "cooldown_config": {
-      "15m": {
-        "long_cooldown_bars": 320,
-        "long_loss_limit": 6,
-        "long_window_bars": 320,
-        "short_cooldown_bars": 120,
-        "short_loss_limit": 4,
-        "short_window_bars": 120
-      },
-      "1d": {
-        "long_cooldown_bars": 60,
-        "long_loss_limit": 6,
-        "long_window_bars": 60,
-        "short_cooldown_bars": 20,
-        "short_loss_limit": 4,
-        "short_window_bars": 20
-      },
-      "1h": {
-        "long_cooldown_bars": 144,
-        "long_loss_limit": 6,
-        "long_window_bars": 144,
-        "short_cooldown_bars": 48,
-        "short_loss_limit": 4,
-        "short_window_bars": 48
-      },
-      "30m": {
-        "long_cooldown_bars": 220,
-        "long_loss_limit": 6,
-        "long_window_bars": 220,
-        "short_cooldown_bars": 80,
-        "short_loss_limit": 4,
-        "short_window_bars": 80
-      },
-      "4h": {
-        "long_cooldown_bars": 96,
-        "long_loss_limit": 6,
-        "long_window_bars": 96,
-        "short_cooldown_bars": 32,
-        "short_loss_limit": 4,
-        "short_window_bars": 32
-      },
-      "5m": {
-        "long_cooldown_bars": 480,
-        "long_loss_limit": 6,
-        "long_window_bars": 480,
-        "short_cooldown_bars": 180,
-        "short_loss_limit": 4,
-        "short_window_bars": 180
-      }
-    },
     "cooldown_model": "trades",
-    "daily_momentum_limit": 3,
     "enable_volatility_adjustment": false,
     "exit_on_loss_after_bars": 1000,
     "exit_on_profit_after_bars": 1000,
@@ -88,8 +36,7 @@
     "target_volatility": 0.1,
     "volatility_mode": "stddev",
     "volatility_tolerance": 0.5,
-    "volatility_window": 24,
-    "weekly_momentum_limit": 3
+    "volatility_window": 24
   },
   "json_schema": {
     "$id": "urn:mangrove:execution-config:1",
@@ -264,648 +211,6 @@
         "x-mangrove-effect": "Tighter limits pause and stop sooner; looser limits keep trading through losing runs.",
         "x-mangrove-status": "guardrail"
       },
-      "cooldown_bars": {
-        "default": 24,
-        "description": "Bars to wait between trades on the same asset.",
-        "maximum": 10000,
-        "minimum": 0,
-        "type": [
-          "integer",
-          "null"
-        ],
-        "x-mangrove-effect": "Higher spaces trades out (reduces overtrading and whipsaw); lower allows quicker re-entry.",
-        "x-mangrove-input-coercion": "Top-level validate_execution_config accepts finite numeric strings; integer fields require whole values. Version-specific checks remain separate.",
-        "x-mangrove-status": "tunable"
-      },
-      "cooldown_config": {
-        "additionalProperties": {
-          "additionalProperties": true,
-          "properties": {
-            "long_cooldown_bars": {
-              "description": "Bars to deny new entries once long_loss_limit trips. Also the latch duration a drawdown breaker trip uses.",
-              "maximum": 10000,
-              "minimum": 1,
-              "type": "integer",
-              "x-mangrove-effect": "As short_cooldown_bars, and it doubles as the drawdown breaker's cooldown, so raising it lengthens that halt too.",
-              "x-mangrove-status": "tunable"
-            },
-            "long_loss_limit": {
-              "description": "Consecutive losses inside long_window_bars that trip the long cooldown. Should exceed short_loss_limit, or the long rule never fires first.",
-              "maximum": 100,
-              "minimum": 1,
-              "type": "integer",
-              "x-mangrove-effect": "Lower trips the longer pause sooner; higher reserves it for a deeper losing streak.",
-              "x-mangrove-status": "tunable"
-            },
-            "long_window_bars": {
-              "description": "Lookback, in bars, over which long_loss_limit is counted.",
-              "maximum": 10000,
-              "minimum": 1,
-              "type": "integer",
-              "x-mangrove-effect": "As short_window_bars, over the longer horizon.",
-              "x-mangrove-status": "tunable"
-            },
-            "short_cooldown_bars": {
-              "description": "Bars to deny new entries once short_loss_limit trips. Positions already open still exit.",
-              "maximum": 10000,
-              "minimum": 1,
-              "type": "integer",
-              "x-mangrove-effect": "Longer sits out more of a bad regime at the cost of missing the recovery; shorter resumes sooner.",
-              "x-mangrove-status": "tunable"
-            },
-            "short_loss_limit": {
-              "description": "Consecutive losses inside short_window_bars that trip the short cooldown.",
-              "maximum": 100,
-              "minimum": 1,
-              "type": "integer",
-              "x-mangrove-effect": "Lower trips the cooldown sooner after a losing run; higher tolerates more losses before pausing.",
-              "x-mangrove-status": "tunable"
-            },
-            "short_window_bars": {
-              "description": "Lookback, in bars, over which short_loss_limit is counted.",
-              "maximum": 10000,
-              "minimum": 1,
-              "type": "integer",
-              "x-mangrove-effect": "Wider counts losses over more history, so the limit trips more readily; narrower makes it a burst detector.",
-              "x-mangrove-status": "tunable"
-            }
-          },
-          "required": [
-            "short_window_bars",
-            "long_window_bars",
-            "short_loss_limit",
-            "long_loss_limit"
-          ],
-          "type": "object"
-        },
-        "default": {
-          "15m": {
-            "long_cooldown_bars": 320,
-            "long_loss_limit": 6,
-            "long_window_bars": 320,
-            "short_cooldown_bars": 120,
-            "short_loss_limit": 4,
-            "short_window_bars": 120
-          },
-          "1d": {
-            "long_cooldown_bars": 60,
-            "long_loss_limit": 6,
-            "long_window_bars": 60,
-            "short_cooldown_bars": 20,
-            "short_loss_limit": 4,
-            "short_window_bars": 20
-          },
-          "1h": {
-            "long_cooldown_bars": 144,
-            "long_loss_limit": 6,
-            "long_window_bars": 144,
-            "short_cooldown_bars": 48,
-            "short_loss_limit": 4,
-            "short_window_bars": 48
-          },
-          "30m": {
-            "long_cooldown_bars": 220,
-            "long_loss_limit": 6,
-            "long_window_bars": 220,
-            "short_cooldown_bars": 80,
-            "short_loss_limit": 4,
-            "short_window_bars": 80
-          },
-          "4h": {
-            "long_cooldown_bars": 96,
-            "long_loss_limit": 6,
-            "long_window_bars": 96,
-            "short_cooldown_bars": 32,
-            "short_loss_limit": 4,
-            "short_window_bars": 32
-          },
-          "5m": {
-            "long_cooldown_bars": 480,
-            "long_loss_limit": 6,
-            "long_window_bars": 480,
-            "short_cooldown_bars": 180,
-            "short_loss_limit": 4,
-            "short_window_bars": 180
-          }
-        },
-        "description": "Per-timeframe loss-streak cooldown windows (short/long loss limits and cooldown bar counts).",
-        "properties": {
-          "15m": {
-            "additionalProperties": true,
-            "default": {
-              "long_cooldown_bars": 320,
-              "long_loss_limit": 6,
-              "long_window_bars": 320,
-              "short_cooldown_bars": 120,
-              "short_loss_limit": 4,
-              "short_window_bars": 120
-            },
-            "properties": {
-              "long_cooldown_bars": {
-                "default": 320,
-                "description": "Bars to deny new entries once long_loss_limit trips. Also the latch duration a drawdown breaker trip uses.",
-                "maximum": 10000,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "As short_cooldown_bars, and it doubles as the drawdown breaker's cooldown, so raising it lengthens that halt too.",
-                "x-mangrove-status": "tunable"
-              },
-              "long_loss_limit": {
-                "default": 6,
-                "description": "Consecutive losses inside long_window_bars that trip the long cooldown. Should exceed short_loss_limit, or the long rule never fires first.",
-                "maximum": 100,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "Lower trips the longer pause sooner; higher reserves it for a deeper losing streak.",
-                "x-mangrove-status": "tunable"
-              },
-              "long_window_bars": {
-                "default": 320,
-                "description": "Lookback, in bars, over which long_loss_limit is counted.",
-                "maximum": 10000,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "As short_window_bars, over the longer horizon.",
-                "x-mangrove-status": "tunable"
-              },
-              "short_cooldown_bars": {
-                "default": 120,
-                "description": "Bars to deny new entries once short_loss_limit trips. Positions already open still exit.",
-                "maximum": 10000,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "Longer sits out more of a bad regime at the cost of missing the recovery; shorter resumes sooner.",
-                "x-mangrove-status": "tunable"
-              },
-              "short_loss_limit": {
-                "default": 4,
-                "description": "Consecutive losses inside short_window_bars that trip the short cooldown.",
-                "maximum": 100,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "Lower trips the cooldown sooner after a losing run; higher tolerates more losses before pausing.",
-                "x-mangrove-status": "tunable"
-              },
-              "short_window_bars": {
-                "default": 120,
-                "description": "Lookback, in bars, over which short_loss_limit is counted.",
-                "maximum": 10000,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "Wider counts losses over more history, so the limit trips more readily; narrower makes it a burst detector.",
-                "x-mangrove-status": "tunable"
-              }
-            },
-            "required": [
-              "short_window_bars",
-              "long_window_bars",
-              "short_loss_limit",
-              "long_loss_limit"
-            ],
-            "type": "object"
-          },
-          "1d": {
-            "additionalProperties": true,
-            "default": {
-              "long_cooldown_bars": 60,
-              "long_loss_limit": 6,
-              "long_window_bars": 60,
-              "short_cooldown_bars": 20,
-              "short_loss_limit": 4,
-              "short_window_bars": 20
-            },
-            "properties": {
-              "long_cooldown_bars": {
-                "default": 60,
-                "description": "Bars to deny new entries once long_loss_limit trips. Also the latch duration a drawdown breaker trip uses.",
-                "maximum": 10000,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "As short_cooldown_bars, and it doubles as the drawdown breaker's cooldown, so raising it lengthens that halt too.",
-                "x-mangrove-status": "tunable"
-              },
-              "long_loss_limit": {
-                "default": 6,
-                "description": "Consecutive losses inside long_window_bars that trip the long cooldown. Should exceed short_loss_limit, or the long rule never fires first.",
-                "maximum": 100,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "Lower trips the longer pause sooner; higher reserves it for a deeper losing streak.",
-                "x-mangrove-status": "tunable"
-              },
-              "long_window_bars": {
-                "default": 60,
-                "description": "Lookback, in bars, over which long_loss_limit is counted.",
-                "maximum": 10000,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "As short_window_bars, over the longer horizon.",
-                "x-mangrove-status": "tunable"
-              },
-              "short_cooldown_bars": {
-                "default": 20,
-                "description": "Bars to deny new entries once short_loss_limit trips. Positions already open still exit.",
-                "maximum": 10000,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "Longer sits out more of a bad regime at the cost of missing the recovery; shorter resumes sooner.",
-                "x-mangrove-status": "tunable"
-              },
-              "short_loss_limit": {
-                "default": 4,
-                "description": "Consecutive losses inside short_window_bars that trip the short cooldown.",
-                "maximum": 100,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "Lower trips the cooldown sooner after a losing run; higher tolerates more losses before pausing.",
-                "x-mangrove-status": "tunable"
-              },
-              "short_window_bars": {
-                "default": 20,
-                "description": "Lookback, in bars, over which short_loss_limit is counted.",
-                "maximum": 10000,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "Wider counts losses over more history, so the limit trips more readily; narrower makes it a burst detector.",
-                "x-mangrove-status": "tunable"
-              }
-            },
-            "required": [
-              "short_window_bars",
-              "long_window_bars",
-              "short_loss_limit",
-              "long_loss_limit"
-            ],
-            "type": "object"
-          },
-          "1h": {
-            "additionalProperties": true,
-            "default": {
-              "long_cooldown_bars": 144,
-              "long_loss_limit": 6,
-              "long_window_bars": 144,
-              "short_cooldown_bars": 48,
-              "short_loss_limit": 4,
-              "short_window_bars": 48
-            },
-            "properties": {
-              "long_cooldown_bars": {
-                "default": 144,
-                "description": "Bars to deny new entries once long_loss_limit trips. Also the latch duration a drawdown breaker trip uses.",
-                "maximum": 10000,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "As short_cooldown_bars, and it doubles as the drawdown breaker's cooldown, so raising it lengthens that halt too.",
-                "x-mangrove-status": "tunable"
-              },
-              "long_loss_limit": {
-                "default": 6,
-                "description": "Consecutive losses inside long_window_bars that trip the long cooldown. Should exceed short_loss_limit, or the long rule never fires first.",
-                "maximum": 100,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "Lower trips the longer pause sooner; higher reserves it for a deeper losing streak.",
-                "x-mangrove-status": "tunable"
-              },
-              "long_window_bars": {
-                "default": 144,
-                "description": "Lookback, in bars, over which long_loss_limit is counted.",
-                "maximum": 10000,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "As short_window_bars, over the longer horizon.",
-                "x-mangrove-status": "tunable"
-              },
-              "short_cooldown_bars": {
-                "default": 48,
-                "description": "Bars to deny new entries once short_loss_limit trips. Positions already open still exit.",
-                "maximum": 10000,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "Longer sits out more of a bad regime at the cost of missing the recovery; shorter resumes sooner.",
-                "x-mangrove-status": "tunable"
-              },
-              "short_loss_limit": {
-                "default": 4,
-                "description": "Consecutive losses inside short_window_bars that trip the short cooldown.",
-                "maximum": 100,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "Lower trips the cooldown sooner after a losing run; higher tolerates more losses before pausing.",
-                "x-mangrove-status": "tunable"
-              },
-              "short_window_bars": {
-                "default": 48,
-                "description": "Lookback, in bars, over which short_loss_limit is counted.",
-                "maximum": 10000,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "Wider counts losses over more history, so the limit trips more readily; narrower makes it a burst detector.",
-                "x-mangrove-status": "tunable"
-              }
-            },
-            "required": [
-              "short_window_bars",
-              "long_window_bars",
-              "short_loss_limit",
-              "long_loss_limit"
-            ],
-            "type": "object"
-          },
-          "30m": {
-            "additionalProperties": true,
-            "default": {
-              "long_cooldown_bars": 220,
-              "long_loss_limit": 6,
-              "long_window_bars": 220,
-              "short_cooldown_bars": 80,
-              "short_loss_limit": 4,
-              "short_window_bars": 80
-            },
-            "properties": {
-              "long_cooldown_bars": {
-                "default": 220,
-                "description": "Bars to deny new entries once long_loss_limit trips. Also the latch duration a drawdown breaker trip uses.",
-                "maximum": 10000,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "As short_cooldown_bars, and it doubles as the drawdown breaker's cooldown, so raising it lengthens that halt too.",
-                "x-mangrove-status": "tunable"
-              },
-              "long_loss_limit": {
-                "default": 6,
-                "description": "Consecutive losses inside long_window_bars that trip the long cooldown. Should exceed short_loss_limit, or the long rule never fires first.",
-                "maximum": 100,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "Lower trips the longer pause sooner; higher reserves it for a deeper losing streak.",
-                "x-mangrove-status": "tunable"
-              },
-              "long_window_bars": {
-                "default": 220,
-                "description": "Lookback, in bars, over which long_loss_limit is counted.",
-                "maximum": 10000,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "As short_window_bars, over the longer horizon.",
-                "x-mangrove-status": "tunable"
-              },
-              "short_cooldown_bars": {
-                "default": 80,
-                "description": "Bars to deny new entries once short_loss_limit trips. Positions already open still exit.",
-                "maximum": 10000,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "Longer sits out more of a bad regime at the cost of missing the recovery; shorter resumes sooner.",
-                "x-mangrove-status": "tunable"
-              },
-              "short_loss_limit": {
-                "default": 4,
-                "description": "Consecutive losses inside short_window_bars that trip the short cooldown.",
-                "maximum": 100,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "Lower trips the cooldown sooner after a losing run; higher tolerates more losses before pausing.",
-                "x-mangrove-status": "tunable"
-              },
-              "short_window_bars": {
-                "default": 80,
-                "description": "Lookback, in bars, over which short_loss_limit is counted.",
-                "maximum": 10000,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "Wider counts losses over more history, so the limit trips more readily; narrower makes it a burst detector.",
-                "x-mangrove-status": "tunable"
-              }
-            },
-            "required": [
-              "short_window_bars",
-              "long_window_bars",
-              "short_loss_limit",
-              "long_loss_limit"
-            ],
-            "type": "object"
-          },
-          "4h": {
-            "additionalProperties": true,
-            "default": {
-              "long_cooldown_bars": 96,
-              "long_loss_limit": 6,
-              "long_window_bars": 96,
-              "short_cooldown_bars": 32,
-              "short_loss_limit": 4,
-              "short_window_bars": 32
-            },
-            "properties": {
-              "long_cooldown_bars": {
-                "default": 96,
-                "description": "Bars to deny new entries once long_loss_limit trips. Also the latch duration a drawdown breaker trip uses.",
-                "maximum": 10000,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "As short_cooldown_bars, and it doubles as the drawdown breaker's cooldown, so raising it lengthens that halt too.",
-                "x-mangrove-status": "tunable"
-              },
-              "long_loss_limit": {
-                "default": 6,
-                "description": "Consecutive losses inside long_window_bars that trip the long cooldown. Should exceed short_loss_limit, or the long rule never fires first.",
-                "maximum": 100,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "Lower trips the longer pause sooner; higher reserves it for a deeper losing streak.",
-                "x-mangrove-status": "tunable"
-              },
-              "long_window_bars": {
-                "default": 96,
-                "description": "Lookback, in bars, over which long_loss_limit is counted.",
-                "maximum": 10000,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "As short_window_bars, over the longer horizon.",
-                "x-mangrove-status": "tunable"
-              },
-              "short_cooldown_bars": {
-                "default": 32,
-                "description": "Bars to deny new entries once short_loss_limit trips. Positions already open still exit.",
-                "maximum": 10000,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "Longer sits out more of a bad regime at the cost of missing the recovery; shorter resumes sooner.",
-                "x-mangrove-status": "tunable"
-              },
-              "short_loss_limit": {
-                "default": 4,
-                "description": "Consecutive losses inside short_window_bars that trip the short cooldown.",
-                "maximum": 100,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "Lower trips the cooldown sooner after a losing run; higher tolerates more losses before pausing.",
-                "x-mangrove-status": "tunable"
-              },
-              "short_window_bars": {
-                "default": 32,
-                "description": "Lookback, in bars, over which short_loss_limit is counted.",
-                "maximum": 10000,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "Wider counts losses over more history, so the limit trips more readily; narrower makes it a burst detector.",
-                "x-mangrove-status": "tunable"
-              }
-            },
-            "required": [
-              "short_window_bars",
-              "long_window_bars",
-              "short_loss_limit",
-              "long_loss_limit"
-            ],
-            "type": "object"
-          },
-          "5m": {
-            "additionalProperties": true,
-            "default": {
-              "long_cooldown_bars": 480,
-              "long_loss_limit": 6,
-              "long_window_bars": 480,
-              "short_cooldown_bars": 180,
-              "short_loss_limit": 4,
-              "short_window_bars": 180
-            },
-            "properties": {
-              "long_cooldown_bars": {
-                "default": 480,
-                "description": "Bars to deny new entries once long_loss_limit trips. Also the latch duration a drawdown breaker trip uses.",
-                "maximum": 10000,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "As short_cooldown_bars, and it doubles as the drawdown breaker's cooldown, so raising it lengthens that halt too.",
-                "x-mangrove-status": "tunable"
-              },
-              "long_loss_limit": {
-                "default": 6,
-                "description": "Consecutive losses inside long_window_bars that trip the long cooldown. Should exceed short_loss_limit, or the long rule never fires first.",
-                "maximum": 100,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "Lower trips the longer pause sooner; higher reserves it for a deeper losing streak.",
-                "x-mangrove-status": "tunable"
-              },
-              "long_window_bars": {
-                "default": 480,
-                "description": "Lookback, in bars, over which long_loss_limit is counted.",
-                "maximum": 10000,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "As short_window_bars, over the longer horizon.",
-                "x-mangrove-status": "tunable"
-              },
-              "short_cooldown_bars": {
-                "default": 180,
-                "description": "Bars to deny new entries once short_loss_limit trips. Positions already open still exit.",
-                "maximum": 10000,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "Longer sits out more of a bad regime at the cost of missing the recovery; shorter resumes sooner.",
-                "x-mangrove-status": "tunable"
-              },
-              "short_loss_limit": {
-                "default": 4,
-                "description": "Consecutive losses inside short_window_bars that trip the short cooldown.",
-                "maximum": 100,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "Lower trips the cooldown sooner after a losing run; higher tolerates more losses before pausing.",
-                "x-mangrove-status": "tunable"
-              },
-              "short_window_bars": {
-                "default": 180,
-                "description": "Lookback, in bars, over which short_loss_limit is counted.",
-                "maximum": 10000,
-                "minimum": 1,
-                "type": "integer",
-                "x-mangrove-effect": "Wider counts losses over more history, so the limit trips more readily; narrower makes it a burst detector.",
-                "x-mangrove-status": "tunable"
-              }
-            },
-            "required": [
-              "short_window_bars",
-              "long_window_bars",
-              "short_loss_limit",
-              "long_loss_limit"
-            ],
-            "type": "object"
-          },
-          "cadence_reference": {
-            "description": "Server-selected strategy cadence; metadata rather than a timeframe entry.",
-            "type": "string"
-          }
-        },
-        "type": [
-          "object",
-          "null"
-        ],
-        "x-mangrove-effect": "Tighter limits pause trading sooner after a losing streak; looser limits keep trading through drawdowns.",
-        "x-mangrove-map-value-schema": {
-          "additionalProperties": true,
-          "properties": {
-            "long_cooldown_bars": {
-              "description": "Bars to deny new entries once long_loss_limit trips. Also the latch duration a drawdown breaker trip uses.",
-              "maximum": 10000,
-              "minimum": 1,
-              "type": "integer",
-              "x-mangrove-effect": "As short_cooldown_bars, and it doubles as the drawdown breaker's cooldown, so raising it lengthens that halt too.",
-              "x-mangrove-status": "tunable"
-            },
-            "long_loss_limit": {
-              "description": "Consecutive losses inside long_window_bars that trip the long cooldown. Should exceed short_loss_limit, or the long rule never fires first.",
-              "maximum": 100,
-              "minimum": 1,
-              "type": "integer",
-              "x-mangrove-effect": "Lower trips the longer pause sooner; higher reserves it for a deeper losing streak.",
-              "x-mangrove-status": "tunable"
-            },
-            "long_window_bars": {
-              "description": "Lookback, in bars, over which long_loss_limit is counted.",
-              "maximum": 10000,
-              "minimum": 1,
-              "type": "integer",
-              "x-mangrove-effect": "As short_window_bars, over the longer horizon.",
-              "x-mangrove-status": "tunable"
-            },
-            "short_cooldown_bars": {
-              "description": "Bars to deny new entries once short_loss_limit trips. Positions already open still exit.",
-              "maximum": 10000,
-              "minimum": 1,
-              "type": "integer",
-              "x-mangrove-effect": "Longer sits out more of a bad regime at the cost of missing the recovery; shorter resumes sooner.",
-              "x-mangrove-status": "tunable"
-            },
-            "short_loss_limit": {
-              "description": "Consecutive losses inside short_window_bars that trip the short cooldown.",
-              "maximum": 100,
-              "minimum": 1,
-              "type": "integer",
-              "x-mangrove-effect": "Lower trips the cooldown sooner after a losing run; higher tolerates more losses before pausing.",
-              "x-mangrove-status": "tunable"
-            },
-            "short_window_bars": {
-              "description": "Lookback, in bars, over which short_loss_limit is counted.",
-              "maximum": 10000,
-              "minimum": 1,
-              "type": "integer",
-              "x-mangrove-effect": "Wider counts losses over more history, so the limit trips more readily; narrower makes it a burst detector.",
-              "x-mangrove-status": "tunable"
-            }
-          },
-          "required": [
-            "short_window_bars",
-            "long_window_bars",
-            "short_loss_limit",
-            "long_loss_limit"
-          ],
-          "type": "object"
-        },
-        "x-mangrove-status": "tunable"
-      },
       "cooldown_model": {
         "default": "trades",
         "description": "Loss-streak breaker model. 'bars' counts losing closes inside rolling windows of the primary timeframe (cooldown_config). 'trades' counts consecutive losing closes and realized loss amount, pauses for circuit_breaker bars of the primary timeframe (at least pause_min_hours and at most pause_max_days), and stops after repeated pauses (circuit_breaker). An absent model adopts the canonical 'trades' defaults; explicit 'bars' retains the legacy model.",
@@ -918,20 +223,7 @@
           "string",
           "null"
         ],
-        "x-mangrove-effect": "'trades' trips on trade count and loss size regardless of how far apart trades are spaced; 'bars' trips only when losses land inside the window. cooldown_config is ignored under 'trades'.",
-        "x-mangrove-status": "guardrail"
-      },
-      "daily_momentum_limit": {
-        "default": 3,
-        "description": "Daily momentum-based trade limit.",
-        "exclusiveMinimum": 0.0,
-        "maximum": 100.0,
-        "type": [
-          "number",
-          "null"
-        ],
-        "x-mangrove-effect": "Higher permits more momentum-driven entries per day; lower throttles them.",
-        "x-mangrove-input-coercion": "Top-level validate_execution_config accepts finite numeric strings; integer fields require whole values. Version-specific checks remain separate.",
+        "x-mangrove-effect": "'trades' trips on trade count and loss size regardless of how far apart trades are spaced; 'bars' trips only when losses land inside the window. cooldown_config, cooldown_bars, daily_momentum_limit and weekly_momentum_limit are read only under 'bars': they are left out of a resolved config under 'trades', and a config that carries them under 'trades' has them dropped.",
         "x-mangrove-status": "guardrail"
       },
       "enable_volatility_adjustment": {
@@ -1325,19 +617,6 @@
         "x-mangrove-effect": "No runtime effect. Do not tune.",
         "x-mangrove-input-coercion": "Top-level validate_execution_config accepts finite numeric strings; integer fields require whole values. Version-specific checks remain separate.",
         "x-mangrove-status": "unused"
-      },
-      "weekly_momentum_limit": {
-        "default": 3,
-        "description": "Weekly momentum-based trade limit.",
-        "exclusiveMinimum": 0.0,
-        "maximum": 100.0,
-        "type": [
-          "number",
-          "null"
-        ],
-        "x-mangrove-effect": "Higher permits more momentum-driven entries per week; lower throttles them.",
-        "x-mangrove-input-coercion": "Top-level validate_execution_config accepts finite numeric strings; integer fields require whole values. Version-specific checks remain separate.",
-        "x-mangrove-status": "guardrail"
       }
     },
     "title": "Execution configuration",
@@ -1345,6 +624,49 @@
     "x-mangrove-boundary-validation": "top-level numeric bounds after legacy coercion; null means unset"
   },
   "param_glossary": {
+    "atr_cap_multiplier": {
+      "description": "SUPERSEDED by volatility_tolerance. Bounded the weighted blend at this multiple of the SHORT ATR.",
+      "effect": "None on a strategy using atr_width_dial. On a weighted_atr strategy this is what made the weight pair inert past a long weight of roughly 6-12% (#1052).",
+      "min": 1.0,
+      "status": "superseded",
+      "superseded_by": "volatility_tolerance",
+      "type": "float"
+    },
+    "atr_long_weight": {
+      "description": "SUPERSEDED by volatility_tolerance. Weight of the daily ATR in the weighted-blend stop model, and always 1 - atr_short_weight rather than independent.",
+      "effect": "None on a strategy using atr_width_dial. Derived, never independently effective.",
+      "max": 1.0,
+      "min": 0.0,
+      "status": "superseded",
+      "superseded_by": "volatility_tolerance",
+      "type": "float"
+    },
+    "atr_period": {
+      "description": "ATR lookback in bars (default 14) used to measure volatility for stop sizing.",
+      "effect": "Higher smooths the volatility estimate (steadier, slower-reacting stops). Lower reacts faster to recent volatility (choppier stops).",
+      "max": 1000,
+      "min": 5,
+      "status": "tunable",
+      "type": "int"
+    },
+    "atr_short_weight": {
+      "description": "SUPERSEDED by volatility_tolerance. Weight of the signal-timeframe ATR in the weighted-blend stop model. Readable on a strategy created under that model; refused on any write.",
+      "effect": "None on a strategy using atr_width_dial. On a weighted_atr strategy, higher favours the signal timeframe's own volatility -- though the cap made settings past a few percent of long weight indistinguishable (#1052).",
+      "max": 1.0,
+      "min": 0.0,
+      "status": "superseded",
+      "superseded_by": "volatility_tolerance",
+      "type": "float"
+    },
+    "atr_volatility_factor": {
+      "description": "SUPERSEDED by volatility_tolerance. Multiplied the blended ATR to give the stop distance. The dial's two endpoint factors carry this instead, one at each end of the width.",
+      "effect": "None on a strategy using atr_width_dial. On a weighted_atr strategy, higher widens the stop and shrinks the position for the same risk.",
+      "min": 0.0,
+      "min_exclusive": true,
+      "status": "superseded",
+      "superseded_by": "volatility_tolerance",
+      "type": "float"
+    },
     "circuit_breaker": {
       "additional_properties": false,
       "description": "Parameters for cooldown_model 'trades': pause on consecutive net losses or accumulated loss amount, pause on marked drawdown from the peak (including unrealized changes), resume new alpha positions at a reduced size, and stop after consecutive pauses. Canon defaults are 36 primary bars for a loss pause, 72 for a drawdown pause, and three strikes for a permanent halt. Pause counts are clamped to 24 hours through 14 days by default. max_drawdown_halt_limit separately stops entries on realized loss of cumulative gross deposits. Existing exits remain active during holds.",
@@ -1431,77 +753,291 @@
       "status": "guardrail",
       "type": "object"
     },
-    "cooldown_config": {
-      "description": "Per-timeframe loss-streak cooldown windows (short/long loss limits and cooldown bar counts).",
-      "fields": {
-        "long_cooldown_bars": {
-          "description": "Bars to deny new entries once long_loss_limit trips. Also the latch duration a drawdown breaker trip uses.",
-          "max": 10000,
-          "min": 1,
-          "type": "int"
-        },
-        "long_loss_limit": {
-          "description": "Consecutive losses inside long_window_bars that trip the long cooldown. Should exceed short_loss_limit, or the long rule never fires first.",
-          "max": 100,
-          "min": 1,
-          "type": "int"
-        },
-        "long_window_bars": {
-          "description": "Lookback, in bars, over which long_loss_limit is counted.",
-          "max": 10000,
-          "min": 1,
-          "type": "int"
-        },
-        "short_cooldown_bars": {
-          "description": "Bars to deny new entries once short_loss_limit trips. Positions already open still exit.",
-          "max": 10000,
-          "min": 1,
-          "type": "int"
-        },
-        "short_loss_limit": {
-          "description": "Consecutive losses inside short_window_bars that trip the short cooldown.",
-          "max": 100,
-          "min": 1,
-          "type": "int"
-        },
-        "short_window_bars": {
-          "description": "Lookback, in bars, over which short_loss_limit is counted.",
-          "max": 10000,
-          "min": 1,
-          "type": "int"
-        }
-      },
-      "metadata_fields": {
-        "cadence_reference": {
-          "description": "Server-selected strategy cadence; metadata rather than a timeframe entry.",
-          "type": "str"
-        }
-      },
-      "required_fields": [
-        "short_window_bars",
-        "long_window_bars",
-        "short_loss_limit",
-        "long_loss_limit"
-      ],
-      "status": "tunable",
-      "type": "object"
-    },
     "cooldown_model": {
       "choices": [
         "bars",
         "trades"
       ],
       "description": "Loss-streak breaker model. 'bars' counts losing closes inside rolling windows of the primary timeframe (cooldown_config). 'trades' counts consecutive losing closes and realized loss amount, pauses for circuit_breaker bars of the primary timeframe (at least pause_min_hours and at most pause_max_days), and stops after repeated pauses (circuit_breaker). An absent model adopts the canonical 'trades' defaults; explicit 'bars' retains the legacy model.",
-      "effect": "'trades' trips on trade count and loss size regardless of how far apart trades are spaced; 'bars' trips only when losses land inside the window. cooldown_config is ignored under 'trades'.",
+      "effect": "'trades' trips on trade count and loss size regardless of how far apart trades are spaced; 'bars' trips only when losses land inside the window. cooldown_config, cooldown_bars, daily_momentum_limit and weekly_momentum_limit are read only under 'bars': they are left out of a resolved config under 'trades', and a config that carries them under 'trades' has them dropped.",
       "status": "guardrail",
       "type": "str"
+    },
+    "enable_volatility_adjustment": {
+      "description": "Toggles volatility-based position scaling (default false).",
+      "effect": "When true, positions are scaled down by target_volatility / (atr/entry) if ATR%% exceeds target; only reduces size, never increases.",
+      "status": "gated",
+      "type": "bool"
+    },
+    "exit_on_loss_after_bars": {
+      "description": "Exit a losing position after this many bars.",
+      "effect": "Lower cuts losers sooner; higher gives them more time to recover.",
+      "max": 10000,
+      "min": 1,
+      "status": "tunable",
+      "type": "int"
+    },
+    "exit_on_profit_after_bars": {
+      "description": "Exit a winning position after this many bars.",
+      "effect": "Lower banks winners sooner; higher lets them run.",
+      "max": 10000,
+      "min": 1,
+      "status": "tunable",
+      "type": "int"
+    },
+    "initial_balance": {
+      "description": "Starting balance for the backtest/simulation (default $10,000).",
+      "effect": "Scales absolute dollar figures; not a strategy-character knob.",
+      "max": 1000000000.0,
+      "min": 25.0,
+      "status": "guardrail",
+      "type": "float"
+    },
+    "max_drawdown_halt_limit": {
+      "description": "Permanent capital-floor entry halt (0.20 = 20%). Closed, realized equity is compared with cumulative gross deposits (execution_state.cumulative_deposits), not a rolling peak or the signed net-funding balance; withdrawals do not reduce this reference. Legacy requests without cumulative_deposits use execution_config.initial_balance. The shared live/paper evaluator checks before each bar and latches execution_state.halt. New alpha entries and v3 core allocations are denied, while authoritative positions retain protective exits and exits_pending until physically flat. Engine-owned strategies become inactive only after that book is flat; caller-owned executors retain their exit monitor. An explicit manual restart is required to clear the latch. Backtests enforce the same floor when evaluate_bar receives enforce_capital_floor=True, managing open-position exits through the final bar. Applies to both cooldown models; null disables new floor trips, while an existing halt remains latched.",
+      "effect": "Lower protects more of gross deposited capital before a permanent entry halt; higher tolerates a deeper realized loss. This does not resize positions or stop protective exit evaluation. Do not add a separate floor where the shared evaluator enforces it.",
+      "max": 1.0,
+      "min": 0.0,
+      "min_exclusive": true,
+      "nullable": true,
+      "status": "guardrail",
+      "type": "float"
+    },
+    "max_drawdown_limit": {
+      "description": "Peak-relative entry pause (0.20 = 20%). The canonical 'trades' model measures marked equity against its high-water mark. A breach starts one drawdown pause and strike; circuit_breaker.drawdown_pause_bars defaults to 72 primary bars, clamped to pause_min_hours and pause_max_days (24 hours and 14 days by default). At drawdown-pause expiry the peak re-baselines; a reduced-size alpha resume window opens only once no pause remains and no permanent halt is latched. Explicit 'bars' retains the legacy closed-equity measurement and per-timeframe long cooldown. Both models deny new entries while allowing existing positions to exit; automatic v3 core allocations honor the hold too. null disables new drawdown trips.",
+      "effect": "Lower pauses entries after a smaller drawdown; higher tolerates a deeper drawdown. The shared entry breaker enforces this in single/bulk live and paper evaluation, v3 core allocation and backtests built with risk_manager_from_execution_config. Alpha resume sizing is a separate control; do not add a second drawdown stop.",
+      "max": 1.0,
+      "min": 0.0,
+      "min_exclusive": true,
+      "nullable": true,
+      "status": "guardrail",
+      "type": "float"
+    },
+    "max_hold_bars": {
+      "description": "Maximum bars to hold any position before a forced exit.",
+      "effect": "Higher lets trades run longer; lower forces earlier time-based exits.",
+      "max": 10000,
+      "min": 1,
+      "status": "tunable",
+      "type": "int"
+    },
+    "max_hold_time_hours": {
+      "description": "Maximum position hold time in hours (null = no limit).",
+      "effect": "Lower forces earlier time-based exits; null/higher lets trades run indefinitely on time.",
+      "max": 8760,
+      "min": 1,
+      "min_exclusive": true,
+      "nullable": true,
+      "status": "tunable",
+      "type": "int"
+    },
+    "max_open_positions": {
+      "description": "Maximum concurrent open positions.",
+      "effect": "Higher allows more simultaneous exposure (more diversification but more aggregate risk); lower is more selective with less aggregate exposure.",
+      "max": 1000,
+      "min": 1,
+      "status": "tunable",
+      "type": "int"
+    },
+    "max_risk_per_trade": {
+      "description": "Fraction of account equity risked per trade (0.01 = 1%). Position size is derived from this and the stop distance.",
+      "effect": "Higher risks more per trade: bigger positions, larger gains AND larger drawdowns. Lower is more conservative: smaller positions, smaller swings.",
+      "max": 1.0,
+      "min": 0.0,
+      "min_exclusive": true,
+      "status": "tunable",
+      "type": "float"
+    },
+    "max_trade_amount": {
+      "description": "Absolute cap on dollar size per trade.",
+      "effect": "Size guardrail; rarely binding.",
+      "max": 1000000000000.0,
+      "min": 0.0,
+      "min_exclusive": true,
+      "status": "guardrail",
+      "type": "float"
+    },
+    "max_trades_per_day": {
+      "description": "Daily trade cap.",
+      "effect": "Higher permits more churn; lower throttles activity.",
+      "max": 1440,
+      "min": 1,
+      "status": "guardrail",
+      "type": "int"
+    },
+    "max_units_per_trade": {
+      "description": "Absolute cap on units per trade.",
+      "effect": "Size guardrail; rarely binding.",
+      "max": 1000000000000.0,
+      "min": 0.0,
+      "min_exclusive": true,
+      "status": "guardrail",
+      "type": "float"
+    },
+    "min_asset_balance": {
+      "description": "position_size_calc 'v3' only. Minimum asset balance, in asset units, the strategy holds outside open trades.",
+      "effect": "Higher keeps more of the asset out of reach of sell trades and core sells, and takes more cash to reach; lower frees more of the asset for trading.",
+      "min": 0.0,
+      "status": "guardrail",
+      "type": "float"
+    },
+    "min_balance_days": {
+      "description": "position_size_calc 'v3' only. Number of equal daily orders used to bring a side up to its minimum balance.",
+      "effect": "Higher spreads the minimum-balance orders over more days at smaller size; lower reaches the minimum sooner with larger orders.",
+      "min": 1,
+      "status": "guardrail",
+      "type": "int"
+    },
+    "min_balance_threshold": {
+      "description": "Cash reserve fraction held back from new entries (0.1 = 10%). v1 reserves this fraction of cash; v2 reserves this fraction of account value (cash + open positions at market). An entry may only use cash above the reserve; when no cash is deployable the entry is denied (insufficient_cash / insufficient_cash_v2_account_reserve). It never halts the strategy and never closes positions.",
+      "effect": "Higher keeps more cash idle and makes entries smaller or rarer as the account shrinks; lower lets entries use more of the balance. Not a drawdown stop; see max_drawdown_limit and max_drawdown_halt_limit.",
+      "max": 1.0,
+      "max_exclusive": true,
+      "min": 0.0,
+      "status": "guardrail",
+      "type": "float"
+    },
+    "min_cash_balance": {
+      "description": "position_size_calc 'v3' only. Minimum cash balance the strategy holds after the worst-case loss of every open trade.",
+      "effect": "Higher keeps more cash out of reach of buy trades and core buys, so entries are smaller or rarer; lower frees more cash for trading.",
+      "min": 0.0,
+      "status": "guardrail",
+      "type": "float"
+    },
+    "min_stop_distance_pct": {
+      "description": "Hard floor on stop distance as a fraction of entry price (crypto minimum), applied after ATR sizing.",
+      "effect": "Higher enforces a wider minimum stop; lower allows tighter stops down to the floor.",
+      "max": 1.0,
+      "min": 0.0,
+      "status": "tunable",
+      "type": "float"
+    },
+    "min_trade_amount": {
+      "description": "Minimum trade size in dollars; smaller intended trades are skipped.",
+      "effect": "Higher skips more small signals; lower allows smaller trades.",
+      "max": 1000000.0,
+      "min": 0.0,
+      "status": "guardrail",
+      "type": "float"
+    },
+    "position_size_calc": {
+      "choices": [
+        "v1",
+        "v2",
+        "v3"
+      ],
+      "description": "Sizing-engine version ('v1', 'v2' or 'v3'). Pinned at creation and immutable. 'v3' holds an asset balance and a cash balance, sizes against equity net of open risk, and requires the position_size_calc 'v3' parameters.",
+      "effect": "Not a magnitude knob; selects the sizing algorithm. Do not change on an existing strategy.",
+      "status": "guardrail",
+      "type": "str"
+    },
+    "profit_threshold_pct": {
+      "description": "Profit threshold (5%% default) above which a position counts as 'winning' for the time-based exit logic.",
+      "effect": "Higher requires a larger gain before a position is treated as winning; lower treats smaller gains as wins.",
+      "max": 1.0,
+      "min": 0.0,
+      "status": "tunable",
+      "type": "float"
+    },
+    "rebalance_band": {
+      "description": "position_size_calc 'v3' only. Absolute deviation of the asset weight from target_asset_weight that triggers a rebalance order (0.05 = 5 points).",
+      "effect": "Higher lets the split drift further before a rebalance order, so fewer core orders; lower holds the split closer to target with more core orders and more fees.",
+      "max": 1.0,
+      "max_exclusive": true,
+      "min": 0.0,
+      "min_exclusive": true,
+      "status": "tunable",
+      "type": "float"
+    },
+    "reward_factor": {
+      "description": "Risk/reward target. Take-profit distance = reward_factor * stop_distance.",
+      "effect": "Higher sets a wider profit target: lower win rate but bigger wins. Lower sets a tighter target: higher win rate but smaller wins.",
+      "max": 100.0,
+      "min": 0.0,
+      "min_exclusive": true,
+      "status": "tunable",
+      "type": "float"
+    },
+    "stop_gap_allowance": {
+      "description": "position_size_calc 'v3' only. Fraction of the stop price a stop fill is assumed to miss by when computing the worst-case loss of a trade (0.01 = 1%).",
+      "effect": "Higher counts more risk per open trade, leaving less available cash and smaller positions; lower counts less.",
+      "max": 1.0,
+      "max_exclusive": true,
+      "min": 0.0,
+      "status": "guardrail",
+      "type": "float"
+    },
+    "stop_model": {
+      "choices": [
+        "atr_width_dial",
+        "weighted_atr"
+      ],
+      "description": "Which stop model the strategy uses: 'atr_width_dial' (one parameter, volatility_tolerance, positioned on the ATR width) or 'weighted_atr' (superseded: a weighted blend of two ATRs, capped). Pinned at creation and immutable.",
+      "effect": "Not a magnitude knob; selects the stop algorithm. Do not change on an existing strategy -- it would move every stop the strategy takes.",
+      "status": "guardrail",
+      "type": "str"
+    },
+    "taker_fee_rate": {
+      "description": "position_size_calc 'v3' only. Venue fee per fill as a fraction of notional, charged in cash (0.004 = 0.4%).",
+      "effect": "Higher counts more cost per fill, raising the risk of each trade and lowering available cash. Models the venue; not a strategy-character knob.",
+      "max": 0.1,
+      "max_exclusive": true,
+      "min": 0.0,
+      "status": "guardrail",
+      "type": "float"
+    },
+    "target_asset_weight": {
+      "description": "position_size_calc 'v3' only. Target share of core value held in the asset (0.8 = 80% asset, 20% cash; 0 = all cash).",
+      "effect": "Higher holds more of the asset and less cash; lower holds more cash. The daily core order moves the split back to this value once it drifts past rebalance_band. At 0 with no asset held, no core order is placed and only buy trades can pass.",
+      "max": 1.0,
+      "max_exclusive": true,
+      "min": 0.0,
+      "status": "tunable",
+      "type": "float"
+    },
+    "target_volatility": {
+      "description": "Target volatility (0.10 = 10%). ONLY active when enable_volatility_adjustment is true (default false). When active, scales position size down if ATR%% of entry exceeds the target (never up).",
+      "effect": "With the gate off (the default), changing this has no effect. With it on, lower scales positions down more aggressively in high volatility.",
+      "gate_field": "enable_volatility_adjustment",
+      "gate_required": true,
+      "max": 1.0,
+      "min": 0.0,
+      "min_exclusive": true,
+      "status": "gated",
+      "type": "float"
+    },
+    "volatility_mode": {
+      "choices": [
+        "stddev",
+        "atr"
+      ],
+      "description": "Unused (retained for backward compatibility). Volatility is derived from ATR.",
+      "effect": "No runtime effect. Do not tune.",
+      "status": "unused",
+      "type": "str"
+    },
+    "volatility_tolerance": {
+      "description": "Where on the ATR width the stop is taken, as the ATR_long-vs-ATR_short contribution ratio: 0 is all short end (0.5x the signal timeframe's ATR), 1 is all long end (2x the daily ATR). Interpolated geometrically, so the value is exactly the long end's share of log(stop) and each 0.1 is the same multiplicative step. Replaces atr_short_weight, atr_long_weight and atr_cap_multiplier.",
+      "effect": "Higher widens the stop, and because position size is the risk budget divided by the stop distance, exposure shrinks in exact inverse proportion at the SAME risk. Low means many units with little room to be wrong and frequent stop-outs; high means few units that are hard to shake out but need a much larger move to reach the same reward. Both risk max_risk_per_trade.",
+      "max": 1.0,
+      "min": 0.0,
+      "status": "tunable",
+      "type": "float"
+    },
+    "volatility_window": {
+      "description": "Unused (retained for backward compatibility). ATR windowing is controlled by atr_period.",
+      "effect": "No runtime effect. Do not tune.",
+      "max": 1000,
+      "min": 1,
+      "status": "unused",
+      "type": "int"
     }
   },
-  "percent_scale_note": "Synthetic offline fixture; percent metrics use 0-100.",
+  "percent_scale_note": "Percent-typed backtest metrics are returned on a 0-100 scale: 0.52 means 0.52%, not 52%.",
   "transaction_costs": {
-    "fee_pct": 0.0,
+    "fee_pct": 0.0085,
     "per_strategy": false,
-    "slippage_pct": 0.0,
-    "source": "synthetic-fixture"
+    "slippage_pct": 0.0025,
+    "source": "canon"
   }
 }

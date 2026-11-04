@@ -11,6 +11,10 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## 2.3.0 - Unreleased
 
+- Refresh public contracts from the combined current X/Cambrian and developer
+  contract source. Match the canonical trades schema without bars-only defaults;
+  preserve explicit bars transport and optional signal capability metadata.
+
 - Prepare the existing owner-scoped `strategies.local_deployment` snapshot read
   for release, with matching TypeScript 1.2.0 `strategies.localDeployment` and
   current public-filtered contracts. Requires backend 7.11.0 or later serving acceptance.

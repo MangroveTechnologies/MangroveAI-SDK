@@ -2462,7 +2462,9 @@
     {
       "contract": "openapi.json",
       "operation": "POST /api/v2/backtests/",
-      "python_direct_bindings": [],
+      "python_direct_bindings": [
+        "BacktestingService.submit_async"
+      ],
       "request": "declared",
       "response": "declared",
       "runtime_payload_verified": false,
@@ -2473,7 +2475,9 @@
     {
       "contract": "openapi.json",
       "operation": "GET /api/v2/backtests/{backtest_id}/status",
-      "python_direct_bindings": [],
+      "python_direct_bindings": [
+        "BacktestingService.poll_status"
+      ],
       "request": "no-model-or-no-body",
       "response": "declared",
       "runtime_payload_verified": false,

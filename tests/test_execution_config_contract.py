@@ -37,12 +37,10 @@ def test_python_reads_canonical_schema_and_nested_glossary_in_one_explicit_call(
     assert len(calls) == 1
     assert result.json_schema == FIXTURE["json_schema"]
     assert result.defaults == FIXTURE["defaults"]
-    metadata = result.param_glossary["cooldown_config"]
-    assert metadata.required_fields == FIXTURE["param_glossary"]["cooldown_config"]["required_fields"]
-    assert metadata.fields is not None
-    assert metadata.fields["short_window_bars"].type == "int"
-    assert metadata.metadata_fields is not None
-    assert metadata.metadata_fields["cadence_reference"].type == "str"
+    for key in ("cooldown_config", "cooldown_bars", "daily_momentum_limit", "weekly_momentum_limit"):
+        assert key not in result.defaults
+        assert key not in result.param_glossary
+        assert key not in result.json_schema["properties"]
     assert result.defaults["cooldown_model"] == "trades"
     breaker = result.param_glossary["circuit_breaker"]
     assert breaker.fields_shape == "object"
@@ -55,12 +53,10 @@ def test_python_reads_canonical_schema_and_nested_glossary_in_one_explicit_call(
 def test_older_receiver_without_additive_schema_or_nested_metadata_still_parses():
     old = copy.deepcopy(FIXTURE)
     old.pop("json_schema")
-    old["param_glossary"]["cooldown_config"].pop("fields")
-    old["param_glossary"]["cooldown_config"].pop("required_fields")
-    old["param_glossary"]["cooldown_config"].pop("metadata_fields")
+    old["param_glossary"]["circuit_breaker"].pop("fields")
     result = ExecutionConfigSchema.model_validate(old)
     assert result.json_schema is None
-    assert result.param_glossary["cooldown_config"].fields is None
+    assert result.param_glossary["circuit_breaker"].fields is None
 
 
 def test_generated_type_uses_canonical_fields_with_a_legacy_transport_escape_hatch():
@@ -68,7 +64,7 @@ def test_generated_type_uses_canonical_fields_with_a_legacy_transport_escape_hat
     schema_type = generator["schema_type"]
     document = json.loads((ROOT / "contracts/mangroveai/openapi.json").read_text())
     canonical = json.loads((ROOT / "contracts/mangroveai/execution-config.schema.json").read_text())
-    model = document["definitions"]["api1.ExecutionConfiguration"]
+    model = document["components"]["schemas"]["api1.ExecutionConfiguration"]
     assert not model.get("x-mangrove-raw-json")
     assert model["x-mangrove-authoring-schema"] == canonical
     assert schema_type(model, "CoreModels", {canonical["$id"]: "ExecutionConfiguration"}) == (
@@ -76,8 +72,8 @@ def test_generated_type_uses_canonical_fields_with_a_legacy_transport_escape_hat
     )
     normalized = schema_type(canonical, "CoreModels")
     assert '"max_risk_per_trade"?: number | null;' in normalized
-    assert '"short_window_bars": number;' in normalized
-    assert '"short_cooldown_bars"?: number;' in normalized
+    assert '"cooldown_config"' not in normalized
+    assert '"cooldown_bars"' not in normalized
     assert '"cooldown_model"?: "bars" | "trades" | null;' in normalized
     assert '"consecutive_loss_limit"?: number;' in normalized
     assert normalized != "unknown"

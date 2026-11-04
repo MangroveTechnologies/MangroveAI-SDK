@@ -25,20 +25,11 @@ const historical: CoreModels['api2.AsyncBacktestStatusResponse'] = {
 };
 void historical;
 
-const normalized: ExecutionConfiguration = {
-  max_risk_per_trade: 0.02,
-  cooldown_config: {
-    '1D': { short_window_bars: 1, long_window_bars: 4, short_loss_limit: 1, long_loss_limit: 2 },
-    cadence_reference: '1h',
-  },
-};
+const normalized: ExecutionConfiguration = { max_risk_per_trade: 0.02, cooldown_model: 'trades' };
 void normalized;
 // @ts-expect-error Normalized authoring values are numbers; transport compatibility is separate.
 const invalidNormalized: ExecutionConfiguration = { max_risk_per_trade: '0.02' };
 void invalidNormalized;
-// @ts-expect-error All four actual engine entry fields are required, including for aliases.
-const missingCooldown: ExecutionConfiguration = { cooldown_config: { '1D': { short_window_bars: 1 } } };
-void missingCooldown;
 
 const tradeBreaker: ExecutionConfiguration = {
   cooldown_model: 'trades',

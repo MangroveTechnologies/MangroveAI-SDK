@@ -22,6 +22,27 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   one response model and the `social` category on the signals list; no other operation changed. TypeScript contract and coverage regenerated.
 - New example `examples/x_attention_signals_demo.py`.
 
+### Contracts refreshed from MangroveAI 6bd122c3 (7.11.5)
+
+- The public REST input is now the OpenAPI 3.1 document (`components`, `requestBody`, a Bearer
+  `MangroveBearer` scheme, `info.x-guidance`) in place of Swagger 2.0. Priced operations carry
+  `x-payment-info` and a `402` response; 111 operations are declared this way. Anonymous
+  signal-library reads (`GET /signals/`, `POST /signals/search`, `GET /signals/{signal_name}`) now
+  declare no security, so the TypeScript `request()` no longer requires an API key for them.
+- Oracle proxy contract: operations that never take an x402 payment lose their `402` response, and
+  the remaining `402` descriptions describe the retail usage limit.
+- Paths: added `GET /api/v1/strategies/{strategy_id}/local-deployment` (bound to
+  `client.strategies.local_deployment`); removed the duplicate `POST /api/v1/backtests/`
+  declaration (the single path is `POST /api/v1/backtests`). No SDK method called the removed path.
+- Under the default `cooldown_model: "trades"` the execution-configuration schema no longer lists
+  `cooldown_config`, `cooldown_bars`, `daily_momentum_limit` or `weekly_momentum_limit`; they are read
+  only under `"bars"`. The `cooldown_model` effect text, the `BacktestRequest`/`BulkBacktestRequest`
+  descriptions and the saved-strategy constraints schemas follow. The synthetic execution-config
+  fixture matches.
+- Generator: `type: [..., "null"]` with `x-nullable` renders one `null` member, and the Python
+  binding inventory attributes `_v2_request` calls to `/api/v2` (`submit_async` and `poll_status`
+  now bind to the v2 backtest operations). TypeScript contract and coverage regenerated.
+
 ### Python client contract repair (issue 66)
 
 - Default and explicit HTTP timeouts are preserved at the real httpx boundary;

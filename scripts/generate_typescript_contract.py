@@ -46,7 +46,11 @@ def schema_type(schema, namespace, authoring_aliases=None):
     else:
         kind = schema.get("type")
         if isinstance(kind, list):
-            return " | ".join(schema_type({**schema, "type": item}, namespace, authoring_aliases) for item in kind)
+            base = {key: value for key, value in schema.items() if key not in {"nullable", "x-nullable"}}
+            members = [schema_type({**base, "type": item}, namespace, authoring_aliases) for item in kind]
+            if (schema.get("nullable") or schema.get("x-nullable")) and "null" not in kind:
+                members.append("null")
+            return " | ".join(dict.fromkeys(members))
         if kind == "array":
             result = "Array<" + schema_type(schema.get("items", {}), namespace, authoring_aliases) + ">"
         elif kind == "object" or (kind is None and "properties" in schema):
@@ -111,8 +115,7 @@ def python_bindings():
                         continue
                     if not route.startswith("/"):
                         continue
-                    target = ast.unparse(call.func.value)
-                    prefix = "/api/v2" if "v2" in target else "/api/v1"
+                    prefix = "/api/v2" if "v2" in ast.unparse(call.func) else "/api/v1"
                     if "/kb/" in str(path):
                         prefix = "legacy-kb-host"
                     key = method.value + " " + re.sub(r"\{[^}]*\}", "{}", prefix + route)

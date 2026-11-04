@@ -204,7 +204,10 @@ Disabling drawdown guards alone does not disable loss pauses: a fully unprotecte
 control also needs the explicit `bars` model and zero `short_cooldown_bars` and
 `long_cooldown_bars` for every active timeframe. Keep valid positive loss limits
 and window sizes. Legacy `cooldown_config` supplied on an SDK request is also
-placed inside `execution_config`. Align these settings with any configuration
+placed inside `execution_config`. The server reads `cooldown_config`, `cooldown_bars`,
+`daily_momentum_limit` and `weekly_momentum_limit` only under `cooldown_model="bars"`;
+under the default `trades` model it omits them from resolved configurations and
+schemas and drops them from submitted requests. Align these settings with any configuration
 embedded in `strategy_json` or individual bulk strategy configs: Oracle's
 per-strategy configuration precedence still applies. Preserve all other strategy
 inputs, fees, and sizing between full runs.

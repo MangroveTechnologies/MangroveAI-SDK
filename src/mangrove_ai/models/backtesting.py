@@ -93,7 +93,9 @@ class BacktestRequest(MangroveModel):
 
     The old top-level fields (cooldown_bars, daily_momentum_limit, weekly_momentum_limit,
     max_hold_time_hours) remain accepted during the deprecation grace period but will be
-    removed in a future major version.
+    removed in a future major version. The server reads cooldown_config, cooldown_bars,
+    daily_momentum_limit and weekly_momentum_limit only under cooldown_model='bars' and
+    drops them under the default 'trades' model.
     """
 
     @model_validator(mode="after")

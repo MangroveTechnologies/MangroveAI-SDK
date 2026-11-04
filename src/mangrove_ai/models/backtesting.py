@@ -59,9 +59,9 @@ class BacktestRequest(MangroveModel):
     target_volatility: float | None = None
     volatility_mode: str = "stddev"
     enable_volatility_adjustment: bool = False
-    cooldown_bars: int = 24
-    daily_momentum_limit: float = 3.0
-    weekly_momentum_limit: float = 3.0
+    cooldown_bars: int | None = None
+    daily_momentum_limit: float | None = None
+    weekly_momentum_limit: float | None = None
     max_hold_time_hours: float | None = None
     lookback_months: int | None = None
     start_date: str | None = None
@@ -95,7 +95,8 @@ class BacktestRequest(MangroveModel):
     max_hold_time_hours) remain accepted during the deprecation grace period but will be
     removed in a future major version. The server reads cooldown_config, cooldown_bars,
     daily_momentum_limit and weekly_momentum_limit only under cooldown_model='bars' and
-    drops them under the default 'trades' model.
+    drops them under the default 'trades' model, so they are omitted from the request
+    unless set.
     """
 
     @model_validator(mode="after")
@@ -135,9 +136,9 @@ class BulkBacktestRequest(MangroveModel):
     target_volatility: float | None = None
     volatility_mode: str = "stddev"
     enable_volatility_adjustment: bool = False
-    cooldown_bars: int = 24
-    daily_momentum_limit: float = 3.0
-    weekly_momentum_limit: float = 3.0
+    cooldown_bars: int | None = None
+    daily_momentum_limit: float | None = None
+    weekly_momentum_limit: float | None = None
     max_hold_time_hours: float | None = None
     interval: str = "1h"
     strategy_ids: list[str] | None = None

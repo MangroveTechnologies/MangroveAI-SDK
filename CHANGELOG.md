@@ -39,6 +39,10 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   only under `"bars"`. The `cooldown_model` effect text, the `BacktestRequest`/`BulkBacktestRequest`
   descriptions and the saved-strategy constraints schemas follow. The synthetic execution-config
   fixture matches.
+- `BacktestRequest` and `BulkBacktestRequest` default `cooldown_bars`, `daily_momentum_limit` and
+  `weekly_momentum_limit` to `None` and omit them from the request body; they are sent, with the
+  existing deprecation warning, only when a caller sets them (the `bars` model). Constructing a
+  request with defaults no longer emits those deprecation warnings.
 - Generator: `type: [..., "null"]` with `x-nullable` renders one `null` member, and the Python
   binding inventory attributes `_v2_request` calls to `/api/v2` (`submit_async` and `poll_status`
   now bind to the v2 backtest operations). TypeScript contract and coverage regenerated.

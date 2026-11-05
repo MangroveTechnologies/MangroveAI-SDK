@@ -20,9 +20,14 @@ and [TypeScript GitHub Release](https://github.com/MangroveTechnologies/Mangrove
 for availability; a source version does not establish publication. The
 [TypeScript guide](packages/typescript/README.md) covers registry and reviewed
 archive installation. Dated publication checkpoints are in the [release handoff](docs/issue-66-release-handoff.md).
-Python `mangroveai` 2.2.0 is published on [PyPI](https://pypi.org/project/mangroveai/2.2.0/).
-This source prepares Python 2.3.0 and TypeScript 1.2.0; these candidates remain
-unpublished until their official release workflows and registry verification.
+Python `mangroveai` 2.3.0 is published on [PyPI](https://pypi.org/project/mangroveai/2.3.0/)
+from main commit `55b09392b144ff936080aa4d0199d1e4caa4a985`.
+This source prepares Python 2.4.0 and TypeScript 1.2.0. Publish once after
+[PR83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83),
+[PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85) and
+[PR84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84) are merged
+and the combined main source is verified. Earlier local 2.3.0 candidate archives
+are historical evidence, not the published 2.3.0 bytes or a new release target.
 
 **Breaking product boundary:** published `@mangrove-ai/sdk` 0.1.2, 0.2.0 and 0.3.0
 are historical Markets clients. The new 1.0.0 package is MangroveAI and does not
@@ -135,10 +140,11 @@ The remaining examples and service reference below describe the Python SDK;
 use the [TypeScript guide](packages/typescript/README.md) for its helper and generic
 request interfaces.
 
-## Local deployment snapshot (prepared versions)
+## Local deployment snapshot
 
-Python 2.3.0 and TypeScript 1.2.0 add matching reads of the server-owned local
-Robinhood snapshot. This requires backend 7.11.0 or later and deployed local-deployment
+Python 2.3.0 already includes the server-owned local Robinhood snapshot read;
+the matching TypeScript helper is prepared for 1.2.0. This requires backend
+7.11.0 or later and deployed local-deployment
 capability; current package publication alone does not establish availability.
 The read is authenticated and billable. It returns the server's readiness and
 blocker, owner, fingerprint and snapshot; it does not activate or fund trading.

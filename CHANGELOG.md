@@ -9,11 +9,15 @@ All notable changes to the MangroveAI Python SDK will be documented in this file
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 2.3.0 - Unreleased
+## 2.4.0 - Unreleased
 
-- Prepare the existing owner-scoped `strategies.local_deployment` snapshot read
-  for release, with matching TypeScript 1.2.0 `strategies.localDeployment` and
-  current public-filtered contracts. Requires backend 7.11.0 or later serving acceptance.
+- Prepare one combined release after SDK PR83, PR85 and PR84 merge. The minor
+  version reserves the additive public Signal attributes from PR84; each branch
+  contains only its own reviewed changes until integration.
+- Python 2.3.0 already includes `strategies.local_deployment`, published from
+  main `55b09392b144ff936080aa4d0199d1e4caa4a985`. Matching TypeScript 1.2.0
+  `strategies.localDeployment` remains a prepared candidate. Both require
+  backend 7.11.0 or later serving acceptance.
 - Retain server default loss limit of four; [SDK PR82](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/82) /
   [API PR1518](https://github.com/MangroveTechnologies/MangroveAI/pull/1518)'s proposed limit of two is separate
   unfinished feature work, not included here.
@@ -22,6 +26,8 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   case-insensitive filesystems. Public distribution/import/class names remain.
 - Exercise actual installed wheel/source artifacts, public alias class identity
   and local snapshot/error preservation without invoking paid endpoints.
+- Preserve old local 2.3.0 candidate archives separately from the actual published
+  2.3.0 release. Do not overwrite the published version, tag or assets.
 
 
 ## [Unreleased]

@@ -14,7 +14,7 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Restrict Python source archives to declared Python source, tests, contracts,
   scripts and documentation, excluding Node dependencies and transient test output.
 
-- Combine PR83, [PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85) and [PR84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84) after human merge and current-main verification.
+- Combine [PR83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83), [PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85) and [PR84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84) after human merge and current-main verification.
   Python 2.3.0 is published from main `55b09392b144ff936080aa4d0199d1e4caa4a985`;
   earlier local 2.3.0 candidate artifacts are distinct historical evidence.
 

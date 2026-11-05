@@ -146,10 +146,11 @@ The remaining examples and service reference below describe the Python SDK;
 use the [TypeScript guide](packages/typescript/README.md) for its helper and generic
 request interfaces.
 
-## Local deployment snapshot (prepared versions)
+## Local deployment snapshot
 
-Python 2.3.0 and TypeScript 1.2.0 add matching reads of the server-owned local
-Robinhood snapshot. This requires backend 7.11.0 or later and deployed local-deployment
+Published Python 2.3.0 already includes the server-owned local Robinhood snapshot
+read; prepared TypeScript 1.2.0 adds the matching helper. Python 2.4.0 preserves
+the read and adds the alias packaging repair. This requires backend 7.11.0 or later and deployed local-deployment
 capability; current package publication alone does not establish availability.
 The read is authenticated and billable. It returns the server's readiness and
 blocker, owner, fingerprint and snapshot; it does not activate or fund trading.

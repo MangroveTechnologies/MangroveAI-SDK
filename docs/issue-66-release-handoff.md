@@ -12,6 +12,9 @@ It already contains `strategies.local_deployment`. npm
 remains published; 1.2.0 is a prepared candidate. Earlier frozen local Python
 2.3.0 candidate archives are historical evidence with different source identities,
 not replacements for published 2.3.0. Never overwrite the registry, tag or assets.
+The published TypeScript 1.1.0 remains bound to original source
+`92f6d8405103c6e4435fedf9fbe2f1fbedf21b50`; later controller recovery does not
+change its bytes. Markets clients remain separate: Python 1.1.1 and npm 0.4.0.
 
 The next combined release targets Python 2.4.0 and TypeScript 1.2.0, after
 [PR83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83),
@@ -20,14 +23,17 @@ The next combined release targets Python 2.4.0 and TypeScript 1.2.0, after
 the integrated main source passes release verification. PR83 repairs alias
 packaging; PR85 corrects optional legacy cooldown serialization and
 filtered contracts; PR84 adds optional public Signal attributes. Python 2.4.0
-reflects the combined additive public API. This combined PR84 branch includes all three source changes; publication still
-requires their human merge and verification on integrated main.
+reflects the combined additive public API. This combined PR84 branch includes
+all three source changes; publication still requires their human merge and verification on integrated main.
 
 The public distribution and imports remain `mangroveai`, `mangrove_ai` and
 deprecated `mangroveai`. The legacy alias is a single file to avoid a directory
 collision with the private engine. Coexistence requires the engine's distinct
 distribution (prepared for 7.12.0) and the repaired SDK 2.4.0 or later; qualify
 the actual wheels together. Published Python 2.3.0 does not contain this repair.
+
+Local-deployment snapshot reads require backend 7.11.0 or later actually
+serving the reviewed contract; package publication alone does not establish this.
 
 After the combined merge, current-main CI and publication authorization, Python
 uses `release.yml` with `version=2.4.0`. TypeScript uses `typescript-release.yml`

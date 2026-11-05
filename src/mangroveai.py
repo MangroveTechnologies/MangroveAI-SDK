@@ -6,10 +6,13 @@ the import is unambiguous next to the MangroveAI backend repo.
 
 This shim aliases the old name to the new one at module-import time,
 so `from mangroveai import MangroveAI` and `from mangroveai.models
-import Whatever` both continue to work — they're forwarded to the
+import Whatever` both continue to work -- they're forwarded to the
 `mangrove_ai` package and emit a DeprecationWarning on first import.
 
-Retained in v2.x. Removal requires an announced future major release.
+Retained in v2.x. Removal requires an announced future major release. The shim
+is a single module so its filesystem name does not collide with the private
+engine's MangroveAI package directory on case-insensitive hosts. Replacing this
+module in sys.modules with the canonical package retains package subimports.
 """
 from __future__ import annotations
 
@@ -21,7 +24,7 @@ import mangrove_ai.models  # Load the public model modules before aliasing them.
 
 warnings.warn(
     "`mangroveai` is the deprecated import path. Use `from mangrove_ai import ...` "
-    "instead. The PyPI distribution name `mangroveai` is unchanged — only the "
+    "instead. The PyPI distribution name `mangroveai` is unchanged -- only the "
     "import path was renamed. Removal requires an announced future major release.",
     DeprecationWarning,
     stacklevel=2,

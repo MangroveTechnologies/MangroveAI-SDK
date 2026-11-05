@@ -1,16 +1,22 @@
 {
+  "compatibility_aliases": [
+    {
+      "canonical_operation": "POST /api/v1/backtests",
+      "operation": "POST /api/v1/backtests/"
+    }
+  ],
   "contracts": [
     {
       "path": "execution-config.schema.json",
-      "sha256": "2d3cc9db2204f05471d5eeb8ff902dcd25b4bff3c240078c99d1afd33b9bf360"
+      "sha256": "3a60c013e37e0d9b8bc3a8ad90f5d95c27bef432b12a734a9f5ca6c6f54d3c96"
     },
     {
       "path": "openapi.json",
-      "sha256": "d207250c81c82892666706f408cc2225c793807619a164edb0f0d716e1a5c180"
+      "sha256": "b8c713a36a5f04dd6eed2125a317abfe9ab7a2a9c1e06b3689d800aad7ce5c49"
     },
     {
       "path": "oracle-proxy-openapi.json",
-      "sha256": "2af733018477db164b4cf1d2f2791590be79efc932f895147090693d468773fd"
+      "sha256": "d8e2061293ec7f71604a3c4167ef06d57352314cfeebaa068644bf6807bc3a0a"
     }
   ],
   "limits": "Generated from declarations, not live payload verification. Opaque responses remain unknown. MCP and the separate legacy KB host are not this REST contract.",
@@ -388,19 +394,6 @@
       "contract": "openapi.json",
       "operation": "POST /api/v1/backtests",
       "python_direct_bindings": [],
-      "request": "declared",
-      "response": "declared",
-      "runtime_payload_verified": false,
-      "schema_status": "registered-restx-declaration",
-      "typescript": "request(operation, options)",
-      "typescript_transport": "json-or-no-content"
-    },
-    {
-      "contract": "openapi.json",
-      "operation": "POST /api/v1/backtests/",
-      "python_direct_bindings": [
-        "BacktestingService.submit_async"
-      ],
       "request": "declared",
       "response": "declared",
       "runtime_payload_verified": false,
@@ -1034,6 +1027,39 @@
     {
       "contract": "openapi.json",
       "operation": "GET /api/v1/health",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/help/ask",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/help/ask/stream",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "separate-stream-or-non-json-client-required"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/help/conversations/{session_id}",
       "python_direct_bindings": [],
       "request": "no-model-or-no-body",
       "response": "declared",
@@ -1806,6 +1832,19 @@
     },
     {
       "contract": "openapi.json",
+      "operation": "GET /api/v1/strategies/{strategy_id}/local-deployment",
+      "python_direct_bindings": [
+        "StrategiesService.local_deployment"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
       "operation": "PATCH /api/v1/strategies/{strategy_id}/status",
       "python_direct_bindings": [
         "StrategiesService.update_status"
@@ -2423,7 +2462,9 @@
     {
       "contract": "openapi.json",
       "operation": "POST /api/v2/backtests/",
-      "python_direct_bindings": [],
+      "python_direct_bindings": [
+        "BacktestingService.submit_async"
+      ],
       "request": "declared",
       "response": "declared",
       "runtime_payload_verified": false,
@@ -2434,7 +2475,9 @@
     {
       "contract": "openapi.json",
       "operation": "GET /api/v2/backtests/{backtest_id}/status",
-      "python_direct_bindings": [],
+      "python_direct_bindings": [
+        "BacktestingService.poll_status"
+      ],
       "request": "no-model-or-no-body",
       "response": "declared",
       "runtime_payload_verified": false,

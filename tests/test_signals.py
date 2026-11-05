@@ -63,6 +63,34 @@ SIGNAL_JSON = {
 
 
 class TestSignalsList:
+    @pytest.mark.parametrize("capabilities", [
+        {"evaluation_mode": "live", "data_provider": "x"},
+        {"evaluation_mode": "frame", "data_provider": None},
+        {},
+    ])
+    def test_optional_capabilities_at_http_boundary(self, capabilities: dict) -> None:
+        def handler(request: httpx.Request) -> httpx.Response:
+            assert request.url.path == "/api/v1/signals/"
+            return httpx.Response(200, json={
+                "signals": [{**SIGNAL_JSON, **capabilities}], "total": 1,
+                "limit": 50, "offset": 0,
+            })
+
+        with MangroveAI(api_key="test_fixture", environment="local", load_dotenv=False,
+                        httpx_client=httpx.Client(transport=httpx.MockTransport(handler))) as client:
+            signal = client.signals.list().items[0]
+        assert signal.evaluation_mode == capabilities.get("evaluation_mode")
+        assert signal.data_provider == capabilities.get("data_provider")
+
+    @pytest.mark.parametrize("field", ["evaluation_mode", "data_provider"])
+    def test_rejects_malformed_capability_types(self, field: str) -> None:
+        mock = MockTransport()
+        mock.add_response("GET", "/signals/", json={
+            "signals": [{**SIGNAL_JSON, field: 123}], "total": 1,
+        })
+        with pytest.raises(MalformedResponseError):
+            _make_client(mock).signals.list()
+
     def test_list_returns_paginated(self) -> None:
         mock = MockTransport()
         mock.add_response("GET", "/signals/", json={

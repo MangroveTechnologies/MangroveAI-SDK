@@ -11,8 +11,10 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## 2.4.0 - Unreleased
 
-- Prepare one combined release after SDK PR83, PR85 and PR84 merge. The minor
-  version reserves the additive public Signal attributes from PR84; each branch
+- Prepare one combined release after [SDK PR83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83),
+  [SDK PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85) and
+  [SDK PR84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84) merge. The minor
+  version reserves the latter's additive public Signal attributes; each branch
   contains only its own reviewed changes until integration.
 - Python 2.3.0 already includes `strategies.local_deployment`, published from
   main `55b09392b144ff936080aa4d0199d1e4caa4a985`. Matching TypeScript 1.2.0

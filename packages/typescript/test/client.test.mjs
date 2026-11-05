@@ -42,8 +42,9 @@ test('execution metadata uses the shared fixture with no automatic schema gate o
   assert.equal(calls, 0);
   const result = await sdk.request('GET /api/v1/config/execution-config-schema', {});
   assert.deepEqual(result.json_schema, value.json_schema);
-  assert.deepEqual(result.param_glossary.cooldown_config.required_fields,
-    value.json_schema.properties.cooldown_config.additionalProperties.required);
+  assert.deepEqual(Object.keys(result.param_glossary.circuit_breaker.fields).sort(),
+    Object.keys(value.json_schema.properties.circuit_breaker.properties).sort());
+  assert.equal(value.json_schema.properties.cooldown_config, undefined);
   assert.equal(calls, 1);
 });
 

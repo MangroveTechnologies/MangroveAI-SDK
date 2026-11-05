@@ -60,7 +60,7 @@ def main() -> None:
         assert client.users.get_my_metrics().messages_count == 7
         config = client.config.get_execution_config_schema()
         assert config.json_schema == fixture("execution-config-success")["json_schema"]
-        assert config.param_glossary["cooldown_config"].required_fields
+        assert "cooldown_config" not in config.param_glossary
         assert config.defaults["cooldown_model"] == "trades"
         assert config.param_glossary["circuit_breaker"].fields_shape == "object"
         assert config.param_glossary["circuit_breaker"].additional_properties is False

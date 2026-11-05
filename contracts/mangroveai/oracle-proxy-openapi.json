@@ -4158,7 +4158,7 @@
             "description": "A valid Mangrove credential is required"
           },
           "402": {
-            "description": "Billing approval or payment may be required"
+            "description": "The retail usage limit was reached (error code RETAIL_USAGE_LIMIT). This is not an x402 payment challenge; the operation does not accept x402 payment."
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -4254,7 +4254,7 @@
             "description": "A valid Mangrove credential is required"
           },
           "402": {
-            "description": "Billing approval or payment may be required"
+            "description": "The retail usage limit was reached (error code RETAIL_USAGE_LIMIT). This is not an x402 payment challenge; the operation does not accept x402 payment."
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -4338,9 +4338,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -4406,7 +4403,7 @@
             "description": "A valid Mangrove credential is required"
           },
           "402": {
-            "description": "Billing approval or payment may be required"
+            "description": "The retail usage limit was reached (error code RETAIL_USAGE_LIMIT). This is not an x402 payment challenge; the operation does not accept x402 payment."
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -4479,9 +4476,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -4533,9 +4527,6 @@
           },
           "401": {
             "description": "A valid Mangrove credential is required"
-          },
-          "402": {
-            "description": "Billing approval or payment may be required"
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -4601,9 +4592,6 @@
           },
           "401": {
             "description": "A valid Mangrove credential is required"
-          },
-          "402": {
-            "description": "Billing approval or payment may be required"
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -4695,9 +4683,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -4757,7 +4742,7 @@
             "description": "A valid Mangrove credential is required"
           },
           "402": {
-            "description": "Billing approval or payment may be required"
+            "description": "The retail usage limit was reached (error code RETAIL_USAGE_LIMIT). This is not an x402 payment challenge; the operation does not accept x402 payment."
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -4854,7 +4839,7 @@
             "description": "A valid Mangrove credential is required"
           },
           "402": {
-            "description": "Billing approval or payment may be required"
+            "description": "The retail usage limit was reached (error code RETAIL_USAGE_LIMIT). This is not an x402 payment challenge; the operation does not accept x402 payment."
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -4953,7 +4938,7 @@
             "description": "A valid Mangrove credential is required"
           },
           "402": {
-            "description": "Billing approval or payment may be required"
+            "description": "The retail usage limit was reached (error code RETAIL_USAGE_LIMIT). This is not an x402 payment challenge; the operation does not accept x402 payment."
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -5042,7 +5027,7 @@
             "description": "A valid Mangrove credential is required"
           },
           "402": {
-            "description": "Billing approval or payment may be required"
+            "description": "The retail usage limit was reached (error code RETAIL_USAGE_LIMIT). This is not an x402 payment challenge; the operation does not accept x402 payment."
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -5135,9 +5120,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller lacks `data:query` scope"
           },
@@ -5196,9 +5178,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -5250,9 +5229,6 @@
           },
           "401": {
             "description": "A valid Mangrove credential is required"
-          },
-          "402": {
-            "description": "Billing approval or payment may be required"
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -5311,9 +5287,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -5357,9 +5330,6 @@
           },
           "401": {
             "description": "A valid Mangrove credential is required"
-          },
-          "402": {
-            "description": "Billing approval or payment may be required"
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -5415,9 +5385,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -5472,9 +5439,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -5516,9 +5480,6 @@
           },
           "401": {
             "description": "A valid Mangrove credential is required"
-          },
-          "402": {
-            "description": "Billing approval or payment may be required"
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -5586,9 +5547,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -5653,9 +5611,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -5710,9 +5665,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -5759,9 +5711,6 @@
           },
           "401": {
             "description": "A valid Mangrove credential is required"
-          },
-          "402": {
-            "description": "Billing approval or payment may be required"
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -5814,9 +5763,6 @@
           },
           "401": {
             "description": "A valid Mangrove credential is required"
-          },
-          "402": {
-            "description": "Billing approval or payment may be required"
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -5874,9 +5820,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -5926,7 +5869,7 @@
             "description": "A valid Mangrove credential is required"
           },
           "402": {
-            "description": "Billing approval or payment may be required"
+            "description": "The retail usage limit was reached (error code RETAIL_USAGE_LIMIT). This is not an x402 payment challenge; the operation does not accept x402 payment."
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -6018,9 +5961,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -6091,9 +6031,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -6151,9 +6088,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -6205,7 +6139,7 @@
             "description": "A valid Mangrove credential is required"
           },
           "402": {
-            "description": "Billing approval or payment may be required"
+            "description": "The retail usage limit was reached (error code RETAIL_USAGE_LIMIT). This is not an x402 payment challenge; the operation does not accept x402 payment."
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -6297,9 +6231,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -6367,7 +6298,7 @@
             "description": "A valid Mangrove credential is required"
           },
           "402": {
-            "description": "Billing approval or payment may be required"
+            "description": "The retail usage limit was reached (error code RETAIL_USAGE_LIMIT). This is not an x402 payment challenge; the operation does not accept x402 payment."
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -6468,9 +6399,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -6532,7 +6460,7 @@
             "description": "A valid Mangrove credential is required"
           },
           "402": {
-            "description": "Billing approval or payment may be required"
+            "description": "The retail usage limit was reached (error code RETAIL_USAGE_LIMIT). This is not an x402 payment challenge; the operation does not accept x402 payment."
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -6624,9 +6552,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -6694,7 +6619,7 @@
             "description": "A valid Mangrove credential is required"
           },
           "402": {
-            "description": "Billing approval or payment may be required"
+            "description": "The retail usage limit was reached (error code RETAIL_USAGE_LIMIT). This is not an x402 payment challenge; the operation does not accept x402 payment."
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -6815,7 +6740,7 @@
             "description": "A valid Mangrove credential is required"
           },
           "402": {
-            "description": "Billing approval or payment may be required"
+            "description": "The retail usage limit was reached (error code RETAIL_USAGE_LIMIT). This is not an x402 payment challenge; the operation does not accept x402 payment."
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -6904,7 +6829,7 @@
             "description": "A valid Mangrove credential is required"
           },
           "402": {
-            "description": "Billing approval or payment may be required"
+            "description": "The retail usage limit was reached (error code RETAIL_USAGE_LIMIT). This is not an x402 payment challenge; the operation does not accept x402 payment."
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -6993,7 +6918,7 @@
             "description": "A valid Mangrove credential is required"
           },
           "402": {
-            "description": "Billing approval or payment may be required"
+            "description": "The retail usage limit was reached (error code RETAIL_USAGE_LIMIT). This is not an x402 payment challenge; the operation does not accept x402 payment."
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -7083,9 +7008,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -7147,9 +7069,6 @@
           },
           "401": {
             "description": "A valid Mangrove credential is required"
-          },
-          "402": {
-            "description": "Billing approval or payment may be required"
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -7914,9 +7833,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -7980,9 +7896,6 @@
           },
           "401": {
             "description": "A valid Mangrove credential is required"
-          },
-          "402": {
-            "description": "Billing approval or payment may be required"
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -8093,9 +8006,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -8202,7 +8112,7 @@
             "description": "A valid Mangrove credential is required"
           },
           "402": {
-            "description": "Billing approval or payment may be required"
+            "description": "The retail usage limit was reached (error code RETAIL_USAGE_LIMIT). This is not an x402 payment challenge; the operation does not accept x402 payment."
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -8334,7 +8244,7 @@
             "description": "A valid Mangrove credential is required"
           },
           "402": {
-            "description": "Billing approval or payment may be required"
+            "description": "The retail usage limit was reached (error code RETAIL_USAGE_LIMIT). This is not an x402 payment challenge; the operation does not accept x402 payment."
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -8468,7 +8378,7 @@
             "description": "A valid Mangrove credential is required"
           },
           "402": {
-            "description": "Billing approval or payment may be required"
+            "description": "The retail usage limit was reached (error code RETAIL_USAGE_LIMIT). This is not an x402 payment challenge; the operation does not accept x402 payment."
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -8603,9 +8513,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -8715,9 +8622,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -8826,9 +8730,6 @@
           },
           "401": {
             "description": "A valid Mangrove credential is required"
-          },
-          "402": {
-            "description": "Billing approval or payment may be required"
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -8979,9 +8880,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -9101,9 +8999,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -9165,7 +9060,7 @@
             "description": "A valid Mangrove credential is required"
           },
           "402": {
-            "description": "Billing approval or payment may be required"
+            "description": "The retail usage limit was reached (error code RETAIL_USAGE_LIMIT). This is not an x402 payment challenge; the operation does not accept x402 payment."
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -9899,9 +9794,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -9973,9 +9865,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -10040,9 +9929,6 @@
           },
           "401": {
             "description": "A valid Mangrove credential is required"
-          },
-          "402": {
-            "description": "Billing approval or payment may be required"
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -10146,9 +10032,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -10203,9 +10086,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -10259,9 +10139,6 @@
           },
           "401": {
             "description": "A valid Mangrove credential is required"
-          },
-          "402": {
-            "description": "Billing approval or payment may be required"
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -10325,9 +10202,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -10385,9 +10259,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -10434,9 +10305,6 @@
           },
           "401": {
             "description": "A valid Mangrove credential is required"
-          },
-          "402": {
-            "description": "Billing approval or payment may be required"
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -10487,7 +10355,7 @@
             "description": "A valid Mangrove credential is required"
           },
           "402": {
-            "description": "Billing approval or payment may be required"
+            "description": "The retail usage limit was reached (error code RETAIL_USAGE_LIMIT). This is not an x402 payment challenge; the operation does not accept x402 payment."
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -10582,9 +10450,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -10640,9 +10505,6 @@
           },
           "401": {
             "description": "A valid Mangrove credential is required"
-          },
-          "402": {
-            "description": "Billing approval or payment may be required"
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
@@ -10710,9 +10572,6 @@
           "401": {
             "description": "A valid Mangrove credential is required"
           },
-          "402": {
-            "description": "Billing approval or payment may be required"
-          },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
@@ -10774,9 +10633,6 @@
           },
           "401": {
             "description": "A valid Mangrove credential is required"
-          },
-          "402": {
-            "description": "Billing approval or payment may be required"
           },
           "403": {
             "description": "Caller role, scope or entitlement does not permit this operation"

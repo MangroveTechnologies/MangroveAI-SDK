@@ -9,7 +9,19 @@ All notable changes to the MangroveAI Python SDK will be documented in this file
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## 2.4.0 - Unreleased
+
+- Target one combined release after [SDK PR83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83),
+  [SDK PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85) and
+  [SDK PR84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84) merge and the
+  integrated main source is verified. The latter adds optional public Signal
+  attributes; this branch contains the reviewed contract/serialization fixes.
+- Python 2.3.0 is already published from main
+  `55b09392b144ff936080aa4d0199d1e4caa4a985`, including the local-deployment
+  helper. Old local 2.3.0 candidate archives remain distinct historical evidence.
+  Never overwrite its published version, tag or assets.
+
+## [Earlier release notes]
 
 ### X post counts and the social signal category (targets 2.2.0, after 2.1.1)
 
@@ -21,6 +33,31 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Contracts refreshed from MangroveAI#1493 (4b96fad6, current MangroveAI main plus X): one added path,
   one response model and the `social` category on the signals list; no other operation changed. TypeScript contract and coverage regenerated.
 - New example `examples/x_attention_signals_demo.py`.
+
+### Contracts refreshed from MangroveAI 6bd122c3 (7.11.5)
+
+- The public REST input is now the OpenAPI 3.1 document (`components`, `requestBody`, a Bearer
+  `MangroveBearer` scheme, `info.x-guidance`) in place of Swagger 2.0. Priced operations carry
+  `x-payment-info` and a `402` response; 111 operations are declared this way. Anonymous
+  signal-library reads (`GET /signals/`, `POST /signals/search`, `GET /signals/{signal_name}`) now
+  declare no security, so the TypeScript `request()` no longer requires an API key for them.
+- Oracle proxy contract: operations that never take an x402 payment lose their `402` response, and
+  the remaining `402` descriptions describe the retail usage limit.
+- Paths: added `GET /api/v1/strategies/{strategy_id}/local-deployment` (bound to
+  `client.strategies.local_deployment`); removed the duplicate `POST /api/v1/backtests/`
+  declaration (the single path is `POST /api/v1/backtests`). No SDK method called the removed path.
+- Under the default `cooldown_model: "trades"` the execution-configuration schema no longer lists
+  `cooldown_config`, `cooldown_bars`, `daily_momentum_limit` or `weekly_momentum_limit`; they are read
+  only under `"bars"`. The `cooldown_model` effect text, the `BacktestRequest`/`BulkBacktestRequest`
+  descriptions and the saved-strategy constraints schemas follow. The synthetic execution-config
+  fixture matches.
+- `BacktestRequest` and `BulkBacktestRequest` default `cooldown_bars`, `daily_momentum_limit` and
+  `weekly_momentum_limit` to `None` and omit them from the request body; they are sent, with the
+  existing deprecation warning, only when a caller sets them (the `bars` model). Constructing a
+  request with defaults no longer emits those deprecation warnings.
+- Generator: `type: [..., "null"]` with `x-nullable` renders one `null` member, and the Python
+  binding inventory attributes `_v2_request` calls to `/api/v2` (`submit_async` and `poll_status`
+  now bind to the v2 backtest operations). TypeScript contract and coverage regenerated.
 
 ### Python client contract repair (issue 66)
 

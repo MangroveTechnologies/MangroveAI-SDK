@@ -41,8 +41,8 @@ try {
     assert.equal(metrics.messages_count,7);
     const config = await sdk.request('GET /api/v1/config/execution-config-schema', {});
     assert.equal(config.json_schema.$schema,'https://json-schema.org/draft/2020-12/schema');
-    assert.equal(config.json_schema.properties.cooldown_config.additionalProperties.properties.short_window_bars.type,'integer');
-    assert.ok(config.param_glossary.cooldown_config.required_fields.includes('short_window_bars'));
+    assert.equal(config.json_schema.properties.cooldown_config,undefined);
+    assert.equal(config.param_glossary.cooldown_config,undefined);
     assert.equal(config.defaults.cooldown_model,'trades');
     assert.equal(config.json_schema.properties.circuit_breaker.additionalProperties,false);
     assert.equal(config.param_glossary.circuit_breaker.fields.consecutive_loss_limit.type,'int');

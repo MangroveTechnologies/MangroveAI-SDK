@@ -87,7 +87,7 @@ Python 2.4.0 and TypeScript 1.2.0; they are not published by a source commit.
 Python 2.3.0 was published from main `55b09392b144ff936080aa4d0199d1e4caa4a985`.
 Earlier frozen local 2.3.0 candidates are distinct historical evidence; never
 overwrite its published version, tag or assets. This combined branch preserves
-PR83 packaging, PR85 contract/serialization fixes and PR84 signal metadata.
+[PR83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83) packaging, [PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85) contract/serialization fixes and [PR84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84) signal metadata.
 The initial Markets-to-AI npm naming transition is historical and complete.
 Preserve old Markets `@mangrove-ai/sdk` 0.x archives and their exact notices;
 Markets now uses published `@mangrove-ai/markets` 0.4.0. Never publish the

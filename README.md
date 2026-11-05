@@ -9,6 +9,18 @@ separate product, not the TypeScript version of this API.
 
 ## Choose a client
 
+Python `mangroveai` 2.3.0 is published on [PyPI](https://pypi.org/project/mangroveai/2.3.0/)
+from main `55b09392b144ff936080aa4d0199d1e4caa4a985`, including the existing
+`strategies.local_deployment` read. The next combined release targets Python
+2.4.0 and TypeScript 1.2.0 after
+[PR83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83),
+[PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85), then
+[PR84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84) merge and
+their integrated main source passes release verification. This branch contains
+the PR85 contract and serialization fixes, not the other branches' changes.
+Earlier local 2.3.0 candidate archives remain distinct historical evidence;
+never overwrite published 2.3.0. See the [release handoff](docs/issue-66-release-handoff.md).
+
 | Product and language | Registry package | Import | Guide |
 |---|---|---|---|
 | MangroveAI Python | PyPI `mangroveai` | `from mangrove_ai import MangroveAI` | [Python install](#install) |

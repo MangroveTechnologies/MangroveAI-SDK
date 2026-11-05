@@ -4,7 +4,7 @@ This repository contains clients for the public MangroveAI services in both
 languages. Keep their package identities and capabilities distinct:
 
 - Python: PyPI `mangroveai`, import `from mangrove_ai import MangroveAI`, source
-  `src/mangrove_ai/`. Python 2.2.0 is published; see the dated release handoff.
+  `src/mangrove_ai/`. Python 2.3.0 is published; 2.4.0 is the next combined source candidate.
 - TypeScript: npm `@mangrove-ai/sdk` 1.x, import
   `import { MangroveAI } from '@mangrove-ai/sdk'`, source `packages/typescript/`.
   The source package version is 1.1.0 (1.0.0 is the first published AI release); use the [guide](packages/typescript/README.md),
@@ -81,7 +81,17 @@ The package name stays `mangroveai`; `mangrove_ai` is its import path.
 
 ## TypeScript release order
 
-Keep Python versioning unchanged. Both TypeScript source PRs must be reviewed and
+Current publication: Python 2.3.0 from main
+`55b09392b144ff936080aa4d0199d1e4caa4a985` and AI TypeScript 1.1.0.
+The next combined release targets Python 2.4.0 and TypeScript 1.2.0, after
+SDK PR83, PR85 and PR84 merge and their integrated main source is verified.
+This branch contains PR85's contract/serialization changes; it does not yet
+contain the other two PRs. Earlier frozen local 2.3.0 candidate archives are
+distinct historical evidence, not the published bytes or a new release target.
+Never overwrite published 2.3.0. See the dated release handoff for current steps.
+
+The following paragraph records the completed initial naming transition; it
+does not authorize repeating an old publication. Both TypeScript source PRs were reviewed and
 human-merged first. Publish and verify `@mangrove-ai/markets` 0.4.0 from the Markets
 repository before publishing `@mangrove-ai/sdk` 1.0.0 here. Historical Markets
 `@mangrove-ai/sdk` versions remain immutable. Never publish `@mangrove-ai/client`.

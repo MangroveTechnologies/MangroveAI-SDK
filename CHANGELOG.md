@@ -9,7 +9,17 @@ All notable changes to the MangroveAI Python SDK will be documented in this file
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## 2.4.0 - Unreleased
+
+- Target one combined release after SDK PR83, PR85 and PR84 merge and the
+  integrated main source is verified. PR84 adds optional public Signal
+  attributes; this branch contains PR85's reviewed contract/serialization fixes.
+- Python 2.3.0 is already published from main
+  `55b09392b144ff936080aa4d0199d1e4caa4a985`, including the local-deployment
+  helper. Old local 2.3.0 candidate archives remain distinct historical evidence.
+  Never overwrite its published version, tag or assets.
+
+## [Earlier release notes]
 
 ### X post counts and the social signal category (targets 2.2.0, after 2.1.1)
 

@@ -2,6 +2,53 @@
 
 Issue: https://github.com/MangroveTechnologies/MangroveAI-SDK/issues/66
 
+## Current packages and prepared releases (2026-11-05 UTC)
+
+Published packages are Python [`mangroveai` 2.3.0](https://pypi.org/project/mangroveai/2.3.0/)
+and npm [`@mangrove-ai/sdk` 1.1.0](https://www.npmjs.com/package/@mangrove-ai/sdk/v/1.1.0).
+The TypeScript release remains bound to original source
+`92f6d8405103c6e4435fedf9fbe2f1fbedf21b50`; a later controller's recovery does
+not change its package bytes or source identity. Markets' separate published
+clients are Python 1.1.1 and npm `@mangrove-ai/markets` 0.4.0.
+
+Python 2.3.0 was published from main `55b09392b144ff936080aa4d0199d1e4caa4a985`
+by [release run 41959600141](https://github.com/MangroveTechnologies/MangroveAI-SDK/actions/runs/41959600141).
+Its existing `strategies.local_deployment` helper is already released. Earlier
+frozen local 2.3.0 candidate archives have different source identities and are
+historical evidence; never overwrite the published 2.3.0 bytes, tag or assets.
+
+The next combined release targets Python 2.4.0 and TypeScript 1.2.0, after
+[PR83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83),
+[PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85), then
+[PR84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84) merge and
+the integrated main source passes release verification. PR83 repairs alias
+packaging; PR85 corrects optional legacy cooldown serialization; PR84 adds
+optional public Signal attributes. Python 2.4.0 reflects the combined additive
+public API. The matching TypeScript local-deployment snapshot read and reviewed
+filtered contracts remain prepared. Snapshot reads require backend 7.11.0 or later and
+actual local-deployment serving acceptance. The default loss limit remains four;
+[SDK PR82](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/82) and
+[API PR1518](https://github.com/MangroveTechnologies/MangroveAI/pull/1518)'s
+proposed limit of two remain separate unfinished feature work.
+
+The public Python distribution name and canonical/legacy imports remain
+`mangroveai`, `mangrove_ai` and deprecated `mangroveai`. The legacy alias is a
+single file, preserving supported public root/models/exceptions imports while
+avoiding a physical directory collision with the private engine. Coexistence
+requires the engine's distinct distribution (prepared for 7.12.0) and the SDK's
+single-file alias fix (next release 2.4.0); qualify the
+actual wheels together rather than inferring compatibility from metadata names.
+
+These versions are already prepared in the reviewed source PR. After human
+merge of all three PRs and current-main CI, the authorized Python publisher takes `version=2.4.0`;
+TypeScript takes `version=1.2.0`, first `dry_run=true`, then authorized publication.
+Do not create another version PR or rerun a completed old release to ship this
+new content. Original packages, tags and assets remain immutable. Fresh source,
+publication, installed consumers, backend serving and live acceptance are distinct.
+
+<details>
+<summary>Historical first naming plan (before the November 2 registry releases)</summary>
+
 ## Current TypeScript naming decision (2026-11-02)
 
 The user selected `@mangrove-ai/sdk` for MangroveAI and `@mangrove-ai/markets`
@@ -31,6 +78,9 @@ For a new unpublished version, the selected source must still be fresh `main`
 immediately before publishing. An older main ancestor is accepted only to finish
 an already published artifact whose exact source and bytes were verified. It
 cannot start a new publication or move npm `latest` back to stale source.
+
+
+</details>
 
 ## Historical publication status (2026-11-01)
 

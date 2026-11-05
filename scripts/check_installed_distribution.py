@@ -12,7 +12,7 @@ from pathlib import Path
 import httpx
 
 import mangrove_ai
-from mangrove_ai import MalformedResponseError, MangroveAI, PaymentRequiredError
+from mangrove_ai import APIError, MalformedResponseError, MangroveAI, PaymentRequiredError
 
 
 def main() -> None:
@@ -24,6 +24,14 @@ def main() -> None:
 
     assert LegacyUserMetrics is UserMetrics
     assert importlib.metadata.version("mangroveai") == mangrove_ai.__version__
+    installed_files = {str(path).replace("\\", "/") for path in importlib.metadata.files("mangroveai")}
+    assert "mangroveai.py" in installed_files
+    assert not any(path.startswith("mangroveai/") for path in installed_files)
+    from mangroveai.models.strategies import StrategyDetail as LegacyStrategyDetail
+
+    from mangrove_ai.models.strategies import StrategyDetail
+
+    assert LegacyStrategyDetail is StrategyDetail
     fixtures = Path(__file__).resolve().parents[1] / "contracts" / "mangroveai" / "fixtures"
 
     def fixture(name: str) -> dict:
@@ -49,6 +57,15 @@ def main() -> None:
                 "total": 2, "offset": offset, "limit": 1,
                 "results": [{"result_id": f"row-{offset}", "max_drawdown": 0.1}],
             })
+        if request.url.path.endswith("/local-deployment"):
+            assert request.method == "GET"
+            assert not request.content
+            if request.url.params["asset_class"] == "equity":
+                return httpx.Response(409, json={
+                    "error": "DEPLOYMENT_CONFLICT", "message": "Server validation decision",
+                })
+            assert request.url.params["asset_class"] == "crypto"
+            return httpx.Response(200, json=fixture("local-deployment-not-ready"))
         if request.url.path == "/api/v1/fixture/payment":
             return httpx.Response(402, json={"error": "payment_required", "message": fixture_key})
         return httpx.Response(200, text="not JSON")
@@ -67,6 +84,14 @@ def main() -> None:
         assert config.param_glossary["circuit_breaker"].fields["consecutive_loss_limit"].type == "int"
         assert [row.name for row in client.signals.list_iter(limit_per_page=1)] == ["fixture_one", "fixture_two"]
         assert [row["result_id"] for row in client.oracle.list_results_iter(page_size=1)] == ["row-0", "row-1"]
+        local = fixture("local-deployment-not-ready")
+        assert client.strategies.local_deployment(local["strategy_id"], asset_class="crypto") == local
+        try:
+            client.strategies.local_deployment(local["strategy_id"], asset_class="equity")
+        except APIError as exc:
+            assert exc.status_code == 409
+        else:
+            raise AssertionError("Server deployment conflict was not preserved")
         try:
             client._core_transport.request("GET", "/fixture/payment")
         except PaymentRequiredError as exc:
@@ -79,7 +104,7 @@ def main() -> None:
             pass
         else:
             raise AssertionError("Malformed success was accepted")
-    assert len(calls) == 8
+    assert len(calls) == 10
     print(json.dumps({
         "distribution": "mangroveai", "version": mangrove_ai.__version__,
         "requests_intercepted": len(calls),

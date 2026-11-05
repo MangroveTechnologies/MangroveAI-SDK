@@ -1,4 +1,4 @@
-import { MangroveAI, type CoreModels, type UsageMetrics, type ExecutionConfiguration } from '../src/index.js';
+import { MangroveAI, type CoreModels, type Operations, type UsageMetrics, type ExecutionConfiguration, type LocalDeployment } from '../src/index.js';
 
 const sdk = new MangroveAI({ apiKey: 'prod_fixture', baseUrl: 'https://example.invalid' });
 const metrics: Promise<UsageMetrics> = sdk.users.getMyMetrics();
@@ -63,3 +63,51 @@ void invalidBreakerField;
 void sdk.request('POST /api/v1/strategy-workflow/save_strategy', {
   body: { strategy_name: 'Fixture', asset: 'ETH', constraints: { max_risk_per_trade: '0.01', unknown_legacy: [1, null] } },
 });
+
+// The named local snapshot read uses the canonical server operation contract.
+void sdk.strategies.localDeployment('11111111-2222-3333-4444-555555555555', { assetClass: 'crypto' });
+// @ts-expect-error asset class is mandatory and server-declared.
+void sdk.strategies.localDeployment('11111111-2222-3333-4444-555555555555', {});
+// @ts-expect-error unsupported asset classes are not local deployment contracts.
+void sdk.strategies.localDeployment('11111111-2222-3333-4444-555555555555', { assetClass: 'options' });
+
+const nullableLocalBlocker: LocalDeployment['activation_blocker'] = null;
+void nullableLocalBlocker;
+void sdk.strategies.localDeployment('11111111-2222-3333-4444-555555555555', { assetClass: 'equity' }).then(snapshot => {
+  const ready: boolean = snapshot.activation_ready;
+  const blocker: string | null = snapshot.activation_blocker;
+  void ready; void blocker;
+});
+
+// Reject widened any/unknown contracts as well as wrong concrete declarations.
+// @ts-expect-error readiness is a boolean, not a string.
+const invalidLocalReadiness: LocalDeployment['activation_ready'] = 'ready';
+// @ts-expect-error blocker is nullable text, not a number.
+const invalidLocalBlocker: LocalDeployment['activation_blocker'] = 1;
+void invalidLocalReadiness; void invalidLocalBlocker;
+declare const typedLocal: LocalDeployment;
+const localUserId: string = typedLocal.owner.user_id;
+const localOrgId: string = typedLocal.owner.org_id;
+const opaqueLocalField: unknown = typedLocal.snapshot['any_server_owned_field'];
+// @ts-expect-error snapshot field values remain opaque until narrowed.
+const invalidOpaqueLocal: string = typedLocal.snapshot['any_server_owned_field'];
+void localUserId; void localOrgId; void opaqueLocalField; void invalidOpaqueLocal;
+
+// Public HelpBot declarations retain their request and response constraints.
+const helpRequest: Operations['POST /api/v1/help/ask']['input'] = { body: { message: 'Fixture question' } };
+void helpRequest;
+// @ts-expect-error The declared HelpBot JSON request requires a message.
+const missingHelpMessage: Operations['POST /api/v1/help/ask']['input'] = { body: {} };
+void missingHelpMessage;
+// @ts-expect-error Confidence is the server's declared enum, not an arbitrary string.
+const invalidHelpConfidence: Operations['POST /api/v1/help/ask']['output'] = { confidence: 'invented' };
+void invalidHelpConfidence;
+
+// Preserve the exact generic operation key published in TypeScript1.1.0.
+declare const canonicalBacktest: Operations['POST /api/v1/backtests'];
+const legacyBacktest: Operations['POST /api/v1/backtests/'] = canonicalBacktest;
+const canonicalAgain: Operations['POST /api/v1/backtests'] = legacyBacktest;
+void canonicalAgain;
+void sdk.request('POST /api/v1/backtests/', canonicalBacktest.input);
+// @ts-expect-error the compatibility key inherits the canonical required body.
+void sdk.request('POST /api/v1/backtests/', {});

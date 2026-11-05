@@ -11,9 +11,11 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## 2.4.0 - Unreleased
 
-- Target one combined release after SDK PR83, PR85 and PR84 merge and the
-  integrated main source is verified. PR84 adds optional public Signal
-  attributes; this branch contains PR85's reviewed contract/serialization fixes.
+- Target one combined release after [SDK PR83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83),
+  [SDK PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85) and
+  [SDK PR84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84) merge and the
+  integrated main source is verified. The latter adds optional public Signal
+  attributes; this branch contains the reviewed contract/serialization fixes.
 - Python 2.3.0 is already published from main
   `55b09392b144ff936080aa4d0199d1e4caa4a985`, including the local-deployment
   helper. Old local 2.3.0 candidate archives remain distinct historical evidence.

@@ -50,6 +50,13 @@ Changelog = "https://github.com/MangroveTechnologies/MangroveAI-SDK/blob/main/CH
 [tool.hatch.build.targets.wheel]
 packages = ["src/mangrove_ai", "src/mangroveai"]
 
+[tool.hatch.build.targets.sdist]
+# This is a Python distribution; never bundle a developer's installed Node tree.
+include = [
+    "/src", "/tests", "/contracts", "/examples", "/scripts", "/docs",
+    "/README.md", "/CHANGELOG.md", "/LICENSE", "/pyproject.toml",
+]
+
 [tool.ruff]
 target-version = "py310"
 line-length = 120

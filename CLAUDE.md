@@ -84,8 +84,11 @@ The package name stays `mangroveai`; `mangrove_ai` is its import path.
 Current publication: Python 2.3.0 from main
 `55b09392b144ff936080aa4d0199d1e4caa4a985` and AI TypeScript 1.1.0.
 The next combined release targets Python 2.4.0 and TypeScript 1.2.0, after
-SDK PR83, PR85 and PR84 merge and their integrated main source is verified.
-This branch contains PR85's contract/serialization changes; it does not yet
+[SDK PR83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83),
+[SDK PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85) and
+[SDK PR84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84) merge
+and their integrated main source is verified.
+This branch contains the contract/serialization changes; it does not yet
 contain the other two PRs. Earlier frozen local 2.3.0 candidate archives are
 distinct historical evidence, not the published bytes or a new release target.
 Never overwrite published 2.3.0. See the dated release handoff for current steps.

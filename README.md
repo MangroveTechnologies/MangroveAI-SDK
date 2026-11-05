@@ -367,6 +367,50 @@ credit balance falls under a floor. The read then returns 503 (as it does when X
 not configured), and a strategy's X rules evaluate False and are logged.
 End-to-end walkthrough: `examples/x_attention_signals_demo.py`.
 
+### Cambrian social and holder signals
+
+The connected server's catalogue is authoritative for availability, composability and parameter
+defaults. The definitions below describe knowledge-base policy; a deployment on an earlier KB
+release can report a different status. Check `client.signals.list` or `client.signals.get` before
+composing a strategy.
+
+One Cambrian-backed signal is available for new strategies: `social_price_divergence`, in the
+`social` category, as an exit for long positions. It reads Cambrian Deep42 sentiment. Find it like
+any other signal with `client.signals.list(category="social")` and name it in a strategy's `exit`
+rules. There is no separate `client` method for the underlying Cambrian data.
+
+- What it reads: `close` and `SocialNetBullShare` (the bullish minus bearish share of posts per bar,
+  -1 to 1). It fires when close fell at least `min_drop_pct` over `window` bars while the mean net
+  bullish share over the same bars stayed at or above its mean over the `window_baseline` readings
+  before them. True means exit the long.
+- Formula: `roc(close, window)[t] <= -min_drop_pct AND shift(SocialNetBullShare, window, window_baseline)[t] >= 0`.
+- Defaults: `window=7` (2-60), `min_drop_pct=3.0` (1.0-50.0), `window_baseline=60` (7-180). Warmup is
+  `window + window_baseline - 1` bars, 66 at the defaults. Deep42 buckets are daily.
+- Exit only, never an entry. The catalogue types it `TRIGGER` because the knowledge base has no
+  exit-only type, so nothing stops you from putting it in `entry`; do not. Use it in the exit rules
+  of a strategy that has its own entry trigger and a price filter.
+- You supply no data. In live evaluation and in backtests the server attaches the columns the signal
+  reads, aligning each Deep42 daily bucket to bars from the next midnight UTC. Deep42 serves older
+  buckets as scored today, so this alignment does not establish point-in-time historical availability.
+  The server does this only when its
+  Cambrian data flag (`CAMBRIAN_SIGNALS_ENABLED`) is on, and it requires a MangroveAI release that is
+  not yet deployed. With the flag off the catalogue marks the signal non-composable, so a new
+  strategy cannot be built on it, and a strategy that names it gets `False` from it, so it never
+  exits.
+- `client.signals.evaluate(...)` is different: it runs on the `market_data` you send, so include
+  `close` and `SocialNetBullShare` in each row, as for any signal that reads alternative data.
+
+Six other Cambrian signals are disabled for new strategies: `social_sentiment_surge`,
+`social_sentiment_capitulation`, `social_crowd_bullish` and `social_crowd_cooling` (`social`), and
+`whale_share_divergence` and `holder_growth_trend` (`onchain`, Solana holder distribution). They are
+disabled until they are validated in strategy backtests across market regimes. The catalogue lists
+them with `composable=False`, `status="disabled"` and the reason, and a stored strategy that names
+one keeps evaluating it. The catalogue reports this status, and `social_price_divergence` as an exit
+with the defaults above, from a knowledge-base release that the server does not yet pin.
+
+End-to-end walkthrough, ending in a backtest of an RSI trigger with a price filter and
+`social_price_divergence` as the exit: `examples/cambrian_signals_demo.py`.
+
 ## Oracle — SIEVE + sweep
 
 `client.oracle.*` is Mangrove's strategy-research engine. Two headline tools:

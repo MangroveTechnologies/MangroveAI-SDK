@@ -23,7 +23,7 @@ test('reviewed input changes fail the generation gate before stale types can shi
     assert.equal(baseline.status, 0, baseline.stdout + baseline.stderr);
     const source = join(scratch, 'contracts/mangroveai/openapi.json');
     const schema = JSON.parse(readFileSync(source, 'utf8'));
-    (schema.definitions ?? schema.components.schemas)['api1.UserMetrics'].properties.messages_count.type = 'string';
+    schema.definitions['api1.UserMetrics'].properties.messages_count.type = 'string';
     writeFileSync(source, JSON.stringify(schema));
     const provenancePath = join(scratch, 'contracts/mangroveai/provenance.json');
     const provenance = JSON.parse(readFileSync(provenancePath, 'utf8'));

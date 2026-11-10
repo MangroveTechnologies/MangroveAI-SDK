@@ -226,11 +226,11 @@ test('declared and streamed body sizes are bounded', async () => {
   await assert.rejects(client(async () => json({ metrics: 'x'.repeat(100) }), { maxResponseBytes: 20 }).users.getMyMetrics(), MalformedResponseError);
 });
 
-test('unexpected stream media on a JSON operation is refused and cancelled before consuming the body', async () => {
+test('unsupported stream media is refused and cancelled before consuming the body', async () => {
   let cancelled = false;
   const stream = new ReadableStream({ cancel() { cancelled = true; } });
   const sdk = client(async () => new Response(stream, { headers: { 'Content-Type': 'text/event-stream' } }));
-  await assert.rejects(sdk.request('GET /api/v1/users/me/metrics', {}), MalformedResponseError);
+  await assert.rejects(sdk.request('GET /api/v1/oracle/deployed/stream', {}), MalformedResponseError);
   assert.equal(cancelled, true);
 });
 

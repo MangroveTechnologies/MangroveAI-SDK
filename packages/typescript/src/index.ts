@@ -1,4 +1,4 @@
-import { operationMetadata, compatibilityOperationMetadata, type Operation, type Operations, type CoreModels } from './contract.generated.js';
+import { operationMetadata, type Operation, type Operations, type CoreModels } from './contract.generated.js';
 
 export type { Operation, Operations, CoreModels, OracleModels, ExecutionConfiguration } from './contract.generated.js';
 
@@ -44,19 +44,11 @@ export interface RequestControls {
   timeoutMs?: number;
 }
 
-export interface LocalDeploymentOptions extends RequestControls {
-  assetClass: 'crypto' | 'equity';
-}
-
-export type LocalDeployment = Operations['GET /api/v1/strategies/{strategy_id}/local-deployment']['output'];
-
 export type RequestOptions<K extends Operation> = Operations[K]['input'] & RequestControls;
 type Input = { path?: Record<string, unknown>; query?: Record<string, unknown>;
   headers?: Record<string, string>; body?: unknown; signal?: AbortSignal; timeoutMs?: number };
 type Metadata = { method: string; path: string; required: Record<string, readonly string[]>;
-  bodyRequired: boolean; authenticated: boolean; queryFormats: Record<string, string>;
-  transport: 'json-or-no-content' | 'separate-stream-or-non-json-client-required' | 'separate-redirect-flow-required' };
-const reviewedOperations: Readonly<Record<string, Metadata>> = { ...operationMetadata, ...compatibilityOperationMetadata };
+  bodyRequired: boolean; authenticated: boolean; queryFormats: Record<string, string> };
 
 export interface UsageMetrics {
   conversations_count?: number | null;
@@ -239,16 +231,14 @@ export class MangroveAI {
   }
 
   async request<K extends Operation>(operation: K, options: RequestOptions<K>): Promise<Operations[K]['output']> {
-    if (typeof operation !== 'string' || !Object.hasOwn(reviewedOperations, operation)) throw new ConfigurationError('Operation is absent from the reviewed contract');
+    if (typeof operation !== 'string' || !Object.hasOwn(operationMetadata, operation)) throw new ConfigurationError('Operation is absent from the reviewed contract');
     if (!object(options)) throw new ConfigurationError('Request options must be an object');
-    const metadata: Metadata | undefined = reviewedOperations[operation];
+    const metadata: Metadata | undefined = operationMetadata[operation];
     if (!metadata) throw new ConfigurationError('Operation is absent from the reviewed contract');
     const input = options as Input;
     if (metadata.authenticated && !this.#apiKey) throw new ConfigurationError('This operation requires an API credential');
     if (input.signal?.aborted) throw new RequestAbortedError('Request was cancelled');
     if (metadata.bodyRequired && input.body === undefined) throw new ConfigurationError('This operation requires a request body');
-    if (metadata.transport === 'separate-stream-or-non-json-client-required') throw new ConfigurationError('This operation requires a separate streaming or non-JSON client');
-    if (metadata.transport === 'separate-redirect-flow-required') throw new ConfigurationError('This operation requires a separate redirect flow');
     const headers = new Headers({ Accept: 'application/json' });
     for (const [key, value] of Object.entries(input.headers ?? {})) {
       if (['authorization', 'host', 'content-length'].includes(key.toLowerCase())) throw new ConfigurationError('A protected header cannot be overridden');
@@ -432,23 +422,6 @@ export class MangroveAI {
           offset = result.nextOffset;
         }
       } };
-    },
-  };
-
-  readonly strategies = {
-    /** Read the server-owned versioned snapshot and readiness; never activate trading. */
-    localDeployment: async (strategyId: string, options: LocalDeploymentOptions): Promise<LocalDeployment> => {
-      if (typeof strategyId !== 'string' || !/^[a-f\d]{8}-(?:[a-f\d]{4}-){3}[a-f\d]{12}$/i.test(strategyId)) {
-        throw new ConfigurationError('strategyId must be a UUID');
-      }
-      if (!object(options) || !['crypto', 'equity'].includes(options.assetClass)) {
-        throw new ConfigurationError('assetClass must be crypto or equity');
-      }
-      const { assetClass, signal, timeoutMs } = options;
-      return this.request('GET /api/v1/strategies/{strategy_id}/local-deployment', {
-        path: { strategy_id: strategyId.toLowerCase() }, query: { asset_class: assetClass },
-        ...(signal ? { signal } : {}), ...(timeoutMs !== undefined ? { timeoutMs } : {}),
-      });
     },
   };
 

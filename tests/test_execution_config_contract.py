@@ -68,8 +68,7 @@ def test_generated_type_uses_canonical_fields_with_a_legacy_transport_escape_hat
     schema_type = generator["schema_type"]
     document = json.loads((ROOT / "contracts/mangroveai/openapi.json").read_text())
     canonical = json.loads((ROOT / "contracts/mangroveai/execution-config.schema.json").read_text())
-    models = document.get("definitions", document.get("components", {}).get("schemas", {}))
-    model = models["api1.ExecutionConfiguration"]
+    model = document["definitions"]["api1.ExecutionConfiguration"]
     assert not model.get("x-mangrove-raw-json")
     assert model["x-mangrove-authoring-schema"] == canonical
     assert schema_type(model, "CoreModels", {canonical["$id"]: "ExecutionConfiguration"}) == (

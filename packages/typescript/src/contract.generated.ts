@@ -24,14 +24,14 @@ export interface CoreModels {
   "api1.Backtest": { "asset"?: string; "created_at"?: string; "end_date"?: string; "execution_time"?: number; "id"?: string; "initial_balance"?: number; "irr_annualized"?: number; "max_drawdown"?: number; "metrics"?: unknown; "sharpe_ratio"?: number; "start_date"?: string; "status"?: string; "total_return"?: number; "total_trades"?: number; "trade_history"?: unknown; "win_rate"?: number; [key: string]: unknown; };
   "api1.BacktestArchiveResponse": { "archived"?: boolean; "backtest_id"?: string; "success"?: boolean; [key: string]: unknown; };
   "api1.BacktestRequest": { "asset": string; "base_token"?: string; "cooldown_bars"?: number; "corpus_dataset"?: string; "daily_momentum_limit"?: number; "data_file"?: string; "data_source"?: string; "enable_volatility_adjustment": boolean; "end_date"?: string; "exchange"?: string; "execution_config"?: (CoreModels["api1.ExecutionConfiguration"]); "fee_pct"?: number; "generation"?: number; "hourly_data_file"?: string; "initial_asset_balance"?: number; "initial_balance": number; "interval"?: string; "lookback_months"?: number; "market_data_venue"?: string; "max_open_positions": number; "max_risk_per_trade": number; "max_trade_amount": number; "max_trades_per_day": number; "max_units_per_trade": number; "min_balance_threshold": number; "min_trade_amount": number; "quote_token"?: string; "seed"?: number; "slippage_pct"?: number; "start_date"?: string; "strategy_id"?: string; "strategy_json"?: string; "target_volatility": number; "volatility_mode": string; "volatility_window": number; "weekly_momentum_limit"?: number; [key: string]: unknown; };
-  "api1.BacktestResult": { "base_token"?: (string) | null | (null) | null; "core_orders"?: Array<unknown>; "data_info"?: unknown; "equity_curve"?: Array<unknown>; "error"?: string; "execution_time_seconds"?: number; "market_data_venue"?: (string) | null | (null) | null; "metrics"?: unknown; "quote_token"?: (string) | null | (null) | null; "satellite_pnl"?: number; "strategy_names"?: Array<string>; "success": boolean; "trade_count"?: number; "trade_history"?: Array<unknown>; [key: string]: unknown; };
+  "api1.BacktestResult": { "base_token"?: (string) | null; "core_orders"?: Array<unknown>; "data_info"?: unknown; "equity_curve"?: Array<unknown>; "error"?: string; "execution_time_seconds"?: number; "market_data_venue"?: (string) | null; "metrics"?: unknown; "quote_token"?: (string) | null; "satellite_pnl"?: number; "strategy_names"?: Array<string>; "success": boolean; "trade_count"?: number; "trade_history"?: Array<unknown>; [key: string]: unknown; };
   "api1.BacktestsResponse": { "backtests"?: Array<CoreModels["api1.Backtest"]>; "success"?: boolean; "total"?: number; [key: string]: unknown; };
   "api1.BatchJob": { "completed"?: string; "failure_reason"?: string; "id"?: string; "invoked"?: string; "name"?: string; "result_data"?: unknown; "status"?: string; [key: string]: unknown; };
   "api1.BulkBacktestRequest": { "cooldown_bars"?: number; "daily_momentum_limit"?: number; "enable_volatility_adjustment": boolean; "end_date": string; "execution_config"?: (CoreModels["api1.ExecutionConfiguration"]); "fee_pct"?: number; "generation"?: number; "initial_asset_balance"?: number; "initial_balance": number; "max_hold_time_hours"?: number; "max_open_positions": number; "max_risk_per_trade": number; "max_trade_amount": number; "max_trades_per_day": number; "max_units_per_trade": number; "min_balance_threshold": number; "min_trade_amount": number; "seed"?: number; "slippage_pct"?: number; "start_date": string; "strategy_configs"?: Array<unknown>; "strategy_ids"?: Array<string>; "target_volatility": number; "volatility_mode": string; "volatility_window": number; "weekly_momentum_limit"?: number; [key: string]: unknown; };
   "api1.BulkBacktestResult": { "data_fetches"?: number; "error"?: string; "results"?: Array<CoreModels["api1.StrategyBacktestResult"]>; "success"?: boolean; "total_execution_time_seconds"?: number; [key: string]: unknown; };
   "api1.BulkEvaluateRequest": { "persist"?: boolean; "strategy_configs"?: Array<unknown>; "strategy_ids"?: Array<string>; [key: string]: unknown; };
   "api1.BulkEvaluateResult": { "code"?: string; "contract_version"?: string; "correlation_id"?: string; "data_fetches"?: number; "error"?: string; "message"?: string; "results"?: Array<CoreModels["api1.StrategyEvaluateResult"]>; "retry_after"?: number; "success"?: boolean; "total_execution_time_seconds"?: number; [key: string]: unknown; };
-  "api1.BuyAndHoldBenchmark": { "asset"?: string; "bars"?: number; "base_token"?: (string) | null | (null) | null; "buy_and_hold_return"?: string; "buy_and_hold_return_raw"?: number; "end"?: string; "first_close"?: number; "last_close"?: number; "market_data_venue"?: (string) | null | (null) | null; "quote_token"?: (string) | null | (null) | null; "start"?: string; "unit"?: string; [key: string]: unknown; };
+  "api1.BuyAndHoldBenchmark": { "asset"?: string; "bars"?: number; "base_token"?: (string) | null; "buy_and_hold_return"?: string; "buy_and_hold_return_raw"?: number; "end"?: string; "first_close"?: number; "last_close"?: number; "market_data_venue"?: (string) | null; "quote_token"?: (string) | null; "start"?: string; "unit"?: string; [key: string]: unknown; };
   "api1.ChainTVLResponse": { "chain"?: string; "data"?: unknown; "success"?: boolean; "top_protocols"?: Array<unknown>; "tvl_usd"?: number; [key: string]: unknown; };
   "api1.ChatRequest": { "execution_id"?: string; "message": string; "turn_id"?: string; [key: string]: unknown; };
   "api1.Configuration": { "agentic_files"?: Array<string>; "context_files"?: Array<string>; "error"?: string; "prompt_files"?: Array<string>; "success": boolean; [key: string]: unknown; };
@@ -82,15 +82,9 @@ export interface CoreModels {
   "api1.GlobalMarketResponse": { "data"?: unknown; "success"?: boolean; [key: string]: unknown; };
   "api1.HealthChecks": { "database"?: CoreModels["api1.ServiceCheck"]; "llm"?: CoreModels["api1.ServiceCheck"]; [key: string]: unknown; };
   "api1.HealthResponse": { "checks"?: CoreModels["api1.HealthChecks"]; "service": string; "status": string; "version": string; [key: string]: unknown; };
-  "api1.HelpBotAskRequest": { "history"?: Array<CoreModels["api1.HelpBotHistoryTurn"]>; "message": string; "session_id"?: string; [key: string]: unknown; };
-  "api1.HelpBotAskResponse": { "answer"?: string; "citations"?: Array<CoreModels["api1.HelpBotCitation"]>; "confidence"?: "normal" | "low"; "session_id"?: string; [key: string]: unknown; };
-  "api1.HelpBotCitation": { "doc_url"?: string; "section_anchor"?: string; "section_title"?: string; "source_file"?: string; [key: string]: unknown; };
-  "api1.HelpBotConversation": { "message_count"?: number; "messages"?: Array<unknown>; "session_id"?: string; "title"?: string; [key: string]: unknown; };
-  "api1.HelpBotHistoryTurn": { "content": string; "role": "user" | "assistant"; [key: string]: unknown; };
   "api1.InfluenceScoreResponse": { "data"?: unknown; "followers"?: number; "score"?: number; "success"?: boolean; "username"?: string; [key: string]: unknown; };
   "api1.Invitation": { "created_at"?: string; "email"?: string; "expires_at"?: string; "id"?: string; "invited_by"?: string; "inviter_email"?: string; "inviter_name"?: string; "org_id"?: string; "role"?: string; "status"?: string; [key: string]: unknown; };
   "api1.InviteMember": { "email": string; "role"?: string; [key: string]: unknown; };
-  "api1.LocalDeploymentResponse": { "activation_blocker": (string) | null | (null) | null; "activation_ready": boolean; "asset_class": "crypto" | "equity"; "contract_version": 1; "fingerprint": string; "name": (string) | null | (null) | null; "owner": { "org_id": string; "user_id": string; [key: string]: unknown; }; "snapshot": { [key: string]: unknown; }; "strategy_id": string; "timeframe": "1m" | "5m" | "15m" | "1h" | "4h" | "1d"; [key: string]: unknown; };
   "api1.LoginErrorResponse": { "error"?: string; "success"?: boolean; [key: string]: unknown; };
   "api1.LoginRequest": { "firebase_token": string; [key: string]: unknown; };
   "api1.LoginResponse": { "access_token"?: string; "error"?: string; "success"?: boolean; "user"?: unknown; [key: string]: unknown; };
@@ -160,7 +154,7 @@ export interface CoreModels {
   "api1.StrategiesResponse": { "strategies"?: Array<CoreModels["api1.Strategy"]>; "success"?: boolean; "total"?: number; [key: string]: unknown; };
   "api1.Strategy": { "asset"?: string; "config"?: unknown; "created_at"?: string; "entry_signals"?: Array<string>; "exit_signals"?: Array<string>; "id"?: string; "name"?: string; "status"?: string; [key: string]: unknown; };
   "api1.StrategyArchiveResponse": { "archived"?: boolean; "strategy_id"?: string; "success"?: boolean; [key: string]: unknown; };
-  "api1.StrategyBacktestResult": { "base_token"?: (string) | null | (null) | null; "core_orders"?: Array<unknown>; "data_info"?: unknown; "error"?: string; "execution_time_seconds"?: number; "market_data_venue"?: (string) | null | (null) | null; "metrics"?: unknown; "quote_token"?: (string) | null | (null) | null; "satellite_pnl"?: number; "strategy_id"?: string; "strategy_name"?: string; "success"?: boolean; "trade_count"?: number; [key: string]: unknown; };
+  "api1.StrategyBacktestResult": { "base_token"?: (string) | null; "core_orders"?: Array<unknown>; "data_info"?: unknown; "error"?: string; "execution_time_seconds"?: number; "market_data_venue"?: (string) | null; "metrics"?: unknown; "quote_token"?: (string) | null; "satellite_pnl"?: number; "strategy_id"?: string; "strategy_name"?: string; "success"?: boolean; "trade_count"?: number; [key: string]: unknown; };
   "api1.StrategyDetail": { "archived"?: boolean; "archived_at"?: string; "asset"?: string; "content_hash"?: string; "created_at"?: string; "description"?: string; "evaluation_count"?: number; "execution_config"?: (CoreModels["api1.ExecutionConfiguration"]); "execution_state"?: unknown; "id"?: string; "last_evaluated_at"?: string; "market_data_venue"?: string; "name"?: string; "org_id"?: string; "parent_strategy_id"?: string; "position_size_calc"?: "v1" | "v2" | "v3"; "quote_token"?: string; "rules"?: unknown; "session_id"?: string; "status"?: string; "strategy_type"?: string; "user_id"?: string; [key: string]: unknown; };
   "api1.StrategyEvaluateResult": { "asset"?: string; "bar_evaluated"?: boolean; "base_token"?: string; "closed_trades"?: Array<unknown>; "core_orders"?: Array<CoreModels["api1.CoreOrder"]>; "current_price"?: number; "denied_signals"?: Array<unknown>; "error"?: string; "execution_state"?: (CoreModels["api1.ExecutionState"]); "execution_time_seconds"?: number; "market_data_venue"?: string; "new_orders"?: Array<CoreModels["api1.OrderResponse"]>; "open_positions"?: Array<unknown>; "org_id"?: string; "proposed_closes"?: Array<unknown>; "proposed_positions"?: Array<unknown>; "quote_token"?: string; "reason"?: string; "skipped"?: boolean; "status"?: string; "strategy_id"?: string; "strategy_name"?: string; "strategy_summary"?: unknown; "success"?: boolean; "user_id"?: string; "v3"?: (CoreModels["api1.V3State"]); [key: string]: unknown; };
   "api1.StrategyListItem": { "archived"?: boolean; "archived_at"?: string; "asset"?: string; "created_at"?: string; "description"?: string; "id"?: string; "market_data_venue"?: string; "name"?: string; "position_size_calc"?: "v1" | "v2" | "v3"; "quote_token"?: string; "status"?: string; "strategy_type"?: string; [key: string]: unknown; };
@@ -195,8 +189,8 @@ export interface CoreModels {
   "api1.VolatilityData": { "max_drawdown_30d_pct"?: number; "volatility_30d_pct"?: number; [key: string]: unknown; };
   "api1.XPostCountsResponse": { "bucket_count"?: number; "buckets"?: Array<unknown>; "buckets_cached"?: number; "days_back"?: number; "granularity"?: "hour" | "day"; "query"?: string; "success"?: boolean; "symbol"?: string; "total_posts"?: number; "x_query"?: "all" | "en_original"; "x_requests"?: number; [key: string]: unknown; };
   "api2.AgentChatRequest": { "execution_id"?: string; "message": string; "turn_id"?: string; [key: string]: unknown; };
-  "api2.AsyncBacktestStatusResponse": { "backtest_id"?: string; "base_token"?: (string) | null | (null) | null; "completed_at"?: string; "created_at"?: string; "equity_curve"?: unknown; "error_message"?: string; "execution_time_seconds"?: number; "market_data_venue"?: (string) | null | (null) | null; "metrics"?: unknown; "quote_token"?: (string) | null | (null) | null; "status"?: string; "trade_history"?: unknown; [key: string]: unknown; };
-  "api2.AsyncBacktestSubmitResponse": { "backtest_id"?: string; "base_token"?: (string) | null | (null) | null; "market_data_venue"?: (string) | null | (null) | null; "quote_token"?: (string) | null | (null) | null; "status"?: string; [key: string]: unknown; };
+  "api2.AsyncBacktestStatusResponse": { "backtest_id"?: string; "base_token"?: (string) | null; "completed_at"?: string; "created_at"?: string; "equity_curve"?: unknown; "error_message"?: string; "execution_time_seconds"?: number; "market_data_venue"?: (string) | null; "metrics"?: unknown; "quote_token"?: (string) | null; "status"?: string; "trade_history"?: unknown; [key: string]: unknown; };
+  "api2.AsyncBacktestSubmitResponse": { "backtest_id"?: string; "base_token"?: (string) | null; "market_data_venue"?: (string) | null; "quote_token"?: (string) | null; "status"?: string; [key: string]: unknown; };
   "api2.BacktestRequest": { "asset": string; "base_token"?: string; "cooldown_bars"?: number; "corpus_dataset"?: string; "daily_momentum_limit"?: number; "data_file"?: string; "data_source"?: string; "enable_volatility_adjustment": boolean; "end_date"?: string; "exchange"?: string; "execution_config"?: (CoreModels["api2.ExecutionConfiguration"]); "fee_pct"?: number; "generation"?: number; "hourly_data_file"?: string; "initial_asset_balance"?: number; "initial_balance": number; "interval"?: string; "lookback_months"?: number; "market_data_venue"?: string; "max_open_positions": number; "max_risk_per_trade": number; "max_trade_amount": number; "max_trades_per_day": number; "max_units_per_trade": number; "min_balance_threshold": number; "min_trade_amount": number; "quote_token"?: string; "seed"?: number; "slippage_pct"?: number; "start_date"?: string; "strategy_id"?: string; "strategy_json"?: string; "target_volatility": number; "volatility_mode": string; "volatility_window": number; "weekly_momentum_limit"?: number; [key: string]: unknown; };
   "api2.Error": { "code": string; "correlation_id"?: string; "error": string; "message": string; "retry_after"?: number; [key: string]: unknown; };
   "api2.ExecutionConfiguration": (ExecutionConfiguration) | Record<string, unknown>;
@@ -288,6 +282,7 @@ export interface Operations {
   "GET /api/v1/backtesting/backtest/{backtest_id}": { input: { path: { "backtest_id": string; }; }; output: unknown; };
   "GET /api/v1/backtesting/backtest/{backtest_id}/trades": { input: { path: { "backtest_id": string; }; }; output: unknown; };
   "POST /api/v1/backtests": { input: { body: CoreModels["api1.BacktestRequest"]; }; output: CoreModels["api1.BacktestResult"]; };
+  "POST /api/v1/backtests/": { input: { body: CoreModels["api1.BacktestRequest"]; }; output: CoreModels["api1.BacktestResult"]; };
   "GET /api/v1/backtests/benchmark": { input: { query?: { "asset"?: string; "end_date"?: string; "start_date"?: string; }; }; output: CoreModels["api1.BuyAndHoldBenchmark"]; };
   "POST /api/v1/backtests/bulk": { input: { body: CoreModels["api1.BulkBacktestRequest"]; }; output: CoreModels["api1.BulkBacktestResult"]; };
   "GET /api/v1/backtests/{backtest_id}": { input: { path: { "backtest_id": string; }; }; output: unknown; };
@@ -338,9 +333,6 @@ export interface Operations {
   "GET /api/v1/execution/positions": { input: { query?: { "account_id"?: string; "asset"?: string; "limit"?: string; "open_only"?: string; "skip"?: string; "strategy_id"?: string; }; }; output: Array<CoreModels["api1.Position"]>; };
   "GET /api/v1/execution/trades": { input: { query?: { "account_id"?: string; "asset"?: string; "limit"?: string; "outcome"?: string; "skip"?: string; }; }; output: Array<CoreModels["api1.Trade"]>; };
   "GET /api/v1/health": { input: {  }; output: CoreModels["api1.HealthResponse"]; };
-  "POST /api/v1/help/ask": { input: { body: CoreModels["api1.HelpBotAskRequest"]; }; output: CoreModels["api1.HelpBotAskResponse"]; };
-  "POST /api/v1/help/ask/stream": { input: { body: CoreModels["api1.HelpBotAskRequest"]; }; output: unknown; };
-  "GET /api/v1/help/conversations/{session_id}": { input: { path: { "session_id": string; }; }; output: CoreModels["api1.HelpBotConversation"]; };
   "GET /api/v1/knowledge/documents": { input: {  }; output: unknown; };
   "GET /api/v1/knowledge/documents/{slug}": { input: { path: { "slug": string; }; }; output: unknown; };
   "GET /api/v1/knowledge/glossary": { input: {  }; output: unknown; };
@@ -403,7 +395,6 @@ export interface Operations {
   "PUT /api/v1/strategies/{strategy_id}": { input: { path: { "strategy_id": string; }; }; output: CoreModels["api1.UpdateStrategyResponse"]; };
   "POST /api/v1/strategies/{strategy_id}/archive": { input: { path: { "strategy_id": string; }; }; output: CoreModels["api1.StrategyArchiveResponse"]; };
   "PATCH /api/v1/strategies/{strategy_id}/execution-state": { input: { path: { "strategy_id": string; }; }; output: unknown; };
-  "GET /api/v1/strategies/{strategy_id}/local-deployment": { input: { path: { "strategy_id": string; }; query: { "asset_class": "crypto" | "equity"; }; }; output: CoreModels["api1.LocalDeploymentResponse"]; };
   "PATCH /api/v1/strategies/{strategy_id}/status": { input: { path: { "strategy_id": string; }; body: CoreModels["api1.UpdateStrategyStatusRequest"]; }; output: CoreModels["api1.UpdateStrategyStatusResponse"]; };
   "POST /api/v1/strategies/{strategy_id}/unarchive": { input: { path: { "strategy_id": string; }; }; output: CoreModels["api1.StrategyArchiveResponse"]; };
   "GET /api/v1/strategies/{strategy_id}/verify": { input: { path: { "strategy_id": string; }; }; output: CoreModels["api1.StrategyVerification"]; };
@@ -526,11 +517,6 @@ export interface Operations {
   "GET /api/v1/oracle/templates/{name}": { input: { path: { "name": string; }; }; output: { [key: string]: unknown; }; };
 }
 
-export interface Operations {
-  /** @deprecated Use POST /api/v1/backtests. */
-  "POST /api/v1/backtests/": Operations["POST /api/v1/backtests"];
-}
-
 export type Operation = keyof Operations;
 export const operationMetadata = {
   "DELETE /api/v1/ai-copilot/conversations/{session_id}": {
@@ -543,8 +529,7 @@ export const operationMetadata = {
       "path": [
         "session_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "DELETE /api/v1/auth/api-keys/{key_id}": {
     "authenticated": true,
@@ -556,8 +541,7 @@ export const operationMetadata = {
       "path": [
         "key_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "DELETE /api/v1/oracle/experiments/{experiment_id}": {
     "authenticated": true,
@@ -569,8 +553,7 @@ export const operationMetadata = {
       "path": [
         "experiment_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "DELETE /api/v1/oracle/experiments/{experiment_id}/grants/{principal_type}/{principal_id}": {
     "authenticated": true,
@@ -584,8 +567,7 @@ export const operationMetadata = {
         "principal_type",
         "principal_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "DELETE /api/v1/oracle/templates/{name}": {
     "authenticated": true,
@@ -597,8 +579,7 @@ export const operationMetadata = {
       "path": [
         "name"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "DELETE /api/v1/organizations/{org_id}/invitations/{invitation_id}": {
     "authenticated": true,
@@ -611,8 +592,7 @@ export const operationMetadata = {
         "org_id",
         "invitation_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "DELETE /api/v1/organizations/{org_id}/members/{user_id}": {
     "authenticated": true,
@@ -625,8 +605,7 @@ export const operationMetadata = {
         "org_id",
         "user_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "DELETE /api/v1/strategies/{strategy_id}": {
     "authenticated": true,
@@ -638,8 +617,7 @@ export const operationMetadata = {
       "path": [
         "strategy_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "DELETE /api/v2/agent/conversations/{session_id}": {
     "authenticated": true,
@@ -651,8 +629,7 @@ export const operationMetadata = {
       "path": [
         "session_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/ai-copilot/configuration": {
     "authenticated": true,
@@ -660,8 +637,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/ai-copilot/configuration",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/ai-copilot/conversations/{session_id}": {
     "authenticated": true,
@@ -673,8 +649,7 @@ export const operationMetadata = {
       "path": [
         "session_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/ai-copilot/conversations/{session_id}/executions/{execution_id}": {
     "authenticated": true,
@@ -687,8 +662,7 @@ export const operationMetadata = {
         "session_id",
         "execution_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/ai-copilot/get_latest_conversation": {
     "authenticated": true,
@@ -696,8 +670,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/ai-copilot/get_latest_conversation",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/ai-copilot/list_conversations": {
     "authenticated": true,
@@ -705,8 +678,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/ai-copilot/list_conversations",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/auth/allowlist/emails": {
     "authenticated": true,
@@ -714,8 +686,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/auth/allowlist/emails",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/auth/api-keys": {
     "authenticated": true,
@@ -723,8 +694,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/auth/api-keys",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/auth/callback": {
     "authenticated": false,
@@ -732,8 +702,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/auth/callback",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/auth/is-admin": {
     "authenticated": true,
@@ -741,8 +710,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/auth/is-admin",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/auth/login/google": {
     "authenticated": false,
@@ -750,8 +718,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/auth/login/google",
     "queryFormats": {},
-    "required": {},
-    "transport": "separate-redirect-flow-required"
+    "required": {}
   },
   "GET /api/v1/auth/markets-context": {
     "authenticated": true,
@@ -759,8 +726,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/auth/markets-context",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/auth/profile": {
     "authenticated": true,
@@ -768,8 +734,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/auth/profile",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/backtesting/backtest/{backtest_id}": {
     "authenticated": true,
@@ -781,8 +746,7 @@ export const operationMetadata = {
       "path": [
         "backtest_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/backtesting/backtest/{backtest_id}/trades": {
     "authenticated": true,
@@ -794,8 +758,7 @@ export const operationMetadata = {
       "path": [
         "backtest_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/backtests/benchmark": {
     "authenticated": true,
@@ -805,8 +768,7 @@ export const operationMetadata = {
     "queryFormats": {},
     "required": {
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/backtests/{backtest_id}": {
     "authenticated": true,
@@ -818,8 +780,7 @@ export const operationMetadata = {
       "path": [
         "backtest_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/backtests/{backtest_id}/trades": {
     "authenticated": true,
@@ -831,8 +792,7 @@ export const operationMetadata = {
       "path": [
         "backtest_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/batch/job/status": {
     "authenticated": true,
@@ -840,8 +800,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/batch/job/status",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/batch/job/status/{job_id}": {
     "authenticated": true,
@@ -853,8 +812,7 @@ export const operationMetadata = {
       "path": [
         "job_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/config/execution-config-schema": {
     "authenticated": true,
@@ -862,8 +820,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/config/execution-config-schema",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/config/execution-defaults": {
     "authenticated": false,
@@ -871,8 +828,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/config/execution-defaults",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/config/trading-defaults": {
     "authenticated": false,
@@ -880,8 +836,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/config/trading-defaults",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/crypto-assets/all": {
     "authenticated": true,
@@ -891,8 +846,7 @@ export const operationMetadata = {
     "queryFormats": {},
     "required": {
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/crypto-assets/exchanges": {
     "authenticated": true,
@@ -900,8 +854,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/crypto-assets/exchanges",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/crypto-assets/flow-intelligence/{symbol}": {
     "authenticated": true,
@@ -914,8 +867,7 @@ export const operationMetadata = {
         "symbol"
       ],
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/crypto-assets/global-market": {
     "authenticated": true,
@@ -923,8 +875,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/crypto-assets/global-market",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/crypto-assets/market-data/{symbol}": {
     "authenticated": true,
@@ -937,8 +888,7 @@ export const operationMetadata = {
         "symbol"
       ],
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/crypto-assets/ohlcv/{symbol}": {
     "authenticated": true,
@@ -951,8 +901,7 @@ export const operationMetadata = {
         "symbol"
       ],
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/crypto-assets/query": {
     "authenticated": true,
@@ -962,8 +911,7 @@ export const operationMetadata = {
     "queryFormats": {},
     "required": {
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/crypto-assets/smart-money/holdings": {
     "authenticated": true,
@@ -973,8 +921,7 @@ export const operationMetadata = {
     "queryFormats": {},
     "required": {
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/crypto-assets/smart-money/netflows": {
     "authenticated": true,
@@ -984,8 +931,7 @@ export const operationMetadata = {
     "queryFormats": {},
     "required": {
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/crypto-assets/symbols": {
     "authenticated": true,
@@ -993,8 +939,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/crypto-assets/symbols",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/crypto-assets/symbols/{symbol}": {
     "authenticated": true,
@@ -1006,8 +951,7 @@ export const operationMetadata = {
       "path": [
         "symbol"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/crypto-assets/symbols/{symbol}/exchanges": {
     "authenticated": true,
@@ -1019,8 +963,7 @@ export const operationMetadata = {
       "path": [
         "symbol"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/crypto-assets/token-holders/{symbol}": {
     "authenticated": true,
@@ -1032,8 +975,7 @@ export const operationMetadata = {
       "path": [
         "symbol"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/crypto-assets/trending": {
     "authenticated": true,
@@ -1041,8 +983,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/crypto-assets/trending",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/defi/chain/{chain}/tvl": {
     "authenticated": true,
@@ -1054,8 +995,7 @@ export const operationMetadata = {
       "path": [
         "chain"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/defi/etf-flows": {
     "authenticated": true,
@@ -1063,8 +1003,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/defi/etf-flows",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/defi/lending-rates": {
     "authenticated": true,
@@ -1072,8 +1011,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/defi/lending-rates",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/defi/perp-funding": {
     "authenticated": true,
@@ -1081,8 +1019,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/defi/perp-funding",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/defi/protocol/{protocol_name}/tvl": {
     "authenticated": true,
@@ -1094,8 +1031,7 @@ export const operationMetadata = {
       "path": [
         "protocol_name"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/defi/stablecoins/metrics": {
     "authenticated": true,
@@ -1103,8 +1039,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/defi/stablecoins/metrics",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/defi/token-unlocks": {
     "authenticated": true,
@@ -1112,8 +1047,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/defi/token-unlocks",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/defi/treasuries": {
     "authenticated": true,
@@ -1121,8 +1055,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/defi/treasuries",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/docs/content": {
     "authenticated": false,
@@ -1132,8 +1065,7 @@ export const operationMetadata = {
     "queryFormats": {},
     "required": {
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/docs/list": {
     "authenticated": false,
@@ -1141,8 +1073,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/docs/list",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/execution/accounts": {
     "authenticated": true,
@@ -1152,8 +1083,7 @@ export const operationMetadata = {
     "queryFormats": {},
     "required": {
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/execution/accounts/{account_id}": {
     "authenticated": true,
@@ -1165,8 +1095,7 @@ export const operationMetadata = {
       "path": [
         "account_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/execution/paper/{strategy_id}": {
     "authenticated": true,
@@ -1178,8 +1107,7 @@ export const operationMetadata = {
       "path": [
         "strategy_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/execution/portfolio": {
     "authenticated": true,
@@ -1189,8 +1117,7 @@ export const operationMetadata = {
     "queryFormats": {},
     "required": {
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/execution/positions": {
     "authenticated": true,
@@ -1200,8 +1127,7 @@ export const operationMetadata = {
     "queryFormats": {},
     "required": {
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/execution/trades": {
     "authenticated": true,
@@ -1211,8 +1137,7 @@ export const operationMetadata = {
     "queryFormats": {},
     "required": {
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/health": {
     "authenticated": false,
@@ -1220,21 +1145,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/health",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
-  },
-  "GET /api/v1/help/conversations/{session_id}": {
-    "authenticated": true,
-    "bodyRequired": false,
-    "method": "GET",
-    "path": "/api/v1/help/conversations/{session_id}",
-    "queryFormats": {},
-    "required": {
-      "path": [
-        "session_id"
-      ]
-    },
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/knowledge/documents": {
     "authenticated": false,
@@ -1242,8 +1153,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/knowledge/documents",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/knowledge/documents/{slug}": {
     "authenticated": false,
@@ -1255,8 +1165,7 @@ export const operationMetadata = {
       "path": [
         "slug"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/knowledge/glossary": {
     "authenticated": false,
@@ -1264,8 +1173,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/knowledge/glossary",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/knowledge/quick-reference": {
     "authenticated": false,
@@ -1273,8 +1181,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/knowledge/quick-reference",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/knowledge/search": {
     "authenticated": false,
@@ -1282,8 +1189,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/knowledge/search",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/market-data/regime/{asset}": {
     "authenticated": true,
@@ -1296,8 +1202,7 @@ export const operationMetadata = {
         "asset"
       ],
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/market-data/segment": {
     "authenticated": true,
@@ -1307,8 +1212,7 @@ export const operationMetadata = {
     "queryFormats": {},
     "required": {
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/on-chain/exchange-flows": {
     "authenticated": true,
@@ -1316,8 +1220,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/on-chain/exchange-flows",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/on-chain/smart-money/screen": {
     "authenticated": true,
@@ -1327,8 +1230,7 @@ export const operationMetadata = {
     "queryFormats": {},
     "required": {
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/on-chain/smart-money/sentiment": {
     "authenticated": true,
@@ -1340,8 +1242,7 @@ export const operationMetadata = {
       "query": [
         "symbol"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/on-chain/token-holders/{symbol}": {
     "authenticated": true,
@@ -1353,8 +1254,7 @@ export const operationMetadata = {
       "path": [
         "symbol"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/on-chain/whale-activity/{symbol}": {
     "authenticated": true,
@@ -1366,8 +1266,7 @@ export const operationMetadata = {
       "path": [
         "symbol"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/on-chain/whale-transactions": {
     "authenticated": true,
@@ -1375,8 +1274,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/on-chain/whale-transactions",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/oracle/backtest/async/{backtest_id}/status": {
     "authenticated": true,
@@ -1388,8 +1286,7 @@ export const operationMetadata = {
       "path": [
         "backtest_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/oracle/backtest/{backtest_id}": {
     "authenticated": true,
@@ -1401,8 +1298,7 @@ export const operationMetadata = {
       "path": [
         "backtest_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/oracle/backtest/{backtest_id}/trades": {
     "authenticated": true,
@@ -1414,8 +1310,7 @@ export const operationMetadata = {
       "path": [
         "backtest_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/oracle/conditions": {
     "authenticated": true,
@@ -1425,8 +1320,7 @@ export const operationMetadata = {
     "queryFormats": {},
     "required": {
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/oracle/conditions/studies/{study_id}": {
     "authenticated": true,
@@ -1438,8 +1332,7 @@ export const operationMetadata = {
       "path": [
         "study_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/oracle/conditions/studies/{study_id}/billing-evidence": {
     "authenticated": true,
@@ -1451,8 +1344,7 @@ export const operationMetadata = {
       "path": [
         "study_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/oracle/datasets": {
     "authenticated": true,
@@ -1460,8 +1352,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/oracle/datasets",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/oracle/datasets/detailed": {
     "authenticated": true,
@@ -1469,8 +1360,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/oracle/datasets/detailed",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/oracle/datasets/limits": {
     "authenticated": true,
@@ -1478,8 +1368,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/oracle/datasets/limits",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/oracle/datasets/ohlcv/{filename}": {
     "authenticated": true,
@@ -1491,8 +1380,7 @@ export const operationMetadata = {
       "path": [
         "filename"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/oracle/deployed/strategies": {
     "authenticated": true,
@@ -1500,8 +1388,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/oracle/deployed/strategies",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/oracle/deployed/stream": {
     "authenticated": true,
@@ -1509,8 +1396,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/oracle/deployed/stream",
     "queryFormats": {},
-    "required": {},
-    "transport": "separate-stream-or-non-json-client-required"
+    "required": {}
   },
   "GET /api/v1/oracle/deployed/{strategy_id}/events": {
     "authenticated": true,
@@ -1523,8 +1409,7 @@ export const operationMetadata = {
         "strategy_id"
       ],
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/oracle/deployed/{strategy_id}/state": {
     "authenticated": true,
@@ -1536,8 +1421,7 @@ export const operationMetadata = {
       "path": [
         "strategy_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/oracle/exec-config/defaults": {
     "authenticated": true,
@@ -1545,8 +1429,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/oracle/exec-config/defaults",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/oracle/experiments": {
     "authenticated": true,
@@ -1554,8 +1437,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/oracle/experiments",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/oracle/experiments/caps": {
     "authenticated": true,
@@ -1563,8 +1445,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/oracle/experiments/caps",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/oracle/experiments/generations": {
     "authenticated": true,
@@ -1572,8 +1453,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/oracle/experiments/generations",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/oracle/experiments/shared": {
     "authenticated": true,
@@ -1586,8 +1466,7 @@ export const operationMetadata = {
         "principal_type",
         "principal_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/oracle/experiments/shared-with-me": {
     "authenticated": true,
@@ -1595,8 +1474,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/oracle/experiments/shared-with-me",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/oracle/experiments/{experiment_id}": {
     "authenticated": true,
@@ -1608,8 +1486,7 @@ export const operationMetadata = {
       "path": [
         "experiment_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/oracle/experiments/{experiment_id}/billing-evidence": {
     "authenticated": true,
@@ -1621,8 +1498,7 @@ export const operationMetadata = {
       "path": [
         "experiment_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/oracle/experiments/{experiment_id}/grants": {
     "authenticated": true,
@@ -1634,8 +1510,7 @@ export const operationMetadata = {
       "path": [
         "experiment_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/oracle/experiments/{experiment_id}/progress": {
     "authenticated": true,
@@ -1647,8 +1522,7 @@ export const operationMetadata = {
       "path": [
         "experiment_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/oracle/experiments/{experiment_id}/progress/stream": {
     "authenticated": true,
@@ -1660,8 +1534,7 @@ export const operationMetadata = {
       "path": [
         "experiment_id"
       ]
-    },
-    "transport": "separate-stream-or-non-json-client-required"
+    }
   },
   "GET /api/v1/oracle/experiments/{experiment_id}/results": {
     "authenticated": true,
@@ -1674,8 +1547,7 @@ export const operationMetadata = {
         "experiment_id"
       ],
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/oracle/experiments/{experiment_id}/results/filters": {
     "authenticated": true,
@@ -1687,8 +1559,7 @@ export const operationMetadata = {
       "path": [
         "experiment_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/oracle/experiments/{experiment_id}/results/{run_index}/ohlcv": {
     "authenticated": true,
@@ -1702,8 +1573,7 @@ export const operationMetadata = {
         "run_index"
       ],
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/oracle/experiments/{experiment_id}/results/{run_index}/signals": {
     "authenticated": true,
@@ -1717,8 +1587,7 @@ export const operationMetadata = {
         "run_index"
       ],
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/oracle/experiments/{experiment_id}/results/{run_index}/stored-visualization": {
     "authenticated": true,
@@ -1732,8 +1601,7 @@ export const operationMetadata = {
         "run_index"
       ],
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/oracle/experiments/{experiment_id}/results/{run_index}/strategy": {
     "authenticated": true,
@@ -1747,8 +1615,7 @@ export const operationMetadata = {
         "run_index"
       ],
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/oracle/experiments/{experiment_id}/results/{run_index}/trades": {
     "authenticated": true,
@@ -1762,8 +1629,7 @@ export const operationMetadata = {
         "run_index"
       ],
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/oracle/experiments/{experiment_id}/results/{run_index}/visualize": {
     "authenticated": true,
@@ -1777,8 +1643,7 @@ export const operationMetadata = {
         "run_index"
       ],
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/oracle/results": {
     "authenticated": true,
@@ -1788,8 +1653,7 @@ export const operationMetadata = {
     "queryFormats": {},
     "required": {
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/oracle/results/filters": {
     "authenticated": true,
@@ -1799,8 +1663,7 @@ export const operationMetadata = {
     "queryFormats": {},
     "required": {
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/oracle/signals": {
     "authenticated": true,
@@ -1810,8 +1673,7 @@ export const operationMetadata = {
     "queryFormats": {},
     "required": {
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/oracle/signals/catalogs": {
     "authenticated": true,
@@ -1819,8 +1681,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/oracle/signals/catalogs",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/oracle/signals/{name}": {
     "authenticated": true,
@@ -1832,8 +1693,7 @@ export const operationMetadata = {
       "path": [
         "name"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/oracle/simulate/history": {
     "authenticated": true,
@@ -1841,8 +1701,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/oracle/simulate/history",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/oracle/simulate/presets": {
     "authenticated": true,
@@ -1850,8 +1709,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/oracle/simulate/presets",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/oracle/templates": {
     "authenticated": true,
@@ -1859,8 +1717,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/oracle/templates",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/oracle/templates/{name}": {
     "authenticated": true,
@@ -1872,8 +1729,7 @@ export const operationMetadata = {
       "path": [
         "name"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/organizations/": {
     "authenticated": true,
@@ -1881,8 +1737,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/organizations/",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/organizations/invitations/mine": {
     "authenticated": true,
@@ -1890,8 +1745,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/organizations/invitations/mine",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/organizations/mine": {
     "authenticated": true,
@@ -1899,8 +1753,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/organizations/mine",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/organizations/{org_id}": {
     "authenticated": true,
@@ -1912,8 +1765,7 @@ export const operationMetadata = {
       "path": [
         "org_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/organizations/{org_id}/invitations": {
     "authenticated": true,
@@ -1925,8 +1777,7 @@ export const operationMetadata = {
       "path": [
         "org_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/organizations/{org_id}/members": {
     "authenticated": true,
@@ -1938,19 +1789,17 @@ export const operationMetadata = {
       "path": [
         "org_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/signals/": {
-    "authenticated": false,
+    "authenticated": true,
     "bodyRequired": false,
     "method": "GET",
     "path": "/api/v1/signals/",
     "queryFormats": {},
     "required": {
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/signals/labels": {
     "authenticated": true,
@@ -1958,8 +1807,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/signals/labels",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/signals/playground-data/{dataset_key}": {
     "authenticated": true,
@@ -1971,8 +1819,7 @@ export const operationMetadata = {
       "path": [
         "dataset_key"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/signals/playground-datasets": {
     "authenticated": true,
@@ -1980,11 +1827,10 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/signals/playground-datasets",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/signals/{signal_name}": {
-    "authenticated": false,
+    "authenticated": true,
     "bodyRequired": false,
     "method": "GET",
     "path": "/api/v1/signals/{signal_name}",
@@ -1993,8 +1839,7 @@ export const operationMetadata = {
       "path": [
         "signal_name"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/social/influence/{username}": {
     "authenticated": true,
@@ -2006,8 +1851,7 @@ export const operationMetadata = {
       "path": [
         "username"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/social/mentions/{topic}": {
     "authenticated": true,
@@ -2020,8 +1864,7 @@ export const operationMetadata = {
         "topic"
       ],
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/social/sentiment/{topic}": {
     "authenticated": true,
@@ -2034,8 +1877,7 @@ export const operationMetadata = {
         "topic"
       ],
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/social/x-post-counts/{symbol}": {
     "authenticated": true,
@@ -2048,8 +1890,7 @@ export const operationMetadata = {
         "symbol"
       ],
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/strategies/": {
     "authenticated": true,
@@ -2059,8 +1900,7 @@ export const operationMetadata = {
     "queryFormats": {},
     "required": {
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/strategies/{strategy_id}": {
     "authenticated": true,
@@ -2072,24 +1912,7 @@ export const operationMetadata = {
       "path": [
         "strategy_id"
       ]
-    },
-    "transport": "json-or-no-content"
-  },
-  "GET /api/v1/strategies/{strategy_id}/local-deployment": {
-    "authenticated": true,
-    "bodyRequired": false,
-    "method": "GET",
-    "path": "/api/v1/strategies/{strategy_id}/local-deployment",
-    "queryFormats": {},
-    "required": {
-      "path": [
-        "strategy_id"
-      ],
-      "query": [
-        "asset_class"
-      ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/strategies/{strategy_id}/verify": {
     "authenticated": true,
@@ -2101,8 +1924,7 @@ export const operationMetadata = {
       "path": [
         "strategy_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/subscriptions/all-status": {
     "authenticated": true,
@@ -2110,8 +1932,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/subscriptions/all-status",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/subscriptions/org-status": {
     "authenticated": true,
@@ -2119,8 +1940,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/subscriptions/org-status",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/subscriptions/status": {
     "authenticated": true,
@@ -2128,8 +1948,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/subscriptions/status",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/subscriptions/tiers": {
     "authenticated": false,
@@ -2137,8 +1956,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/subscriptions/tiers",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/subscriptions/utilization": {
     "authenticated": true,
@@ -2146,8 +1964,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/subscriptions/utilization",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/users/me/backtests": {
     "authenticated": true,
@@ -2157,8 +1974,7 @@ export const operationMetadata = {
     "queryFormats": {},
     "required": {
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v1/users/me/metrics": {
     "authenticated": true,
@@ -2166,8 +1982,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/users/me/metrics",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v1/users/me/strategies": {
     "authenticated": true,
@@ -2177,8 +1992,7 @@ export const operationMetadata = {
     "queryFormats": {},
     "required": {
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v2/agent/conversations": {
     "authenticated": true,
@@ -2186,8 +2000,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v2/agent/conversations",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v2/agent/conversations/latest": {
     "authenticated": true,
@@ -2195,8 +2008,7 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v2/agent/conversations/latest",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "GET /api/v2/agent/conversations/{session_id}": {
     "authenticated": true,
@@ -2208,8 +2020,7 @@ export const operationMetadata = {
       "path": [
         "session_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "GET /api/v2/backtests/{backtest_id}/status": {
     "authenticated": true,
@@ -2221,8 +2032,7 @@ export const operationMetadata = {
       "path": [
         "backtest_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "PATCH /api/v1/strategies/{strategy_id}/execution-state": {
     "authenticated": true,
@@ -2234,8 +2044,7 @@ export const operationMetadata = {
       "path": [
         "strategy_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "PATCH /api/v1/strategies/{strategy_id}/status": {
     "authenticated": true,
@@ -2247,8 +2056,7 @@ export const operationMetadata = {
       "path": [
         "strategy_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "PATCH /api/v2/agent/conversations/{session_id}/rename": {
     "authenticated": true,
@@ -2260,8 +2068,7 @@ export const operationMetadata = {
       "path": [
         "session_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "POST /api/v1/ai-copilot/chat/{session_id}": {
     "authenticated": true,
@@ -2273,8 +2080,7 @@ export const operationMetadata = {
       "path": [
         "session_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "POST /api/v1/ai-copilot/conversations/{session_id}/executions/{execution_id}/cancel": {
     "authenticated": true,
@@ -2287,8 +2093,7 @@ export const operationMetadata = {
         "session_id",
         "execution_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "POST /api/v1/ai-copilot/save_strategy": {
     "authenticated": true,
@@ -2296,8 +2101,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/ai-copilot/save_strategy",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/ai-copilot/start_new_conversation": {
     "authenticated": true,
@@ -2305,8 +2109,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/ai-copilot/start_new_conversation",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/auth/api-keys": {
     "authenticated": true,
@@ -2314,8 +2117,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/auth/api-keys",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/auth/login": {
     "authenticated": false,
@@ -2323,8 +2125,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/auth/login",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/auth/logout": {
     "authenticated": false,
@@ -2332,8 +2133,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/auth/logout",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/auth/markets-quota": {
     "authenticated": true,
@@ -2341,8 +2141,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/auth/markets-quota",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/auth/refresh": {
     "authenticated": false,
@@ -2355,8 +2154,7 @@ export const operationMetadata = {
         "X-CSRF-Token",
         "Cookie"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "POST /api/v1/auth/switch-org": {
     "authenticated": true,
@@ -2364,8 +2162,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/auth/switch-org",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/backtesting/backtest": {
     "authenticated": true,
@@ -2373,8 +2170,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/backtesting/backtest",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/backtesting/backtest/bulk": {
     "authenticated": true,
@@ -2382,8 +2178,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/backtesting/backtest/bulk",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/backtesting/backtest/screen": {
     "authenticated": true,
@@ -2391,8 +2186,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/backtesting/backtest/screen",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/backtests": {
     "authenticated": true,
@@ -2400,8 +2194,15 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/backtests",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
+  },
+  "POST /api/v1/backtests/": {
+    "authenticated": true,
+    "bodyRequired": true,
+    "method": "POST",
+    "path": "/api/v1/backtests/",
+    "queryFormats": {},
+    "required": {}
   },
   "POST /api/v1/backtests/bulk": {
     "authenticated": true,
@@ -2409,8 +2210,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/backtests/bulk",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/backtests/{backtest_id}/archive": {
     "authenticated": true,
@@ -2422,8 +2222,7 @@ export const operationMetadata = {
       "path": [
         "backtest_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "POST /api/v1/backtests/{backtest_id}/unarchive": {
     "authenticated": true,
@@ -2435,8 +2234,7 @@ export const operationMetadata = {
       "path": [
         "backtest_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "POST /api/v1/execution/accounts": {
     "authenticated": true,
@@ -2444,8 +2242,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/execution/accounts",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/execution/availability": {
     "authenticated": true,
@@ -2453,8 +2250,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/execution/availability",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/execution/evaluate": {
     "authenticated": true,
@@ -2462,8 +2258,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/execution/evaluate",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/execution/evaluate/bulk": {
     "authenticated": true,
@@ -2471,8 +2266,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/execution/evaluate/bulk",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/execution/evaluate/{strategy_id}": {
     "authenticated": true,
@@ -2484,8 +2278,7 @@ export const operationMetadata = {
       "path": [
         "strategy_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "POST /api/v1/execution/paper/{strategy_id}/pause": {
     "authenticated": true,
@@ -2497,8 +2290,7 @@ export const operationMetadata = {
       "path": [
         "strategy_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "POST /api/v1/execution/paper/{strategy_id}/start": {
     "authenticated": true,
@@ -2510,8 +2302,7 @@ export const operationMetadata = {
       "path": [
         "strategy_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "POST /api/v1/execution/paper/{strategy_id}/tick": {
     "authenticated": true,
@@ -2523,26 +2314,7 @@ export const operationMetadata = {
       "path": [
         "strategy_id"
       ]
-    },
-    "transport": "json-or-no-content"
-  },
-  "POST /api/v1/help/ask": {
-    "authenticated": true,
-    "bodyRequired": true,
-    "method": "POST",
-    "path": "/api/v1/help/ask",
-    "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
-  },
-  "POST /api/v1/help/ask/stream": {
-    "authenticated": true,
-    "bodyRequired": true,
-    "method": "POST",
-    "path": "/api/v1/help/ask/stream",
-    "queryFormats": {},
-    "required": {},
-    "transport": "separate-stream-or-non-json-client-required"
+    }
   },
   "POST /api/v1/knowledge/query": {
     "authenticated": false,
@@ -2550,8 +2322,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/knowledge/query",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/on-chain/series": {
     "authenticated": true,
@@ -2559,8 +2330,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/on-chain/series",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/on-chain/smart-money/dex-trades": {
     "authenticated": true,
@@ -2568,8 +2338,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/on-chain/smart-money/dex-trades",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/on-chain/smart-money/historical-holdings": {
     "authenticated": true,
@@ -2577,8 +2346,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/on-chain/smart-money/historical-holdings",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/on-chain/smart-money/perp-trades": {
     "authenticated": true,
@@ -2586,8 +2354,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/on-chain/smart-money/perp-trades",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/on-chain/token/{symbol}/dex-trades": {
     "authenticated": true,
@@ -2599,8 +2366,7 @@ export const operationMetadata = {
       "path": [
         "symbol"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "POST /api/v1/on-chain/token/{symbol}/flows": {
     "authenticated": true,
@@ -2612,8 +2378,7 @@ export const operationMetadata = {
       "path": [
         "symbol"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "POST /api/v1/oracle/backtest": {
     "authenticated": true,
@@ -2621,8 +2386,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/oracle/backtest",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/oracle/backtest/async": {
     "authenticated": true,
@@ -2630,8 +2394,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/oracle/backtest/async",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/oracle/backtest/bulk": {
     "authenticated": true,
@@ -2639,8 +2402,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/oracle/backtest/bulk",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/oracle/backtest/validate": {
     "authenticated": true,
@@ -2648,8 +2410,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/oracle/backtest/validate",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/oracle/conditions/preview": {
     "authenticated": true,
@@ -2657,8 +2418,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/oracle/conditions/preview",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/oracle/conditions/studies": {
     "authenticated": true,
@@ -2666,8 +2426,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/oracle/conditions/studies",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/oracle/data/query": {
     "authenticated": true,
@@ -2675,8 +2434,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/oracle/data/query",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/oracle/datasets": {
     "authenticated": true,
@@ -2684,8 +2442,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/oracle/datasets",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/oracle/experiments": {
     "authenticated": true,
@@ -2693,8 +2450,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/oracle/experiments",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/oracle/experiments/estimate": {
     "authenticated": true,
@@ -2702,8 +2458,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/oracle/experiments/estimate",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/oracle/experiments/{experiment_id}/billing-plan": {
     "authenticated": true,
@@ -2715,8 +2470,7 @@ export const operationMetadata = {
       "path": [
         "experiment_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "POST /api/v1/oracle/experiments/{experiment_id}/grants": {
     "authenticated": true,
@@ -2728,8 +2482,7 @@ export const operationMetadata = {
       "path": [
         "experiment_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "POST /api/v1/oracle/experiments/{experiment_id}/launch": {
     "authenticated": true,
@@ -2741,8 +2494,7 @@ export const operationMetadata = {
       "path": [
         "experiment_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "POST /api/v1/oracle/experiments/{experiment_id}/pause": {
     "authenticated": true,
@@ -2754,8 +2506,7 @@ export const operationMetadata = {
       "path": [
         "experiment_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "POST /api/v1/oracle/experiments/{experiment_id}/results/{run_index}/replay/at-original-code": {
     "authenticated": true,
@@ -2769,8 +2520,7 @@ export const operationMetadata = {
         "run_index"
       ],
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "POST /api/v1/oracle/experiments/{experiment_id}/results/{run_index}/replay/at-original-code/async": {
     "authenticated": true,
@@ -2784,8 +2534,7 @@ export const operationMetadata = {
         "run_index"
       ],
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "POST /api/v1/oracle/experiments/{experiment_id}/results/{run_index}/replay/on-latest": {
     "authenticated": true,
@@ -2799,8 +2548,7 @@ export const operationMetadata = {
         "run_index"
       ],
       "query": []
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "POST /api/v1/oracle/experiments/{experiment_id}/validate": {
     "authenticated": true,
@@ -2812,8 +2560,7 @@ export const operationMetadata = {
       "path": [
         "experiment_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "POST /api/v1/oracle/sieve/score": {
     "authenticated": true,
@@ -2821,8 +2568,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/oracle/sieve/score",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/oracle/simulate/generate": {
     "authenticated": true,
@@ -2830,8 +2576,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/oracle/simulate/generate",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/oracle/simulate/run": {
     "authenticated": true,
@@ -2839,8 +2584,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/oracle/simulate/run",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/oracle/templates": {
     "authenticated": true,
@@ -2848,8 +2592,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/oracle/templates",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/organizations/": {
     "authenticated": true,
@@ -2857,8 +2600,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/organizations/",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/organizations/invitations/accept": {
     "authenticated": true,
@@ -2866,8 +2608,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/organizations/invitations/accept",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/organizations/{org_id}/invitations": {
     "authenticated": true,
@@ -2879,8 +2620,7 @@ export const operationMetadata = {
       "path": [
         "org_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "POST /api/v1/signals/": {
     "authenticated": true,
@@ -2888,8 +2628,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/signals/",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/signals/behavior": {
     "authenticated": true,
@@ -2897,8 +2636,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/signals/behavior",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/signals/evaluate-multiple-series": {
     "authenticated": true,
@@ -2906,8 +2644,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/signals/evaluate-multiple-series",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/signals/match": {
     "authenticated": true,
@@ -2915,17 +2652,15 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/signals/match",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/signals/search": {
-    "authenticated": false,
+    "authenticated": true,
     "bodyRequired": true,
     "method": "POST",
     "path": "/api/v1/signals/search",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/signals/validate": {
     "authenticated": true,
@@ -2933,8 +2668,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/signals/validate",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/signals/validate-execution": {
     "authenticated": true,
@@ -2942,8 +2676,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/signals/validate-execution",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/signals/validate-metadata": {
     "authenticated": true,
@@ -2951,8 +2684,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/signals/validate-metadata",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/signals/validate-syntax": {
     "authenticated": true,
@@ -2960,8 +2692,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/signals/validate-syntax",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/signals/validate-trades": {
     "authenticated": true,
@@ -2969,8 +2700,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/signals/validate-trades",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/signals/{signal_name}/evaluate": {
     "authenticated": true,
@@ -2982,8 +2712,7 @@ export const operationMetadata = {
       "path": [
         "signal_name"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "POST /api/v1/signals/{signal_name}/validate-params": {
     "authenticated": true,
@@ -2995,8 +2724,7 @@ export const operationMetadata = {
       "path": [
         "signal_name"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "POST /api/v1/strategies/": {
     "authenticated": true,
@@ -3004,8 +2732,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategies/",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategies/ensure": {
     "authenticated": true,
@@ -3013,8 +2740,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategies/ensure",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategies/{strategy_id}/archive": {
     "authenticated": true,
@@ -3026,8 +2752,7 @@ export const operationMetadata = {
       "path": [
         "strategy_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "POST /api/v1/strategies/{strategy_id}/unarchive": {
     "authenticated": true,
@@ -3039,8 +2764,7 @@ export const operationMetadata = {
       "path": [
         "strategy_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "POST /api/v1/strategy-workflow/build_strategy_for_regime": {
     "authenticated": true,
@@ -3048,8 +2772,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategy-workflow/build_strategy_for_regime",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategy-workflow/create_sweep": {
     "authenticated": true,
@@ -3057,8 +2780,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategy-workflow/create_sweep",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategy-workflow/find_sweep_runs": {
     "authenticated": true,
@@ -3066,8 +2788,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategy-workflow/find_sweep_runs",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategy-workflow/get_backtest": {
     "authenticated": true,
@@ -3075,8 +2796,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategy-workflow/get_backtest",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategy-workflow/get_backtest_trades": {
     "authenticated": true,
@@ -3084,8 +2804,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategy-workflow/get_backtest_trades",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategy-workflow/get_execution_config_schema": {
     "authenticated": true,
@@ -3093,8 +2812,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategy-workflow/get_execution_config_schema",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategy-workflow/get_marketplace_strategy": {
     "authenticated": true,
@@ -3102,8 +2820,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategy-workflow/get_marketplace_strategy",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategy-workflow/get_strategy": {
     "authenticated": true,
@@ -3111,8 +2828,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategy-workflow/get_strategy",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategy-workflow/get_sweep": {
     "authenticated": true,
@@ -3120,8 +2836,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategy-workflow/get_sweep",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategy-workflow/get_sweep_limits": {
     "authenticated": true,
@@ -3129,8 +2844,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategy-workflow/get_sweep_limits",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategy-workflow/get_sweep_run": {
     "authenticated": true,
@@ -3138,8 +2852,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategy-workflow/get_sweep_run",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategy-workflow/launch_sweep": {
     "authenticated": true,
@@ -3147,8 +2860,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategy-workflow/launch_sweep",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategy-workflow/list_backtest_markets": {
     "authenticated": true,
@@ -3156,8 +2868,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategy-workflow/list_backtest_markets",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategy-workflow/list_backtests": {
     "authenticated": true,
@@ -3165,8 +2876,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategy-workflow/list_backtests",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategy-workflow/list_platform_strategies": {
     "authenticated": true,
@@ -3174,8 +2884,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategy-workflow/list_platform_strategies",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategy-workflow/list_run_filters": {
     "authenticated": true,
@@ -3183,8 +2892,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategy-workflow/list_run_filters",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategy-workflow/list_strategies": {
     "authenticated": true,
@@ -3192,8 +2900,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategy-workflow/list_strategies",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategy-workflow/list_sweep_markets": {
     "authenticated": true,
@@ -3201,8 +2908,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategy-workflow/list_sweep_markets",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategy-workflow/list_sweeps": {
     "authenticated": true,
@@ -3210,8 +2916,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategy-workflow/list_sweeps",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategy-workflow/list_trades": {
     "authenticated": true,
@@ -3219,8 +2924,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategy-workflow/list_trades",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategy-workflow/load_skill": {
     "authenticated": true,
@@ -3228,8 +2932,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategy-workflow/load_skill",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategy-workflow/pause_sweep": {
     "authenticated": true,
@@ -3237,8 +2940,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategy-workflow/pause_sweep",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategy-workflow/run_backtest": {
     "authenticated": true,
@@ -3246,8 +2948,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategy-workflow/run_backtest",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategy-workflow/save_strategy": {
     "authenticated": true,
@@ -3255,8 +2956,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategy-workflow/save_strategy",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategy-workflow/screen_candidates": {
     "authenticated": true,
@@ -3264,8 +2964,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategy-workflow/screen_candidates",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategy-workflow/search_marketplace": {
     "authenticated": true,
@@ -3273,8 +2972,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategy-workflow/search_marketplace",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategy-workflow/size_sweep": {
     "authenticated": true,
@@ -3282,8 +2980,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategy-workflow/size_sweep",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategy-workflow/update_strategy": {
     "authenticated": true,
@@ -3291,8 +2988,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategy-workflow/update_strategy",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/strategy-workflow/verify_strategy": {
     "authenticated": true,
@@ -3300,8 +2996,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/strategy-workflow/verify_strategy",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/subscriptions/checkout": {
     "authenticated": true,
@@ -3309,8 +3004,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/subscriptions/checkout",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v1/subscriptions/portal": {
     "authenticated": true,
@@ -3318,8 +3012,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v1/subscriptions/portal",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v2/agent/conversations": {
     "authenticated": true,
@@ -3327,8 +3020,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v2/agent/conversations",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "POST /api/v2/agent/conversations/{session_id}/executions": {
     "authenticated": true,
@@ -3340,8 +3032,7 @@ export const operationMetadata = {
       "path": [
         "session_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "POST /api/v2/agent/conversations/{session_id}/messages": {
     "authenticated": true,
@@ -3353,8 +3044,7 @@ export const operationMetadata = {
       "path": [
         "session_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "POST /api/v2/backtests/": {
     "authenticated": true,
@@ -3362,8 +3052,7 @@ export const operationMetadata = {
     "method": "POST",
     "path": "/api/v2/backtests/",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "PUT /api/v1/ai-copilot/conversations/{session_id}/rename": {
     "authenticated": true,
@@ -3375,8 +3064,7 @@ export const operationMetadata = {
       "path": [
         "session_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "PUT /api/v1/auth/profile": {
     "authenticated": true,
@@ -3384,8 +3072,7 @@ export const operationMetadata = {
     "method": "PUT",
     "path": "/api/v1/auth/profile",
     "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    "required": {}
   },
   "PUT /api/v1/oracle/experiments/{experiment_id}": {
     "authenticated": true,
@@ -3397,8 +3084,7 @@ export const operationMetadata = {
       "path": [
         "experiment_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "PUT /api/v1/organizations/{org_id}": {
     "authenticated": true,
@@ -3410,8 +3096,7 @@ export const operationMetadata = {
       "path": [
         "org_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "PUT /api/v1/organizations/{org_id}/members/{user_id}": {
     "authenticated": true,
@@ -3424,8 +3109,7 @@ export const operationMetadata = {
         "org_id",
         "user_id"
       ]
-    },
-    "transport": "json-or-no-content"
+    }
   },
   "PUT /api/v1/strategies/{strategy_id}": {
     "authenticated": true,
@@ -3437,18 +3121,6 @@ export const operationMetadata = {
       "path": [
         "strategy_id"
       ]
-    },
-    "transport": "json-or-no-content"
-  }
-} as const;
-export const compatibilityOperationMetadata = {
-  "POST /api/v1/backtests/": {
-    "authenticated": true,
-    "bodyRequired": true,
-    "method": "POST",
-    "path": "/api/v1/backtests/",
-    "queryFormats": {},
-    "required": {},
-    "transport": "json-or-no-content"
+    }
   }
 } as const;

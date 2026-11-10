@@ -17,6 +17,21 @@ def literal(value):
     return json.dumps(value, ensure_ascii=True, separators=(",", ":"))
 
 
+def compatible_core_models(models):
+    """Keep public model lookups and optional fields from the 1.1 SDK."""
+    models = dict(models)
+    models.setdefault("api1.DefiProResponse", {
+        "type": "object",
+        "properties": {"count": {"type": "integer"}, "data": {}, "success": {"type": "boolean"}},
+    })
+    name = "api1.SignalTriggerResult"
+    if name in models:
+        model = models[name]
+        properties = {"market_data": {"type": "array", "items": {}}, **model.get("properties", {})}
+        models[name] = {**model, "properties": properties}
+    return models
+
+
 def schema_type(schema, namespace, authoring_aliases=None):
     if not isinstance(schema, dict) or not schema:
         return "unknown"
@@ -160,6 +175,8 @@ def generate():
         digests[filename] = hashlib.sha256(raw).hexdigest()
         document = json.loads(raw)
         models = document.get("definitions", document.get("components", {}).get("schemas", {}))
+        if namespace == "CoreModels":
+            models = compatible_core_models(models)
         definitions.append(f"export interface {namespace} {{")
         definitions.extend(
             f"  {literal(name)}: {schema_type(schema, namespace, aliases)};" for name, schema in sorted(models.items())

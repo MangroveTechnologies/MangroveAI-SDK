@@ -1827,23 +1827,6 @@
         },
         "type": "object"
       },
-      "api1.DefiProResponse": {
-        "properties": {
-          "count": {
-            "description": "Number of records (when list-shaped)",
-            "type": "integer"
-          },
-          "data": {
-            "description": "Full provider response",
-            "type": "object",
-            "x-mangrove-raw-json": true
-          },
-          "success": {
-            "type": "boolean"
-          }
-        },
-        "type": "object"
-      },
       "api1.DeleteResponse": {
         "properties": {
           "error": {
@@ -2002,6 +1985,63 @@
         },
         "type": "object"
       },
+      "api1.EtfFlowsResponse": {
+        "properties": {
+          "count": {
+            "description": "Records in this page",
+            "type": "integer"
+          },
+          "data": {
+            "description": "Asset-days in this page, newest first",
+            "items": {
+              "type": "object",
+              "x-mangrove-raw-json": true
+            },
+            "type": "array"
+          },
+          "has_more": {
+            "type": "boolean"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "next_offset": {
+            "description": "Offset of the next page, or null",
+            "type": "integer"
+          },
+          "offset": {
+            "type": "integer"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "skipped": {
+            "description": "Provider records that could not be read",
+            "type": "integer"
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "total": {
+            "description": "Records matching the filters across all pages",
+            "type": "integer"
+          },
+          "totals": {
+            "description": "Per-asset totals across the whole window",
+            "items": {
+              "type": "object",
+              "x-mangrove-raw-json": true
+            },
+            "type": "array"
+          },
+          "window": {
+            "description": "from/to dates (UTC) and lookback_days evaluated",
+            "type": "object",
+            "x-mangrove-raw-json": true
+          }
+        },
+        "type": "object"
+      },
       "api1.EvaluateMultipleSeriesRequest": {
         "properties": {
           "chart_timeframe": {
@@ -2014,8 +2054,13 @@
             "type": "string"
           },
           "end_date": {
-            "description": "Live-mode chart end timestamp; required unless dataset_key is provided",
+            "description": "Live-mode chart end timestamp; with start_date, or omit both for the latest 500 bars",
             "type": "string"
+          },
+          "include_chart": {
+            "default": false,
+            "description": "Also return chart bars (latest 2,000 at most) and trigger_indices",
+            "type": "boolean"
           },
           "market_data_venue": {
             "description": "Live-data exchange; supply with quote_token",
@@ -2038,7 +2083,7 @@
             "type": "array"
           },
           "start_date": {
-            "description": "Live-mode chart start timestamp; required unless dataset_key is provided",
+            "description": "Live-mode chart start timestamp; with end_date, or omit both for the latest 500 bars",
             "type": "string"
           },
           "symbol": {
@@ -2050,8 +2095,12 @@
       },
       "api1.EvaluateMultipleSeriesResponse": {
         "properties": {
+          "chart_bars": {
+            "description": "Bars in the evaluated chart window",
+            "type": "integer"
+          },
           "chart_data": {
-            "description": "OHLCV data for chart rendering",
+            "description": "OHLCV bars, only with include_chart (latest 2,000 at most)",
             "items": {
               "type": "object",
               "x-mangrove-raw-json": true
@@ -2061,6 +2110,10 @@
           "chart_timeframe": {
             "description": "Chart timeframe",
             "type": "string"
+          },
+          "chart_truncated": {
+            "description": "Whether chart_data was cut to the latest 2,000 bars",
+            "type": "boolean"
           },
           "end_date": {
             "description": "Chart range end",
@@ -4084,6 +4137,50 @@
         ],
         "type": "object"
       },
+      "api1.LendingRatesResponse": {
+        "properties": {
+          "count": {
+            "description": "Records in this page",
+            "type": "integer"
+          },
+          "data": {
+            "description": "Lending pools in this page, largest TVL first",
+            "items": {
+              "type": "object",
+              "x-mangrove-raw-json": true
+            },
+            "type": "array"
+          },
+          "has_more": {
+            "type": "boolean"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "next_offset": {
+            "description": "Offset of the next page, or null",
+            "type": "integer"
+          },
+          "offset": {
+            "type": "integer"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "skipped": {
+            "description": "Provider records that could not be read",
+            "type": "integer"
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "total": {
+            "description": "Records matching the filters across all pages",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "api1.LocalDeploymentResponse": {
         "description": "A validated definition snapshot; this read never activates trading or copies execution state.",
         "properties": {
@@ -4543,6 +4640,10 @@
       },
       "api1.OHLCVResponse": {
         "properties": {
+          "daily_bars": {
+            "description": "Daily bars before any weekly roll-up",
+            "type": "integer"
+          },
           "data": {
             "items": {
               "$ref": "#/components/schemas/api1.OhlcvCandle"
@@ -4551,6 +4652,10 @@
           },
           "data_points": {
             "type": "integer"
+          },
+          "interval": {
+            "description": "1d, or 1w when more than 1,000 daily bars were rolled up",
+            "type": "string"
           },
           "success": {
             "type": "boolean"
@@ -4899,6 +5004,50 @@
           "user_name": {
             "description": "User display name",
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "api1.PerpFundingResponse": {
+        "properties": {
+          "count": {
+            "description": "Records in this page",
+            "type": "integer"
+          },
+          "data": {
+            "description": "Perp markets in this page, largest open interest first",
+            "items": {
+              "type": "object",
+              "x-mangrove-raw-json": true
+            },
+            "type": "array"
+          },
+          "has_more": {
+            "type": "boolean"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "next_offset": {
+            "description": "Offset of the next page, or null",
+            "type": "integer"
+          },
+          "offset": {
+            "type": "integer"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "skipped": {
+            "description": "Provider records that could not be read",
+            "type": "integer"
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "total": {
+            "description": "Records matching the filters across all pages",
+            "type": "integer"
           }
         },
         "type": "object"
@@ -5689,14 +5838,6 @@
             "description": "Explicit per-series failure, when present",
             "type": "string"
           },
-          "market_data": {
-            "description": "OHLCV data for this signal",
-            "items": {
-              "type": "object",
-              "x-mangrove-raw-json": true
-            },
-            "type": "array"
-          },
           "signal_name": {
             "description": "Name of the signal",
             "type": "string"
@@ -5709,19 +5850,27 @@
             "description": "Timeframe used for this signal",
             "type": "string"
           },
+          "trigger_count": {
+            "description": "Triggers inside the chart window",
+            "type": "integer"
+          },
           "trigger_indices": {
-            "description": "Bar indices where signal triggers",
+            "description": "Bar indices of the latest 200 triggers; only with include_chart",
             "items": {
               "type": "integer"
             },
             "type": "array"
           },
           "trigger_timestamps": {
-            "description": "ISO timestamps where signal triggers",
+            "description": "ISO timestamps of the latest 200 triggers",
             "items": {
               "type": "string"
             },
             "type": "array"
+          },
+          "triggers_truncated": {
+            "description": "Whether trigger_timestamps lists fewer than trigger_count",
+            "type": "boolean"
           }
         },
         "type": "object"
@@ -6893,6 +7042,55 @@
         },
         "type": "object"
       },
+      "api1.TokenUnlocksResponse": {
+        "properties": {
+          "count": {
+            "description": "Records in this page",
+            "type": "integer"
+          },
+          "data": {
+            "description": "Tokens in this page, soonest or largest unlock first",
+            "items": {
+              "type": "object",
+              "x-mangrove-raw-json": true
+            },
+            "type": "array"
+          },
+          "has_more": {
+            "type": "boolean"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "next_offset": {
+            "description": "Offset of the next page, or null",
+            "type": "integer"
+          },
+          "offset": {
+            "type": "integer"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "skipped": {
+            "description": "Provider records that could not be read",
+            "type": "integer"
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "total": {
+            "description": "Records matching the filters across all pages",
+            "type": "integer"
+          },
+          "window": {
+            "description": "from/to (UTC) and days_ahead evaluated",
+            "type": "object",
+            "x-mangrove-raw-json": true
+          }
+        },
+        "type": "object"
+      },
       "api1.Trade": {
         "properties": {
           "account_id": {
@@ -6981,6 +7179,50 @@
         "required": [
           "valid"
         ],
+        "type": "object"
+      },
+      "api1.TreasuriesResponse": {
+        "properties": {
+          "count": {
+            "description": "Records in this page",
+            "type": "integer"
+          },
+          "data": {
+            "description": "Treasuries in this page, largest holdings first",
+            "items": {
+              "type": "object",
+              "x-mangrove-raw-json": true
+            },
+            "type": "array"
+          },
+          "has_more": {
+            "type": "boolean"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "next_offset": {
+            "description": "Offset of the next page, or null",
+            "type": "integer"
+          },
+          "offset": {
+            "type": "integer"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "skipped": {
+            "description": "Provider records that could not be read",
+            "type": "integer"
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "total": {
+            "description": "Records matching the filters across all pages",
+            "type": "integer"
+          }
+        },
         "type": "object"
       },
       "api1.TrendingAssetsResponse": {
@@ -11036,7 +11278,7 @@
             }
           },
           {
-            "description": "ISO end after start_date (required). YYYY-MM-DD includes that completed UTC day; exact timestamps are passed through unchanged.",
+            "description": "ISO end after start_date (required). YYYY-MM-DD covers that whole UTC day; today stops at the end of yesterday, the last complete day; exact timestamps are passed through unchanged.",
             "in": "query",
             "name": "end_date",
             "schema": {
@@ -12161,7 +12403,7 @@
             }
           },
           {
-            "description": "Number of days (default: 30)",
+            "description": "Number of days (default: 30, maximum: 3650); more than 1,000 daily bars come back weekly",
             "in": "query",
             "name": "days",
             "required": false,
@@ -13106,16 +13348,67 @@
       "get": {
         "description": "Pro.",
         "operationId": "api1_get_etf_flows",
+        "parameters": [
+          {
+            "description": "Maximum results.",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Number of days of history to request.",
+            "in": "query",
+            "name": "lookback_days",
+            "required": false,
+            "schema": {
+              "default": 30,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Pagination offset in the result units documented by the tool; zero starts the first page.",
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Asset symbol, e.g. BTC or ETH.",
+            "in": "query",
+            "name": "symbol",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api1.DefiProResponse"
+                  "$ref": "#/components/schemas/api1.EtfFlowsResponse"
                 }
               }
             },
             "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api1.DefiError"
+                }
+              }
+            },
+            "description": "Invalid arguments"
           },
           "402": {
             "content": {
@@ -13162,7 +13455,7 @@
           },
           {}
         ],
-        "summary": "Crypto ETF net flows (institutional flow signal)",
+        "summary": "Daily spot ETF net flows with window totals, filtered and paged",
         "tags": [
           "defi"
         ],
@@ -13190,16 +13483,84 @@
       "get": {
         "description": "Pro.",
         "operationId": "api1_get_lending_borrow_rates",
+        "parameters": [
+          {
+            "description": "Chain name or slug, e.g. ethereum or base.",
+            "in": "query",
+            "name": "chain",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Maximum results.",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Leave out pools with less than this total value locked, in USD.",
+            "in": "query",
+            "name": "min_tvl_usd",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "description": "Pagination offset in the result units documented by the tool; zero starts the first page.",
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Protocol or token name, DefiLlama slug or CoinGecko id, case-insensitive exact match.",
+            "in": "query",
+            "name": "protocol",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Asset symbol, e.g. BTC or ETH.",
+            "in": "query",
+            "name": "symbol",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api1.DefiProResponse"
+                  "$ref": "#/components/schemas/api1.LendingRatesResponse"
                 }
               }
             },
             "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api1.DefiError"
+                }
+              }
+            },
+            "description": "Invalid arguments"
           },
           "402": {
             "content": {
@@ -13246,7 +13607,7 @@
           },
           {}
         ],
-        "summary": "Lending-pool borrow rates (rate-spread features)",
+        "summary": "Lending-pool supply and borrow rates, filtered and paged",
         "tags": [
           "defi"
         ],
@@ -13274,16 +13635,66 @@
       "get": {
         "description": "Pro.",
         "operationId": "api1_get_perp_funding",
+        "parameters": [
+          {
+            "description": "Maximum results.",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Pagination offset in the result units documented by the tool; zero starts the first page.",
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Asset symbol, e.g. BTC or ETH.",
+            "in": "query",
+            "name": "symbol",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Exchange the perp trades on, e.g. Binance or OKX, case-insensitive.",
+            "in": "query",
+            "name": "venue",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api1.DefiProResponse"
+                  "$ref": "#/components/schemas/api1.PerpFundingResponse"
                 }
               }
             },
             "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api1.DefiError"
+                }
+              }
+            },
+            "description": "Invalid arguments"
           },
           "402": {
             "content": {
@@ -13330,7 +13741,7 @@
           },
           {}
         ],
-        "summary": "Aggregated DeFi perpetual funding rates across venues",
+        "summary": "Perp funding rates by venue and market, filtered and paged",
         "tags": [
           "defi"
         ],
@@ -13525,16 +13936,92 @@
       "get": {
         "description": "Pro.",
         "operationId": "api1_get_token_unlocks",
+        "parameters": [
+          {
+            "description": "Window length in days from now. Without symbol or protocol, only tokens with a scheduled unlock in this window are returned.",
+            "in": "query",
+            "name": "days_ahead",
+            "required": false,
+            "schema": {
+              "default": 30,
+              "maximum": 365,
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Maximum results.",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Pagination offset in the result units documented by the tool; zero starts the first page.",
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Protocol or token name, DefiLlama slug or CoinGecko id, case-insensitive exact match.",
+            "in": "query",
+            "name": "protocol",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "next_unlock (soonest first) or cliff_value_usd (largest USD value of cliff unlocks in the window first).",
+            "in": "query",
+            "name": "rank_by",
+            "required": false,
+            "schema": {
+              "default": "next_unlock",
+              "enum": [
+                "next_unlock",
+                "cliff_value_usd"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "Asset symbol, e.g. BTC or ETH.",
+            "in": "query",
+            "name": "symbol",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api1.DefiProResponse"
+                  "$ref": "#/components/schemas/api1.TokenUnlocksResponse"
                 }
               }
             },
             "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api1.DefiError"
+                }
+              }
+            },
+            "description": "Invalid arguments"
           },
           "402": {
             "content": {
@@ -13581,7 +14068,7 @@
           },
           {}
         ],
-        "summary": "Token unlock schedules + supply metrics (supply-shock signal)",
+        "summary": "Upcoming token unlocks and supply metrics, filtered and paged",
         "tags": [
           "defi"
         ],
@@ -13609,16 +14096,66 @@
       "get": {
         "description": "Pro.",
         "operationId": "api1_get_treasuries",
+        "parameters": [
+          {
+            "description": "Maximum results.",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Pagination offset in the result units documented by the tool; zero starts the first page.",
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Protocol or token name, DefiLlama slug or CoinGecko id, case-insensitive exact match.",
+            "in": "query",
+            "name": "protocol",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Asset symbol, e.g. BTC or ETH.",
+            "in": "query",
+            "name": "symbol",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api1.DefiProResponse"
+                  "$ref": "#/components/schemas/api1.TreasuriesResponse"
                 }
               }
             },
             "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api1.DefiError"
+                }
+              }
+            },
+            "description": "Invalid arguments"
           },
           "402": {
             "content": {
@@ -13665,7 +14202,7 @@
           },
           {}
         ],
-        "summary": "Protocol treasury holdings (crowd-positioning signal)",
+        "summary": "Protocol treasury holdings, filtered and paged",
         "tags": [
           "defi"
         ],
@@ -17666,6 +18203,46 @@
     "/api/v1/signals/playground-data/{dataset_key}": {
       "get": {
         "operationId": "api1_get_playground_data",
+        "parameters": [
+          {
+            "description": "ISO end of the window.",
+            "in": "query",
+            "name": "end_date",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Maximum results.",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 500,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Pagination offset in the result units documented by the tool; zero starts the first page.",
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "ISO start of the window, e.g. 2026-01-01.",
+            "in": "query",
+            "name": "start_date",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success"
@@ -17676,7 +18253,7 @@
             "MangroveBearer": []
           }
         ],
-        "summary": "Return OHLCV chart data for a specific playground dataset",
+        "summary": "Return one page of OHLCV bars from a playground dataset, newest page first",
         "tags": [
           "signals"
         ]
@@ -20012,6 +20589,165 @@
         }
       }
     },
+    "/api/v1/strategy-workflow/delete_strategy": {
+      "post": {
+        "operationId": "api1_post_delete_strategy_operation",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Payment Required",
+            "headers": {
+              "PAYMENT-REQUIRED": {
+                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "MangroveBearer": []
+          },
+          {}
+        ],
+        "summary": "Post delete strategy operation",
+        "tags": [
+          "strategy-workflow"
+        ],
+        "x-mangrove-request-schema": {
+          "additionalProperties": false,
+          "properties": {
+            "strategy_id": {
+              "description": "The strategy's UUID.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "strategy_id"
+          ],
+          "type": "object"
+        },
+        "x-payment-info": {
+          "price": {
+            "amount": "0.005000",
+            "currency": "USD",
+            "mode": "fixed"
+          },
+          "protocols": [
+            {
+              "x402": {
+                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                "network": "eip155:8453",
+                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
+                "scheme": "exact",
+                "x402Version": 2
+              }
+            }
+          ]
+        }
+      }
+    },
+    "/api/v1/strategy-workflow/evaluate_strategy": {
+      "post": {
+        "description": "x402 payer wallets get 30 free calls per UTC day on this operation; the listed price applies after that.",
+        "operationId": "api1_post_evaluate_strategy_operation",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Payment Required",
+            "headers": {
+              "PAYMENT-REQUIRED": {
+                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "MangroveBearer": []
+          },
+          {}
+        ],
+        "summary": "Post evaluate strategy operation",
+        "tags": [
+          "strategy-workflow"
+        ],
+        "x-mangrove-request-schema": {
+          "additionalProperties": false,
+          "properties": {
+            "strategy_id": {
+              "description": "The strategy's UUID.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "strategy_id"
+          ],
+          "type": "object"
+        },
+        "x-payment-info": {
+          "price": {
+            "amount": "0.050000",
+            "currency": "USD",
+            "mode": "fixed"
+          },
+          "protocols": [
+            {
+              "x402": {
+                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                "network": "eip155:8453",
+                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
+                "scheme": "exact",
+                "x402Version": 2
+              }
+            }
+          ]
+        }
+      }
+    },
     "/api/v1/strategy-workflow/find_sweep_runs": {
       "post": {
         "operationId": "api1_post_find_sweep_runs_operation",
@@ -20784,6 +21520,58 @@
         }
       }
     },
+    "/api/v1/strategy-workflow/get_trades_for_strategy": {
+      "post": {
+        "operationId": "api1_post_get_trades_for_strategy_operation",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "security": [
+          {
+            "MangroveBearer": []
+          }
+        ],
+        "summary": "Post get trades for strategy operation",
+        "tags": [
+          "strategy-workflow"
+        ],
+        "x-mangrove-request-schema": {
+          "additionalProperties": false,
+          "properties": {
+            "limit": {
+              "default": 50,
+              "description": "Maximum results.",
+              "type": "integer"
+            },
+            "offset": {
+              "default": 0,
+              "description": "Pagination offset in the result units documented by the tool; zero starts the first page.",
+              "type": "integer"
+            },
+            "strategy_id": {
+              "description": "The strategy's UUID.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "strategy_id"
+          ],
+          "type": "object"
+        }
+      }
+    },
     "/api/v1/strategy-workflow/launch_sweep": {
       "post": {
         "operationId": "api1_post_launch_sweep_operation",
@@ -20987,6 +21775,63 @@
         }
       }
     },
+    "/api/v1/strategy-workflow/list_evaluations": {
+      "post": {
+        "operationId": "api1_post_list_evaluations_operation",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "security": [
+          {
+            "MangroveBearer": []
+          }
+        ],
+        "summary": "Post list evaluations operation",
+        "tags": [
+          "strategy-workflow"
+        ],
+        "x-mangrove-request-schema": {
+          "additionalProperties": false,
+          "properties": {
+            "include_details": {
+              "default": false,
+              "description": "Also return each evaluation's market_snapshot, sdk_response and order_intents.",
+              "type": "boolean"
+            },
+            "limit": {
+              "default": 20,
+              "description": "Maximum results.",
+              "type": "integer"
+            },
+            "offset": {
+              "default": 0,
+              "description": "Pagination offset in the result units documented by the tool; zero starts the first page.",
+              "type": "integer"
+            },
+            "strategy_id": {
+              "description": "The strategy's UUID.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "strategy_id"
+          ],
+          "type": "object"
+        }
+      }
+    },
     "/api/v1/strategy-workflow/list_platform_strategies": {
       "post": {
         "operationId": "api1_post_list_platform_strategies_operation",
@@ -21025,6 +21870,102 @@
           },
           "required": [],
           "type": "object"
+        }
+      }
+    },
+    "/api/v1/strategy-workflow/list_positions": {
+      "post": {
+        "operationId": "api1_post_list_positions_operation",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Payment Required",
+            "headers": {
+              "PAYMENT-REQUIRED": {
+                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "MangroveBearer": []
+          },
+          {}
+        ],
+        "summary": "Post list positions operation",
+        "tags": [
+          "strategy-workflow"
+        ],
+        "x-mangrove-request-schema": {
+          "additionalProperties": false,
+          "properties": {
+            "asset": {
+              "description": "Asset symbol, e.g. BTC or ETH.",
+              "type": "string"
+            },
+            "limit": {
+              "default": 50,
+              "description": "Maximum results.",
+              "type": "integer"
+            },
+            "offset": {
+              "default": 0,
+              "description": "Pagination offset in the result units documented by the tool; zero starts the first page.",
+              "type": "integer"
+            },
+            "open_only": {
+              "default": true,
+              "description": "Leave out positions that have already been closed.",
+              "type": "boolean"
+            },
+            "strategy_id": {
+              "description": "The strategy's UUID.",
+              "type": "string"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "x-payment-info": {
+          "price": {
+            "amount": "0.001000",
+            "currency": "USD",
+            "mode": "fixed"
+          },
+          "protocols": [
+            {
+              "x402": {
+                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                "network": "eip155:8453",
+                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
+                "scheme": "exact",
+                "x402Version": 2
+              }
+            }
+          ]
         }
       }
     },
@@ -21103,6 +22044,11 @@
             "limit": {
               "default": 20,
               "description": "Maximum results.",
+              "type": "integer"
+            },
+            "offset": {
+              "default": 0,
+              "description": "Pagination offset in the result units documented by the tool; zero starts the first page.",
               "type": "integer"
             }
           },
@@ -21277,6 +22223,11 @@
             "limit": {
               "default": 100,
               "description": "Maximum results.",
+              "type": "integer"
+            },
+            "offset": {
+              "default": 0,
+              "description": "Pagination offset in the result units documented by the tool; zero starts the first page.",
               "type": "integer"
             },
             "outcome": {

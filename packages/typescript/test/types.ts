@@ -16,6 +16,11 @@ const invalidSignalMode: CoreModels['api1.Signal']['evaluation_mode'] = 123;
 // @ts-expect-error The optional provider is nullable text, not a number.
 const invalidSignalProvider: CoreModels['api1.Signal']['data_provider'] = 123;
 void invalidSignalMode; void invalidSignalProvider;
+// Types exported by SDK 1.1 remain usable with the refreshed server schema.
+const legacyDefi: CoreModels['api1.DefiProResponse'] = { count: 1, data: {}, success: true };
+declare const seriesSignal: CoreModels['api1.SignalTriggerResult'];
+const legacyMarketData: unknown[] | undefined = seriesSignal.market_data;
+void legacyDefi; void legacyMarketData;
 const metrics: Promise<UsageMetrics> = sdk.users.getMyMetrics();
 void metrics;
 void sdk.request('GET /api/v1/strategies/{strategy_id}', { path: { strategy_id: 'fixture' } });

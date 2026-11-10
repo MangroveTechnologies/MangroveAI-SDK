@@ -12,7 +12,7 @@
     },
     {
       "path": "openapi.json",
-      "sha256": "b8c713a36a5f04dd6eed2125a317abfe9ab7a2a9c1e06b3689d800aad7ce5c49"
+      "sha256": "b71338fcfd6c8a8e6f80a87a408257c4b49f46defa10165a9999e381a53a1ca9"
     },
     {
       "path": "oracle-proxy-openapi.json",
@@ -1910,6 +1910,28 @@
     },
     {
       "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/delete_strategy",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/evaluate_strategy",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
       "operation": "POST /api/v1/strategy-workflow/find_sweep_runs",
       "python_direct_bindings": [
         "StrategyWorkflowService.find_sweep_runs"
@@ -2027,6 +2049,17 @@
     },
     {
       "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/get_trades_for_strategy",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
       "operation": "POST /api/v1/strategy-workflow/launch_sweep",
       "python_direct_bindings": [
         "StrategyWorkflowService.launch_sweep"
@@ -2066,7 +2099,29 @@
     },
     {
       "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/list_evaluations",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
       "operation": "POST /api/v1/strategy-workflow/list_platform_strategies",
+      "python_direct_bindings": [],
+      "request": "declared",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/strategy-workflow/list_positions",
       "python_direct_bindings": [],
       "request": "declared",
       "response": "opaque-or-no-content",

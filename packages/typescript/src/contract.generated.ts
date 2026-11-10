@@ -62,8 +62,9 @@ export interface CoreModels {
   "api1.EnsureStrategyExistingResponse": { "created"?: boolean; "strategy"?: CoreModels["api1.StrategyDetail"]; "success"?: boolean; [key: string]: unknown; };
   "api1.Error": { "code": string; "correlation_id"?: string; "error": string; "message": string; "retry_after"?: number; [key: string]: unknown; };
   "api1.ErrorResponse": { "error"?: string; [key: string]: unknown; };
-  "api1.EvaluateMultipleSeriesRequest": { "chart_timeframe"?: string; "dataset_key"?: string; "end_date"?: string; "market_data_venue"?: string; "provider"?: string; "quote_token"?: string; "signals"?: Array<CoreModels["api1.EvaluateMultipleSeriesSignal"]>; "start_date"?: string; "symbol"?: string; [key: string]: unknown; };
-  "api1.EvaluateMultipleSeriesResponse": { "chart_data"?: Array<unknown>; "chart_timeframe"?: string; "end_date"?: string; "signal_results"?: Array<CoreModels["api1.SignalTriggerResult"]>; "start_date"?: string; [key: string]: unknown; };
+  "api1.EtfFlowsResponse": { "count"?: number; "data"?: Array<unknown>; "has_more"?: boolean; "limit"?: number; "next_offset"?: number; "offset"?: number; "provider"?: string; "skipped"?: number; "success"?: boolean; "total"?: number; "totals"?: Array<unknown>; "window"?: unknown; [key: string]: unknown; };
+  "api1.EvaluateMultipleSeriesRequest": { "chart_timeframe"?: string; "dataset_key"?: string; "end_date"?: string; "include_chart"?: boolean; "market_data_venue"?: string; "provider"?: string; "quote_token"?: string; "signals"?: Array<CoreModels["api1.EvaluateMultipleSeriesSignal"]>; "start_date"?: string; "symbol"?: string; [key: string]: unknown; };
+  "api1.EvaluateMultipleSeriesResponse": { "chart_bars"?: number; "chart_data"?: Array<unknown>; "chart_timeframe"?: string; "chart_truncated"?: boolean; "end_date"?: string; "signal_results"?: Array<CoreModels["api1.SignalTriggerResult"]>; "start_date"?: string; [key: string]: unknown; };
   "api1.EvaluateMultipleSeriesSignal": { "name": string; "params"?: unknown; "timeframe"?: string; [key: string]: unknown; };
   "api1.EvaluateObjectRequest": { "open_positions"?: Array<unknown>; "persist"?: boolean; "strategy": (CoreModels["api1.StrategyObject"]); [key: string]: unknown; };
   "api1.EvaluateRequest": { "persist"?: boolean; [key: string]: unknown; };
@@ -90,6 +91,7 @@ export interface CoreModels {
   "api1.InfluenceScoreResponse": { "data"?: unknown; "followers"?: number; "score"?: number; "success"?: boolean; "username"?: string; [key: string]: unknown; };
   "api1.Invitation": { "created_at"?: string; "email"?: string; "expires_at"?: string; "id"?: string; "invited_by"?: string; "inviter_email"?: string; "inviter_name"?: string; "org_id"?: string; "role"?: string; "status"?: string; [key: string]: unknown; };
   "api1.InviteMember": { "email": string; "role"?: string; [key: string]: unknown; };
+  "api1.LendingRatesResponse": { "count"?: number; "data"?: Array<unknown>; "has_more"?: boolean; "limit"?: number; "next_offset"?: number; "offset"?: number; "provider"?: string; "skipped"?: number; "success"?: boolean; "total"?: number; [key: string]: unknown; };
   "api1.LocalDeploymentResponse": { "activation_blocker": string | null; "activation_ready": boolean; "asset_class": "crypto" | "equity"; "contract_version": 1; "fingerprint": string; "name": string | null; "owner": { "org_id": string; "user_id": string; [key: string]: unknown; }; "snapshot": { [key: string]: unknown; }; "strategy_id": string; "timeframe": "1m" | "5m" | "15m" | "1h" | "4h" | "1d"; [key: string]: unknown; };
   "api1.LoginErrorResponse": { "error"?: string; "success"?: boolean; [key: string]: unknown; };
   "api1.LoginRequest": { "firebase_token": string; [key: string]: unknown; };
@@ -106,7 +108,7 @@ export interface CoreModels {
   "api1.MetadataValidationResult": { "errors"?: Array<string>; "valid": boolean; [key: string]: unknown; };
   "api1.MetricsResponse": { "metrics"?: CoreModels["api1.UserMetrics"]; "success"?: boolean; [key: string]: unknown; };
   "api1.OAuthErrorResponse": { "error"?: string; "success"?: boolean; [key: string]: unknown; };
-  "api1.OHLCVResponse": { "data"?: Array<CoreModels["api1.OhlcvCandle"]>; "data_points"?: number; "success"?: boolean; "symbol"?: string; [key: string]: unknown; };
+  "api1.OHLCVResponse": { "daily_bars"?: number; "data"?: Array<CoreModels["api1.OhlcvCandle"]>; "data_points"?: number; "interval"?: string; "success"?: boolean; "symbol"?: string; [key: string]: unknown; };
   "api1.OhlcvCandle": { "close"?: number; "high"?: number; "low"?: number; "open"?: number; "timestamp"?: string; "volume"?: number; [key: string]: unknown; };
   "api1.OnChainError": { "code"?: string; "error"?: string; "message"?: string; [key: string]: unknown; };
   "api1.OnChainSeriesBody": { "chain"?: string; "date_range"?: unknown; "interval"?: string; "metrics": Array<string>; "provider"?: string; "symbol": string; "top_n"?: number; [key: string]: unknown; };
@@ -116,6 +118,7 @@ export interface CoreModels {
   "api1.OrderResponse": { "action"?: "enter" | "exit"; "asset"?: string; "entry_reason"?: string; "exit_reason"?: string; "history"?: (CoreModels["api1.OrderHistory"]); "is_exit"?: boolean; "order_id"?: string; "order_type"?: "market" | "limit" | "stop_loss" | "take_profit"; "position_id"?: string; "position_size"?: number; "price"?: number; "side"?: "enter_long" | "exit_long" | "enter_short" | "exit_short"; "status"?: "inactive" | "pending" | "filled" | "cancelled"; [key: string]: unknown; };
   "api1.Organization": { "created_at"?: string; "id"?: string; "info"?: unknown; "is_active"?: boolean; "name": string; "ria_flag"?: boolean; "settings"?: unknown; "suspended_at"?: string; "updated_at"?: string; [key: string]: unknown; };
   "api1.OrganizationMember": { "id"?: string; "invited_by"?: string; "joined_at"?: string; "org_id"?: string; "role"?: string; "user_email"?: string; "user_id"?: string; "user_name"?: string; [key: string]: unknown; };
+  "api1.PerpFundingResponse": { "count"?: number; "data"?: Array<unknown>; "has_more"?: boolean; "limit"?: number; "next_offset"?: number; "offset"?: number; "provider"?: string; "skipped"?: number; "success"?: boolean; "total"?: number; [key: string]: unknown; };
   "api1.PortfolioEntry": { "asset"?: string; "execution_state"?: (CoreModels["api1.PortfolioExecutionState"]); "last_evaluated_at"?: string; "open_positions_count"?: number; "recent_trades"?: Array<CoreModels["api1.RecentTradeEntry"]>; "strategy_id"?: string; "strategy_name"?: string; [key: string]: unknown; };
   "api1.PortfolioExecutionState": { "account_value"?: number; "cash_balance"?: number; "num_open_positions"?: number; "total_trades"?: number; [key: string]: unknown; };
   "api1.PortfolioResponse": { "missing"?: Array<string>; "results"?: Array<CoreModels["api1.PortfolioEntry"]>; [key: string]: unknown; };
@@ -143,7 +146,7 @@ export interface CoreModels {
   "api1.SignalListFilter": { "after_filter"?: number; "before_filter"?: number; "regime_direction"?: string; "role"?: string; [key: string]: unknown; };
   "api1.SignalListResponse": { "filter"?: CoreModels["api1.SignalListFilter"]; "has_more"?: boolean; "limit"?: number; "next_offset"?: number; "offset"?: number; "signals"?: Array<CoreModels["api1.Signal"]>; "total"?: number; [key: string]: unknown; };
   "api1.SignalMetadata": { "description"?: string; "params"?: unknown; "requires"?: Array<string>; "rule_name": string; [key: string]: unknown; };
-  "api1.SignalTriggerResult": { "bars_fetched"?: number; "error"?: string; "market_data"?: Array<unknown>; "signal_name"?: string; "signal_type"?: string; "timeframe"?: string; "trigger_indices"?: Array<number>; "trigger_timestamps"?: Array<string>; [key: string]: unknown; };
+  "api1.SignalTriggerResult": { "bars_fetched"?: number; "error"?: string; "market_data"?: Array<unknown>; "signal_name"?: string; "signal_type"?: string; "timeframe"?: string; "trigger_count"?: number; "trigger_indices"?: Array<number>; "trigger_timestamps"?: Array<string>; "triggers_truncated"?: boolean; [key: string]: unknown; };
   "api1.SignalValidationResponse": { "errors"?: Array<string>; "valid": boolean; [key: string]: unknown; };
   "api1.SmartMoneyDatedQueryBody": { "chains"?: Array<string>; "date_range"?: unknown; "filters"?: unknown; "order_by"?: unknown; "page"?: number; "per_page"?: number; [key: string]: unknown; };
   "api1.SmartMoneyDexTradesResponse": { "chains"?: Array<string>; "count"?: number; "filters"?: unknown; "order_by"?: unknown; "success"?: boolean; "trades"?: Array<unknown>; [key: string]: unknown; };
@@ -177,8 +180,10 @@ export interface CoreModels {
   "api1.TokenDexTradesResponse": { "chain"?: string; "contract_address"?: string; "count"?: number; "date_range"?: unknown; "filters"?: unknown; "order_by"?: unknown; "success"?: boolean; "symbol"?: string; "trades"?: Array<unknown>; [key: string]: unknown; };
   "api1.TokenFlowsResponse": { "chain"?: string; "contract_address"?: string; "count"?: number; "date_range"?: unknown; "filters"?: unknown; "flows"?: Array<unknown>; "order_by"?: unknown; "success"?: boolean; "symbol"?: string; [key: string]: unknown; };
   "api1.TokenHoldersResponse": { "data"?: unknown; "success"?: boolean; "symbol"?: string; [key: string]: unknown; };
+  "api1.TokenUnlocksResponse": { "count"?: number; "data"?: Array<unknown>; "has_more"?: boolean; "limit"?: number; "next_offset"?: number; "offset"?: number; "provider"?: string; "skipped"?: number; "success"?: boolean; "total"?: number; "window"?: unknown; [key: string]: unknown; };
   "api1.Trade": { "account_id"?: string; "asset"?: string; "beginning_balance"?: number; "closed_at"?: string; "ending_balance"?: number; "entry_price"?: number; "exchange"?: string; "exit_price"?: number; "id"?: string; "org_id"?: string; "outcome"?: string; "position_id"?: string; "position_size"?: number; "profit_loss"?: number; "profit_loss_pct"?: number; "strategy_name"?: string; "user_id"?: string; [key: string]: unknown; };
   "api1.TradesValidationResult": { "errors"?: Array<string>; "valid": boolean; [key: string]: unknown; };
+  "api1.TreasuriesResponse": { "count"?: number; "data"?: Array<unknown>; "has_more"?: boolean; "limit"?: number; "next_offset"?: number; "offset"?: number; "provider"?: string; "skipped"?: number; "success"?: boolean; "total"?: number; [key: string]: unknown; };
   "api1.TrendingAssetsResponse": { "count"?: number; "success"?: boolean; "trending"?: Array<unknown>; [key: string]: unknown; };
   "api1.UpdateMemberRole": { "role": string; [key: string]: unknown; };
   "api1.UpdateOrganization": { "info"?: unknown; "name"?: string; "ria_flag"?: boolean; "settings"?: unknown; [key: string]: unknown; };
@@ -314,13 +319,13 @@ export interface Operations {
   "GET /api/v1/crypto-assets/token-holders/{symbol}": { input: { path: { "symbol": string; }; }; output: CoreModels["api1.TokenHoldersResponse"]; };
   "GET /api/v1/crypto-assets/trending": { input: {  }; output: CoreModels["api1.TrendingAssetsResponse"]; };
   "GET /api/v1/defi/chain/{chain}/tvl": { input: { path: { "chain": string; }; }; output: CoreModels["api1.ChainTVLResponse"]; };
-  "GET /api/v1/defi/etf-flows": { input: {  }; output: CoreModels["api1.DefiProResponse"]; };
-  "GET /api/v1/defi/lending-rates": { input: {  }; output: CoreModels["api1.DefiProResponse"]; };
-  "GET /api/v1/defi/perp-funding": { input: {  }; output: CoreModels["api1.DefiProResponse"]; };
+  "GET /api/v1/defi/etf-flows": { input: { query?: { "limit"?: number; "lookback_days"?: number; "offset"?: number; "symbol"?: string; }; }; output: CoreModels["api1.EtfFlowsResponse"]; };
+  "GET /api/v1/defi/lending-rates": { input: { query?: { "chain"?: string; "limit"?: number; "min_tvl_usd"?: number; "offset"?: number; "protocol"?: string; "symbol"?: string; }; }; output: CoreModels["api1.LendingRatesResponse"]; };
+  "GET /api/v1/defi/perp-funding": { input: { query?: { "limit"?: number; "offset"?: number; "symbol"?: string; "venue"?: string; }; }; output: CoreModels["api1.PerpFundingResponse"]; };
   "GET /api/v1/defi/protocol/{protocol_name}/tvl": { input: { path: { "protocol_name": string; }; }; output: CoreModels["api1.ProtocolTVLResponse"]; };
   "GET /api/v1/defi/stablecoins/metrics": { input: {  }; output: CoreModels["api1.StablecoinMetricsResponse"]; };
-  "GET /api/v1/defi/token-unlocks": { input: {  }; output: CoreModels["api1.DefiProResponse"]; };
-  "GET /api/v1/defi/treasuries": { input: {  }; output: CoreModels["api1.DefiProResponse"]; };
+  "GET /api/v1/defi/token-unlocks": { input: { query?: { "days_ahead"?: number; "limit"?: number; "offset"?: number; "protocol"?: string; "rank_by"?: "next_unlock" | "cliff_value_usd"; "symbol"?: string; }; }; output: CoreModels["api1.TokenUnlocksResponse"]; };
+  "GET /api/v1/defi/treasuries": { input: { query?: { "limit"?: number; "offset"?: number; "protocol"?: string; "symbol"?: string; }; }; output: CoreModels["api1.TreasuriesResponse"]; };
   "GET /api/v1/docs/content": { input: { query?: { "path"?: string; }; }; output: CoreModels["api1.DocContent"]; };
   "GET /api/v1/docs/list": { input: {  }; output: CoreModels["api1.DocsList"]; };
   "GET /api/v1/execution/accounts": { input: { query?: { "account_type"?: string; }; }; output: Array<CoreModels["api1.Account"]>; };
@@ -380,7 +385,7 @@ export interface Operations {
   "POST /api/v1/signals/evaluate-multiple-series": { input: { body: CoreModels["api1.EvaluateMultipleSeriesRequest"]; }; output: CoreModels["api1.EvaluateMultipleSeriesResponse"]; };
   "GET /api/v1/signals/labels": { input: {  }; output: CoreModels["api1.SignalLabelsResponse"]; };
   "POST /api/v1/signals/match": { input: { body: CoreModels["api1.MatchSignalsRequest"]; }; output: CoreModels["api1.MatchSignalsResponse"]; };
-  "GET /api/v1/signals/playground-data/{dataset_key}": { input: { path: { "dataset_key": string; }; }; output: unknown; };
+  "GET /api/v1/signals/playground-data/{dataset_key}": { input: { path: { "dataset_key": string; }; query?: { "end_date"?: string; "limit"?: number; "offset"?: number; "start_date"?: string; }; }; output: unknown; };
   "GET /api/v1/signals/playground-datasets": { input: {  }; output: unknown; };
   "POST /api/v1/signals/search": { input: { body: CoreModels["api1.SearchSignalsRequest"]; }; output: unknown; };
   "POST /api/v1/signals/validate": { input: { body: CoreModels["api1.ValidateSignalCodeRequest"]; }; output: CoreModels["api1.ValidationResult"]; };
@@ -409,6 +414,8 @@ export interface Operations {
   "GET /api/v1/strategies/{strategy_id}/verify": { input: { path: { "strategy_id": string; }; }; output: CoreModels["api1.StrategyVerification"]; };
   "POST /api/v1/strategy-workflow/build_strategy_for_regime": { input: { body: { "asset": string; "candle_size"?: string; }; }; output: unknown; };
   "POST /api/v1/strategy-workflow/create_sweep": { input: { body: { "assets"?: Array<string>; "candidate_shape"?: { [key: string]: unknown; }; "candle_sizes"?: Array<string>; "categories"?: Array<string>; "draws_per_dataset"?: number; "entry_filters"?: Array<string>; "entry_triggers"?: Array<string>; "execution_base"?: { [key: string]: unknown; }; "execution_sweeps"?: { [key: string]: unknown; }; "exit_filters"?: Array<string>; "exit_triggers"?: Array<string>; "include_gapped"?: boolean; "max_total_runs"?: number; "param_samples"?: number; "pre_filter_threshold"?: number; "regimes"?: Array<string>; "signal_groups"?: Array<{ "categories"?: Array<string>; "exclude"?: Array<string>; "filters"?: { "categories"?: Array<string>; "exclude"?: Array<string>; "include"?: Array<string>; }; "include"?: Array<string>; "name"?: string; "triggers"?: { "categories"?: Array<string>; "exclude"?: Array<string>; "include"?: Array<string>; }; "weight"?: number; }>; "sweep_name": string; "windows"?: Array<string>; }; }; output: unknown; };
+  "POST /api/v1/strategy-workflow/delete_strategy": { input: { body: { "strategy_id": string; }; }; output: unknown; };
+  "POST /api/v1/strategy-workflow/evaluate_strategy": { input: { body: { "strategy_id": string; }; }; output: unknown; };
   "POST /api/v1/strategy-workflow/find_sweep_runs": { input: { body: { "asset"?: string; "atr_period"?: number; "beats_benchmarks"?: boolean; "beats_crypto_benchmarks"?: boolean; "candle_size"?: string; "cooldown_bars"?: number; "covering"?: string; "covering_from"?: string; "covering_to"?: string; "experiment_id"?: string; "generation"?: string; "limit"?: number; "market_direction"?: string; "max_delta_vs_asset"?: number; "max_delta_vs_benchmark"?: number; "max_irr"?: number; "max_return"?: number; "max_risk_per_trade"?: number; "max_sharpe"?: number; "max_trades"?: number; "max_win_rate"?: number; "min_delta_vs_asset"?: number; "min_delta_vs_benchmark"?: number; "min_irr"?: number; "min_return"?: number; "min_sharpe"?: number; "min_trades"?: number; "min_win_rate"?: number; "offset"?: number; "order"?: string; "regime_composite"?: string; "regime_direction"?: string; "reward_factor"?: number; "run_index"?: number; "run_status"?: string; "sort_by": string; "trend"?: string; "trigger_name"?: string; "volatility"?: string; }; }; output: unknown; };
   "POST /api/v1/strategy-workflow/get_backtest": { input: { body: { "backtest_id": string; }; }; output: unknown; };
   "POST /api/v1/strategy-workflow/get_backtest_trades": { input: { body: { "backtest_id": string; "limit"?: number; "offset"?: number; }; }; output: unknown; };
@@ -418,15 +425,18 @@ export interface Operations {
   "POST /api/v1/strategy-workflow/get_sweep": { input: { body: { "experiment_id": string; }; }; output: unknown; };
   "POST /api/v1/strategy-workflow/get_sweep_limits": { input: { body?: {  }; }; output: unknown; };
   "POST /api/v1/strategy-workflow/get_sweep_run": { input: { body: { "config_hash"?: string; "experiment_id": string; "run_index": number; }; }; output: unknown; };
+  "POST /api/v1/strategy-workflow/get_trades_for_strategy": { input: { body: { "limit"?: number; "offset"?: number; "strategy_id": string; }; }; output: unknown; };
   "POST /api/v1/strategy-workflow/launch_sweep": { input: { body: { "experiment_id": string; }; }; output: unknown; };
   "POST /api/v1/strategy-workflow/list_backtest_markets": { input: { body: { "asset": string; }; }; output: unknown; };
   "POST /api/v1/strategy-workflow/list_backtests": { input: { body?: { "limit"?: number; "strategy_id"?: string; }; }; output: unknown; };
+  "POST /api/v1/strategy-workflow/list_evaluations": { input: { body: { "include_details"?: boolean; "limit"?: number; "offset"?: number; "strategy_id": string; }; }; output: unknown; };
   "POST /api/v1/strategy-workflow/list_platform_strategies": { input: { body?: { "limit"?: number; }; }; output: unknown; };
+  "POST /api/v1/strategy-workflow/list_positions": { input: { body?: { "asset"?: string; "limit"?: number; "offset"?: number; "open_only"?: boolean; "strategy_id"?: string; }; }; output: unknown; };
   "POST /api/v1/strategy-workflow/list_run_filters": { input: { body: { "experiment_id": string; }; }; output: unknown; };
-  "POST /api/v1/strategy-workflow/list_strategies": { input: { body?: { "limit"?: number; }; }; output: unknown; };
+  "POST /api/v1/strategy-workflow/list_strategies": { input: { body?: { "limit"?: number; "offset"?: number; }; }; output: unknown; };
   "POST /api/v1/strategy-workflow/list_sweep_markets": { input: { body?: { "assets"?: Array<string>; "candle_sizes"?: Array<string>; "include_gapped"?: boolean; "regimes"?: Array<string>; "windows"?: Array<string>; }; }; output: unknown; };
   "POST /api/v1/strategy-workflow/list_sweeps": { input: { body?: { "limit"?: number; }; }; output: unknown; };
-  "POST /api/v1/strategy-workflow/list_trades": { input: { body?: { "asset"?: string; "limit"?: number; "outcome"?: string; "strategy_id"?: string; }; }; output: unknown; };
+  "POST /api/v1/strategy-workflow/list_trades": { input: { body?: { "asset"?: string; "limit"?: number; "offset"?: number; "outcome"?: string; "strategy_id"?: string; }; }; output: unknown; };
   "POST /api/v1/strategy-workflow/load_skill": { input: { body: { "resource"?: string; "section"?: string; "skill": string; }; }; output: unknown; };
   "POST /api/v1/strategy-workflow/pause_sweep": { input: { body: { "experiment_id": string; }; }; output: unknown; };
   "POST /api/v1/strategy-workflow/run_backtest": { input: { body: { "acknowledge_defaults"?: boolean; "end_date": string; "engine_generation"?: number; "market_data_venue"?: string; "quote_token"?: string; "start_date": string; "strategy_id": string; }; }; output: unknown; };
@@ -1063,7 +1073,9 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/defi/etf-flows",
     "queryFormats": {},
-    "required": {},
+    "required": {
+      "query": []
+    },
     "transport": "json-or-no-content"
   },
   "GET /api/v1/defi/lending-rates": {
@@ -1072,7 +1084,9 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/defi/lending-rates",
     "queryFormats": {},
-    "required": {},
+    "required": {
+      "query": []
+    },
     "transport": "json-or-no-content"
   },
   "GET /api/v1/defi/perp-funding": {
@@ -1081,7 +1095,9 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/defi/perp-funding",
     "queryFormats": {},
-    "required": {},
+    "required": {
+      "query": []
+    },
     "transport": "json-or-no-content"
   },
   "GET /api/v1/defi/protocol/{protocol_name}/tvl": {
@@ -1112,7 +1128,9 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/defi/token-unlocks",
     "queryFormats": {},
-    "required": {},
+    "required": {
+      "query": []
+    },
     "transport": "json-or-no-content"
   },
   "GET /api/v1/defi/treasuries": {
@@ -1121,7 +1139,9 @@ export const operationMetadata = {
     "method": "GET",
     "path": "/api/v1/defi/treasuries",
     "queryFormats": {},
-    "required": {},
+    "required": {
+      "query": []
+    },
     "transport": "json-or-no-content"
   },
   "GET /api/v1/docs/content": {
@@ -1970,7 +1990,8 @@ export const operationMetadata = {
     "required": {
       "path": [
         "dataset_key"
-      ]
+      ],
+      "query": []
     },
     "transport": "json-or-no-content"
   },
@@ -3060,6 +3081,24 @@ export const operationMetadata = {
     "required": {},
     "transport": "json-or-no-content"
   },
+  "POST /api/v1/strategy-workflow/delete_strategy": {
+    "authenticated": true,
+    "bodyRequired": true,
+    "method": "POST",
+    "path": "/api/v1/strategy-workflow/delete_strategy",
+    "queryFormats": {},
+    "required": {},
+    "transport": "json-or-no-content"
+  },
+  "POST /api/v1/strategy-workflow/evaluate_strategy": {
+    "authenticated": true,
+    "bodyRequired": true,
+    "method": "POST",
+    "path": "/api/v1/strategy-workflow/evaluate_strategy",
+    "queryFormats": {},
+    "required": {},
+    "transport": "json-or-no-content"
+  },
   "POST /api/v1/strategy-workflow/find_sweep_runs": {
     "authenticated": true,
     "bodyRequired": true,
@@ -3141,6 +3180,15 @@ export const operationMetadata = {
     "required": {},
     "transport": "json-or-no-content"
   },
+  "POST /api/v1/strategy-workflow/get_trades_for_strategy": {
+    "authenticated": true,
+    "bodyRequired": true,
+    "method": "POST",
+    "path": "/api/v1/strategy-workflow/get_trades_for_strategy",
+    "queryFormats": {},
+    "required": {},
+    "transport": "json-or-no-content"
+  },
   "POST /api/v1/strategy-workflow/launch_sweep": {
     "authenticated": true,
     "bodyRequired": true,
@@ -3168,11 +3216,29 @@ export const operationMetadata = {
     "required": {},
     "transport": "json-or-no-content"
   },
+  "POST /api/v1/strategy-workflow/list_evaluations": {
+    "authenticated": true,
+    "bodyRequired": true,
+    "method": "POST",
+    "path": "/api/v1/strategy-workflow/list_evaluations",
+    "queryFormats": {},
+    "required": {},
+    "transport": "json-or-no-content"
+  },
   "POST /api/v1/strategy-workflow/list_platform_strategies": {
     "authenticated": true,
     "bodyRequired": false,
     "method": "POST",
     "path": "/api/v1/strategy-workflow/list_platform_strategies",
+    "queryFormats": {},
+    "required": {},
+    "transport": "json-or-no-content"
+  },
+  "POST /api/v1/strategy-workflow/list_positions": {
+    "authenticated": true,
+    "bodyRequired": false,
+    "method": "POST",
+    "path": "/api/v1/strategy-workflow/list_positions",
     "queryFormats": {},
     "required": {},
     "transport": "json-or-no-content"

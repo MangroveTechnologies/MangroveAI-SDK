@@ -38,52 +38,48 @@ class StablecoinMetricsResponse(MangroveModel):
 
 
 # --- DeFi Pro (require a Pro / Startup / Enterprise plan) ---------------------
-# These map to the tier-gated MangroveAI /defi/* Pro endpoints. Each returns a
-# uniform {success, count, data} envelope where `data` is the raw DeFiLlama Pro
-# payload (a list of records). The client raises on the 403
-# (TIER_UPGRADE_REQUIRED) returned when the caller's plan is not entitled.
 
 
-class TokenUnlocksResponse(MangroveModel):
-    """Token unlock schedules + supply metrics (supply-shock signal). Pro."""
+class DeFiPageResponse(MangroveModel):
+    """One page of projected provider records, preserving the existing data envelope.
 
-    success: bool
-    provider: str | None = None
-    count: int | None = None
-    data: list[dict[str, Any]] | dict[str, Any] | None = None
-
-
-class PerpFundingResponse(MangroveModel):
-    """Aggregated DeFi perpetual funding rates across venues. Pro."""
+    Pagination fields are optional for compatibility with older servers. Missing
+    metadata is unknown, not a claim that this page covers the complete dataset.
+    ``count`` counts this page; ``total`` counts all matching readable records.
+    """
 
     success: bool
     provider: str | None = None
     count: int | None = None
     data: list[dict[str, Any]] | dict[str, Any] | None = None
+    total: int | None = None
+    offset: int | None = None
+    limit: int | None = None
+    has_more: bool | None = None
+    next_offset: int | None = None
+    skipped: int | None = None
 
 
-class TreasuriesResponse(MangroveModel):
-    """Protocol treasury holdings (crowd-positioning signal). Pro."""
+class TokenUnlocksResponse(DeFiPageResponse):
+    """Token unlock schedules and supply metrics. Pro."""
 
-    success: bool
-    provider: str | None = None
-    count: int | None = None
-    data: list[dict[str, Any]] | dict[str, Any] | None = None
+    window: dict[str, Any] | None = None
 
 
-class EtfFlowsResponse(MangroveModel):
-    """Crypto ETF net flows (institutional flow signal). Pro."""
-
-    success: bool
-    provider: str | None = None
-    count: int | None = None
-    data: list[dict[str, Any]] | dict[str, Any] | None = None
+class PerpFundingResponse(DeFiPageResponse):
+    """DeFi perpetual funding rates across venues. Pro."""
 
 
-class LendingRatesResponse(MangroveModel):
-    """Lending-pool borrow rates (rate-spread features). Pro."""
+class TreasuriesResponse(DeFiPageResponse):
+    """Protocol treasury holdings. Pro."""
 
-    success: bool
-    provider: str | None = None
-    count: int | None = None
-    data: list[dict[str, Any]] | dict[str, Any] | None = None
+
+class EtfFlowsResponse(DeFiPageResponse):
+    """Daily ETF flows and totals across the entire requested window. Pro."""
+
+    window: dict[str, Any] | None = None
+    totals: list[dict[str, Any]] | None = None
+
+
+class LendingRatesResponse(DeFiPageResponse):
+    """Lending-pool borrow rates. Pro."""

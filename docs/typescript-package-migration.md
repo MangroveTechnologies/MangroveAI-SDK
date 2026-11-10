@@ -9,7 +9,7 @@ AI 1.2.0, which remains a candidate until its official release is verified.
 | MangroveAI | `@mangrove-ai/sdk` 1.1.0 | `import { MangroveAI } from '@mangrove-ai/sdk'` |
 | MangroveMarkets | `@mangrove-ai/markets` 0.4.0 | `import { MangroveClient } from '@mangrove-ai/markets'` |
 
-Published Python names: `mangroveai` 2.2.0 imports as
+Published Python names: `mangroveai` 2.4.0 imports as
 `mangrove_ai`; `mangrovemarkets` 1.1.1 imports as `mangrove_markets`.
 
 ## Existing Markets applications
@@ -73,8 +73,9 @@ skipped by the AI controller. Never publish `@mangrove-ai/client`.
 2. Human-merge reviewed SDK source. From actual current main, run the native
    `typescript-release.yml` with `version=1.2.0`, first `dry_run=true`, then
    authorized publication with `dry_run=false`. Python uses its separate
-   `release.yml` with `version=2.3.0`. Both source versions are already prepared;
-   no duplicate version-preparation PR is needed.
+   version-preparation workflow for the next unpublished version, then
+   `release.yml` with that exact merged version. Python 2.4.0 is already published
+   and must not be uploaded again with changed bytes.
 3. The TypeScript controller checks the actual source, npm-prepared gitHead,
    identity and archive checksums. Only an absent target may be uploaded from
    fresh main. A just-accepted upload can wait through GET-only metadata/archive

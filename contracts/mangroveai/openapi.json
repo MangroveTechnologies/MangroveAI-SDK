@@ -15833,7 +15833,7 @@
             }
           },
           {
-            "description": "Days of daily closes to read, 1-365 (default 365)",
+            "description": "Days of daily closes to read, 1-365 (default 180)",
             "in": "query",
             "name": "lookback_days",
             "schema": {
@@ -23883,7 +23883,7 @@
               "type": "string"
             },
             "source_experiment_id": {
-              "description": "For a sweep pick, its experiment ID. Supply with source_run_index. The stored run supplies the exact signals and execution settings. With no market given, it saves on the run's corpus market, or on the same venue's execution quote when the corpus quote is not one (Binance USDT saves as Binance USDC).",
+              "description": "For a sweep pick, its experiment ID. Supply with source_run_index. The stored run supplies the exact signals and execution settings. With no market given, it saves on the run's market when ref-data lists it, otherwise on a market ref-data lists, the run's venue first.",
               "type": "string"
             },
             "source_run_index": {

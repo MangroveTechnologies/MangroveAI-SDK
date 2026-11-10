@@ -9,17 +9,17 @@ separate product, not the TypeScript version of this API.
 
 ## Choose a client
 
-Python `mangroveai` 2.3.0 is published on [PyPI](https://pypi.org/project/mangroveai/2.3.0/)
-from main `55b09392b144ff936080aa4d0199d1e4caa4a985`, including the existing
-`strategies.local_deployment` read. The next combined release targets Python
-2.4.0 and TypeScript 1.2.0 after
-[PR83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83),
-[PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85), then
-[PR84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84) merge and
-their integrated main source passes release verification. This combined branch
-preserves PR83 packaging, PR85 contract/serialization fixes and PR84 signal metadata.
-Earlier local 2.3.0 candidate archives remain distinct historical evidence;
-never overwrite published 2.3.0. See the [release handoff](docs/issue-66-release-handoff.md).
+Python [`mangroveai` 2.4.0](https://pypi.org/project/mangroveai/2.4.0/)
+and npm `@mangrove-ai/sdk` 1.1.0 are published (registry readback November 10,
+2026). Python already includes `strategies.local_deployment`. The packaging-only
+[PR83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83) proceeds
+independently before private-engine coexistence. This combined
+[PR84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84) remains
+held for matching API/Oracle serving acceptance; it retains the packaging fix,
+[PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85)
+contract/serialization fixes and optional signal metadata. After integrated
+source verification, prepare a new unpublished Python version through the native
+workflow. Never republish 2.4.0. See the [release handoff](docs/issue-66-release-handoff.md).
 
 | Product and language | Registry package | Import | Guide |
 |---|---|---|---|
@@ -32,8 +32,8 @@ and [TypeScript GitHub Release](https://github.com/MangroveTechnologies/Mangrove
 for availability; a source version does not establish publication. The
 [TypeScript guide](packages/typescript/README.md) covers registry and reviewed
 archive installation. Dated publication checkpoints are in the [release handoff](docs/issue-66-release-handoff.md).
-This source prepares Python 2.4.0 and TypeScript 1.2.0; these candidates remain
-unpublished until their official release workflows and registry verification.
+The Python source version remains 2.4.0 until release preparation; this branch
+is not the published artifact. TypeScript 1.2.0 remains an unpublished candidate.
 
 **Breaking product boundary:** published `@mangrove-ai/sdk` 0.1.2, 0.2.0 and 0.3.0
 are historical Markets clients. The new 1.0.0 package is MangroveAI and does not
@@ -44,9 +44,9 @@ and [dated release handoff](docs/issue-66-release-handoff.md). The former
 
 The TypeScript client has named `users`, `signals`, `strategies`, `strategyWorkflow` and
 `backtesting` helpers plus a generic typed `request(operation, options)` surface.
-The current public contract classifies 268 method/path operations across core
+The current public contract classifies 273 method/path operations across core
 and Oracle proxy REST, including 10 v2 operations; this is generated declaration
-coverage, not live endpoint acceptance. Of these, 264 use JSON/no-content, one
+coverage, not live endpoint acceptance. Of these, 269 use JSON/no-content, one
 requires a separate redirect flow and three require a streaming/non-JSON client.
 It is not a drop-in copy of Python's service methods. It does not supply MCP/OAuth
 discovery, the separate legacy KB-host client, x402 signing or SSE consumption.

@@ -4,7 +4,7 @@ This repository contains clients for the public MangroveAI services in both
 languages. Keep their package identities and capabilities distinct:
 
 - Python: PyPI `mangroveai`, import `from mangrove_ai import MangroveAI`, source
-  `src/mangrove_ai/`. Python 2.3.0 is published; 2.4.0 is the prepared source candidate.
+  `src/mangrove_ai/`. Python 2.4.0 is published; this branch needs a new version before publication.
 - TypeScript: npm `@mangrove-ai/sdk` 1.x, import
   `import { MangroveAI } from '@mangrove-ai/sdk'`, source `packages/typescript/`.
   The published version is 1.1.0; 1.2.0 is the prepared source candidate. Use the [guide](packages/typescript/README.md),
@@ -19,8 +19,8 @@ languages. Keep their package identities and capabilities distinct:
 
 TypeScript provides named `users`, `signals`, `strategies`, `strategyWorkflow` and `backtesting`
 helpers and a generated generic `request(operation, options)` surface, not
-Python method parity. The pinned public classification contains 268 core/Oracle
-proxy method/path operations including 10 v2: 264 JSON/no-content, one separate
+Python method parity. The pinned public classification contains 273 core/Oracle
+proxy method/path operations including 10 v2: 269 JSON/no-content, one separate
 redirect flow and three streaming/non-JSON operations. Counts describe declarations,
 not authenticated live coverage. MCP/OAuth discovery, the separate legacy KB
 host, x402 signing and SSE consumption are outside this JSON client.
@@ -81,27 +81,29 @@ The package name stays `mangroveai`; `mangrove_ai` is its import path.
 
 ## Current release preparation and recovery
 
-Published packages as of November 5, 2026 UTC: Python `mangroveai` 2.3.0 and
-TypeScript `@mangrove-ai/sdk` 1.1.0. The reviewed source candidates here are
-Python 2.4.0 and TypeScript 1.2.0; they are not published by a source commit.
-Python 2.3.0 was published from main `55b09392b144ff936080aa4d0199d1e4caa4a985`.
-Earlier frozen local 2.3.0 candidates are distinct historical evidence; never
-overwrite its published version, tag or assets. This combined branch preserves
-[PR83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83) packaging, [PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85) contract/serialization fixes and [PR84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84) signal metadata.
-The initial Markets-to-AI npm naming transition is historical and complete.
-Preserve old Markets `@mangrove-ai/sdk` 0.x archives and their exact notices;
-Markets now uses published `@mangrove-ai/markets` 0.4.0. Never publish the
-abandoned `@mangrove-ai/client` candidate.
+Registry readback November 10, 2026 confirms Python `mangroveai` 2.4.0 and
+TypeScript `@mangrove-ai/sdk` 1.1.0. This branch retains Python source version
+2.4.0 and TypeScript candidate 1.2.0; source does not imply registry identity.
+Never publish changed bytes under an existing version.
 
-After source CI, human review/merge and publication authorization, Python uses
-`release.yml` from main with `version=2.4.0`, matching both committed version
-files. TypeScript uses `typescript-release.yml` from main with `version=1.2.0`
-and first `dry_run=true`; authorized publication uses `dry_run=false`.
-No agent pushes a tag manually or merges a PR. Keep the default-loss change in
-[SDK PR82](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/82) /
-[API PR1518](https://github.com/MangroveTechnologies/MangroveAI/pull/1518) separate: this candidate preserves the current default of four.
-The local-deployment helper, already present in published Python 2.3.0, requires the reviewed backend 7.11.0 or later capability
-and actual serving acceptance before it is advertised as available.
+[PR83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83) is the
+independent packaging prerequisite for private-engine coexistence. Merge and
+release it through normal human review and native version preparation first.
+[PR84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84) remains
+explicitly held until the corresponding API producer is released and actual
+API/Oracle serving contracts pass acceptance. It preserves PR83's flat shim and
+[PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85)'s contract
+and serialization fixes; reconcile duplicate slices after integration.
+
+After source merge, current-main verification and publication authorization,
+prepare the next available Python version with `prepare-release.yml`, merge its
+version PR, then publish that exact version through `release.yml`. TypeScript
+uses `typescript-release.yml` with committed candidate `version=1.2.0`, first
+`dry_run=true`. No agent merges or pushes tags manually. Keep the separate
+[SDK82](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/82) /
+[API1518](https://github.com/MangroveTechnologies/MangroveAI/pull/1518) loss-limit
+proposal separate; the default remains four. Local-deployment availability
+requires actual serving acceptance in addition to package publication.
 
 The source version for an absent npm target must remain fresh main immediately
 before upload. Build and test the unchanged source, require the actual bundled

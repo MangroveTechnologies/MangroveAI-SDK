@@ -24,6 +24,18 @@ def main() -> None:
 
     assert LegacyUserMetrics is UserMetrics
     assert importlib.metadata.version("mangroveai") == mangrove_ai.__version__
+    installed_files = {str(path).replace("\\", "/") for path in importlib.metadata.files("mangroveai")}
+    assert "mangroveai.py" in installed_files
+    assert not any(path.casefold().startswith("mangroveai/") for path in installed_files)
+    from mangroveai.exceptions import APIError as LegacyAPIError
+    from mangroveai.models.strategies import StrategyDetail as LegacyStrategyDetail
+
+    from mangrove_ai import APIError
+    from mangrove_ai.models.strategies import StrategyDetail
+
+    assert mangroveai is mangrove_ai
+    assert LegacyAPIError is APIError
+    assert LegacyStrategyDetail is StrategyDetail
     fixtures = Path(__file__).resolve().parents[1] / "contracts" / "mangroveai" / "fixtures"
 
     def fixture(name: str) -> dict:

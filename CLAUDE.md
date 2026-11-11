@@ -50,7 +50,7 @@ This is the Pillow/PIL pattern (`pip install Pillow` → `from PIL import Image`
 
 **Why we did this:** the old import path `from mangroveai import ...` collided with the `MangroveAI` backend repo directory. A previous attempt to rename the PyPI distribution to `mangrove-ai` was rejected by PyPI's similarity check (it normalizes by stripping non-alphanumerics, so `mangrove-ai` → `mangroveai` collides with the existing project we own). The compromise: keep the PyPI dist name as-is, rename only the import path.
 
-**The shim:** `src/mangroveai/__init__.py` re-exports everything from `mangrove_ai` and emits a `DeprecationWarning` on import. It uses `sys.modules[__name__] = mangrove_ai` so submodule imports (`from mangroveai.models import X`) also forward. The shim is retained in v2.x for existing users; removal needs an explicitly announced future major release.
+**The shim:** `src/mangroveai.py` re-exports everything from `mangrove_ai` and emits a `DeprecationWarning` on import. It aliases the canonical package and loaded public modules so root, model and exception imports preserve class identity. The single file avoids a directory collision with the private engine on case-insensitive hosts. It is retained in v2.x; removal needs an explicitly announced future major release. Published Python 2.4.0 still has the directory shim; the flat layout needs a subsequent reviewed patch release. Co-installation also requires the distinct private engine distribution name `mangrove-ai-engine`.
 
 ## Release flow (workflow_dispatch only — never push tags manually)
 
@@ -155,5 +155,5 @@ MANGROVE_API_KEY=prod_... pytest tests/integration
 
 - Don't push tags manually — use `gh workflow run release.yml`.
 - Don't rename the PyPI distribution name without running the similarity check first.
-- Don't remove the `src/mangroveai/__init__.py` compatibility shim without an explicitly announced future major release — it's load-bearing for users still on the old import path.
-- Don't add new code under `src/mangroveai/` — that's the shim only. New code goes in `src/mangrove_ai/`.
+- Don't remove the `src/mangroveai.py` compatibility shim without an explicitly announced future major release — it's load-bearing for users still on the old import path.
+- Don't add new functionality to `src/mangroveai.py` — that's the shim only. New code goes in `src/mangrove_ai/`.

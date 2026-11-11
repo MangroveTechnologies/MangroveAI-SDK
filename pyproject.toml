@@ -48,7 +48,10 @@ Documentation = "https://github.com/MangroveTechnologies/MangroveAI-SDK#readme"
 Changelog = "https://github.com/MangroveTechnologies/MangroveAI-SDK/blob/main/CHANGELOG.md"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/mangrove_ai", "src/mangroveai"]
+packages = ["src/mangrove_ai"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/mangroveai.py" = "mangroveai.py"
 
 [tool.ruff]
 target-version = "py310"

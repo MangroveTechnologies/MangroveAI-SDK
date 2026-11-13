@@ -76,7 +76,7 @@ manually. A preexisting target tag or PyPI version requires release-state
 reconciliation; it is not permission to overwrite a release.
 
 The preparation workflow needs Actions write permission to dispatch offline CI and
-repository permission to open PRs. No workflow was dispatched during implementation.
+repository permission to open PRs.
 The package name stays `mangroveai`; `mangrove_ai` is its import path.
 
 ## Current release preparation and recovery

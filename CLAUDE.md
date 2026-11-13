@@ -100,7 +100,8 @@ API source review and production promotion are separate from actual serving
 API/Oracle acceptance and SDK package publication.
 
 The native `prepare-release.yml` workflow generated Python 2.5.0 in PR91. After
-human merge, current-main verification and serving-contract acceptance, publish
+human merge, current-main verification, serving-contract acceptance and separate
+publication authorization, publish
 that exact committed version through `release.yml`. TypeScript
 uses `typescript-release.yml` with committed candidate `version=1.2.0`, first
 `dry_run=true`. No agent merges or pushes tags manually. The reviewed API1525

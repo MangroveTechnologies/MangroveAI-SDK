@@ -73,10 +73,12 @@ skipped by the AI controller. Never publish `@mangrove-ai/client`.
    [API PR1518](https://github.com/MangroveTechnologies/MangroveAI/pull/1518)
    proposals are closed and are not separate dependencies.
 2. SDK source PR84 is merged. The native TypeScript 1.2.0 dry run passed from
-   that main source; after serving acceptance, authorized publication uses
+   main `6434a7cd`; the publication controller verifies fresh main. After serving
+   acceptance and authorized publication, the workflow uses
    `typescript-release.yml` with `version=1.2.0` and `dry_run=false` from fresh
    main. The native Python version-preparation workflow generated PR91 for
-   2.5.0; after human merge, publish that exact committed version with
+   2.5.0; after human merge, current-main verification, serving acceptance and
+   separate publication authorization, publish that exact committed version with
    `release.yml`. Python 2.4.2 is already published and must not be uploaded
    again with changed bytes.
 3. The TypeScript controller checks the actual source, npm-prepared gitHead,

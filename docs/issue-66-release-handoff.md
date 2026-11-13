@@ -29,11 +29,13 @@ export. Source acceptance and the reviewed production promotion are distinct
 from actual API/Oracle serving acceptance, which gates package publication.
 
 The native `prepare-release.yml` workflow generated Python 2.5.0 in PR91. After
-human merge, current-main verification and serving-contract acceptance, publish
+human merge, current-main verification, serving-contract acceptance and separate
+publication authorization, publish
 the exact committed version with `release.yml`. Never dispatch a new upload for
 existing Python 2.4.2. TypeScript's
 [1.2.0 dry run](https://github.com/MangroveTechnologies/MangroveAI-SDK/actions/runs/43527554956)
-passed from merged SDK84 main; authorized publication through
+passed from merged SDK84 main `6434a7cd`; the publication controller verifies
+fresh main before authorized publication through
 `typescript-release.yml` remains separate. Verify registry archives and
 consumer adoption separately. No agent merges or pushes tags manually.
 

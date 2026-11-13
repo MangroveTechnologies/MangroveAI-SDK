@@ -1,6 +1,6 @@
 """Cambrian signals demo: one exit signal, six disabled, then a backtest with the exit.
 
-One Cambrian-backed signal is available for new strategies: ``social_price_divergence``
+When the connected server reports it composable, use ``social_price_divergence``
 (``social`` category), an EXIT for long positions and never an entry. It fires when close
 fell at least ``min_drop_pct`` over ``window`` bars while the crowd's mean net bullish share
 (``SocialNetBullShare``, Cambrian Deep42) over the same bars stayed at or above its mean over
@@ -25,13 +25,11 @@ Sections:
 Notes:
     * ``social_price_divergence`` is typed TRIGGER because the knowledge base has no
       exit-only type. Put it in ``exit`` only.
-    * A bar sees only values already known when the bar closes, in a backtest as in live
-      evaluation. Deep42 buckets are daily, so the demo uses daily bars.
-    * The server attaches Cambrian columns only when its Cambrian data flag is on, and this
-      requires a MangroveAI release that is not yet deployed. With the flag off the catalogue
-      marks the signal non-composable and section 3 is skipped.
-    * The catalogue reports the disabled status of the six, and the exit defaults above, from a
-      knowledge-base release that the server does not yet pin.
+    * The server aligns daily buckets from the next midnight UTC. Deep42 returns historical
+      buckets with scores available at retrieval; alignment does not reconstruct historical
+      scoring availability. The demo uses daily bars.
+    * The server must support and enable Cambrian data. Its catalogue determines availability;
+      section 3 is skipped when the signal is missing or non-composable.
 
 Getting started:
     1. Create an account at https://mangrovedeveloper.ai

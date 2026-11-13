@@ -389,8 +389,8 @@ defaults. The definitions below describe knowledge-base policy; a deployment on 
 release can report a different status. Check `client.signals.list` or `client.signals.get` before
 composing a strategy.
 
-One Cambrian-backed signal is available for new strategies: `social_price_divergence`, in the
-`social` category, as an exit for long positions. It reads Cambrian Deep42 sentiment. Find it like
+When the server reports it composable, `social_price_divergence` in the `social` category can
+be used as an exit for long positions. It reads Cambrian Deep42 sentiment. Find it like
 any other signal with `client.signals.list(category="social")` and name it in a strategy's `exit`
 rules. There is no separate `client` method for the underlying Cambrian data.
 
@@ -407,11 +407,9 @@ rules. There is no separate `client` method for the underlying Cambrian data.
 - You supply no data. In live evaluation and in backtests the server attaches the columns the signal
   reads, aligning each Deep42 daily bucket to bars from the next midnight UTC. Deep42 serves older
   buckets as scored today, so this alignment does not establish point-in-time historical availability.
-  The server does this only when its
-  Cambrian data flag (`CAMBRIAN_SIGNALS_ENABLED`) is on, and it requires a MangroveAI release that is
-  not yet deployed. With the flag off the catalogue marks the signal non-composable, so a new
-  strategy cannot be built on it, and a strategy that names it gets `False` from it, so it never
-  exits.
+  This requires a server that supports and enables Cambrian data. With its data flag off, the
+  catalogue marks the signal non-composable. Missing, null or expired observations make a
+  required evaluation window unavailable; a historical backtest rejects incomplete coverage.
 - `client.signals.evaluate(...)` is different: it runs on the `market_data` you send, so include
   `close` and `SocialNetBullShare` in each row, as for any signal that reads alternative data.
 
@@ -420,8 +418,8 @@ Six other Cambrian signals are disabled for new strategies: `social_sentiment_su
 `whale_share_divergence` and `holder_growth_trend` (`onchain`, Solana holder distribution). They are
 disabled until they are validated in strategy backtests across market regimes. The catalogue lists
 them with `composable=False`, `status="disabled"` and the reason, and a stored strategy that names
-one keeps evaluating it. The catalogue reports this status, and `social_price_divergence` as an exit
-with the defaults above, from a knowledge-base release that the server does not yet pin.
+one keeps its definition, subject to data availability. Always check the connected catalogue
+before building a new strategy.
 
 End-to-end walkthrough, ending in a backtest of an RSI trigger with a price filter and
 `social_price_divergence` as the exit: `examples/cambrian_signals_demo.py`.

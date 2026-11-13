@@ -89,7 +89,7 @@ def main() -> None:
                 print(f"    {name:32s} not listed by this server")
                 continue
             # The server reports these top-level fields; the SDK model keeps them as extras.
-            composable = getattr(s, "composable", True) is not False
+            composable = getattr(s, "composable", False) is True and getattr(s, "status", None) != "disabled"
             status = getattr(s, "status", None) or ("active" if composable else "disabled")
             print(f"    {name:32s} {s.signal_type or '':8s} status={status}")
             if not composable:

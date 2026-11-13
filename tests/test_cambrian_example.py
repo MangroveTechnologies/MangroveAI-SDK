@@ -10,8 +10,12 @@ import pytest
 from mangrove_ai import MangroveAI
 
 
-@pytest.mark.parametrize("listed", [False, True], ids=["missing", "non_composable"])
-def test_demo_skips_unavailable_exit_without_detail_or_strategy_requests(monkeypatch, capsys, listed):
+@pytest.mark.parametrize("availability", [
+    None, {"composable": False, "status": "disabled"}, {},
+    {"composable": None}, {"status": "disabled"},
+    {"composable": True, "status": "disabled"},
+], ids=["missing", "non_composable", "unspecified", "null", "status_only", "contradictory"])
+def test_demo_skips_unavailable_exit_without_detail_or_strategy_requests(monkeypatch, capsys, availability):
     path = Path(__file__).parents[1] / "examples" / "cambrian_signals_demo.py"
     spec = importlib.util.spec_from_file_location("cambrian_example", path)
     module = importlib.util.module_from_spec(spec)
@@ -26,10 +30,9 @@ def test_demo_skips_unavailable_exit_without_detail_or_strategy_requests(monkeyp
             "name": "social_price_divergence",
             "category": "social",
             "signal_type": "TRIGGER",
-            "composable": False,
-            "status": "disabled",
+            **(availability or {}),
             "reason": "Data source unavailable",
-        }] if listed and request.url.params.get("category") == "social" else []
+        }] if availability is not None and request.url.params.get("category") == "social" else []
         return httpx.Response(200, json={"signals": signals, "total": len(signals), "limit": 50, "offset": 0})
 
     http_client = httpx.Client(transport=httpx.MockTransport(handler))

@@ -9,7 +9,7 @@ All notable changes to the MangroveAI Python SDK will be documented in this file
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased (after Python 2.4.1)
+## [Unreleased]
 
 - Restrict Python source archives to declared Python source, tests, contracts,
   scripts and documentation, excluding Node dependencies and transient test output.
@@ -75,6 +75,27 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Generator: `type: [..., "null"]` with `x-nullable` renders one `null` member, and the Python
   binding inventory attributes `_v2_request` calls to `/api/v2` (`submit_async` and `poll_status`
   now bind to the v2 backtest operations). TypeScript contract and coverage regenerated.
+
+### Documentation: Cambrian signals (one exit signal, six disabled)
+
+- README section on the Cambrian-backed signals. `social_price_divergence` (`social` category) is
+  documented as an exit for long positions, never an entry: it fires when close fell at least
+  `min_drop_pct` over `window` bars while the mean `SocialNetBullShare` over the same bars stayed at
+  or above its prior `window_baseline` mean. Defaults `window=7`, `min_drop_pct=3.0`,
+  `window_baseline=60`. It needs no client-side data: the server attaches its columns in live
+  evaluation and backtests when its Cambrian data support is enabled,
+  and the catalogue marks it non-composable when the flag is off. `signals.evaluate` needs
+  caller-supplied columns.
+- The README states that `social_sentiment_surge`, `social_sentiment_capitulation`,
+  `social_crowd_bullish`, `social_crowd_cooling`, `whale_share_divergence` and
+  `holder_growth_trend` are disabled for new strategies (still executable for stored ones). They
+  remain unavailable for new strategies until validated across market regimes. The connected
+  catalogue supplies the current status and reason.
+- New example `examples/cambrian_signals_demo.py`: lists the Cambrian signals and their status,
+  reads `social_price_divergence`, then builds and backtests a strategy with an `rsi_cross_up`
+  trigger, an `is_above_sma` filter and `social_price_divergence` as the exit, through existing
+  methods only.
+- No new method, model or endpoint, and no contract change.
 
 ### Python client contract repair (issue 66)
 

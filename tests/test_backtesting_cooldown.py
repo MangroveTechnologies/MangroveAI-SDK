@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import warnings
 
+from mangrove_ai._services._backtest_payload import backtest_payload
 from mangrove_ai.models.backtesting import BacktestRequest, BulkBacktestRequest
 
 # ---------------------------------------------------------------------------
@@ -86,6 +87,44 @@ class TestCooldownConfigField:
         }
         req = BacktestRequest(**_BASE_BACKTEST, cooldown_config=config)
         assert set(req.cooldown_config.keys()) == {"5m", "1h"}  # type: ignore[union-attr]
+
+
+class TestBarsOnlyScalars:
+    """The three legacy scalars are sent only when a caller sets them (cooldown_model='bars')."""
+
+    _FIELDS = ("cooldown_bars", "daily_momentum_limit", "weekly_momentum_limit")
+
+    def test_defaults_are_unset_and_do_not_warn(self) -> None:
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            single = BacktestRequest(**_BASE_BACKTEST)
+            bulk = BulkBacktestRequest(**_BASE_BULK)
+        assert not [w for w in caught if issubclass(w.category, DeprecationWarning)]
+        for request in (single, bulk):
+            for field in self._FIELDS:
+                assert getattr(request, field) is None
+
+    def test_unset_scalars_are_omitted_from_the_payload(self) -> None:
+        for request in (BacktestRequest(**_BASE_BACKTEST), BulkBacktestRequest(**_BASE_BULK)):
+            payload = backtest_payload(request)
+            assert not set(self._FIELDS) & set(payload)
+
+    def test_set_scalars_are_sent_for_the_bars_model(self) -> None:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            single = BacktestRequest(
+                **_BASE_BACKTEST, cooldown_model="bars", cooldown_bars=48,
+                daily_momentum_limit=5.0, weekly_momentum_limit=4.0)
+            bulk = BulkBacktestRequest(
+                **_BASE_BULK, cooldown_model="bars", cooldown_bars=12,
+                daily_momentum_limit=2.0)
+        payload = backtest_payload(single)
+        assert payload["execution_config"]["cooldown_model"] == "bars"
+        assert (payload["cooldown_bars"], payload["daily_momentum_limit"], payload["weekly_momentum_limit"]) == (48, 5.0, 4.0)
+        payload = backtest_payload(bulk)
+        assert payload["execution_config"]["cooldown_model"] == "bars"
+        assert (payload["cooldown_bars"], payload["daily_momentum_limit"]) == (12, 2.0)
+        assert "weekly_momentum_limit" not in payload
 
 
 class TestDeprecationWarnings:

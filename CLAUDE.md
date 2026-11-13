@@ -4,10 +4,10 @@ This repository contains clients for the public MangroveAI services in both
 languages. Keep their package identities and capabilities distinct:
 
 - Python: PyPI `mangroveai`, import `from mangrove_ai import MangroveAI`, source
-  `src/mangrove_ai/`. Python 2.2.0 is published; see the dated release handoff.
+  `src/mangrove_ai/`. Python 2.4.2 is published; this branch needs a new version before publication.
 - TypeScript: npm `@mangrove-ai/sdk` 1.x, import
   `import { MangroveAI } from '@mangrove-ai/sdk'`, source `packages/typescript/`.
-  The source package version is 1.1.0 (1.0.0 is the first published AI release); use the [guide](packages/typescript/README.md),
+  The published version is 1.1.0; 1.2.0 is the prepared source candidate. Use the [guide](packages/typescript/README.md),
   [migration notice](docs/typescript-package-migration.md) and [dated release status](docs/issue-66-release-handoff.md)
   before claiming registry availability.
 - MangroveMarkets moves to `@mangrove-ai/markets` 0.4.0 with its existing
@@ -17,11 +17,11 @@ languages. Keep their package identities and capabilities distinct:
   `@mangrove-ai/client` was unpublished and must not be published or kept as an alias.
   AI 1.0.0 is a breaking product move, not Markets API compatibility.
 
-TypeScript provides named `users`, `signals`, `strategyWorkflow` and `backtesting`
+TypeScript provides named `users`, `signals`, `strategies`, `strategyWorkflow` and `backtesting`
 helpers and a generated generic `request(operation, options)` surface, not
-Python method parity. The pinned public classification contains 264 core/Oracle
-proxy method/path operations including 10 v2: 261 JSON/no-content, one separate
-redirect flow and two streaming/non-JSON operations. Counts describe declarations,
+Python method parity. The pinned public classification contains 273 core/Oracle
+proxy method/path operations including 10 v2: 269 JSON/no-content, one separate
+redirect flow and three streaming/non-JSON operations. Counts describe declarations,
 not authenticated live coverage. MCP/OAuth discovery, the separate legacy KB
 host, x402 signing and SSE consumption are outside this JSON client.
 
@@ -50,7 +50,7 @@ This is the Pillow/PIL pattern (`pip install Pillow` → `from PIL import Image`
 
 **Why we did this:** the old import path `from mangroveai import ...` collided with the `MangroveAI` backend repo directory. A previous attempt to rename the PyPI distribution to `mangrove-ai` was rejected by PyPI's similarity check (it normalizes by stripping non-alphanumerics, so `mangrove-ai` → `mangroveai` collides with the existing project we own). The compromise: keep the PyPI dist name as-is, rename only the import path.
 
-**The shim:** `src/mangroveai.py` re-exports everything from `mangrove_ai` and emits a `DeprecationWarning` on import. It aliases the canonical package and loaded public modules so root, model and exception imports preserve class identity. The single file avoids a directory collision with the private engine on case-insensitive hosts. It is retained in v2.x; removal needs an explicitly announced future major release. Published Python 2.4.0 still has the directory shim; the flat layout needs a subsequent reviewed patch release. Co-installation also requires the distinct private engine distribution name `mangrove-ai-engine`.
+**The shim:** `src/mangroveai.py` re-exports everything from `mangrove_ai` and emits a `DeprecationWarning` on import. It uses `sys.modules[__name__] = mangrove_ai` so submodule imports (`from mangroveai.models import X`) also forward. The compatibility shim is a single file to avoid a physical directory collision with the private engine on case-insensitive hosts. It is retained in v2.x for existing users; removal needs an explicitly announced future major release.
 
 ## Release flow (workflow_dispatch only — never push tags manually)
 
@@ -79,46 +79,58 @@ The preparation workflow needs Actions write permission to dispatch offline CI a
 repository permission to open PRs. No workflow was dispatched during implementation.
 The package name stays `mangroveai`; `mangrove_ai` is its import path.
 
-## TypeScript release order
+## Current release preparation and recovery
 
-Keep Python versioning unchanged. Both TypeScript source PRs must be reviewed and
-human-merged first. Publish and verify `@mangrove-ai/markets` 0.4.0 from the Markets
-repository before publishing `@mangrove-ai/sdk` 1.0.0 here. Historical Markets
-`@mangrove-ai/sdk` versions remain immutable. Never publish `@mangrove-ai/client`.
+Registry readback November 13, 2026 confirms Python `mangroveai` 2.4.2 and
+TypeScript `@mangrove-ai/sdk` 1.1.0. This branch retains Python source version
+2.4.2 and TypeScript candidate 1.2.0; source does not imply registry identity.
+Never publish changed bytes under an existing version.
 
-The existing `.github/workflows/typescript-release.yml` manual workflow uses
-`version=1.0.0` and `dry_run=true` for validation, then `dry_run=false` for the
-authorized release from `main`. It builds and tests the selected clean main
-source, verifies official npm directory-prepared `gitHead`, and packs exact
-SHA-256/SHA512 identities. An absent target may publish; an existing npm version
-resumes only if name, repository, source `gitHead`, integrity and downloaded
-archive bytes match. Nothing is overwritten.
+[PR83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83) is merged
+and its flat shim is published in Python 2.4.2. This branch preserves that
+package identity and its installed-distribution checks. [PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85)
+is closed; its contract and serialization changes are retained here. The public
+contract inputs match a clean offline export from merged API source
+`b3337f2e1a9561b3cb419f163e19e1b51ac71b27`; its three document hashes
+are unchanged from the accepted [API1525](https://github.com/MangroveTechnologies/MangroveAI/pull/1525)
+export. Provenance records the new exporter source and its 27 input hashes.
+API source review and production promotion are separate from actual serving
+API/Oracle acceptance and SDK package publication.
 
-After registry verification, the native workflow creates or verifies annotated
-`typescript-v1.0.0`, its exact commit, the GitHub Release and checksum-bound assets.
-Only then does it deprecate exact historical Markets versions 0.1.2, 0.2.0 and
-0.3.0 with their migration notice. Dry runs and failed publication perform no
-such writes. There is no manual tag push or whole-name deprecation.
+After source merge, current-main verification and publication authorization,
+prepare the next available Python version with `prepare-release.yml`, merge its
+version PR, then publish that exact version through `release.yml`. TypeScript
+uses `typescript-release.yml` with committed candidate `version=1.2.0`, first
+`dry_run=true`. No agent merges or pushes tags manually. The reviewed API1525
+producer schema defaults to two consecutive losses. The older
+[SDK82](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/82) and
+[API1518](https://github.com/MangroveTechnologies/MangroveAI/pull/1518)
+proposals are closed, not separate dependencies. Local-deployment availability
+requires actual serving acceptance in addition to package publication.
 
-For interrupted releases, optional `release_commit` must be a full SHA that is
-an ancestor of actual fetched `main`; mutable refs and feature heads are refused.
-The current reviewed main workflow controls finalization while the original
-source is rebuilt. Matching npm/tag/release/assets resume without clobbering;
-conflicts fail. Package publication never proves backend serving or live execution.
+The source version for an absent npm target must remain fresh main immediately
+before upload. Build and test the unchanged source, require the actual bundled
+npm-prepared `gitHead`, and bind the archive to SHA256/SHA512 integrity. An
+existing npm version resumes only when name, repository, original source,
+version, integrity and downloaded bytes match. Never overwrite a version, tag,
+release or asset; do not move npm latest back to an older source.
 
-After this run successfully uploads a previously absent version, finalization
-waits only for temporary registry metadata or archive HTTP 404 responses, using
-GET requests every 30 seconds under one ten-minute visibility deadline. Other
-errors stop immediately. No upload is retried; existing-artifact recovery and
-ordinary preflight do not wait. A visibility timeout requires reconciliation
-of the accepted upload before another release attempt.
-The separate two-minute GitHub finalization budget starts after the npm artifact
-has been verified; registry processing cannot consume that budget in advance.
+Optional `release_commit` is for finishing an already published artifact from
+its original full ancestor SHA. The current reviewed main controller verifies
+that original source; a mutable ref, feature head or older unpublished source is
+refused. The completed 1.1.0 recovery remains bound to its original 92f6d840 source,
+not to a newer controller commit.
 
-For a new unpublished version, the selected source must still be fresh `main`
-immediately before publishing. An older main ancestor is accepted only to finish
-an already published artifact whose exact source and bytes were verified. It
-cannot start a new publication or move npm `latest` back to stale source.
+Only a just-accepted upload may wait for temporary metadata/archive HTTP 404s:
+GET-only every 30 seconds under one shared ten-minute visibility deadline. Other
+errors stop immediately, with no upload retry. Existing-artifact recovery and
+preflight do not wait. GitHub's separate 120-second finalization budget begins
+after npm bytes are verified, so registry processing cannot exhaust it early.
+The controller creates or verifies the exact annotated version tag, GitHub
+Release and checksum-bound assets only after registry verification. Historical
+notice reads skip already matching notices; only exact approved old versions
+can be updated. Package publication never proves backend serving or paid/live
+execution. No release workflow is dispatched merely to prepare this source.
 
 ## Pre-tag PyPI similarity check (if EVER renaming the dist)
 
@@ -156,4 +168,6 @@ MANGROVE_API_KEY=prod_... pytest tests/integration
 - Don't push tags manually — use `gh workflow run release.yml`.
 - Don't rename the PyPI distribution name without running the similarity check first.
 - Don't remove the `src/mangroveai.py` compatibility shim without an explicitly announced future major release — it's load-bearing for users still on the old import path.
-- Don't add new functionality to `src/mangroveai.py` — that's the shim only. New code goes in `src/mangrove_ai/`.
+- Don't add new SDK functionality to `src/mangroveai.py` — that's the shim only. New code goes in `src/mangrove_ai/`.
+
+The canonical inventory excludes one deprecated SDK compatibility alias, `POST /api/v1/backtests/`, retained from TypeScript1.1.0. It inherits the canonical backtest contract while preserving its original HTTP path; new callers should use `POST /api/v1/backtests`.

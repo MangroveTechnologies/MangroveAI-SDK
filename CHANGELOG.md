@@ -11,13 +11,34 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### Python package compatibility
+- Restrict Python source archives to declared Python source, tests, contracts,
+  scripts and documentation, excluding Node dependencies and transient test output.
 
-- Replace the deprecated `mangroveai` package directory with a flat compatibility
-  module, preserving public import and class identity while avoiding file
-  ownership collisions with the private engine on case-insensitive hosts.
-  The SDK distribution name and HTTP behavior are unchanged. Published 2.4.0
-  still uses the old layout; this correction requires a subsequent patch release.
+- Preserve the flat legacy shim published in Python 2.4.1 from merged
+  [PR83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83) and
+  retain the contract and serialization slice from closed
+  [PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85) in
+  [PR84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84).
+
+- Refresh public contracts from the combined current X/Cambrian and developer
+  contract source. Match the canonical trades schema without bars-only defaults;
+  preserve explicit bars transport and optional signal capability metadata.
+- Refresh the pinned REST request defaults to 25 for four on-chain and four
+  strategy-workflow request bodies. Existing Python helpers retain their
+  explicit published page sizes; optional TypeScript fields use the server
+  default when omitted.
+
+- Preserve the owner-scoped `strategies.local_deployment` snapshot read already
+  published in Python 2.3.0, with matching TypeScript 1.2.0 `strategies.localDeployment` and
+  current public-filtered contracts. Requires backend 7.11.0 or later serving acceptance.
+- Match the reviewed API1525 source default of two consecutive losses in the
+  synthetic execution-config responses. Callers may still set a different limit.
+- Keep the published single-file `mangroveai` alias and its public class identity.
+- Exercise actual installed wheel/source artifacts, public alias class identity
+  and local snapshot/error preservation without invoking paid endpoints.
+
+
+## [Earlier release notes]
 
 ### X post counts and the social signal category (targets 2.2.0, after 2.1.1)
 
@@ -29,6 +50,31 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Contracts refreshed from MangroveAI#1493 (4b96fad6, current MangroveAI main plus X): one added path,
   one response model and the `social` category on the signals list; no other operation changed. TypeScript contract and coverage regenerated.
 - New example `examples/x_attention_signals_demo.py`.
+
+### Contracts refreshed from MangroveAI 6bd122c3 (7.11.5)
+
+- The public REST input is now the OpenAPI 3.1 document (`components`, `requestBody`, a Bearer
+  `MangroveBearer` scheme, `info.x-guidance`) in place of Swagger 2.0. Priced operations carry
+  `x-payment-info` and a `402` response; 111 operations are declared this way. Anonymous
+  signal-library reads (`GET /signals/`, `POST /signals/search`, `GET /signals/{signal_name}`) now
+  declare no security, so the TypeScript `request()` no longer requires an API key for them.
+- Oracle proxy contract: operations that never take an x402 payment lose their `402` response, and
+  the remaining `402` descriptions describe the retail usage limit.
+- Paths: added `GET /api/v1/strategies/{strategy_id}/local-deployment` (bound to
+  `client.strategies.local_deployment`); removed the duplicate `POST /api/v1/backtests/`
+  declaration (the single path is `POST /api/v1/backtests`). No SDK method called the removed path.
+- Under the default `cooldown_model: "trades"` the execution-configuration schema no longer lists
+  `cooldown_config`, `cooldown_bars`, `daily_momentum_limit` or `weekly_momentum_limit`; they are read
+  only under `"bars"`. The `cooldown_model` effect text, the `BacktestRequest`/`BulkBacktestRequest`
+  descriptions and the saved-strategy constraints schemas follow. The synthetic execution-config
+  fixture matches.
+- `BacktestRequest` and `BulkBacktestRequest` default `cooldown_bars`, `daily_momentum_limit` and
+  `weekly_momentum_limit` to `None` and omit them from the request body; they are sent, with the
+  existing deprecation warning, only when a caller sets them (the `bars` model). Constructing a
+  request with defaults no longer emits those deprecation warnings.
+- Generator: `type: [..., "null"]` with `x-nullable` renders one `null` member, and the Python
+  binding inventory attributes `_v2_request` calls to `/api/v2` (`submit_async` and `poll_status`
+  now bind to the v2 backtest operations). TypeScript contract and coverage regenerated.
 
 ### Documentation: Cambrian signals (one exit signal, six disabled)
 

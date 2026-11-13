@@ -42,8 +42,9 @@ test('execution metadata uses the shared fixture with no automatic schema gate o
   assert.equal(calls, 0);
   const result = await sdk.request('GET /api/v1/config/execution-config-schema', {});
   assert.deepEqual(result.json_schema, value.json_schema);
-  assert.deepEqual(result.param_glossary.cooldown_config.required_fields,
-    value.json_schema.properties.cooldown_config.additionalProperties.required);
+  assert.equal(result.param_glossary.cooldown_config, undefined);
+  assert.equal(result.defaults.cooldown_config, undefined);
+  assert.equal(result.defaults.cooldown_model, "trades");
   assert.equal(calls, 1);
 });
 
@@ -226,11 +227,11 @@ test('declared and streamed body sizes are bounded', async () => {
   await assert.rejects(client(async () => json({ metrics: 'x'.repeat(100) }), { maxResponseBytes: 20 }).users.getMyMetrics(), MalformedResponseError);
 });
 
-test('unsupported stream media is refused and cancelled before consuming the body', async () => {
+test('unexpected stream media on a JSON operation is refused and cancelled before consuming the body', async () => {
   let cancelled = false;
   const stream = new ReadableStream({ cancel() { cancelled = true; } });
   const sdk = client(async () => new Response(stream, { headers: { 'Content-Type': 'text/event-stream' } }));
-  await assert.rejects(sdk.request('GET /api/v1/oracle/deployed/stream', {}), MalformedResponseError);
+  await assert.rejects(sdk.request('GET /api/v1/users/me/metrics', {}), MalformedResponseError);
   assert.equal(cancelled, true);
 });
 

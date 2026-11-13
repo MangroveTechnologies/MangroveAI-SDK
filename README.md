@@ -9,18 +9,32 @@ separate product, not the TypeScript version of this API.
 
 ## Choose a client
 
+Python [`mangroveai` 2.4.2](https://pypi.org/project/mangroveai/2.4.2/)
+and npm `@mangrove-ai/sdk` 1.1.0 are published (registry readback November 13,
+2026). Python already includes `strategies.local_deployment`, and the flat
+legacy shim from merged [PR83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83)
+is published in 2.4.2. This [PR84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84)
+source includes the contract and serialization changes from closed
+[PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85) and optional
+signal metadata. Its contract inputs match the clean offline export from merged
+API source `b3337f2e`, with identical public document bytes to the accepted
+[API1525](https://github.com/MangroveTechnologies/MangroveAI/pull/1525) export.
+Package publication follows source integration, a new Python version and
+reviewed serving API/Oracle contract acceptance. See the [release handoff](docs/issue-66-release-handoff.md).
+
 | Product and language | Registry package | Import | Guide |
 |---|---|---|---|
 | MangroveAI Python | PyPI `mangroveai` | `from mangrove_ai import MangroveAI` | [Python install](#install) |
 | MangroveAI TypeScript / Node.js 20+ | npm `@mangrove-ai/sdk` 1.x | `import { MangroveAI } from '@mangrove-ai/sdk'` | [TypeScript SDK guide](packages/typescript/README.md) |
 | MangroveMarkets TypeScript | npm `@mangrove-ai/markets` | `import { MangroveClient } from '@mangrove-ai/markets'` | [Markets SDK guide](https://github.com/MangroveTechnologies/MangroveMarkets/tree/main/packages/sdk) |
 
-Check the [AI 1.0.0 npm release target](https://registry.npmjs.org/@mangrove-ai%2fsdk/1.0.0)
-and [TypeScript GitHub Release](https://github.com/MangroveTechnologies/MangroveAI-SDK/releases/tag/typescript-v1.0.0)
+Check the [AI 1.1.0 npm release](https://registry.npmjs.org/@mangrove-ai%2fsdk/1.1.0)
+and [TypeScript GitHub Release](https://github.com/MangroveTechnologies/MangroveAI-SDK/releases/tag/typescript-v1.1.0)
 for availability; a source version does not establish publication. The
 [TypeScript guide](packages/typescript/README.md) covers registry and reviewed
 archive installation. Dated publication checkpoints are in the [release handoff](docs/issue-66-release-handoff.md).
-Python `mangroveai` 2.1.0 is published on [PyPI](https://pypi.org/project/mangroveai/2.1.0/).
+The Python source version remains 2.4.2 until release preparation; this branch
+is not the published artifact. TypeScript 1.2.0 remains an unpublished candidate.
 
 **Breaking product boundary:** published `@mangrove-ai/sdk` 0.1.2, 0.2.0 and 0.3.0
 are historical Markets clients. The new 1.0.0 package is MangroveAI and does not
@@ -29,12 +43,12 @@ not upgrade to the AI SDK. See the [migration notice](docs/typescript-package-mi
 and [dated release handoff](docs/issue-66-release-handoff.md). The former
 `@mangrove-ai/client` name was an unpublished AI candidate and will not be published.
 
-The TypeScript client has named `users`, `signals`, `strategyWorkflow` and
+The TypeScript client has named `users`, `signals`, `strategies`, `strategyWorkflow` and
 `backtesting` helpers plus a generic typed `request(operation, options)` surface.
-The current public contract classifies 264 method/path operations across core
+The current public contract classifies 273 method/path operations across core
 and Oracle proxy REST, including 10 v2 operations; this is generated declaration
-coverage, not live endpoint acceptance. Of these, 261 use JSON/no-content, one
-requires a separate redirect flow and two require a streaming/non-JSON client.
+coverage, not live endpoint acceptance. Of these, 269 use JSON/no-content, one
+requires a separate redirect flow and three require a streaming/non-JSON client.
 It is not a drop-in copy of Python's service methods. It does not supply MCP/OAuth
 discovery, the separate legacy KB-host client, x402 signing or SSE consumption.
 See the [operation classification](contracts/mangroveai/coverage.json).
@@ -55,21 +69,6 @@ pip install mangroveai
 
 > The package imports as `mangrove_ai` (e.g. `from mangrove_ai import MangroveAI`).
 > The legacy `import mangroveai` path also still works for backwards compatibility.
-
-### Compatibility with the private engine
-
-This source changes the deprecated `mangroveai` import shim from a directory to
-one `mangroveai.py` file. Root, model and exception imports still alias the
-canonical `mangrove_ai` objects. This prevents the SDK from overwriting the private
-engine's `MangroveAI` directory on case-insensitive filesystems.
-
-Published Python 2.4.0 still contains the conflicting directory; this fix requires
-a subsequent Python patch release through the normal reviewed release workflow.
-Co-installation also requires the engine's distinct `mangrove-ai-engine`
-distribution identity. Upgrade the SDK before adding the renamed engine, or use
-a fresh environment. If the old packages were already installed together,
-recreate the environment: upgrading alone cannot prove overwritten engine files
-were repaired. This packaging change needs no API deployment or new endpoint.
 
 ## Setup
 
@@ -148,6 +147,33 @@ The remaining examples and service reference below describe the Python SDK;
 use the [TypeScript guide](packages/typescript/README.md) for its helper and generic
 request interfaces.
 
+## Local deployment snapshot
+
+Published Python 2.3.0 already includes the server-owned local Robinhood snapshot
+read; prepared TypeScript 1.2.0 adds the matching helper. Python 2.4.2 preserves
+the read and the flat alias packaging repair. This requires backend 7.11.0 or later and deployed local-deployment
+capability; current package publication alone does not establish availability.
+The read is authenticated and billable. It returns the server's readiness and
+blocker, owner, fingerprint and snapshot; it does not activate or fund trading.
+Mangrove retains validation and deterministic risk enforcement.
+
+```python
+snapshot = client.strategies.local_deployment(strategy_id, asset_class="crypto")
+print(snapshot["activation_ready"], snapshot["activation_blocker"])
+```
+
+```typescript
+const snapshot = await client.strategies.localDeployment(strategyId, { assetClass: 'crypto' });
+console.log(snapshot.activation_ready, snapshot.activation_blocker);
+```
+
+Pass `crypto` or `equity` explicitly. Neither client retries or pays automatically.
+The Python canonical import remains `mangrove_ai`; the supported deprecated
+`mangroveai` root/models/exceptions imports remain aliases. The compatibility
+shim is now a single file so it can coexist with the private engine directory
+on a case-insensitive filesystem; the private engine also needs its distinct
+distribution identity. No public SDK package is renamed.
+
 ## Quickstart
 
 ```python
@@ -195,6 +221,7 @@ result = client.backtesting.run(BacktestRequest(
     target_volatility=0.1,
     # Partial trades-model overrides retain the other server defaults.
     # Loss pauses default to 36 bars, clamped to 24 hours through 14 days.
+    # Four losses here deliberately overrides the producer's default of two.
     execution_config={
         "circuit_breaker": {
             "consecutive_loss_limit": 4,
@@ -219,7 +246,12 @@ Disabling drawdown guards alone does not disable loss pauses: a fully unprotecte
 control also needs the explicit `bars` model and zero `short_cooldown_bars` and
 `long_cooldown_bars` for every active timeframe. Keep valid positive loss limits
 and window sizes. Legacy `cooldown_config` supplied on an SDK request is also
-placed inside `execution_config`. Align these settings with any configuration
+placed inside `execution_config`. The server reads `cooldown_config`, `cooldown_bars`,
+`daily_momentum_limit` and `weekly_momentum_limit` only under `cooldown_model="bars"`;
+under the default `trades` model it omits them from resolved configurations and
+schemas and drops them from submitted requests. The SDK request models leave
+`cooldown_bars`, `daily_momentum_limit` and `weekly_momentum_limit` unset and omit
+them from the request body unless you set them. Align these settings with any configuration
 embedded in `strategy_json` or individual bulk strategy configs: Oracle's
 per-strategy configuration precedence still applies. Preserve all other strategy
 inputs, fees, and sizing between full runs.
@@ -587,3 +619,5 @@ pip install -e ".[dev]"
 pytest tests/ --ignore=tests/integration  # unit tests
 MANGROVE_API_KEY=... pytest tests/integration/ -m integration  # live tests
 ```
+
+The canonical inventory excludes one deprecated SDK compatibility alias, `POST /api/v1/backtests/`, retained from TypeScript1.1.0. It inherits the canonical backtest contract while preserving its original HTTP path; new callers should use `POST /api/v1/backtests`.

@@ -23,6 +23,8 @@ class Signal(MangroveModel):
     name: str
     category: str
     signal_type: str | None = None
+    evaluation_mode: str | None = None
+    data_provider: str | None = None
     metadata: SignalMetadata | None = None
     code: str | None = None
     usage_count: int | None = None

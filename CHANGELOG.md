@@ -27,9 +27,8 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Preserve the owner-scoped `strategies.local_deployment` snapshot read already
   published in Python 2.3.0, with matching TypeScript 1.2.0 `strategies.localDeployment` and
   current public-filtered contracts. Requires backend 7.11.0 or later serving acceptance.
-- Retain server default loss limit of four; [SDK PR82](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/82) /
-  [API PR1518](https://github.com/MangroveTechnologies/MangroveAI/pull/1518)'s proposed limit of two is separate
-  unfinished feature work, not included here.
+- Match the reviewed API1525 source default of two consecutive losses in the
+  synthetic execution-config responses. Callers may still set a different limit.
 - Keep the published single-file `mangroveai` alias and its public class identity.
 - Exercise actual installed wheel/source artifacts, public alias class identity
   and local snapshot/error preservation without invoking paid endpoints.

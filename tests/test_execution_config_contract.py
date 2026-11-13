@@ -17,6 +17,18 @@ FIXTURE = json.loads((ROOT / "contracts/mangroveai/fixtures/execution-config-suc
 BARS_FIXTURE = json.loads((ROOT / "contracts/mangroveai/fixtures/execution-config-bars.json").read_text())
 
 
+def test_offline_default_response_matches_pinned_producer_schema():
+    canonical = json.loads((ROOT / "contracts/mangroveai/execution-config.schema.json").read_text())
+    assert FIXTURE["json_schema"] == canonical
+    assert FIXTURE["defaults"]["circuit_breaker"] == canonical["properties"]["circuit_breaker"]["default"]
+    assert FIXTURE["defaults"]["circuit_breaker"]["consecutive_loss_limit"] == 2
+    assert BARS_FIXTURE["defaults"]["cooldown_model"] == "bars"
+    assert BARS_FIXTURE["defaults"]["circuit_breaker"] == canonical["properties"]["circuit_breaker"]["default"]
+    assert BARS_FIXTURE["json_schema"]["properties"]["circuit_breaker"]["default"] == (
+        canonical["properties"]["circuit_breaker"]["default"]
+    )
+
+
 def test_python_reads_canonical_schema_and_nested_glossary_in_one_explicit_call():
     calls = []
     key = "prod_" + "schema-fixture" * 2

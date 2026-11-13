@@ -33,10 +33,10 @@ TypeScript uses `typescript-release.yml` with `version=1.2.0`, first
 `dry_run=true`, then authorized publication. Verify registry archives and
 consumer adoption separately. No agent merges or pushes tags manually.
 
-Keep the default loss limit four; the separate
-[SDK82](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/82) /
+The reviewed API1525 producer defaults to two consecutive losses. The earlier
+[SDK82](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/82) and
 [API1518](https://github.com/MangroveTechnologies/MangroveAI/pull/1518)
-proposal remains independent. Historical dated records below do not prescribe
+proposals are closed; neither is a separate dependency. Historical dated records below do not prescribe
 the current release version or order.
 
 <details>

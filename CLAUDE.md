@@ -99,10 +99,11 @@ After source merge, current-main verification and publication authorization,
 prepare the next available Python version with `prepare-release.yml`, merge its
 version PR, then publish that exact version through `release.yml`. TypeScript
 uses `typescript-release.yml` with committed candidate `version=1.2.0`, first
-`dry_run=true`. No agent merges or pushes tags manually. Keep the separate
-[SDK82](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/82) /
-[API1518](https://github.com/MangroveTechnologies/MangroveAI/pull/1518) loss-limit
-proposal separate; the default remains four. Local-deployment availability
+`dry_run=true`. No agent merges or pushes tags manually. The reviewed API1525
+producer schema defaults to two consecutive losses. The older
+[SDK82](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/82) and
+[API1518](https://github.com/MangroveTechnologies/MangroveAI/pull/1518)
+proposals are closed, not separate dependencies. Local-deployment availability
 requires actual serving acceptance in addition to package publication.
 
 The source version for an absent npm target must remain fresh main immediately

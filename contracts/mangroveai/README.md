@@ -27,10 +27,16 @@ defaults and nested glossary in the explicit schema response. The default trades
 schema omits the four bars-only keys (`cooldown_config`, `cooldown_bars`,
 `daily_momentum_limit`, `weekly_momentum_limit`), matching the canonical server.
 Explicit bars/legacy objects remain transport-compatible. The shared default
-fixture comes from the offline source service; the separate bars fixture verifies
-older/explicit response compatibility without claiming a public mode selector. These authoring
+fixture comes from the offline API1525 source service; the separate bars fixture
+comes from the same service with explicit `cooldown_model="bars"` and verifies
+legacy response compatibility without claiming a public mode selector. Both
+fixtures carry the producer's default of two consecutive losses. These authoring
 declarations do not add a client-side trading gate; the legacy transport escape
 hatch and server-owned risk decisions remain unchanged.
+
+`local-deployment-not-ready.json` is a synthetic stored strategy snapshot with
+explicit legacy execution settings, including a loss limit of four. That stored
+value is not the current server default.
 
 `coverage.json` enumerates every generated REST operation, response modelling
 status and matching direct Python transport bindings. Python wrappers delegating

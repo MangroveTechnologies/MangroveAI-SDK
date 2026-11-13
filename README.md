@@ -220,6 +220,7 @@ result = client.backtesting.run(BacktestRequest(
     target_volatility=0.1,
     # Partial trades-model overrides retain the other server defaults.
     # Loss pauses default to 36 bars, clamped to 24 hours through 14 days.
+    # Four losses here deliberately overrides the producer's default of two.
     execution_config={
         "circuit_breaker": {
             "consecutive_loss_limit": 4,

@@ -4,7 +4,7 @@ This repository contains clients for the public MangroveAI services in both
 languages. Keep their package identities and capabilities distinct:
 
 - Python: PyPI `mangroveai`, import `from mangrove_ai import MangroveAI`, source
-  `src/mangrove_ai/`. Python 2.4.1 is published; this branch needs a new version before publication.
+  `src/mangrove_ai/`. Python 2.4.2 is published; this branch needs a new version before publication.
 - TypeScript: npm `@mangrove-ai/sdk` 1.x, import
   `import { MangroveAI } from '@mangrove-ai/sdk'`, source `packages/typescript/`.
   The published version is 1.1.0; 1.2.0 is the prepared source candidate. Use the [guide](packages/typescript/README.md),
@@ -81,23 +81,21 @@ The package name stays `mangroveai`; `mangrove_ai` is its import path.
 
 ## Current release preparation and recovery
 
-Registry readback November 13, 2026 confirms Python `mangroveai` 2.4.1 and
+Registry readback November 13, 2026 confirms Python `mangroveai` 2.4.2 and
 TypeScript `@mangrove-ai/sdk` 1.1.0. This branch retains Python source version
-2.4.1 and TypeScript candidate 1.2.0; source does not imply registry identity.
+2.4.2 and TypeScript candidate 1.2.0; source does not imply registry identity.
 Never publish changed bytes under an existing version.
 
 [PR83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83) is merged
-and its flat shim is published in Python 2.4.1. This branch preserves that
+and its flat shim is published in Python 2.4.2. This branch preserves that
 package identity and its installed-distribution checks. [PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85)
 is closed; its contract and serialization changes are retained here. The public
-contract inputs match the clean export included in the
-[API1525](https://github.com/MangroveTechnologies/MangroveAI/pull/1525)
-source candidate at head `95cd81d0ef90414267623dd587c1c2617b8bc306`;
-provenance records the actual exporter source commit
-`6f940d9c6df1cb63f3fcc124294b582c1b79c714`.
-API current-head CI and image HTTP acceptance, producer merge, release and
-actual serving API/Oracle acceptance remain separate from this
-SDK source review and from package publication.
+contract inputs match a clean offline export from merged API source
+`b3337f2e1a9561b3cb419f163e19e1b51ac71b27`; its three document hashes
+are unchanged from the accepted [API1525](https://github.com/MangroveTechnologies/MangroveAI/pull/1525)
+export. Provenance records the new exporter source and its 27 input hashes.
+API source review and production promotion are separate from actual serving
+API/Oracle acceptance and SDK package publication.
 
 After source merge, current-main verification and publication authorization,
 prepare the next available Python version with `prepare-release.yml`, merge its

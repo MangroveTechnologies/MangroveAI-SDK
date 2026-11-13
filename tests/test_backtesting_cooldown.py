@@ -115,10 +115,14 @@ class TestBarsOnlyScalars:
             single = BacktestRequest(
                 **_BASE_BACKTEST, cooldown_model="bars", cooldown_bars=48,
                 daily_momentum_limit=5.0, weekly_momentum_limit=4.0)
-            bulk = BulkBacktestRequest(**_BASE_BULK, cooldown_bars=12, daily_momentum_limit=2.0)
+            bulk = BulkBacktestRequest(
+                **_BASE_BULK, cooldown_model="bars", cooldown_bars=12,
+                daily_momentum_limit=2.0)
         payload = backtest_payload(single)
+        assert payload["execution_config"]["cooldown_model"] == "bars"
         assert (payload["cooldown_bars"], payload["daily_momentum_limit"], payload["weekly_momentum_limit"]) == (48, 5.0, 4.0)
         payload = backtest_payload(bulk)
+        assert payload["execution_config"]["cooldown_model"] == "bars"
         assert (payload["cooldown_bars"], payload["daily_momentum_limit"]) == (12, 2.0)
         assert "weekly_momentum_limit" not in payload
 

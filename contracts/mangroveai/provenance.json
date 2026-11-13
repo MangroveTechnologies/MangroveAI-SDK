@@ -14,7 +14,7 @@
     }
   ],
   "generation": "Real application factory and canonical config metadata in ci; temporary HelpBot namespace registration only; TCP/DNS attempts refused and fail export; bundled LiteLLM cost metadata; startup provider warm-up/directory setup disabled; overrides restored; no business handlers",
-  "source_commit": "6f940d9c6df1cb63f3fcc124294b582c1b79c714",
+  "source_commit": "b3337f2e1a9561b3cb419f163e19e1b51ac71b27",
   "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "source_dirty": false,
   "source_files": [
@@ -24,7 +24,7 @@
     },
     {
       "path": "src/MangroveAI/__init__.py",
-      "sha256": "ad2509c2b4c7418752cfa46763f88f407973f36bdd27a307a830c146b99e9e76"
+      "sha256": "85f6b4cbf75b9245cb9facd40a4c63edfb0b1fbe28d08a42929c41e4876f3c36"
     },
     {
       "path": "src/MangroveAI/config.py",
@@ -36,7 +36,7 @@
     },
     {
       "path": "src/MangroveAI/config/configuration-keys.json",
-      "sha256": "047f5bcb33b0fd6e9e702b4337ca310e549ce6162145f99f546e648b0891d0b8"
+      "sha256": "4f21ca65560999cb8ee5c25b2b06b79b7c453978fbb77215f2844f80c79eed1a"
     },
     {
       "path": "src/MangroveAI/domains/help_bot/routes.py",
@@ -108,7 +108,7 @@
     },
     {
       "path": "src/MangroveAI/domains/backtesting/routes.py",
-      "sha256": "e65d3922679a1c07410d1892a28955d72563cb47929ce837294802b7eec59de7"
+      "sha256": "9a7774adb2db2eede065851a63fa5f6d2ab6ca73ca17dcd19c328766771dc954"
     },
     {
       "path": "src/MangroveAI/domains/strategies/workflow_routes.py",

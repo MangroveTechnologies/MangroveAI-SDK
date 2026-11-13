@@ -9,19 +9,18 @@ separate product, not the TypeScript version of this API.
 
 ## Choose a client
 
-Python [`mangroveai` 2.4.1](https://pypi.org/project/mangroveai/2.4.1/)
+Python [`mangroveai` 2.4.2](https://pypi.org/project/mangroveai/2.4.2/)
 and npm `@mangrove-ai/sdk` 1.1.0 are published (registry readback November 13,
 2026). Python already includes `strategies.local_deployment`, and the flat
 legacy shim from merged [PR83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83)
-is published in 2.4.1. This [PR84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84)
+is published in 2.4.2. This [PR84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84)
 source includes the contract and serialization changes from closed
 [PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85) and optional
-signal metadata. Its contract inputs match the refreshed
-[API1525](https://github.com/MangroveTechnologies/MangroveAI/pull/1525)
-source candidate. Package publication waits for that producer's acceptance and
-release, then actual API/Oracle serving acceptance. Prepare a new unpublished
-Python version through
-the native workflow after source integration. See the [release handoff](docs/issue-66-release-handoff.md).
+signal metadata. Its contract inputs match the clean offline export from merged
+API source `b3337f2e`, with identical public document bytes to the accepted
+[API1525](https://github.com/MangroveTechnologies/MangroveAI/pull/1525) export.
+Package publication follows source integration, a new Python version and
+reviewed serving API/Oracle contract acceptance. See the [release handoff](docs/issue-66-release-handoff.md).
 
 | Product and language | Registry package | Import | Guide |
 |---|---|---|---|
@@ -34,7 +33,7 @@ and [TypeScript GitHub Release](https://github.com/MangroveTechnologies/Mangrove
 for availability; a source version does not establish publication. The
 [TypeScript guide](packages/typescript/README.md) covers registry and reviewed
 archive installation. Dated publication checkpoints are in the [release handoff](docs/issue-66-release-handoff.md).
-The Python source version remains 2.4.1 until release preparation; this branch
+The Python source version remains 2.4.2 until release preparation; this branch
 is not the published artifact. TypeScript 1.2.0 remains an unpublished candidate.
 
 **Breaking product boundary:** published `@mangrove-ai/sdk` 0.1.2, 0.2.0 and 0.3.0
@@ -151,7 +150,7 @@ request interfaces.
 ## Local deployment snapshot
 
 Published Python 2.3.0 already includes the server-owned local Robinhood snapshot
-read; prepared TypeScript 1.2.0 adds the matching helper. Python 2.4.1 preserves
+read; prepared TypeScript 1.2.0 adds the matching helper. Python 2.4.2 preserves
 the read and the flat alias packaging repair. This requires backend 7.11.0 or later and deployed local-deployment
 capability; current package publication alone does not establish availability.
 The read is authenticated and billable. It returns the server's readiness and

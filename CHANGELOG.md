@@ -23,6 +23,10 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Refresh public contracts from the combined current X/Cambrian and developer
   contract source. Match the canonical trades schema without bars-only defaults;
   preserve explicit bars transport and optional signal capability metadata.
+- Refresh the pinned REST request defaults to 25 for four on-chain and four
+  strategy-workflow request bodies. Existing Python helpers retain their
+  explicit published page sizes; optional TypeScript fields use the server
+  default when omitted.
 
 - Preserve the owner-scoped `strategies.local_deployment` snapshot read already
   published in Python 2.3.0, with matching TypeScript 1.2.0 `strategies.localDeployment` and

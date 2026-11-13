@@ -19,11 +19,14 @@ wheels together; registry publication alone is insufficient.
 This combined [SDK84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84)
 preserves that fix, closed [SDK85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85)
 contract/serialization changes and optional signal metadata. Public input
-schemas match the clean official export from [API1525](https://github.com/MangroveTechnologies/MangroveAI/pull/1525)
-head `9d10f0c1bb769cefada1c981fa660d4be2dcff68`;
-`contracts/mangroveai/provenance.json` records the producer source and document
-hashes. API producer merge, release and actual API/Oracle serving acceptance
-are separate from SDK source review and required before package publication.
+schemas match the clean official export included in draft
+[API1525](https://github.com/MangroveTechnologies/MangroveAI/pull/1525)
+head `95cd81d0ef90414267623dd587c1c2617b8bc306`;
+`contracts/mangroveai/provenance.json` records the actual exporter source
+`6f940d9c6df1cb63f3fcc124294b582c1b79c714` and document hashes. API
+current-head CI and image HTTP acceptance, producer merge, release and actual
+API/Oracle serving acceptance are separate from SDK source review and required
+before package publication.
 
 After human source merges and current-main verification, use
 `prepare-release.yml` for the next unpublished Python version, merge that version

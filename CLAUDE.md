@@ -90,9 +90,12 @@ Never publish changed bytes under an existing version.
 and its flat shim is published in Python 2.4.1. This branch preserves that
 package identity and its installed-distribution checks. [PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85)
 is closed; its contract and serialization changes are retained here. The public
-contract inputs match clean [API1525](https://github.com/MangroveTechnologies/MangroveAI/pull/1525)
-source at `9d10f0c1bb769cefada1c981fa660d4be2dcff68`. API producer merge,
-release and actual serving API/Oracle acceptance remain separate from this
+contract inputs match the clean export included in draft
+[API1525](https://github.com/MangroveTechnologies/MangroveAI/pull/1525)
+head `95cd81d0ef90414267623dd587c1c2617b8bc306`; provenance records the
+actual exporter source commit `6f940d9c6df1cb63f3fcc124294b582c1b79c714`.
+API current-head CI and image HTTP acceptance, producer merge, release and
+actual serving API/Oracle acceptance remain separate from this
 SDK source review and from package publication.
 
 After source merge, current-main verification and publication authorization,

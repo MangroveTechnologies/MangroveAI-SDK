@@ -5919,7 +5919,7 @@
             "type": "integer"
           },
           "per_page": {
-            "default": 100,
+            "default": 25,
             "type": "integer"
           }
         },
@@ -6077,7 +6077,7 @@
             "type": "integer"
           },
           "per_page": {
-            "default": 100,
+            "default": 25,
             "type": "integer"
           }
         },
@@ -6137,7 +6137,7 @@
             "type": "integer"
           },
           "per_page": {
-            "default": 100,
+            "default": 25,
             "type": "integer"
           }
         },
@@ -6943,7 +6943,7 @@
             "type": "integer"
           },
           "per_page": {
-            "default": 100,
+            "default": 25,
             "type": "integer"
           }
         },
@@ -21158,7 +21158,7 @@
               "type": "string"
             },
             "limit": {
-              "default": 100,
+              "default": 25,
               "description": "Maximum results.",
               "type": "integer"
             },
@@ -21591,7 +21591,7 @@
           "additionalProperties": false,
           "properties": {
             "limit": {
-              "default": 50,
+              "default": 25,
               "description": "Maximum results.",
               "type": "integer"
             },
@@ -21967,7 +21967,7 @@
               "type": "string"
             },
             "limit": {
-              "default": 50,
+              "default": 25,
               "description": "Maximum results.",
               "type": "integer"
             },
@@ -22261,7 +22261,7 @@
               "type": "string"
             },
             "limit": {
-              "default": 100,
+              "default": 25,
               "description": "Maximum results.",
               "type": "integer"
             },

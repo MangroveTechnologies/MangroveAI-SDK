@@ -45,6 +45,13 @@ proof that Python cannot call an operation. The legacy KB host and MCP protocol
 are separate surfaces. Canonical knowledge routes on MangroveAI remain in the
 registered REST contract.
 
+The pinned REST contract declares a default page size of 25 for four on-chain
+query bodies and four strategy-workflow request bodies. These defaults apply
+when a request omits the field. Existing Python helpers still send their
+published explicit page sizes, including 100 on the affected methods, so this
+input refresh does not change their behavior. TypeScript's optional request
+fields continue to leave the server default in control when omitted.
+
 Canonical workflow bodies use the actual server JSON Schema stored in
 `x-mangrove-request-schema`, including canonical authoring unions.
 `x-mangrove-raw-json` marks unconstrained serializer values. Opaque response

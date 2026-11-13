@@ -8,7 +8,8 @@ Registry readback confirms Python [`mangroveai` 2.4.2](https://pypi.org/project/
 and npm [`@mangrove-ai/sdk` 1.1.0](https://www.npmjs.com/package/@mangrove-ai/sdk/v/1.1.0).
 Python already contains `strategies.local_deployment`. These published bytes
 must never be replaced by this branch's local builds. TypeScript 1.2.0 remains
-a candidate; Python source stays at 2.4.2 until a normal version-preparation PR.
+a candidate; [Python version PR91](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/91)
+prepares 2.5.0 source while 2.4.2 remains the published package.
 
 [SDK83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83) merged;
 its flat `mangroveai.py` legacy alias is retained in published Python 2.4.2. It avoids the
@@ -16,7 +17,7 @@ case-insensitive physical package collision while preserving imports.
 Coexistence still requires qualifying the actual repaired SDK and private-engine
 wheels together; registry publication alone is insufficient.
 
-This combined [SDK84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84)
+Merged [SDK84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84)
 preserves that fix, closed [SDK85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85)
 contract/serialization changes and optional signal metadata. Public input
 schemas match a clean official offline export from merged API source
@@ -27,12 +28,15 @@ accepted [API1525](https://github.com/MangroveTechnologies/MangroveAI/pull/1525)
 export. Source acceptance and the reviewed production promotion are distinct
 from actual API/Oracle serving acceptance, which gates package publication.
 
-After human source merges and current-main verification, use
-`prepare-release.yml` for the next unpublished Python version, merge that version
-PR, then publish the exact committed version with `release.yml` after publication
-authorization. Never dispatch a new upload for existing Python 2.4.2.
-TypeScript uses `typescript-release.yml` with `version=1.2.0`, first
-`dry_run=true`, then authorized publication. Verify registry archives and
+The native `prepare-release.yml` workflow generated Python 2.5.0 in PR91. After
+human merge, current-main verification, serving-contract acceptance and separate
+publication authorization, publish
+the exact committed version with `release.yml`. Never dispatch a new upload for
+existing Python 2.4.2. TypeScript's
+[1.2.0 dry run](https://github.com/MangroveTechnologies/MangroveAI-SDK/actions/runs/43527554956)
+passed from merged SDK84 main `6434a7cd`. The publication controller verifies
+fresh main before upload. Authorized publication through
+`typescript-release.yml` remains separate. Verify registry archives and
 consumer adoption separately. No agent merges or pushes tags manually.
 
 The reviewed API1525 producer defaults to two consecutive losses. The earlier

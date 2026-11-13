@@ -4,7 +4,7 @@ This repository contains clients for the public MangroveAI services in both
 languages. Keep their package identities and capabilities distinct:
 
 - Python: PyPI `mangroveai`, import `from mangrove_ai import MangroveAI`, source
-  `src/mangrove_ai/`. Python 2.4.2 is published; this branch needs a new version before publication.
+  `src/mangrove_ai/`. Python 2.4.2 is published; source version 2.5.0 is prepared for review.
 - TypeScript: npm `@mangrove-ai/sdk` 1.x, import
   `import { MangroveAI } from '@mangrove-ai/sdk'`, source `packages/typescript/`.
   The published version is 1.1.0; 1.2.0 is the prepared source candidate. Use the [guide](packages/typescript/README.md),
@@ -76,20 +76,22 @@ manually. A preexisting target tag or PyPI version requires release-state
 reconciliation; it is not permission to overwrite a release.
 
 The preparation workflow needs Actions write permission to dispatch offline CI and
-repository permission to open PRs. No workflow was dispatched during implementation.
+repository permission to open PRs.
 The package name stays `mangroveai`; `mangrove_ai` is its import path.
 
 ## Current release preparation and recovery
 
 Registry readback November 13, 2026 confirms Python `mangroveai` 2.4.2 and
-TypeScript `@mangrove-ai/sdk` 1.1.0. This branch retains Python source version
-2.4.2 and TypeScript candidate 1.2.0; source does not imply registry identity.
+TypeScript `@mangrove-ai/sdk` 1.1.0. [PR91](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/91)
+prepares Python source version 2.5.0; TypeScript 1.2.0 remains a candidate.
+Source does not imply registry identity.
 Never publish changed bytes under an existing version.
 
 [PR83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83) is merged
-and its flat shim is published in Python 2.4.2. This branch preserves that
-package identity and its installed-distribution checks. [PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85)
-is closed; its contract and serialization changes are retained here. The public
+and its flat shim is published in Python 2.4.2. Merged
+[PR84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84) preserves
+that package identity and its installed-distribution checks, plus the contract
+and serialization changes from closed [PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85). The public
 contract inputs match a clean offline export from merged API source
 `b3337f2e1a9561b3cb419f163e19e1b51ac71b27`; its three document hashes
 are unchanged from the accepted [API1525](https://github.com/MangroveTechnologies/MangroveAI/pull/1525)
@@ -97,9 +99,10 @@ export. Provenance records the new exporter source and its 27 input hashes.
 API source review and production promotion are separate from actual serving
 API/Oracle acceptance and SDK package publication.
 
-After source merge, current-main verification and publication authorization,
-prepare the next available Python version with `prepare-release.yml`, merge its
-version PR, then publish that exact version through `release.yml`. TypeScript
+The native `prepare-release.yml` workflow generated Python 2.5.0 in PR91. After
+human merge, current-main verification, serving-contract acceptance and separate
+publication authorization, publish
+that exact committed version through `release.yml`. TypeScript
 uses `typescript-release.yml` with committed candidate `version=1.2.0`, first
 `dry_run=true`. No agent merges or pushes tags manually. The reviewed API1525
 producer schema defaults to two consecutive losses. The older

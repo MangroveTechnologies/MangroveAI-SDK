@@ -2593,7 +2593,7 @@
             "x-mangrove-authoring-schema": {
               "additionalProperties": false,
               "default": {
-                "consecutive_loss_limit": 4,
+                "consecutive_loss_limit": 2,
                 "drawdown_pause_bars": 72,
                 "loss_amount_pct": 0.06,
                 "max_consecutive_pauses": 3,
@@ -2606,7 +2606,7 @@
               "description": "Parameters for cooldown_model 'trades': pause on consecutive net losses or accumulated loss amount, pause on marked drawdown from the peak (including unrealized changes), resume new alpha positions at a reduced size, and stop after consecutive pauses. Canon defaults are 36 primary bars for a loss pause, 72 for a drawdown pause, and three strikes for a permanent halt. Pause counts are clamped to 24 hours through 14 days by default. max_drawdown_halt_limit separately stops entries on realized loss of cumulative gross deposits. Existing exits remain active during holds.",
               "properties": {
                 "consecutive_loss_limit": {
-                  "default": 4,
+                  "default": 2,
                   "description": "Consecutive losing closes on an asset that start a pause. A winning close resets the count.",
                   "maximum": 100,
                   "minimum": 1,
@@ -3272,7 +3272,7 @@
             "circuit_breaker": {
               "additionalProperties": false,
               "default": {
-                "consecutive_loss_limit": 4,
+                "consecutive_loss_limit": 2,
                 "drawdown_pause_bars": 72,
                 "loss_amount_pct": 0.06,
                 "max_consecutive_pauses": 3,
@@ -3285,7 +3285,7 @@
               "description": "Parameters for cooldown_model 'trades': pause on consecutive net losses or accumulated loss amount, pause on marked drawdown from the peak (including unrealized changes), resume new alpha positions at a reduced size, and stop after consecutive pauses. Canon defaults are 36 primary bars for a loss pause, 72 for a drawdown pause, and three strikes for a permanent halt. Pause counts are clamped to 24 hours through 14 days by default. max_drawdown_halt_limit separately stops entries on realized loss of cumulative gross deposits. Existing exits remain active during holds.",
               "properties": {
                 "consecutive_loss_limit": {
-                  "default": 4,
+                  "default": 2,
                   "description": "Consecutive losing closes on an asset that start a pause. A winning close resets the count.",
                   "maximum": 100,
                   "minimum": 1,
@@ -7995,7 +7995,7 @@
             "x-mangrove-authoring-schema": {
               "additionalProperties": false,
               "default": {
-                "consecutive_loss_limit": 4,
+                "consecutive_loss_limit": 2,
                 "drawdown_pause_bars": 72,
                 "loss_amount_pct": 0.06,
                 "max_consecutive_pauses": 3,
@@ -8008,7 +8008,7 @@
               "description": "Parameters for cooldown_model 'trades': pause on consecutive net losses or accumulated loss amount, pause on marked drawdown from the peak (including unrealized changes), resume new alpha positions at a reduced size, and stop after consecutive pauses. Canon defaults are 36 primary bars for a loss pause, 72 for a drawdown pause, and three strikes for a permanent halt. Pause counts are clamped to 24 hours through 14 days by default. max_drawdown_halt_limit separately stops entries on realized loss of cumulative gross deposits. Existing exits remain active during holds.",
               "properties": {
                 "consecutive_loss_limit": {
-                  "default": 4,
+                  "default": 2,
                   "description": "Consecutive losing closes on an asset that start a pause. A winning close resets the count.",
                   "maximum": 100,
                   "minimum": 1,
@@ -8674,7 +8674,7 @@
             "circuit_breaker": {
               "additionalProperties": false,
               "default": {
-                "consecutive_loss_limit": 4,
+                "consecutive_loss_limit": 2,
                 "drawdown_pause_bars": 72,
                 "loss_amount_pct": 0.06,
                 "max_consecutive_pauses": 3,
@@ -8687,7 +8687,7 @@
               "description": "Parameters for cooldown_model 'trades': pause on consecutive net losses or accumulated loss amount, pause on marked drawdown from the peak (including unrealized changes), resume new alpha positions at a reduced size, and stop after consecutive pauses. Canon defaults are 36 primary bars for a loss pause, 72 for a drawdown pause, and three strikes for a permanent halt. Pause counts are clamped to 24 hours through 14 days by default. max_drawdown_halt_limit separately stops entries on realized loss of cumulative gross deposits. Existing exits remain active during holds.",
               "properties": {
                 "consecutive_loss_limit": {
-                  "default": 4,
+                  "default": 2,
                   "description": "Consecutive losing closes on an asset that start a pause. A winning close resets the count.",
                   "maximum": 100,
                   "minimum": 1,
@@ -9191,10 +9191,10 @@
     },
     "securitySchemes": {
       "MangroveBearer": {
-        "bearerFormat": "API key",
-        "description": "A Mangrove API key, sent as Authorization: Bearer <API_KEY>. Keep the key on your server.",
-        "scheme": "bearer",
-        "type": "http"
+        "description": "The complete header value: Bearer <API_KEY>. Keep the key on your server.",
+        "in": "header",
+        "name": "Authorization",
+        "type": "apiKey"
       }
     }
   },
@@ -9215,18 +9215,18 @@
   "openapi": "3.1.0",
   "paths": {
     "/api/v1/ai-copilot/chat/{session_id}": {
-      "parameters": [
-        {
-          "in": "path",
-          "name": "session_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
       "post": {
         "operationId": "api1_post_chat",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -9405,6 +9405,16 @@
     "/api/v1/ai-copilot/conversations/{session_id}": {
       "delete": {
         "operationId": "api1_delete_get_conversation",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -9486,6 +9496,16 @@
       },
       "get": {
         "operationId": "api1_get_get_conversation",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Conversation retrieved"
@@ -9557,21 +9577,29 @@
             }
           ]
         }
-      },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "session_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/ai-copilot/conversations/{session_id}/executions/{execution_id}": {
       "get": {
         "operationId": "api1_get_execution_status",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "execution_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Execution snapshot"
@@ -9595,47 +9623,29 @@
         "tags": [
           "ai-copilot"
         ]
-      },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "session_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        },
-        {
-          "in": "path",
-          "name": "execution_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/ai-copilot/conversations/{session_id}/executions/{execution_id}/cancel": {
-      "parameters": [
-        {
-          "in": "path",
-          "name": "session_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        },
-        {
-          "in": "path",
-          "name": "execution_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
       "post": {
         "operationId": "api1_post_execution_cancel",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "execution_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success"
@@ -9653,18 +9663,18 @@
       }
     },
     "/api/v1/ai-copilot/conversations/{session_id}/rename": {
-      "parameters": [
-        {
-          "in": "path",
-          "name": "session_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
       "put": {
         "operationId": "api1_put_rename_conversation",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -10190,6 +10200,16 @@
       "delete": {
         "description": "Permanently revokes the specified API key, preventing it from being used for\nauthentication in the future. This operation cannot be undone. The key is not\ndeleted from the database but is marked as revoked with a timestamp.\n\nAuthentication is required via JWT token, API key, or Firebase token.\nOnly the owner of the API key can revoke it.\n\nParameters:\n    key_id (str): The UUID of the API key to revoke (from the URL path)\n    \nReturns:\n    200 Success: Confirmation that the key was revoked\n    404 Error: If the key does not exist or does not belong to the user\n    500 Error: If server error occurs during processing",
         "operationId": "api1_delete_api_key_detail",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -10231,17 +10251,7 @@
         "tags": [
           "auth"
         ]
-      },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "key_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/auth/callback": {
       "get": {
@@ -10972,6 +10982,16 @@
       "get": {
         "description": "Returns the complete backtest result including:\n- status (pending, completed, failed)\n- metrics (performance statistics)\n- trade_history (all trades executed)\n- config (strategy configuration used)\n- timestamps (created_at, completed_at)\n\nAuthorization: Only returns backtest if it belongs to the authenticated user's organization",
         "operationId": "api1_get_backtest_by_id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "backtest_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Backtest retrieved successfully"
@@ -11043,22 +11063,22 @@
             }
           ]
         }
-      },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "backtest_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/backtesting/backtest/{backtest_id}/trades": {
       "get": {
         "description": "Returns the list of trades executed during the backtest, including\nentry/exit prices, timestamps, profit/loss, and exit reasons.",
         "operationId": "api1_get_backtest_trades",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "backtest_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Trades retrieved successfully"
@@ -11130,17 +11150,7 @@
             }
           ]
         }
-      },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "backtest_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/backtests": {
       "post": {
@@ -11464,6 +11474,16 @@
       "get": {
         "description": "Returns the complete backtest result including:\n- status (pending, completed, failed)\n- metrics (performance statistics)\n- trade_history (all trades executed)\n- config (strategy configuration used)\n- timestamps (created_at, completed_at)\n\nAuthorization: Only returns backtest if it belongs to the authenticated user's organization",
         "operationId": "api1_get_backtests_by_id_alias",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "backtest_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Backtest retrieved successfully"
@@ -11535,32 +11555,22 @@
             }
           ]
         }
-      },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "backtest_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/backtests/{backtest_id}/archive": {
-      "parameters": [
-        {
-          "in": "path",
-          "name": "backtest_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
       "post": {
         "description": "Backtests are never deleted -- archiving is a reversible view-state that\nremoves the run from GET /api/v1/users/me/backtests by default. Pass\n?include_archived=true to that endpoint to list archived runs, and POST\n/api/v1/backtests/<id>/unarchive to restore one.\n\nAuthorization: only affects a backtest owned by the caller's org.",
         "operationId": "api1_post_backtest_archive",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "backtest_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -11608,6 +11618,16 @@
       "get": {
         "description": "Returns the list of trades executed during the backtest, including\nentry/exit prices, timestamps, profit/loss, and exit reasons.",
         "operationId": "api1_get_backtests_trades_alias",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "backtest_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Trades retrieved successfully"
@@ -11679,32 +11699,22 @@
             }
           ]
         }
-      },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "backtest_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/backtests/{backtest_id}/unarchive": {
-      "parameters": [
-        {
-          "in": "path",
-          "name": "backtest_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
       "post": {
         "description": "The inverse of POST /api/v1/backtests/<id>/archive.\n\nAuthorization: only affects a backtest owned by the caller's org.",
         "operationId": "api1_post_backtest_unarchive",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "backtest_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -11783,6 +11793,16 @@
     "/api/v1/batch/job/status/{job_id}": {
       "get": {
         "operationId": "api1_get_job_status",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -11810,17 +11830,7 @@
         "tags": [
           "batch"
         ]
-      },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "job_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/config/execution-config-schema": {
       "get": {
@@ -12099,6 +12109,14 @@
         "operationId": "api1_get_flow_intelligence",
         "parameters": [
           {
+            "in": "path",
+            "name": "symbol",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "description": "Time range: 5m, 1h, 6h, 12h, 1d, 7d (default: 1d)",
             "in": "query",
             "name": "timeframe",
@@ -12195,17 +12213,7 @@
             }
           ]
         }
-      },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "symbol",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/crypto-assets/global-market": {
       "get": {
@@ -12284,6 +12292,14 @@
       "get": {
         "operationId": "api1_get_market_data",
         "parameters": [
+          {
+            "in": "path",
+            "name": "symbol",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "description": "Explicit external price source; omit to select a market",
             "in": "query",
@@ -12377,22 +12393,20 @@
             }
           ]
         }
-      },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "symbol",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/crypto-assets/ohlcv/{symbol}": {
       "get": {
         "operationId": "api1_get_ohlcv",
         "parameters": [
+          {
+            "in": "path",
+            "name": "symbol",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "description": "Explicit external provider, or omit to select a Mangrove market.",
             "in": "query",
@@ -12506,17 +12520,7 @@
             }
           ]
         }
-      },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "symbol",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/crypto-assets/query": {
       "get": {
@@ -12900,6 +12904,16 @@
     "/api/v1/crypto-assets/symbols/{symbol}": {
       "get": {
         "operationId": "api1_get_crypto_asset",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "symbol",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -12978,21 +12992,21 @@
             }
           ]
         }
-      },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "symbol",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/crypto-assets/symbols/{symbol}/exchanges": {
       "get": {
         "operationId": "api1_get_asset_exchanges",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "symbol",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -13071,22 +13085,22 @@
             }
           ]
         }
-      },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "symbol",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/crypto-assets/token-holders/{symbol}": {
       "get": {
         "deprecated": true,
         "operationId": "api1_get_token_holders",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "symbol",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -13165,17 +13179,7 @@
             }
           ]
         }
-      },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "symbol",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/crypto-assets/trending": {
       "get": {
@@ -13253,6 +13257,17 @@
     "/api/v1/defi/chain/{chain}/tvl": {
       "get": {
         "operationId": "api1_get_chain_tvl",
+        "parameters": [
+          {
+            "description": "Blockchain name (e.g. Ethereum, Solana, Arbitrum)",
+            "in": "path",
+            "name": "chain",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -13331,18 +13346,7 @@
             }
           ]
         }
-      },
-      "parameters": [
-        {
-          "description": "Blockchain name (e.g. Ethereum, Solana, Arbitrum)",
-          "in": "path",
-          "name": "chain",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/defi/etf-flows": {
       "get": {
@@ -13768,6 +13772,17 @@
     "/api/v1/defi/protocol/{protocol_name}/tvl": {
       "get": {
         "operationId": "api1_get_protocol_tvl",
+        "parameters": [
+          {
+            "description": "Protocol name or slug (e.g. aave, uniswap, lido)",
+            "in": "path",
+            "name": "protocol_name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -13846,18 +13861,7 @@
             }
           ]
         }
-      },
-      "parameters": [
-        {
-          "description": "Protocol name or slug (e.g. aave, uniswap, lido)",
-          "in": "path",
-          "name": "protocol_name",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/defi/stablecoins/metrics": {
       "get": {
@@ -14940,6 +14944,16 @@
     "/api/v1/execution/paper/{strategy_id}": {
       "get": {
         "operationId": "api1_get_paper_status",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "strategy_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success"
@@ -14991,31 +15005,21 @@
             }
           ]
         }
-      },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "strategy_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/execution/paper/{strategy_id}/pause": {
-      "parameters": [
-        {
-          "in": "path",
-          "name": "strategy_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
       "post": {
         "operationId": "api1_post_paper_pause",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "strategy_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success"
@@ -15070,18 +15074,18 @@
       }
     },
     "/api/v1/execution/paper/{strategy_id}/start": {
-      "parameters": [
-        {
-          "in": "path",
-          "name": "strategy_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
       "post": {
         "operationId": "api1_post_paper_start",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "strategy_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success"
@@ -15136,18 +15140,18 @@
       }
     },
     "/api/v1/execution/paper/{strategy_id}/tick": {
-      "parameters": [
-        {
-          "in": "path",
-          "name": "strategy_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
       "post": {
         "operationId": "api1_post_paper_tick",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "strategy_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success"
@@ -15676,6 +15680,14 @@
         "operationId": "api1_get_help_bot_conversation",
         "parameters": [
           {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "description": "An optional fields mask",
             "in": "header",
             "name": "X-Fields",
@@ -15706,17 +15718,7 @@
         "tags": [
           "help"
         ]
-      },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "session_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/knowledge/documents": {
       "get": {
@@ -15736,6 +15738,16 @@
     "/api/v1/knowledge/documents/{slug}": {
       "get": {
         "operationId": "api1_get_document",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success"
@@ -15746,17 +15758,7 @@
         "tags": [
           "knowledge"
         ]
-      },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "slug",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/knowledge/glossary": {
       "get": {
@@ -16714,6 +16716,17 @@
     "/api/v1/on-chain/token-holders/{symbol}": {
       "get": {
         "operationId": "api1_get_token_holders_f215770c0c255a6c",
+        "parameters": [
+          {
+            "description": "Token symbol (e.g. ETH, UNI)",
+            "in": "path",
+            "name": "symbol",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -16792,34 +16805,23 @@
             }
           ]
         }
-      },
-      "parameters": [
-        {
-          "description": "Token symbol (e.g. ETH, UNI)",
-          "in": "path",
-          "name": "symbol",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/on-chain/token/{symbol}/dex-trades": {
-      "parameters": [
-        {
-          "description": "Token symbol (e.g. UNI, ETH). Resolved to its contract address on the requested chain.",
-          "in": "path",
-          "name": "symbol",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
       "post": {
         "description": "Body mirrors upstream Nansen `/v1/tgm/dex-trades`.",
         "operationId": "api1_token_dex_trades",
+        "parameters": [
+          {
+            "description": "Token symbol (e.g. UNI, ETH). Resolved to its contract address on the requested chain.",
+            "in": "path",
+            "name": "symbol",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -16911,20 +16913,20 @@
       }
     },
     "/api/v1/on-chain/token/{symbol}/flows": {
-      "parameters": [
-        {
-          "description": "Token symbol (e.g. uniswap, ETH). Stablecoins not supported by this endpoint.",
-          "in": "path",
-          "name": "symbol",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
       "post": {
         "description": "Body mirrors upstream Nansen `/v1/tgm/flows`. Stablecoins return 404.",
         "operationId": "api1_token_flows",
+        "parameters": [
+          {
+            "description": "Token symbol (e.g. uniswap, ETH). Stablecoins not supported by this endpoint.",
+            "in": "path",
+            "name": "symbol",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -17018,6 +17020,16 @@
     "/api/v1/on-chain/whale-activity/{symbol}": {
       "get": {
         "operationId": "api1_get_unsupported_legacy_read_061b616deadf7f20",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "symbol",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success"
@@ -17032,17 +17044,7 @@
         "tags": [
           "on-chain"
         ]
-      },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "symbol",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/on-chain/whale-transactions": {
       "get": {
@@ -17250,6 +17252,14 @@
         "operationId": "api1_get_organization_detail",
         "parameters": [
           {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "description": "An optional fields mask",
             "in": "header",
             "name": "X-Fields",
@@ -17293,20 +17303,18 @@
           "organizations"
         ]
       },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "org_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
       "put": {
         "description": "Update organization",
         "operationId": "api1_put_organization_detail",
         "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "description": "An optional fields mask",
             "in": "header",
@@ -17368,6 +17376,14 @@
         "operationId": "api1_get_organization_invitations",
         "parameters": [
           {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "description": "An optional fields mask",
             "in": "header",
             "name": "X-Fields",
@@ -17411,20 +17427,18 @@
           "organizations"
         ]
       },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "org_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
       "post": {
         "description": "Invite a user to organization",
         "operationId": "api1_post_organization_invitations",
         "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "description": "An optional fields mask",
             "in": "header",
@@ -17484,6 +17498,24 @@
       "delete": {
         "description": "Cancel an invitation",
         "operationId": "api1_delete_organization_invitation_detail",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "invitation_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success"
@@ -17510,31 +17542,21 @@
         "tags": [
           "organizations"
         ]
-      },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "org_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        },
-        {
-          "in": "path",
-          "name": "invitation_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/organizations/{org_id}/members": {
       "get": {
         "description": "List organization members",
         "operationId": "api1_get_organization_members",
         "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "description": "An optional fields mask",
             "in": "header",
@@ -17578,22 +17600,30 @@
         "tags": [
           "organizations"
         ]
-      },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "org_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/organizations/{org_id}/members/{user_id}": {
       "delete": {
         "description": "Remove member from organization",
         "operationId": "api1_delete_organization_member_detail",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success"
@@ -17621,27 +17651,27 @@
           "organizations"
         ]
       },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "org_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        },
-        {
-          "in": "path",
-          "name": "user_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
       "put": {
         "description": "Update member role",
         "operationId": "api1_put_organization_member_detail",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -18205,6 +18235,14 @@
         "operationId": "api1_get_playground_data",
         "parameters": [
           {
+            "in": "path",
+            "name": "dataset_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "description": "ISO end of the window.",
             "in": "query",
             "name": "end_date",
@@ -18257,17 +18295,7 @@
         "tags": [
           "signals"
         ]
-      },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "dataset_key",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/signals/playground-datasets": {
       "get": {
@@ -18671,6 +18699,17 @@
     "/api/v1/signals/{signal_name}": {
       "get": {
         "operationId": "api1_get_signal_detail",
+        "parameters": [
+          {
+            "description": "Signal name",
+            "in": "path",
+            "name": "signal_name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -18708,33 +18747,22 @@
         "tags": [
           "signals"
         ]
-      },
-      "parameters": [
-        {
-          "description": "Signal name",
-          "in": "path",
-          "name": "signal_name",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/signals/{signal_name}/evaluate": {
-      "parameters": [
-        {
-          "description": "Signal name",
-          "in": "path",
-          "name": "signal_name",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
       "post": {
         "operationId": "api1_post_signal_evaluate",
+        "parameters": [
+          {
+            "description": "Signal name",
+            "in": "path",
+            "name": "signal_name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -18836,19 +18864,19 @@
       }
     },
     "/api/v1/signals/{signal_name}/validate-params": {
-      "parameters": [
-        {
-          "description": "Signal name",
-          "in": "path",
-          "name": "signal_name",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
       "post": {
         "operationId": "api1_post_signal_validate",
+        "parameters": [
+          {
+            "description": "Signal name",
+            "in": "path",
+            "name": "signal_name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -18952,6 +18980,17 @@
     "/api/v1/social/influence/{username}": {
       "get": {
         "operationId": "api1_get_influence",
+        "parameters": [
+          {
+            "description": "X/Twitter username (without @)",
+            "in": "path",
+            "name": "username",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -19040,23 +19079,21 @@
             }
           ]
         }
-      },
-      "parameters": [
-        {
-          "description": "X/Twitter username (without @)",
-          "in": "path",
-          "name": "username",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/social/mentions/{topic}": {
       "get": {
         "operationId": "api1_get_mentions",
         "parameters": [
+          {
+            "description": "Topic or keyword to search",
+            "in": "path",
+            "name": "topic",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "description": "Max posts to return (default 20)",
             "in": "query",
@@ -19146,7 +19183,7 @@
         ],
         "x-payment-info": {
           "price": {
-            "amount": "0.020000",
+            "amount": "1.000000",
             "currency": "USD",
             "mode": "fixed"
           },
@@ -19162,23 +19199,21 @@
             }
           ]
         }
-      },
-      "parameters": [
-        {
-          "description": "Topic or keyword to search",
-          "in": "path",
-          "name": "topic",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/social/sentiment/{topic}": {
       "get": {
         "operationId": "api1_get_sentiment",
         "parameters": [
+          {
+            "description": "Topic or symbol to analyze (e.g. BTC, ETH, Solana)",
+            "in": "path",
+            "name": "topic",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "description": "Time window in hours (default 24)",
             "in": "query",
@@ -19260,7 +19295,7 @@
         ],
         "x-payment-info": {
           "price": {
-            "amount": "0.020000",
+            "amount": "1.000000",
             "currency": "USD",
             "mode": "fixed"
           },
@@ -19276,23 +19311,21 @@
             }
           ]
         }
-      },
-      "parameters": [
-        {
-          "description": "Topic or symbol to analyze (e.g. BTC, ETH, Solana)",
-          "in": "path",
-          "name": "topic",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/social/x-post-counts/{symbol}": {
       "get": {
         "operationId": "api1_get_x_post_counts",
         "parameters": [
+          {
+            "description": "Asset ticker, e.g. BTC (counted as the $BTC cashtag)",
+            "in": "path",
+            "name": "symbol",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "description": "Query variant: all (default) or en_original",
             "in": "query",
@@ -19416,18 +19449,7 @@
             }
           ]
         }
-      },
-      "parameters": [
-        {
-          "description": "Asset ticker, e.g. BTC (counted as the $BTC cashtag)",
-          "in": "path",
-          "name": "symbol",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/strategies/": {
       "get": {
@@ -19660,6 +19682,16 @@
       "delete": {
         "description": "Product ruling (#806): strategies follow the same archive-only contract\nas backtests -- they are never removed from the database. This route is\nretained for back-compat but now ARCHIVES the strategy (reversible via\nPOST /strategies/<id>/unarchive) instead of hard-deleting it. Prefer the\nexplicit POST /strategies/<id>/archive endpoint (which only needs\nstrategy:update_status, not strategy:delete).",
         "operationId": "api1_delete_strategy",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "strategy_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -19721,6 +19753,16 @@
       },
       "get": {
         "operationId": "api1_get_strategy",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "strategy_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -19780,18 +19822,18 @@
           ]
         }
       },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "strategy_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
       "put": {
         "operationId": "api1_update_strategy",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "strategy_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -19859,19 +19901,19 @@
       }
     },
     "/api/v1/strategies/{strategy_id}/archive": {
-      "parameters": [
-        {
-          "in": "path",
-          "name": "strategy_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
       "post": {
         "description": "Strategies are never deleted -- archiving is a reversible view-state\nthat removes the strategy from the default list views (GET /strategies,\nGET /users/me/strategies). Restore it with POST /strategies/<id>/unarchive.\nDoes not affect the active-strategy cap (owned by platform-backend).\n\nAuthorization: strategy:update_status (any member/owner/admin of the org).",
         "operationId": "api1_archive_strategy",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "strategy_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -19899,19 +19941,19 @@
       }
     },
     "/api/v1/strategies/{strategy_id}/execution-state": {
-      "parameters": [
-        {
-          "in": "path",
-          "name": "strategy_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
       "patch": {
         "description": ").",
         "operationId": "api1_update_execution_state",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "strategy_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -19972,6 +20014,14 @@
       "get": {
         "operationId": "api1_get_local_deployment",
         "parameters": [
+          {
+            "in": "path",
+            "name": "strategy_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "description": "Asset class for the separate local broker runner.",
             "in": "query",
@@ -20053,31 +20103,21 @@
             }
           ]
         }
-      },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "strategy_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/strategies/{strategy_id}/status": {
-      "parameters": [
-        {
-          "in": "path",
-          "name": "strategy_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
       "patch": {
         "operationId": "api1_update_strategy_status",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "strategy_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -20155,19 +20195,19 @@
       }
     },
     "/api/v1/strategies/{strategy_id}/unarchive": {
-      "parameters": [
-        {
-          "in": "path",
-          "name": "strategy_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
       "post": {
         "description": "Authorization: strategy:update_status (any member/owner/admin of the org).",
         "operationId": "api1_unarchive_strategy",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "strategy_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -20198,6 +20238,16 @@
       "get": {
         "description": "Reads what is STORED, so it answers for the strategy as it exists. Call it after\nsaving and before backtesting -- a backtest is billed at submission whether or\nnot it runs. Same check the copilot's verify_strategy tool runs.",
         "operationId": "api1_verify_strategy",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "strategy_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -20262,17 +20312,7 @@
             }
           ]
         }
-      },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "strategy_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v1/strategy-workflow/build_strategy_for_regime": {
       "post": {
@@ -22515,7 +22555,7 @@
             },
             "constraints": {
               "additionalProperties": true,
-              "description": "Execution values the person stated, e.g. {\"max_risk_per_trade\": 0.01}. Each is kept exactly as given rather than nudged.",
+              "description": "Supported execution overrides requested by the person or justified by the composition workflow after reading the execution-config contract. Preserve explicit user choices and explain agent-selected adjustments. Each supplied value is kept exactly as given rather than nudged.",
               "properties": {
                 "atr_cap_multiplier": {
                   "description": "SUPERSEDED by volatility_tolerance. Bounded the weighted blend at this multiple of the SHORT ATR.",
@@ -22600,7 +22640,7 @@
                   "x-mangrove-authoring-schema": {
                     "additionalProperties": false,
                     "default": {
-                      "consecutive_loss_limit": 4,
+                      "consecutive_loss_limit": 2,
                       "drawdown_pause_bars": 72,
                       "loss_amount_pct": 0.06,
                       "max_consecutive_pauses": 3,
@@ -22613,7 +22653,7 @@
                     "description": "Parameters for cooldown_model 'trades': pause on consecutive net losses or accumulated loss amount, pause on marked drawdown from the peak (including unrealized changes), resume new alpha positions at a reduced size, and stop after consecutive pauses. Canon defaults are 36 primary bars for a loss pause, 72 for a drawdown pause, and three strikes for a permanent halt. Pause counts are clamped to 24 hours through 14 days by default. max_drawdown_halt_limit separately stops entries on realized loss of cumulative gross deposits. Existing exits remain active during holds.",
                     "properties": {
                       "consecutive_loss_limit": {
-                        "default": 4,
+                        "default": 2,
                         "description": "Consecutive losing closes on an asset that start a pause. A winning close resets the count.",
                         "maximum": 100,
                         "minimum": 1,
@@ -23279,7 +23319,7 @@
                   "circuit_breaker": {
                     "additionalProperties": false,
                     "default": {
-                      "consecutive_loss_limit": 4,
+                      "consecutive_loss_limit": 2,
                       "drawdown_pause_bars": 72,
                       "loss_amount_pct": 0.06,
                       "max_consecutive_pauses": 3,
@@ -23292,7 +23332,7 @@
                     "description": "Parameters for cooldown_model 'trades': pause on consecutive net losses or accumulated loss amount, pause on marked drawdown from the peak (including unrealized changes), resume new alpha positions at a reduced size, and stop after consecutive pauses. Canon defaults are 36 primary bars for a loss pause, 72 for a drawdown pause, and three strikes for a permanent halt. Pause counts are clamped to 24 hours through 14 days by default. max_drawdown_halt_limit separately stops entries on realized loss of cumulative gross deposits. Existing exits remain active during holds.",
                     "properties": {
                       "consecutive_loss_limit": {
-                        "default": 4,
+                        "default": 2,
                         "description": "Consecutive losing closes on an asset that start a pause. A winning close resets the count.",
                         "maximum": 100,
                         "minimum": 1,
@@ -24488,7 +24528,7 @@
           "properties": {
             "constraints": {
               "additionalProperties": true,
-              "description": "Execution values the person stated, e.g. {\"max_risk_per_trade\": 0.01}. Each is kept exactly as given rather than nudged.",
+              "description": "Supported execution overrides requested by the person or justified by the composition workflow after reading the execution-config contract. Preserve explicit user choices and explain agent-selected adjustments. Each supplied value is kept exactly as given rather than nudged.",
               "properties": {
                 "atr_cap_multiplier": {
                   "description": "SUPERSEDED by volatility_tolerance. Bounded the weighted blend at this multiple of the SHORT ATR.",
@@ -24573,7 +24613,7 @@
                   "x-mangrove-authoring-schema": {
                     "additionalProperties": false,
                     "default": {
-                      "consecutive_loss_limit": 4,
+                      "consecutive_loss_limit": 2,
                       "drawdown_pause_bars": 72,
                       "loss_amount_pct": 0.06,
                       "max_consecutive_pauses": 3,
@@ -24586,7 +24626,7 @@
                     "description": "Parameters for cooldown_model 'trades': pause on consecutive net losses or accumulated loss amount, pause on marked drawdown from the peak (including unrealized changes), resume new alpha positions at a reduced size, and stop after consecutive pauses. Canon defaults are 36 primary bars for a loss pause, 72 for a drawdown pause, and three strikes for a permanent halt. Pause counts are clamped to 24 hours through 14 days by default. max_drawdown_halt_limit separately stops entries on realized loss of cumulative gross deposits. Existing exits remain active during holds.",
                     "properties": {
                       "consecutive_loss_limit": {
-                        "default": 4,
+                        "default": 2,
                         "description": "Consecutive losing closes on an asset that start a pause. A winning close resets the count.",
                         "maximum": 100,
                         "minimum": 1,
@@ -25252,7 +25292,7 @@
                   "circuit_breaker": {
                     "additionalProperties": false,
                     "default": {
-                      "consecutive_loss_limit": 4,
+                      "consecutive_loss_limit": 2,
                       "drawdown_pause_bars": 72,
                       "loss_amount_pct": 0.06,
                       "max_consecutive_pauses": 3,
@@ -25265,7 +25305,7 @@
                     "description": "Parameters for cooldown_model 'trades': pause on consecutive net losses or accumulated loss amount, pause on marked drawdown from the peak (including unrealized changes), resume new alpha positions at a reduced size, and stop after consecutive pauses. Canon defaults are 36 primary bars for a loss pause, 72 for a drawdown pause, and three strikes for a permanent halt. Pause counts are clamped to 24 hours through 14 days by default. max_drawdown_halt_limit separately stops entries on realized loss of cumulative gross deposits. Existing exits remain active during holds.",
                     "properties": {
                       "consecutive_loss_limit": {
-                        "default": 4,
+                        "default": 2,
                         "description": "Consecutive losing closes on an asset that start a pause. A winning close resets the count.",
                         "maximum": 100,
                         "minimum": 1,
@@ -26523,6 +26563,16 @@
     "/api/v2/agent/conversations/{session_id}": {
       "delete": {
         "operationId": "api2_delete_conversation",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Conversation deleted"
@@ -26577,6 +26627,16 @@
       },
       "get": {
         "operationId": "api2_get_conversation",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Conversation retrieved"
@@ -26638,32 +26698,22 @@
             }
           ]
         }
-      },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "session_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/api/v2/agent/conversations/{session_id}/executions": {
-      "parameters": [
-        {
-          "in": "path",
-          "name": "session_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
       "post": {
         "description": "This distinct URL fails closed on older deployments that do not forward\ndelegated proposal controls. Status and Stop remain independently callable.",
         "operationId": "api2_post_executions",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success"
@@ -26718,19 +26768,19 @@
       }
     },
     "/api/v2/agent/conversations/{session_id}/messages": {
-      "parameters": [
-        {
-          "in": "path",
-          "name": "session_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
       "post": {
         "description": "The turn runs on this request rather than a background thread, so the request is\nin flight for as long as the work is and the autoscaler counts it.",
         "operationId": "api2_post_messages",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -26815,18 +26865,18 @@
       }
     },
     "/api/v2/agent/conversations/{session_id}/rename": {
-      "parameters": [
-        {
-          "in": "path",
-          "name": "session_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
       "patch": {
         "operationId": "api2_patch_rename_conversation",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Conversation renamed"
@@ -26988,6 +27038,16 @@
       "get": {
         "description": "Returns the current status of a backtest submitted via\nPOST /api/v2/backtests/.\n\nStatus values:\n- \"running\"   -- simulation in progress; poll again\n- \"completed\" -- metrics and trade_history are populated\n- \"failed\"    -- error_message is populated",
         "operationId": "api2_get_async_backtest_status",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "backtest_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -27066,17 +27126,7 @@
             }
           ]
         }
-      },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "backtest_id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     }
   },
   "servers": [

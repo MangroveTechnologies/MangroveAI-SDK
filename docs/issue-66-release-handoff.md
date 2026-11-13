@@ -2,35 +2,33 @@
 
 Issue: https://github.com/MangroveTechnologies/MangroveAI-SDK/issues/66
 
-## Current packages and held source (2026-11-10 UTC)
+## Current packages and source candidate (2026-11-13 UTC)
 
-Registry readback confirms Python [`mangroveai` 2.4.0](https://pypi.org/project/mangroveai/2.4.0/)
+Registry readback confirms Python [`mangroveai` 2.4.1](https://pypi.org/project/mangroveai/2.4.1/)
 and npm [`@mangrove-ai/sdk` 1.1.0](https://www.npmjs.com/package/@mangrove-ai/sdk/v/1.1.0).
 Python already contains `strategies.local_deployment`. These published bytes
 must never be replaced by this branch's local builds. TypeScript 1.2.0 remains
-a candidate; Python source stays at 2.4.0 until a normal version-preparation PR.
+a candidate; Python source stays at 2.4.1 until a normal version-preparation PR.
 
-[SDK83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83) is an
-independent packaging-only repair. Review, merge and release that fix before
-private-engine coexistence. The flat `mangroveai.py` legacy alias avoids the
+[SDK83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83) merged;
+its flat `mangroveai.py` legacy alias was published in Python 2.4.1. It avoids the
 case-insensitive physical package collision while preserving imports.
 Coexistence still requires qualifying the actual repaired SDK and private-engine
 wheels together; registry publication alone is insufficient.
 
 This combined [SDK84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84)
-preserves that fix, [SDK85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85)
-contract/serialization changes and optional signal metadata. It is explicitly
-held until the corresponding API producer is released and actual API/Oracle
-serving acceptance passes. Public input schemas come from clean
-[API1525](https://github.com/MangroveTechnologies/MangroveAI/pull/1525) source
-`c3aea196ae795775855e599deaf26886f0efd00a`; `contracts/mangroveai/provenance.json`
-records the exact exporter and document hashes. Source generation is not a
-claim that the deployed API serves those documents.
+preserves that fix, closed [SDK85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85)
+contract/serialization changes and optional signal metadata. Public input
+schemas match the clean official export from [API1525](https://github.com/MangroveTechnologies/MangroveAI/pull/1525)
+head `9d10f0c1bb769cefada1c981fa660d4be2dcff68`;
+`contracts/mangroveai/provenance.json` records the producer source and document
+hashes. API producer merge, release and actual API/Oracle serving acceptance
+are separate from SDK source review and required before package publication.
 
 After human source merges and current-main verification, use
 `prepare-release.yml` for the next unpublished Python version, merge that version
 PR, then publish the exact committed version with `release.yml` after publication
-authorization. Never dispatch a new upload for existing Python 2.4.0.
+authorization. Never dispatch a new upload for existing Python 2.4.1.
 TypeScript uses `typescript-release.yml` with `version=1.2.0`, first
 `dry_run=true`, then authorized publication. Verify registry archives and
 consumer adoption separately. No agent merges or pushes tags manually.

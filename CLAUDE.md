@@ -4,7 +4,7 @@ This repository contains clients for the public MangroveAI services in both
 languages. Keep their package identities and capabilities distinct:
 
 - Python: PyPI `mangroveai`, import `from mangrove_ai import MangroveAI`, source
-  `src/mangrove_ai/`. Python 2.4.0 is published; this branch needs a new version before publication.
+  `src/mangrove_ai/`. Python 2.4.1 is published; this branch needs a new version before publication.
 - TypeScript: npm `@mangrove-ai/sdk` 1.x, import
   `import { MangroveAI } from '@mangrove-ai/sdk'`, source `packages/typescript/`.
   The published version is 1.1.0; 1.2.0 is the prepared source candidate. Use the [guide](packages/typescript/README.md),
@@ -81,19 +81,19 @@ The package name stays `mangroveai`; `mangrove_ai` is its import path.
 
 ## Current release preparation and recovery
 
-Registry readback November 10, 2026 confirms Python `mangroveai` 2.4.0 and
+Registry readback November 13, 2026 confirms Python `mangroveai` 2.4.1 and
 TypeScript `@mangrove-ai/sdk` 1.1.0. This branch retains Python source version
-2.4.0 and TypeScript candidate 1.2.0; source does not imply registry identity.
+2.4.1 and TypeScript candidate 1.2.0; source does not imply registry identity.
 Never publish changed bytes under an existing version.
 
-[PR83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83) is the
-independent packaging prerequisite for private-engine coexistence. Merge and
-release it through normal human review and native version preparation first.
-[PR84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84) remains
-explicitly held until the corresponding API producer is released and actual
-API/Oracle serving contracts pass acceptance. It preserves PR83's flat shim and
-[PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85)'s contract
-and serialization fixes; reconcile duplicate slices after integration.
+[PR83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83) is merged
+and its flat shim is published in Python 2.4.1. This branch preserves that
+package identity and its installed-distribution checks. [PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85)
+is closed; its contract and serialization changes are retained here. The public
+contract inputs match clean [API1525](https://github.com/MangroveTechnologies/MangroveAI/pull/1525)
+source at `9d10f0c1bb769cefada1c981fa660d4be2dcff68`. API producer merge,
+release and actual serving API/Oracle acceptance remain separate from this
+SDK source review and from package publication.
 
 After source merge, current-main verification and publication authorization,
 prepare the next available Python version with `prepare-release.yml`, merge its

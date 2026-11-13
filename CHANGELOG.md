@@ -9,14 +9,16 @@ All notable changes to the MangroveAI Python SDK will be documented in this file
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 2.4.0 - Unreleased
+## Unreleased (after Python 2.4.1)
 
 - Restrict Python source archives to declared Python source, tests, contracts,
   scripts and documentation, excluding Node dependencies and transient test output.
 
-- Combine [PR83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83), [PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85) and [PR84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84) after human merge and current-main verification.
-  Python 2.3.0 is published from main `55b09392b144ff936080aa4d0199d1e4caa4a985`;
-  earlier local 2.3.0 candidate artifacts are distinct historical evidence.
+- Preserve the flat legacy shim published in Python 2.4.1 from merged
+  [PR83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83) and
+  retain the contract and serialization slice from closed
+  [PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85) in
+  [PR84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84).
 
 - Refresh public contracts from the combined current X/Cambrian and developer
   contract source. Match the canonical trades schema without bars-only defaults;
@@ -28,9 +30,7 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Retain server default loss limit of four; [SDK PR82](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/82) /
   [API PR1518](https://github.com/MangroveTechnologies/MangroveAI/pull/1518)'s proposed limit of two is separate
   unfinished feature work, not included here.
-- Keep the deprecated public `mangroveai` imports as a single-file alias of
-  `mangrove_ai`, avoiding a directory collision with the private engine on
-  case-insensitive filesystems. Public distribution/import/class names remain.
+- Keep the published single-file `mangroveai` alias and its public class identity.
 - Exercise actual installed wheel/source artifacts, public alias class identity
   and local snapshot/error preservation without invoking paid endpoints.
 

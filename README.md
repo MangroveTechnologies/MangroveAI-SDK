@@ -13,14 +13,14 @@ Python [`mangroveai` 2.4.2](https://pypi.org/project/mangroveai/2.4.2/)
 and npm `@mangrove-ai/sdk` 1.1.0 are published (registry readback November 13,
 2026). Python already includes `strategies.local_deployment`, and the flat
 legacy shim from merged [PR83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83)
-is published in 2.4.2. This [PR84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84)
-source includes the contract and serialization changes from closed
+is published in 2.4.2. Merged [PR84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84)
+includes the contract and serialization changes from closed
 [PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85) and optional
 signal metadata. Its contract inputs match the clean offline export from merged
 API source `b3337f2e`, with identical public document bytes to the accepted
 [API1525](https://github.com/MangroveTechnologies/MangroveAI/pull/1525) export.
-Package publication follows source integration, a new Python version and
-reviewed serving API/Oracle contract acceptance. See the [release handoff](docs/issue-66-release-handoff.md).
+Package publication follows human review of the prepared Python 2.5.0 version
+and serving API/Oracle contract acceptance. See the [release handoff](docs/issue-66-release-handoff.md).
 
 | Product and language | Registry package | Import | Guide |
 |---|---|---|---|
@@ -33,8 +33,8 @@ and [TypeScript GitHub Release](https://github.com/MangroveTechnologies/Mangrove
 for availability; a source version does not establish publication. The
 [TypeScript guide](packages/typescript/README.md) covers registry and reviewed
 archive installation. Dated publication checkpoints are in the [release handoff](docs/issue-66-release-handoff.md).
-The Python source version remains 2.4.2 until release preparation; this branch
-is not the published artifact. TypeScript 1.2.0 remains an unpublished candidate.
+Python source version 2.5.0 is prepared in [PR91](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/91);
+published 2.4.2 remains unchanged. TypeScript 1.2.0 remains an unpublished candidate.
 
 **Breaking product boundary:** published `@mangrove-ai/sdk` 0.1.2, 0.2.0 and 0.3.0
 are historical Markets clients. The new 1.0.0 package is MangroveAI and does not

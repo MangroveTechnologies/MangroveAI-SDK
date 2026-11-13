@@ -16,7 +16,7 @@ legacy shim from merged [PR83](https://github.com/MangroveTechnologies/MangroveA
 is published in 2.4.1. This [PR84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84)
 source includes the contract and serialization changes from closed
 [PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85) and optional
-signal metadata. Its contract inputs match the refreshed draft
+signal metadata. Its contract inputs match the refreshed
 [API1525](https://github.com/MangroveTechnologies/MangroveAI/pull/1525)
 source candidate. Package publication waits for that producer's acceptance and
 release, then actual API/Oracle serving acceptance. Prepare a new unpublished

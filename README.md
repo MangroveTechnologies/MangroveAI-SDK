@@ -56,6 +56,21 @@ pip install mangroveai
 > The package imports as `mangrove_ai` (e.g. `from mangrove_ai import MangroveAI`).
 > The legacy `import mangroveai` path also still works for backwards compatibility.
 
+### Compatibility with the private engine
+
+This source changes the deprecated `mangroveai` import shim from a directory to
+one `mangroveai.py` file. Root, model and exception imports still alias the
+canonical `mangrove_ai` objects. This prevents the SDK from overwriting the private
+engine's `MangroveAI` directory on case-insensitive filesystems.
+
+Published Python 2.4.0 still contains the conflicting directory; this fix requires
+a subsequent Python patch release through the normal reviewed release workflow.
+Co-installation also requires the engine's distinct `mangrove-ai-engine`
+distribution identity. Upgrade the SDK before adding the renamed engine, or use
+a fresh environment. If the old packages were already installed together,
+recreate the environment: upgrading alone cannot prove overwritten engine files
+were repaired. This packaging change needs no API deployment or new endpoint.
+
 ## Setup
 
 1. Create an account at [mangrovedeveloper.ai](https://mangrovedeveloper.ai)

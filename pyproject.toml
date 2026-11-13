@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mangroveai"
-version = "2.3.0"
+version = "2.4.1"
 description = "Python SDK for the MangroveAI trading strategy platform"
 readme = "README.md"
 license = "MIT"
@@ -48,7 +48,10 @@ Documentation = "https://github.com/MangroveTechnologies/MangroveAI-SDK#readme"
 Changelog = "https://github.com/MangroveTechnologies/MangroveAI-SDK/blob/main/CHANGELOG.md"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/mangrove_ai", "src/mangroveai"]
+packages = ["src/mangrove_ai"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/mangroveai.py" = "mangroveai.py"
 
 [tool.ruff]
 target-version = "py310"

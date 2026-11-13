@@ -11,6 +11,14 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Python package compatibility
+
+- Replace the deprecated `mangroveai` package directory with a flat compatibility
+  module, preserving public import and class identity while avoiding file
+  ownership collisions with the private engine on case-insensitive hosts.
+  The SDK distribution name and HTTP behavior are unchanged. Published 2.4.0
+  still uses the old layout; this correction requires a subsequent patch release.
+
 ### X post counts and the social signal category (targets 2.2.0, after 2.1.1)
 
 - `client.social.get_x_post_counts(symbol, days_back, granularity, x_query)` reads

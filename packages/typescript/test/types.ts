@@ -26,6 +26,15 @@ void metrics;
 void sdk.request('GET /api/v1/strategies/{strategy_id}', { path: { strategy_id: 'fixture' } });
 void sdk.strategyWorkflow.getStrategy({ body: { strategy_id: 'fixture' } });
 void sdk.strategyWorkflow.getSweepLimits({});
+void sdk.request('GET /api/v1/oracle/results', {
+  query: { min_days: 90, max_days: 180, min_avg_daily_return: -0.2, max_avg_daily_return: 0, sort: 'num_days' },
+});
+void sdk.request('GET /api/v1/oracle/experiments/{experiment_id}/results', {
+  path: { experiment_id: 'fixture' },
+  query: { min_days: 0, max_days: 90, min_avg_daily_return: 0, sort: 'avg_daily_return' },
+});
+// @ts-expect-error Historical duration is numeric, not a string.
+void sdk.request('GET /api/v1/oracle/results', { query: { min_days: '90' } });
 
 // @ts-expect-error The contract requires the path identity.
 void sdk.request('GET /api/v1/strategies/{strategy_id}', {});

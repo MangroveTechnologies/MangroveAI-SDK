@@ -20892,6 +20892,14 @@
               "description": "Only runs from windows of this market character, e.g. bear or mega_bull. Several are one comma-separated string, e.g. \"bull,super_bull\", and a run matching any of them counts. What a run did in one kind of market says little about another.",
               "type": "string"
             },
+            "max_avg_daily_return": {
+              "description": "Maximum mean daily return in percent, inclusive.",
+              "type": "number"
+            },
+            "max_days": {
+              "description": "Maximum recorded backtest days, inclusive.",
+              "type": "integer"
+            },
             "max_delta_vs_asset": {
               "description": "Only runs beating their own asset by at most this much.",
               "type": "number"
@@ -20923,6 +20931,14 @@
             "max_win_rate": {
               "description": "Only runs at or below this win rate.",
               "type": "number"
+            },
+            "min_avg_daily_return": {
+              "description": "Minimum mean daily return in percent, inclusive.",
+              "type": "number"
+            },
+            "min_days": {
+              "description": "Minimum recorded backtest days, inclusive; independent of IRR.",
+              "type": "integer"
             },
             "min_delta_vs_asset": {
               "description": "Only runs beating buy-and-hold on their own asset by at least this much.",
@@ -20984,7 +21000,7 @@
               "type": "string"
             },
             "sort_by": {
-              "description": "The metric to order by, e.g. sharpe_ratio, sortino_ratio, irr_annualized, total_return, max_drawdown, total_trades. Required, because the choice IS the question being asked.",
+              "description": "The metric to order by, e.g. sharpe_ratio, sortino_ratio, irr_annualized, total_return, avg_daily_return, num_days, max_drawdown, total_trades. Required, because the choice IS the question being asked.",
               "type": "string"
             },
             "trend": {

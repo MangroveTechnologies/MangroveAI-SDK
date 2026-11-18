@@ -55,6 +55,10 @@ def main() -> None:
             page = "one" if request.url.params["offset"] == "0" else "two"
             return httpx.Response(200, json=fixture(f"signals-page-{page}"))
         if request.url.path == "/api/v1/oracle/results":
+            assert request.url.params["min_days"] == "0"
+            assert request.url.params["max_days"] == "180"
+            assert request.url.params["min_avg_daily_return"] == "-0.2"
+            assert request.url.params["max_avg_daily_return"] == "0"
             offset = int(request.url.params["offset"])
             return httpx.Response(200, json={
                 "total": 2, "offset": offset, "limit": 1,
@@ -89,7 +93,10 @@ def main() -> None:
         signals = list(client.signals.list_iter(limit_per_page=1))
         assert [row.name for row in signals] == ["fixture_one", "fixture_two"]
         assert [(row.evaluation_mode, row.data_provider) for row in signals] == [("frame", None), ("live", "x")]
-        assert [row["result_id"] for row in client.oracle.list_results_iter(page_size=1)] == ["row-0", "row-1"]
+        assert [row["result_id"] for row in client.oracle.list_results_iter(
+            page_size=1, min_days=0, max_days=180,
+            min_avg_daily_return=-0.2, max_avg_daily_return=0,
+        )] == ["row-0", "row-1"]
         local = fixture("local-deployment-not-ready")
         assert client.strategies.local_deployment(local["strategy_id"], asset_class="crypto") == local
         try:

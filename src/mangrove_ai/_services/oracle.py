@@ -362,6 +362,10 @@ class OracleService:
         min_win_rate: float | None = None,
         min_return: float | None = None,
         min_irr: float | None = None,
+        min_days: int | None = None,
+        max_days: int | None = None,
+        min_avg_daily_return: float | None = None,
+        max_avg_daily_return: float | None = None,
         min_delta_vs_benchmark: float | None = None,
         min_delta_vs_asset: float | None = None,
         max_trades: int | None = None,
@@ -398,6 +402,11 @@ class OracleService:
             asset, asset_b, timeframe, trigger_name, kind, status: Exact result
                 filters supported by the Oracle results endpoint.
             min_*/max_*: Inclusive numeric bounds for supported result metrics.
+            min_days, max_days: Historical backtest duration bounds, independent
+                of the annualized IRR filter.
+            min_avg_daily_return, max_avg_daily_return: Bounds on the arithmetic
+                mean of daily returns, in percent. Zero and negative values
+                are passed through unchanged.
             generation: Comma-separated experiment generations.
             direction, volatility, trend, regime_composite: Comma-separated
                 market-regime labels.
@@ -431,6 +440,10 @@ class OracleService:
             ("min_win_rate", min_win_rate),
             ("min_return", min_return),
             ("min_irr", min_irr),
+            ("min_days", min_days),
+            ("max_days", max_days),
+            ("min_avg_daily_return", min_avg_daily_return),
+            ("max_avg_daily_return", max_avg_daily_return),
             ("min_delta_vs_benchmark", min_delta_vs_benchmark),
             ("min_delta_vs_asset", min_delta_vs_asset),
             ("max_trades", max_trades),

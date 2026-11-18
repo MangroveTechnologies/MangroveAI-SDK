@@ -84,14 +84,14 @@ No automatic retry or payment is added.
 ## Search existing backtest results
 
 The generated Oracle result operations support recorded-day bounds and separate
-IRR, simple annualized, daily, and closed-trade return measures. A minimum-IRR
+period total, IRR, simple annualized, daily, and closed-trade return measures. A minimum-IRR
 search defaults to 182 recorded days only when `min_days` is omitted; pass an
 explicit minimum to override it, or `use_irr_duration_default: false` without
 `min_days` to clear it. Preserve and display the returned `effective_filters`
 notice. Historical duration is not deployment age, and filters do not recalculate
 an existing run over a new date range.
 
-See the [Python and TypeScript result-search guide](https://github.com/MangroveTechnologies/MangroveAI-SDK/blob/main/docs/oracle-result-search.md)
+See the [Python and TypeScript result-search guide](../../docs/oracle-result-search.md)
 for examples, metric units, null handling and paging. These controls require the
 corresponding serving contract and an SDK build containing this source change;
 this documentation does not assert registry or production availability.

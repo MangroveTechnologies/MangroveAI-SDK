@@ -45,6 +45,8 @@ clearing the duration filter can retain them.
 
 ## Choose the return measure
 
+- `total_return`: the period total return percentage for the stored run. Use
+  `min_return` and `max_return`.
 - `irr_annualized`: the existing annualized IRR. Use `min_irr` and `max_irr`.
 - `simple_annualized_return`: total return percentage / recorded days * 365,
   without compounding. Use `min_simple_annualized_return` and
@@ -56,7 +58,7 @@ clearing the duration filter can retain them.
   `min_avg_closed_trade_return` and `max_avg_closed_trade_return`.
 
 Use `min_closed_trades` for a closed-trade sample floor. Sort with any metric name
-above, `num_days`, or `closed_trade_count`. `total_return` remains available too.
+above, `num_days`, or `closed_trade_count`.
 Return bounds use percentage units: `2` means 2%, not 200%. Zero and negative
 bounds are valid. Undefined metrics or unavailable historical trade data remain
 null; do not display or rank them as zero. Non-finite or reversed bounds are

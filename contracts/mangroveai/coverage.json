@@ -12,11 +12,11 @@
     },
     {
       "path": "openapi.json",
-      "sha256": "21e2b342005f3b2586e561ab22eba1b63a0a78b936aab1044732eeae6fe574ce"
+      "sha256": "cb75c5b186b3839fde1779b3acfe994a7ab53a380d8f5fd08e63561515aee155"
     },
     {
       "path": "oracle-proxy-openapi.json",
-      "sha256": "9094ab5ccadb1ce5c28f388cdafd633d984f6477f73c6d5cd89103df4b95598f"
+      "sha256": "b79245b44175b8504ead4cf4616b20405b87e5b6e6137641bfd2cd3ed6eeca02"
     }
   ],
   "limits": "Generated from declarations, not live payload verification. Opaque responses remain unknown. MCP and the separate legacy KB host are not this REST contract.",

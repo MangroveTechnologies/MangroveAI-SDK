@@ -7740,6 +7740,100 @@
             }
           },
           {
+            "description": "Apply a visible 182-day minimum only when min_irr is set and min_days is omitted. False clears it.",
+            "in": "query",
+            "name": "use_irr_duration_default",
+            "required": false,
+            "schema": {
+              "default": true,
+              "description": "Apply a visible 182-day minimum only when min_irr is set and min_days is omitted. False clears it.",
+              "title": "Use Irr Duration Default",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "min_simple_annualized_return",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Min Simple Annualized Return"
+            }
+          },
+          {
+            "in": "query",
+            "name": "max_simple_annualized_return",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Max Simple Annualized Return"
+            }
+          },
+          {
+            "in": "query",
+            "name": "min_avg_closed_trade_return",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Min Avg Closed Trade Return"
+            }
+          },
+          {
+            "in": "query",
+            "name": "max_avg_closed_trade_return",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Max Avg Closed Trade Return"
+            }
+          },
+          {
+            "in": "query",
+            "name": "min_closed_trades",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 9223372036854775807,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Min Closed Trades"
+            }
+          },
+          {
             "description": "Minimum historical backtest days (inclusive).",
             "in": "query",
             "name": "min_days",
@@ -9841,6 +9935,100 @@
             }
           },
           {
+            "description": "Apply a visible 182-day minimum only when min_irr is set and min_days is omitted. False clears it.",
+            "in": "query",
+            "name": "use_irr_duration_default",
+            "required": false,
+            "schema": {
+              "default": true,
+              "description": "Apply a visible 182-day minimum only when min_irr is set and min_days is omitted. False clears it.",
+              "title": "Use Irr Duration Default",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "min_simple_annualized_return",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Min Simple Annualized Return"
+            }
+          },
+          {
+            "in": "query",
+            "name": "max_simple_annualized_return",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Max Simple Annualized Return"
+            }
+          },
+          {
+            "in": "query",
+            "name": "min_avg_closed_trade_return",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Min Avg Closed Trade Return"
+            }
+          },
+          {
+            "in": "query",
+            "name": "max_avg_closed_trade_return",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Max Avg Closed Trade Return"
+            }
+          },
+          {
+            "in": "query",
+            "name": "min_closed_trades",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 9223372036854775807,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Min Closed Trades"
+            }
+          },
+          {
             "description": "Minimum historical backtest days (inclusive).",
             "in": "query",
             "name": "min_days",
@@ -11284,8 +11472,8 @@
   ],
   "x-mangrove-provenance": {
     "generation": "git archive of exact commit; app.openapi(); sockets blocked; lifespan not started",
-    "schema_sha256": "98e118666bc01a5f6431124cab5fed0335b43471262a0086350909f6314d9dbb",
-    "source_commit": "2b25627ce91ded78050db80a06fea9e0230ae7f8",
+    "schema_sha256": "af188a0b7938008a2073e758582035eda277afdfab8f5c1f4cf8d017926190e8",
+    "source_commit": "d31425bd1b7cdd1990496f69afe44ea0e9aababd",
     "source_repository": "MangroveTechnologies/MangroveOracle"
   }
 }

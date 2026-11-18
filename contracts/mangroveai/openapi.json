@@ -20892,6 +20892,18 @@
               "description": "Only runs from windows of this market character, e.g. bear or mega_bull. Several are one comma-separated string, e.g. \"bull,super_bull\", and a run matching any of them counts. What a run did in one kind of market says little about another.",
               "type": "string"
             },
+            "max_avg_closed_trade_return": {
+              "description": "Maximum mean net return per closed trade.",
+              "type": "number"
+            },
+            "max_avg_daily_return": {
+              "description": "Maximum mean daily return in percent, inclusive.",
+              "type": "number"
+            },
+            "max_days": {
+              "description": "Maximum recorded backtest days, inclusive.",
+              "type": "integer"
+            },
             "max_delta_vs_asset": {
               "description": "Only runs beating their own asset by at most this much.",
               "type": "number"
@@ -20916,6 +20928,10 @@
               "description": "Only runs at or below this Sharpe ratio.",
               "type": "number"
             },
+            "max_simple_annualized_return": {
+              "description": "Maximum simple annualized return percent.",
+              "type": "number"
+            },
             "max_trades": {
               "description": "Only runs at or below this trade count. Pairs with min_trades to ask for a band rather than a floor.",
               "type": "integer"
@@ -20923,6 +20939,22 @@
             "max_win_rate": {
               "description": "Only runs at or below this win rate.",
               "type": "number"
+            },
+            "min_avg_closed_trade_return": {
+              "description": "Minimum mean net return per closed trade in percent of absolute entry notional. Unknown histories stay null.",
+              "type": "number"
+            },
+            "min_avg_daily_return": {
+              "description": "Minimum mean daily return in percent, inclusive.",
+              "type": "number"
+            },
+            "min_closed_trades": {
+              "description": "Minimum number of closed trades, inclusive.",
+              "type": "integer"
+            },
+            "min_days": {
+              "description": "Minimum recorded backtest days, inclusive. An explicit value overrides the conditional IRR duration default, including zero.",
+              "type": "integer"
             },
             "min_delta_vs_asset": {
               "description": "Only runs beating buy-and-hold on their own asset by at least this much.",
@@ -20942,6 +20974,10 @@
             },
             "min_sharpe": {
               "description": "Only runs at or above this Sharpe ratio.",
+              "type": "number"
+            },
+            "min_simple_annualized_return": {
+              "description": "Minimum total return / recorded days * 365, in percent; simple annualization, not IRR or compounding.",
               "type": "number"
             },
             "min_trades": {
@@ -20984,7 +21020,7 @@
               "type": "string"
             },
             "sort_by": {
-              "description": "The metric to order by, e.g. sharpe_ratio, sortino_ratio, irr_annualized, total_return, max_drawdown, total_trades. Required, because the choice IS the question being asked.",
+              "description": "The metric to order by, e.g. sharpe_ratio, sortino_ratio, irr_annualized, total_return, avg_daily_return, num_days, simple_annualized_return, avg_closed_trade_return, closed_trade_count, max_drawdown, total_trades. Required, because the choice IS the question being asked.",
               "type": "string"
             },
             "trend": {
@@ -20994,6 +21030,11 @@
             "trigger_name": {
               "description": "Only runs whose entry trigger is this signal.",
               "type": "string"
+            },
+            "use_irr_duration_default": {
+              "default": true,
+              "description": "When true, Oracle uses a 182-day minimum only if min_irr is supplied and min_days is omitted. To clear that default, pass false and omit min_days. Read effective_filters.",
+              "type": "boolean"
             },
             "volatility": {
               "description": "Only runs from windows of this volatility band, e.g. low; several comma-separated, any of them counts.",

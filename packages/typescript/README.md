@@ -81,13 +81,28 @@ A server conflict remains an `APIError` with its HTTP status and diagnostics.
 The generated generic operation supports the same path/query/response contract.
 No automatic retry or payment is added.
 
+## Search existing backtest results
+
+The generated Oracle result operations support recorded-day bounds and separate
+period total, IRR, simple annualized, daily, and closed-trade return measures. A minimum-IRR
+search defaults to 182 recorded days only when `min_days` is omitted; pass an
+explicit minimum to override it, or `use_irr_duration_default: false` without
+`min_days` to clear it. Preserve and display the returned `effective_filters`
+notice. Historical duration is not deployment age, and filters do not recalculate
+an existing run over a new date range.
+
+See the [Python and TypeScript result-search guide](../../docs/oracle-result-search.md)
+for examples, metric units, null handling and paging. These controls require the
+corresponding serving contract and an SDK build containing this source change;
+this documentation does not assert registry or production availability.
+
 ## Supported surface
 
 The named helpers are `users`, `signals`, `strategies`, `strategyWorkflow` and `backtesting`.
 Other declared REST operations use `client.request(operation, options)`, with
 generated path, parameter, body and response types. This is not Python helper
-parity. The current classification has 268 core/Oracle proxy method/path keys,
-including 10 v2 operations: 264 JSON/no-content, one separate redirect flow and
+parity. The current classification has 273 core/Oracle proxy method/path keys,
+including 10 v2 operations: 269 JSON/no-content, one separate redirect flow and
 three streaming/non-JSON operations. Counts describe pinned declarations, not live
 endpoint acceptance. The JSON transport does not perform the redirect or consume
 those streams. Operation keys include the HTTP method and exact versioned path:

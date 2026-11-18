@@ -2,11 +2,11 @@
   "contracts": [
     {
       "path": "openapi.json",
-      "sha256": "07e78220227a7ffaed60f316eeff8a5e520876f9dcbb6d81681b3b6a341829d1"
+      "sha256": "cb75c5b186b3839fde1779b3acfe994a7ab53a380d8f5fd08e63561515aee155"
     },
     {
       "path": "oracle-proxy-openapi.json",
-      "sha256": "d8e2061293ec7f71604a3c4167ef06d57352314cfeebaa068644bf6807bc3a0a"
+      "sha256": "b79245b44175b8504ead4cf4616b20405b87e5b6e6137641bfd2cd3ed6eeca02"
     },
     {
       "path": "execution-config.schema.json",
@@ -14,7 +14,7 @@
     }
   ],
   "generation": "Real application factory and canonical config metadata in ci; temporary HelpBot namespace registration only; TCP/DNS attempts refused and fail export; bundled LiteLLM cost metadata; startup provider warm-up/directory setup disabled; overrides restored; no business handlers",
-  "source_commit": "b3337f2e1a9561b3cb419f163e19e1b51ac71b27",
+  "source_commit": "5401291b7ee6f4073c7e8bb9baac382ac298c5b9",
   "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "source_dirty": false,
   "source_files": [
@@ -92,11 +92,11 @@
     },
     {
       "path": "src/MangroveAI/domains/agent/michael/tools/strategies.py",
-      "sha256": "4ad0275f15f7e774a8eeff48b8fc7e220774920fe9101d60401f28b9cd18de39"
+      "sha256": "835fd2c59686c3de945d6ac8f471f49193d748af885f30ee4c32da9659b3f073"
     },
     {
       "path": "src/MangroveAI/domains/agent/michael/tools/backtests.py",
-      "sha256": "49d658343faa1a5a92cedce5e40e83bb802e2e1d78ae6b20c0fae7bd6f2b0c93"
+      "sha256": "90b1e5811f1f00a0fe67c5aa94e5323f9ace670d972de545ef27dbe28012ef8f"
     },
     {
       "path": "src/MangroveAI/domains/auth/routes.py",
@@ -124,7 +124,7 @@
     },
     {
       "path": "src/MangroveAI/schemas/oracle-upstream.openapi.json",
-      "sha256": "270d4bb1701d67c97fdcd4f1276382610c37967a6c3aaa23abd3fefde86217c8"
+      "sha256": "af188a0b7938008a2073e758582035eda277afdfab8f5c1f4cf8d017926190e8"
     }
   ],
   "source_repository": "MangroveTechnologies/MangroveAI"

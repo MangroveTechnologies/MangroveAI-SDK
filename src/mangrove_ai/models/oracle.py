@@ -353,6 +353,15 @@ class ExperimentDeleted(MangroveModel):
 # ---------------------------------------------------------------------------
 
 
+class OracleEffectiveFilters(MangroveModel):
+    """Duration policy resolved by Oracle, including any user-visible notice."""
+
+    min_days: int | None = None
+    max_days: int | None = None
+    irr_duration_default_applied: bool
+    notice: str | None = None
+
+
 class OracleResultsPage(MangroveModel):
     """One page of backtest results for an experiment.
 
@@ -366,6 +375,7 @@ class OracleResultsPage(MangroveModel):
     offset: int
     limit: int
     results: list[dict[str, Any]] = []
+    effective_filters: OracleEffectiveFilters | None = None
 
 
 # ---------------------------------------------------------------------------

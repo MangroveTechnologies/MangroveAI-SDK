@@ -544,6 +544,19 @@ The SDK uses its existing authenticated HTTP transport; it does not add a wallet
 or sign x402 payments. The agent's existing MCP payer handles wallet access.
 The lower-level `client.oracle.*` methods retain their existing raw-engine contracts.
 
+### Search by recorded days and return measure
+
+Use `min_days` and `max_days` to search existing runs by recorded backtest length,
+including 90-day and 180-day histories. Minimum-IRR searches apply a 182-day
+minimum only when `min_irr` is supplied and `min_days` is omitted. Pass an explicit
+minimum to override it, or `use_irr_duration_default=False` with no `min_days` to
+clear it. Read `page.effective_filters` and display its notice when present.
+
+[Result-search examples](docs/oracle-result-search.md) cover Python, TypeScript,
+return measures, nullable metrics, and pagination notices. These are historical
+backtest lengths, not days since a strategy was deployed. Check the serving
+contract and package release status before using this source revision's controls.
+
 ### Other `client.oracle.*` methods
 
 - **Backtests:** `backtest`, `backtest_async` + `backtest_poll`, `backtest_bulk`

@@ -6,7 +6,7 @@
     },
     {
       "path": "oracle-proxy-openapi.json",
-      "sha256": "d8e2061293ec7f71604a3c4167ef06d57352314cfeebaa068644bf6807bc3a0a"
+      "sha256": "fdfc54578e5f5d42f7487d1eb929414f14f4c1880aa8d6b9c2120414658fe2f7"
     },
     {
       "path": "execution-config.schema.json",
@@ -14,7 +14,7 @@
     }
   ],
   "generation": "Real application factory and canonical config metadata in ci; temporary HelpBot namespace registration only; TCP/DNS attempts refused and fail export; bundled LiteLLM cost metadata; startup provider warm-up/directory setup disabled; overrides restored; no business handlers",
-  "source_commit": "b3337f2e1a9561b3cb419f163e19e1b51ac71b27",
+  "source_commit": "1b507fea116e548652d20f7e95c08638dc264d64",
   "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "source_dirty": false,
   "source_files": [
@@ -92,7 +92,7 @@
     },
     {
       "path": "src/MangroveAI/domains/agent/michael/tools/strategies.py",
-      "sha256": "4ad0275f15f7e774a8eeff48b8fc7e220774920fe9101d60401f28b9cd18de39"
+      "sha256": "835fd2c59686c3de945d6ac8f471f49193d748af885f30ee4c32da9659b3f073"
     },
     {
       "path": "src/MangroveAI/domains/agent/michael/tools/backtests.py",
@@ -124,7 +124,7 @@
     },
     {
       "path": "src/MangroveAI/schemas/oracle-upstream.openapi.json",
-      "sha256": "270d4bb1701d67c97fdcd4f1276382610c37967a6c3aaa23abd3fefde86217c8"
+      "sha256": "8444d6381c3e45f8d7928d2482ea8160da7ad96825e182c447cec05a72636255"
     }
   ],
   "source_repository": "MangroveTechnologies/MangroveAI"

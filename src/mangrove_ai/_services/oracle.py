@@ -9,7 +9,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from typing import Any
 
 from .._transport._service import ServiceTransport
@@ -366,6 +366,12 @@ class OracleService:
         max_days: int | None = None,
         min_avg_daily_return: float | None = None,
         max_avg_daily_return: float | None = None,
+        use_irr_duration_default: bool | None = None,
+        min_simple_annualized_return: float | None = None,
+        max_simple_annualized_return: float | None = None,
+        min_avg_closed_trade_return: float | None = None,
+        max_avg_closed_trade_return: float | None = None,
+        min_closed_trades: int | None = None,
         min_delta_vs_benchmark: float | None = None,
         min_delta_vs_asset: float | None = None,
         max_trades: int | None = None,
@@ -402,8 +408,16 @@ class OracleService:
             asset, asset_b, timeframe, trigger_name, kind, status: Exact result
                 filters supported by the Oracle results endpoint.
             min_*/max_*: Inclusive numeric bounds for supported result metrics.
-            min_days, max_days: Historical backtest duration bounds, independent
-                of the annualized IRR filter.
+            min_days, max_days: Recorded backtest duration bounds. Explicit
+                min_days overrides the conditional IRR default, including zero.
+            use_irr_duration_default: Oracle defaults this to true: when min_irr
+                is supplied and min_days omitted, it applies a 182-day minimum.
+                Pass false and omit min_days to clear that default.
+            min_simple_annualized_return, max_simple_annualized_return: Bounds on
+                total return percent / recorded days * 365, without compounding.
+            min_avg_closed_trade_return, max_avg_closed_trade_return: Bounds on
+                mean net closed-trade return as percent of absolute entry notional.
+            min_closed_trades: Minimum closed-trade count, inclusive.
             min_avg_daily_return, max_avg_daily_return: Bounds on the arithmetic
                 mean of daily returns, in percent. Zero and negative values
                 are passed through unchanged.
@@ -419,7 +433,9 @@ class OracleService:
 
         Returns:
             ``OracleResultsPage`` with ``total``, ``offset``, ``limit``,
-            and ``results`` (list of wide-format result dicts).
+            ``results`` (list of wide-format result dicts), and server-resolved
+            ``effective_filters``. Display its notice when present. The filters
+            search stored run windows; they do not recalculate another date range.
 
         Note:
             Pre-Oracle v0.14.7 the unfiltered call 500'd because the BQ
@@ -444,6 +460,12 @@ class OracleService:
             ("max_days", max_days),
             ("min_avg_daily_return", min_avg_daily_return),
             ("max_avg_daily_return", max_avg_daily_return),
+            ("use_irr_duration_default", use_irr_duration_default),
+            ("min_simple_annualized_return", min_simple_annualized_return),
+            ("max_simple_annualized_return", max_simple_annualized_return),
+            ("min_avg_closed_trade_return", min_avg_closed_trade_return),
+            ("max_avg_closed_trade_return", max_avg_closed_trade_return),
+            ("min_closed_trades", min_closed_trades),
             ("min_delta_vs_benchmark", min_delta_vs_benchmark),
             ("min_delta_vs_asset", min_delta_vs_asset),
             ("max_trades", max_trades),
@@ -482,6 +504,7 @@ class OracleService:
         *,
         page_size: int = 500,
         max_drawdown: float | None = None,
+        on_page: Callable[[OracleResultsPage], None] | None = None,
         **filters: Any,
     ) -> Iterator[dict[str, Any]]:
         """Iterate over every result matching the supplied screening filters.
@@ -496,7 +519,12 @@ class OracleService:
         ``max_drawdown`` is applied locally because the server endpoint does
         not expose that bound; its units match the ``max_drawdown`` value
         returned in each row. Rows missing that metric are excluded when this
-        filter is set.
+        filter is set. ``on_page``, when supplied, receives each validated page
+        before its rows are yielded, including an empty final page. Use it to
+        display the server-resolved ``effective_filters.notice``. Without this
+        callback the iterator exposes rows only; use ``list_results`` to inspect
+        metadata directly. All supplied filters, including explicit false/zero,
+        are forwarded unchanged on every page.
         """
         if not isinstance(page_size, int) or isinstance(page_size, bool) or not 1 <= page_size <= 500:
             raise ValueError("page_size must be an integer between 1 and 500")
@@ -538,6 +566,8 @@ class OracleService:
                         f"Oracle results page at offset {offset} repeated an earlier page."
                     )
                 seen_pages.add(fingerprint)
+            if on_page is not None:
+                on_page(page)
             for row in page.results:
                 if max_drawdown is None:
                     yield row

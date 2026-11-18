@@ -20,6 +20,12 @@ const server = createServer((request, response) => {
   assert.equal(request.headers.authorization, 'Bearer prod_fixture_package_key');
   if (request.url.startsWith('/api/v1/oracle/results?')) {
     const params = new URL(request.url, 'http://localhost').searchParams;
+    assert.equal(params.get('use_irr_duration_default'), 'false');
+    assert.equal(params.get('min_closed_trades'), '0');
+    assert.equal(params.get('min_simple_annualized_return'), '-1');
+    assert.equal(params.get('max_simple_annualized_return'), '0');
+    assert.equal(params.get('min_avg_closed_trade_return'), '-2');
+    assert.equal(params.get('max_avg_closed_trade_return'), '0');
     assert.equal(params.get('min_days'), '0');
     assert.equal(params.get('max_days'), '180');
     assert.equal(params.get('min_avg_daily_return'), '-0.2');
@@ -97,7 +103,7 @@ try {
     assert.equal(config.param_glossary.circuit_breaker.fields.consecutive_loss_limit.type,'int');
     assert.ok(import.meta.resolve('@mangrove-ai/sdk').includes('/node_modules/'));
     const results = await sdk.request('GET /api/v1/oracle/results', {
-      query: { min_days: 0, max_days: 180, min_avg_daily_return: -0.2, max_avg_daily_return: 0 },
+      query: { min_days: 0, max_days: 180, min_avg_daily_return: -0.2, max_avg_daily_return: 0, use_irr_duration_default: false, min_closed_trades: 0, min_simple_annualized_return: -1, max_simple_annualized_return: 0, min_avg_closed_trade_return: -2, max_avg_closed_trade_return: 0 },
     });
     assert.equal(results.total, 0);
     const signals = [];

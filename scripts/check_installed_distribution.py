@@ -55,6 +55,12 @@ def main() -> None:
             page = "one" if request.url.params["offset"] == "0" else "two"
             return httpx.Response(200, json=fixture(f"signals-page-{page}"))
         if request.url.path == "/api/v1/oracle/results":
+            assert request.url.params["use_irr_duration_default"] == "false"
+            assert request.url.params["min_closed_trades"] == "0"
+            assert request.url.params["min_simple_annualized_return"] == "-1"
+            assert request.url.params["max_simple_annualized_return"] == "0"
+            assert request.url.params["min_avg_closed_trade_return"] == "-2"
+            assert request.url.params["max_avg_closed_trade_return"] == "0"
             assert request.url.params["min_days"] == "0"
             assert request.url.params["max_days"] == "180"
             assert request.url.params["min_avg_daily_return"] == "-0.2"
@@ -94,7 +100,10 @@ def main() -> None:
         assert [row.name for row in signals] == ["fixture_one", "fixture_two"]
         assert [(row.evaluation_mode, row.data_provider) for row in signals] == [("frame", None), ("live", "x")]
         assert [row["result_id"] for row in client.oracle.list_results_iter(
-            page_size=1, min_days=0, max_days=180,
+            page_size=1, min_days=0, max_days=180, use_irr_duration_default=False,
+            min_simple_annualized_return=-1, max_simple_annualized_return=0,
+            min_avg_closed_trade_return=-2, max_avg_closed_trade_return=0,
+            min_closed_trades=0,
             min_avg_daily_return=-0.2, max_avg_daily_return=0,
         )] == ["row-0", "row-1"]
         local = fixture("local-deployment-not-ready")

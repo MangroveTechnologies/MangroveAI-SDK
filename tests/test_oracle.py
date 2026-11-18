@@ -582,7 +582,10 @@ class TestResults:
             return OracleResultsPage(**next(pages))
 
         monkeypatch.setattr(client.oracle, "list_results", list_results)
-        rows = list(client.oracle.list_results_iter(page_size=2, asset="BTC"))
+        observed_pages = []
+        rows = list(client.oracle.list_results_iter(
+            page_size=2, asset="BTC", on_page=observed_pages.append))
+        assert [page.offset for page in observed_pages] == [0, 1]
 
         assert rows == [{"run_index": 0}, {"run_index": 1}, {"run_index": 2}]
         assert offsets == [0, 1]
@@ -977,3 +980,30 @@ class TestDataQueryRequestContract:
         OrderBy(col="x", dir="desc")
         with pytest.raises(ValidationError):
             OrderBy(col="x", dir="ascending")
+
+
+def test_results_expose_server_duration_policy_on_each_page():
+    mock = MockTransport()
+    effective = {"min_days": None, "max_days": 180,
+                 "irr_duration_default_applied": False, "notice": None}
+    mock.add_response("GET", "/oracle/results", json={
+        "total": 1, "offset": 0, "limit": 1,
+        "effective_filters": effective,
+        "results": [{"simple_annualized_return": 0,
+                     "avg_closed_trade_return": None, "closed_trade_count": 0}],
+    })
+    client = _make_client(mock)
+    pages = []
+    rows = list(client.oracle.list_results_iter(
+        page_size=1, min_irr=0, use_irr_duration_default=False,
+        min_simple_annualized_return=-1, max_simple_annualized_return=0,
+        min_avg_closed_trade_return=-2, max_avg_closed_trade_return=0,
+        min_closed_trades=0, on_page=pages.append))
+    assert pages[0].effective_filters.model_dump() == effective
+    assert rows[0]["avg_closed_trade_return"] is None
+    params = mock.requests[-1].params
+    assert params["use_irr_duration_default"] is False
+    assert params["min_closed_trades"] == 0
+    assert params["max_simple_annualized_return"] == 0
+    assert params["min_avg_closed_trade_return"] == -2
+    assert "min_days" not in params

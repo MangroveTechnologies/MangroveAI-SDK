@@ -12,6 +12,7 @@ const fixture = JSON.parse(readFileSync(join(packageRoot, '../../contracts/mangr
 const configFixture = JSON.parse(readFileSync(join(packageRoot, '../../contracts/mangroveai/fixtures/execution-config-success.json'), 'utf8'));
 const localFixture = JSON.parse(readFileSync(join(packageRoot, '../../contracts/mangroveai/fixtures/local-deployment-not-ready.json'), 'utf8'));
 const signalFixtures = ['one', 'two'].map(page => JSON.parse(readFileSync(join(packageRoot, `../../contracts/mangroveai/fixtures/signals-page-${page}.json`), 'utf8')));
+const statuses = JSON.parse(readFileSync(join(packageRoot, '../../contracts/mangroveai/fixtures/backtest-status-verdicts.json'), 'utf8'));
 let calls = 0;
 let streamCalls = 0;
 const backtestPaths = [];
@@ -43,6 +44,11 @@ const server = createServer((request, response) => {
     return;
   }
   assert.equal(request.method, 'GET');
+  if (request.url.startsWith('/api/v2/backtests/')) {
+    response.writeHead(200, { 'Content-Type': 'application/json' });
+    response.end(JSON.stringify(statuses[Number(request.url.split('/').at(-2))]));
+    return;
+  }
   if (request.url === `/api/v1/strategies/${localFixture.strategy_id}/local-deployment?asset_class=equity`) {
     response.writeHead(409, { 'Content-Type': 'application/json', 'X-Correlation-Id': 'local-fixture-conflict' });
     response.end(JSON.stringify({ error: 'DEPLOYMENT_CONFLICT', message: 'Server validation decision' }));
@@ -70,11 +76,15 @@ try {
   assert.equal(installedPackage.name, packed.name);
   assert.equal(installedPackage.version, packed.version);
   writeFileSync(join(scratch, 'local-fixture.json'), JSON.stringify(localFixture));
+  writeFileSync(join(scratch, 'statuses.json'), JSON.stringify(statuses));
   writeFileSync(join(scratch, 'smoke.mjs'), `
     import assert from 'node:assert/strict';
     import { readFileSync } from 'node:fs';
     import { MangroveAI, APIError, ConfigurationError } from '@mangrove-ai/sdk';
     const sdk = new MangroveAI({apiKey:'prod_fixture_package_key',baseUrl:process.env.SDK_FIXTURE_ORIGIN});
+    for (const expected of JSON.parse(readFileSync('statuses.json', 'utf8'))) {
+      assert.deepEqual(await sdk.backtesting.getStatus(expected.backtest_id), expected);
+    }
     const metrics = await sdk.users.getMyMetrics();
     assert.equal(metrics.messages_count,7);
     const config = await sdk.request('GET /api/v1/config/execution-config-schema', {});
@@ -113,7 +123,7 @@ try {
   const child = spawn(process.execPath, ['smoke.mjs'], { cwd: scratch, env: { ...process.env, SDK_FIXTURE_ORIGIN: `http://127.0.0.1:${server.address().port}` }, stdio: 'inherit' });
   const exitCode = await new Promise(resolve => child.once('exit', resolve));
   assert.equal(exitCode, 0);
-  assert.equal(calls, 10);
+  assert.equal(calls, 10 + statuses.length);
   assert.deepEqual(backtestPaths, ['/api/v1/backtests/', '/api/v1/backtests']);
   assert.equal(streamCalls, 0);
 } finally {

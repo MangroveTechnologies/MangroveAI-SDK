@@ -12,7 +12,7 @@
     },
     {
       "path": "openapi.json",
-      "sha256": "07e78220227a7ffaed60f316eeff8a5e520876f9dcbb6d81681b3b6a341829d1"
+      "sha256": "f7ccb1fdc9e997c55ca191ebd0862be480aa2e8fb60420fd63db5d793f9d3682"
     },
     {
       "path": "oracle-proxy-openapi.json",
@@ -2440,6 +2440,28 @@
     {
       "contract": "openapi.json",
       "operation": "POST /api/v2/agent/conversations",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v2/agent/conversations/actions/create",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v2/agent/conversations/actions/list",
       "python_direct_bindings": [],
       "request": "no-model-or-no-body",
       "response": "opaque-or-no-content",

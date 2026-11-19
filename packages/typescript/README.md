@@ -86,8 +86,8 @@ No automatic retry or payment is added.
 The named helpers are `users`, `signals`, `strategies`, `strategyWorkflow` and `backtesting`.
 Other declared REST operations use `client.request(operation, options)`, with
 generated path, parameter, body and response types. This is not Python helper
-parity. The current classification has 268 core/Oracle proxy method/path keys,
-including 10 v2 operations: 264 JSON/no-content, one separate redirect flow and
+parity. The current classification has 275 core/Oracle proxy method/path keys,
+including 12 v2 operations: 271 JSON/no-content, one separate redirect flow and
 three streaming/non-JSON operations. Counts describe pinned declarations, not live
 endpoint acceptance. The JSON transport does not perform the redirect or consume
 those streams. Operation keys include the HTTP method and exact versioned path:

@@ -40,6 +40,7 @@ def main() -> None:
     def fixture(name: str) -> dict:
         return json.loads((fixtures / f"{name}.json").read_text())
 
+    statuses = fixture("backtest-status-verdicts")
     calls = []
     fixture_key = "prod_distribution_fixture_not_a_real_key"
 
@@ -47,6 +48,8 @@ def main() -> None:
         calls.append(request)
         assert request.headers["Authorization"] == f"Bearer {fixture_key}"
         assert request.extensions["timeout"]["read"] == 2
+        if request.url.path.startswith("/api/v2/backtests/"):
+            return httpx.Response(200, json=statuses[int(request.url.path.split("/")[-2])])
         if request.url.path == "/api/v1/users/me/metrics":
             return httpx.Response(200, json=fixture("usage-success"))
         if request.url.path == "/api/v1/config/execution-config-schema":
@@ -77,6 +80,10 @@ def main() -> None:
         api_key=fixture_key, load_dotenv=False, auto_retry=False, timeout=2,
         httpx_client=httpx.Client(transport=httpx.MockTransport(handler)),
     ) as client:
+        for expected in statuses:
+            status = client.backtesting.poll_status(expected["backtest_id"])
+            assert status.verdict == expected.get("verdict")
+            assert status.failed_checks == expected.get("failed_checks")
         assert client.users.get_my_metrics().messages_count == 7
         config = client.config.get_execution_config_schema()
         assert config.json_schema == fixture("execution-config-success")["json_schema"]
@@ -110,7 +117,7 @@ def main() -> None:
             pass
         else:
             raise AssertionError("Malformed success was accepted")
-    assert len(calls) == 10
+    assert len(calls) == 10 + len(statuses)
     print(json.dumps({
         "distribution": "mangroveai", "version": mangrove_ai.__version__,
         "requests_intercepted": len(calls),

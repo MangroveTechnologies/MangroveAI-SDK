@@ -200,7 +200,7 @@ export interface CoreModels {
   "api1.VolatilityData": { "max_drawdown_30d_pct"?: number; "volatility_30d_pct"?: number; [key: string]: unknown; };
   "api1.XPostCountsResponse": { "bucket_count"?: number; "buckets"?: Array<unknown>; "buckets_cached"?: number; "days_back"?: number; "granularity"?: "hour" | "day"; "query"?: string; "success"?: boolean; "symbol"?: string; "total_posts"?: number; "x_query"?: "all" | "en_original"; "x_requests"?: number; [key: string]: unknown; };
   "api2.AgentChatRequest": { "execution_id"?: string; "message": string; "turn_id"?: string; [key: string]: unknown; };
-  "api2.AsyncBacktestStatusResponse": { "backtest_id"?: string; "base_token"?: string | null; "completed_at"?: string; "created_at"?: string; "equity_curve"?: unknown; "error_message"?: string; "execution_time_seconds"?: number; "market_data_venue"?: string | null; "metrics"?: unknown; "quote_token"?: string | null; "status"?: string; "trade_history"?: unknown; [key: string]: unknown; };
+  "api2.AsyncBacktestStatusResponse": { "backtest_id"?: string; "base_token"?: string | null; "completed_at"?: string; "created_at"?: string; "equity_curve"?: unknown; "error_message"?: string; "execution_time_seconds"?: number; "failed_checks"?: Array<string> | null; "market_data_venue"?: string | null; "metrics"?: unknown; "quote_token"?: string | null; "status"?: string; "trade_history"?: unknown; "verdict"?: string | null; [key: string]: unknown; };
   "api2.AsyncBacktestSubmitResponse": { "backtest_id"?: string; "base_token"?: string | null; "market_data_venue"?: string | null; "quote_token"?: string | null; "status"?: string; [key: string]: unknown; };
   "api2.BacktestRequest": { "asset": string; "base_token"?: string; "cooldown_bars"?: number; "corpus_dataset"?: string; "daily_momentum_limit"?: number; "data_file"?: string; "data_source"?: string; "enable_volatility_adjustment": boolean; "end_date"?: string; "exchange"?: string; "execution_config"?: (CoreModels["api2.ExecutionConfiguration"]); "fee_pct"?: number; "generation"?: number; "hourly_data_file"?: string; "initial_asset_balance"?: number; "initial_balance": number; "interval"?: string; "lookback_months"?: number; "market_data_venue"?: string; "max_open_positions": number; "max_risk_per_trade": number; "max_trade_amount": number; "max_trades_per_day": number; "max_units_per_trade": number; "min_balance_threshold": number; "min_trade_amount": number; "quote_token"?: string; "seed"?: number; "slippage_pct"?: number; "start_date"?: string; "strategy_id"?: string; "strategy_json"?: string; "target_volatility": number; "volatility_mode": string; "volatility_window": number; "weekly_momentum_limit"?: number; [key: string]: unknown; };
   "api2.Error": { "code": string; "correlation_id"?: string; "error": string; "message": string; "retry_after"?: number; [key: string]: unknown; };
@@ -428,7 +428,7 @@ export interface Operations {
   "POST /api/v1/strategy-workflow/get_trades_for_strategy": { input: { body: { "limit"?: number; "offset"?: number; "strategy_id": string; }; }; output: unknown; };
   "POST /api/v1/strategy-workflow/launch_sweep": { input: { body: { "experiment_id": string; }; }; output: unknown; };
   "POST /api/v1/strategy-workflow/list_backtest_markets": { input: { body: { "asset": string; }; }; output: unknown; };
-  "POST /api/v1/strategy-workflow/list_backtests": { input: { body?: { "limit"?: number; "strategy_id"?: string; }; }; output: unknown; };
+  "POST /api/v1/strategy-workflow/list_backtests": { input: { body?: { "limit"?: number; "offset"?: number; "strategy_id"?: string; }; }; output: unknown; };
   "POST /api/v1/strategy-workflow/list_evaluations": { input: { body: { "include_details"?: boolean; "limit"?: number; "offset"?: number; "strategy_id": string; }; }; output: unknown; };
   "POST /api/v1/strategy-workflow/list_platform_strategies": { input: { body?: { "limit"?: number; }; }; output: unknown; };
   "POST /api/v1/strategy-workflow/list_positions": { input: { body?: { "asset"?: string; "limit"?: number; "offset"?: number; "open_only"?: boolean; "strategy_id"?: string; }; }; output: unknown; };
@@ -458,6 +458,8 @@ export interface Operations {
   "GET /api/v1/users/me/strategies": { input: { query?: { "include_archived"?: boolean; "limit"?: number; "offset"?: number; "search"?: string; "status"?: string; }; }; output: CoreModels["api1.StrategiesResponse"]; };
   "GET /api/v2/agent/conversations": { input: {  }; output: unknown; };
   "POST /api/v2/agent/conversations": { input: {  }; output: unknown; };
+  "POST /api/v2/agent/conversations/actions/create": { input: {  }; output: unknown; };
+  "GET /api/v2/agent/conversations/actions/list": { input: {  }; output: unknown; };
   "GET /api/v2/agent/conversations/latest": { input: {  }; output: unknown; };
   "DELETE /api/v2/agent/conversations/{session_id}": { input: { path: { "session_id": string; }; }; output: unknown; };
   "GET /api/v2/agent/conversations/{session_id}": { input: { path: { "session_id": string; }; }; output: unknown; };
@@ -2210,6 +2212,15 @@ export const operationMetadata = {
     "required": {},
     "transport": "json-or-no-content"
   },
+  "GET /api/v2/agent/conversations/actions/list": {
+    "authenticated": true,
+    "bodyRequired": false,
+    "method": "GET",
+    "path": "/api/v2/agent/conversations/actions/list",
+    "queryFormats": {},
+    "required": {},
+    "transport": "json-or-no-content"
+  },
   "GET /api/v2/agent/conversations/latest": {
     "authenticated": true,
     "bodyRequired": false,
@@ -3392,6 +3403,15 @@ export const operationMetadata = {
     "bodyRequired": false,
     "method": "POST",
     "path": "/api/v2/agent/conversations",
+    "queryFormats": {},
+    "required": {},
+    "transport": "json-or-no-content"
+  },
+  "POST /api/v2/agent/conversations/actions/create": {
+    "authenticated": true,
+    "bodyRequired": false,
+    "method": "POST",
+    "path": "/api/v2/agent/conversations/actions/create",
     "queryFormats": {},
     "required": {},
     "transport": "json-or-no-content"

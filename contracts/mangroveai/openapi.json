@@ -7640,6 +7640,17 @@
             "description": "Wall-clock simulation time",
             "type": "number"
           },
+          "failed_checks": {
+            "description": "Thresholds a FAIL verdict missed (sortino, sharpe, calmar, irr, max_drawdown, win_rate); empty for PASS; null otherwise",
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ],
+            "x-nullable": true
+          },
           "market_data_venue": {
             "description": "Recorded market data venue; null for historical runs",
             "type": [
@@ -7669,6 +7680,14 @@
             "description": "Trade list (populated when completed)",
             "type": "object",
             "x-mangrove-raw-json": true
+          },
+          "verdict": {
+            "description": "Threshold verdict of a completed run: \"PASS\", \"FAIL\", \"INSUFFICIENT_TRADES\", \"NOT_EVALUABLE\" or \"unknown\"; null until the run completes",
+            "type": [
+              "string",
+              "null"
+            ],
+            "x-nullable": true
           }
         },
         "type": "object"
@@ -21787,6 +21806,11 @@
               "description": "Maximum results.",
               "type": "integer"
             },
+            "offset": {
+              "default": 0,
+              "description": "Pagination offset in the result units documented by the tool; zero starts the first page.",
+              "type": "integer"
+            },
             "strategy_id": {
               "description": "The strategy's UUID.",
               "type": "string"
@@ -26410,6 +26434,7 @@
         "tags": [
           "agent"
         ],
+        "x-bazaar-alias": "/api/v2/agent/conversations/actions/list",
         "x-payment-info": {
           "price": {
             "amount": "0.001000",
@@ -26474,9 +26499,132 @@
         "tags": [
           "agent"
         ],
+        "x-bazaar-alias": "/api/v2/agent/conversations/actions/create",
         "x-payment-info": {
           "price": {
             "amount": "0.010000",
+            "currency": "USD",
+            "mode": "fixed"
+          },
+          "protocols": [
+            {
+              "x402": {
+                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                "network": "eip155:8453",
+                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
+                "scheme": "exact",
+                "x402Version": 2
+              }
+            }
+          ]
+        }
+      }
+    },
+    "/api/v2/agent/conversations/actions/create": {
+      "post": {
+        "operationId": "api2_post_create_conversation",
+        "responses": {
+          "201": {
+            "description": "Conversation created"
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Payment Required",
+            "headers": {
+              "PAYMENT-REQUIRED": {
+                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api2.Error"
+                }
+              }
+            },
+            "description": "Internal server error"
+          }
+        },
+        "security": [
+          {
+            "MangroveBearer": []
+          },
+          {}
+        ],
+        "summary": "Start a conversation",
+        "tags": [
+          "agent"
+        ],
+        "x-payment-info": {
+          "price": {
+            "amount": "0.010000",
+            "currency": "USD",
+            "mode": "fixed"
+          },
+          "protocols": [
+            {
+              "x402": {
+                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                "network": "eip155:8453",
+                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
+                "scheme": "exact",
+                "x402Version": 2
+              }
+            }
+          ]
+        }
+      }
+    },
+    "/api/v2/agent/conversations/actions/list": {
+      "get": {
+        "operationId": "api2_get_list_conversations",
+        "responses": {
+          "200": {
+            "description": "Conversations listed"
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Payment Required",
+            "headers": {
+              "PAYMENT-REQUIRED": {
+                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "MangroveBearer": []
+          },
+          {}
+        ],
+        "summary": "List this caller's conversations",
+        "tags": [
+          "agent"
+        ],
+        "x-payment-info": {
+          "price": {
+            "amount": "0.001000",
             "currency": "USD",
             "mode": "fixed"
           },

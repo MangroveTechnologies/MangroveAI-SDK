@@ -45,9 +45,9 @@ and [dated release handoff](docs/issue-66-release-handoff.md). The former
 
 The TypeScript client has named `users`, `signals`, `strategies`, `strategyWorkflow` and
 `backtesting` helpers plus a generic typed `request(operation, options)` surface.
-The current public contract classifies 273 method/path operations across core
-and Oracle proxy REST, including 10 v2 operations; this is generated declaration
-coverage, not live endpoint acceptance. Of these, 269 use JSON/no-content, one
+The current public contract classifies 275 method/path operations across core
+and Oracle proxy REST, including 12 v2 operations; this is generated declaration
+coverage, not live endpoint acceptance. Of these, 271 use JSON/no-content, one
 requires a separate redirect flow and three require a streaming/non-JSON client.
 It is not a drop-in copy of Python's service methods. It does not supply MCP/OAuth
 discovery, the separate legacy KB-host client, x402 signing or SSE consumption.

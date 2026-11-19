@@ -2,7 +2,7 @@
   "contracts": [
     {
       "path": "openapi.json",
-      "sha256": "07e78220227a7ffaed60f316eeff8a5e520876f9dcbb6d81681b3b6a341829d1"
+      "sha256": "f7ccb1fdc9e997c55ca191ebd0862be480aa2e8fb60420fd63db5d793f9d3682"
     },
     {
       "path": "oracle-proxy-openapi.json",
@@ -14,7 +14,7 @@
     }
   ],
   "generation": "Real application factory and canonical config metadata in ci; temporary HelpBot namespace registration only; TCP/DNS attempts refused and fail export; bundled LiteLLM cost metadata; startup provider warm-up/directory setup disabled; overrides restored; no business handlers",
-  "source_commit": "b3337f2e1a9561b3cb419f163e19e1b51ac71b27",
+  "source_commit": "e91ccb80dae0d11cf86ddd42f38a3e4aa798f270",
   "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "source_dirty": false,
   "source_files": [
@@ -24,7 +24,7 @@
     },
     {
       "path": "src/MangroveAI/__init__.py",
-      "sha256": "85f6b4cbf75b9245cb9facd40a4c63edfb0b1fbe28d08a42929c41e4876f3c36"
+      "sha256": "2fc5fd35a5944953529dbe777bd55f1dc7413ba5b09b70ef8795a61b76bc8dbd"
     },
     {
       "path": "src/MangroveAI/config.py",
@@ -48,7 +48,7 @@
     },
     {
       "path": "src/MangroveAI/public_openapi3.py",
-      "sha256": "a55f7002c96f702dcd4bbcb1e124279e9f9b53b047ffab804aa6b75af326c74e"
+      "sha256": "5cd133a05b5a1225447592c4df500bca6359a0a662cc747a8f7e92e924fd792c"
     },
     {
       "path": "src/MangroveAI/public_oracle_openapi.py",
@@ -92,11 +92,11 @@
     },
     {
       "path": "src/MangroveAI/domains/agent/michael/tools/strategies.py",
-      "sha256": "4ad0275f15f7e774a8eeff48b8fc7e220774920fe9101d60401f28b9cd18de39"
+      "sha256": "970cd47b8b7cc44e56d2f5b0391cc57f2d76c1888d8f6a977fccd55f25b3d891"
     },
     {
       "path": "src/MangroveAI/domains/agent/michael/tools/backtests.py",
-      "sha256": "49d658343faa1a5a92cedce5e40e83bb802e2e1d78ae6b20c0fae7bd6f2b0c93"
+      "sha256": "dfb58494f23407e414436ce4c2a2b45083ea634bed3e02bd35ccdde740b0324f"
     },
     {
       "path": "src/MangroveAI/domains/auth/routes.py",
@@ -108,7 +108,7 @@
     },
     {
       "path": "src/MangroveAI/domains/backtesting/routes.py",
-      "sha256": "9a7774adb2db2eede065851a63fa5f6d2ab6ca73ca17dcd19c328766771dc954"
+      "sha256": "4dfda6c0d5b5538745215e36e8a72513a554f11bd1b85563a821f57a2394fdad"
     },
     {
       "path": "src/MangroveAI/domains/strategies/workflow_routes.py",

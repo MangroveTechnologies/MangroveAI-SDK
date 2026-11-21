@@ -12,11 +12,11 @@
     },
     {
       "path": "openapi.json",
-      "sha256": "07e78220227a7ffaed60f316eeff8a5e520876f9dcbb6d81681b3b6a341829d1"
+      "sha256": "cca7738a86f0dd28883740e68d4e8072e0e408b8942f0c04822815edd404defc"
     },
     {
       "path": "oracle-proxy-openapi.json",
-      "sha256": "d8e2061293ec7f71604a3c4167ef06d57352314cfeebaa068644bf6807bc3a0a"
+      "sha256": "b79245b44175b8504ead4cf4616b20405b87e5b6e6137641bfd2cd3ed6eeca02"
     }
   ],
   "limits": "Generated from declarations, not live payload verification. Opaque responses remain unknown. MCP and the separate legacy KB host are not this REST contract.",
@@ -2440,6 +2440,28 @@
     {
       "contract": "openapi.json",
       "operation": "POST /api/v2/agent/conversations",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v2/agent/conversations/actions/create",
+      "python_direct_bindings": [],
+      "request": "no-model-or-no-body",
+      "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v2/agent/conversations/actions/list",
       "python_direct_bindings": [],
       "request": "no-model-or-no-body",
       "response": "opaque-or-no-content",

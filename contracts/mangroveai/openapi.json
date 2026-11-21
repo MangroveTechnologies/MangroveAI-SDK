@@ -674,7 +674,7 @@
             "type": "array"
           },
           "data_info": {
-            "description": "position_size_calc \"v3\" only: what the engine reports about the data the run used. Absent otherwise.",
+            "description": "Engine data metadata for v3 or audit evidence for a protected historical replay.",
             "type": "object",
             "x-mangrove-raw-json": true
           },
@@ -6328,7 +6328,7 @@
             "type": "array"
           },
           "data_info": {
-            "description": "Engine data metadata; present for v3 runs",
+            "description": "Engine data metadata for v3 or audit evidence for a protected historical replay.",
             "type": "object",
             "x-mangrove-raw-json": true
           },
@@ -7626,6 +7626,11 @@
           "created_at": {
             "description": "ISO timestamp when run was created",
             "type": "string"
+          },
+          "data_info": {
+            "description": "Audit evidence when a protected historical replay completes",
+            "type": "object",
+            "x-mangrove-raw-json": true
           },
           "equity_curve": {
             "description": "Timestamped marked account equity samples; time is Unix seconds UTC",
@@ -20892,6 +20897,18 @@
               "description": "Only runs from windows of this market character, e.g. bear or mega_bull. Several are one comma-separated string, e.g. \"bull,super_bull\", and a run matching any of them counts. What a run did in one kind of market says little about another.",
               "type": "string"
             },
+            "max_avg_closed_trade_return": {
+              "description": "Maximum mean net return per closed trade.",
+              "type": "number"
+            },
+            "max_avg_daily_return": {
+              "description": "Maximum mean daily return in percent, inclusive.",
+              "type": "number"
+            },
+            "max_days": {
+              "description": "Maximum recorded backtest days, inclusive.",
+              "type": "integer"
+            },
             "max_delta_vs_asset": {
               "description": "Only runs beating their own asset by at most this much.",
               "type": "number"
@@ -20916,6 +20933,10 @@
               "description": "Only runs at or below this Sharpe ratio.",
               "type": "number"
             },
+            "max_simple_annualized_return": {
+              "description": "Maximum simple annualized return percent.",
+              "type": "number"
+            },
             "max_trades": {
               "description": "Only runs at or below this trade count. Pairs with min_trades to ask for a band rather than a floor.",
               "type": "integer"
@@ -20923,6 +20944,22 @@
             "max_win_rate": {
               "description": "Only runs at or below this win rate.",
               "type": "number"
+            },
+            "min_avg_closed_trade_return": {
+              "description": "Minimum mean net return per closed trade in percent of absolute entry notional. Unknown histories stay null.",
+              "type": "number"
+            },
+            "min_avg_daily_return": {
+              "description": "Minimum mean daily return in percent, inclusive.",
+              "type": "number"
+            },
+            "min_closed_trades": {
+              "description": "Minimum number of closed trades, inclusive.",
+              "type": "integer"
+            },
+            "min_days": {
+              "description": "Minimum recorded backtest days, inclusive. An explicit value overrides the conditional IRR duration default, including zero.",
+              "type": "integer"
             },
             "min_delta_vs_asset": {
               "description": "Only runs beating buy-and-hold on their own asset by at least this much.",
@@ -20942,6 +20979,10 @@
             },
             "min_sharpe": {
               "description": "Only runs at or above this Sharpe ratio.",
+              "type": "number"
+            },
+            "min_simple_annualized_return": {
+              "description": "Minimum total return / recorded days * 365, in percent; simple annualization, not IRR or compounding.",
               "type": "number"
             },
             "min_trades": {
@@ -20984,7 +21025,7 @@
               "type": "string"
             },
             "sort_by": {
-              "description": "The metric to order by, e.g. sharpe_ratio, sortino_ratio, irr_annualized, total_return, max_drawdown, total_trades. Required, because the choice IS the question being asked.",
+              "description": "The metric to order by, e.g. sharpe_ratio, sortino_ratio, irr_annualized, total_return, avg_daily_return, num_days, simple_annualized_return, avg_closed_trade_return, closed_trade_count, max_drawdown, total_trades. Required, because the choice IS the question being asked.",
               "type": "string"
             },
             "trend": {
@@ -20994,6 +21035,11 @@
             "trigger_name": {
               "description": "Only runs whose entry trigger is this signal.",
               "type": "string"
+            },
+            "use_irr_duration_default": {
+              "default": true,
+              "description": "When true, Oracle uses a 182-day minimum only if min_irr is supplied and min_days is omitted. To clear that default, pass false and omit min_days. Read effective_filters.",
+              "type": "boolean"
             },
             "volatility": {
               "description": "Only runs from windows of this volatility band, e.g. low; several comma-separated, any of them counts.",
@@ -21785,6 +21831,11 @@
             "limit": {
               "default": 10,
               "description": "Maximum results.",
+              "type": "integer"
+            },
+            "offset": {
+              "default": 0,
+              "description": "Pagination offset in the result units documented by the tool; zero starts the first page.",
               "type": "integer"
             },
             "strategy_id": {
@@ -26410,6 +26461,7 @@
         "tags": [
           "agent"
         ],
+        "x-bazaar-alias": "/api/v2/agent/conversations/actions/list",
         "x-payment-info": {
           "price": {
             "amount": "0.001000",
@@ -26474,9 +26526,132 @@
         "tags": [
           "agent"
         ],
+        "x-bazaar-alias": "/api/v2/agent/conversations/actions/create",
         "x-payment-info": {
           "price": {
             "amount": "0.010000",
+            "currency": "USD",
+            "mode": "fixed"
+          },
+          "protocols": [
+            {
+              "x402": {
+                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                "network": "eip155:8453",
+                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
+                "scheme": "exact",
+                "x402Version": 2
+              }
+            }
+          ]
+        }
+      }
+    },
+    "/api/v2/agent/conversations/actions/create": {
+      "post": {
+        "operationId": "api2_post_create_conversation",
+        "responses": {
+          "201": {
+            "description": "Conversation created"
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Payment Required",
+            "headers": {
+              "PAYMENT-REQUIRED": {
+                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api2.Error"
+                }
+              }
+            },
+            "description": "Internal server error"
+          }
+        },
+        "security": [
+          {
+            "MangroveBearer": []
+          },
+          {}
+        ],
+        "summary": "Start a conversation",
+        "tags": [
+          "agent"
+        ],
+        "x-payment-info": {
+          "price": {
+            "amount": "0.010000",
+            "currency": "USD",
+            "mode": "fixed"
+          },
+          "protocols": [
+            {
+              "x402": {
+                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                "network": "eip155:8453",
+                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
+                "scheme": "exact",
+                "x402Version": 2
+              }
+            }
+          ]
+        }
+      }
+    },
+    "/api/v2/agent/conversations/actions/list": {
+      "get": {
+        "operationId": "api2_get_list_conversations",
+        "responses": {
+          "200": {
+            "description": "Conversations listed"
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Payment Required",
+            "headers": {
+              "PAYMENT-REQUIRED": {
+                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "MangroveBearer": []
+          },
+          {}
+        ],
+        "summary": "List this caller's conversations",
+        "tags": [
+          "agent"
+        ],
+        "x-payment-info": {
+          "price": {
+            "amount": "0.001000",
             "currency": "USD",
             "mode": "fixed"
           },

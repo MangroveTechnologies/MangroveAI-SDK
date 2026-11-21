@@ -178,6 +178,7 @@ class BacktestResult(MangroveModel):
     success: bool | None = None
     metrics: dict[str, Any] | None = None
     trade_history: list[dict[str, Any]] | None = None
+    data_info: dict[str, Any] | None = None
     execution_time_seconds: float | None = None
     trade_count: int | None = None
     strategy_names: list[str] | None = None
@@ -297,6 +298,7 @@ class AsyncBacktestStatus(MangroveModel):
     status: str
     metrics: dict[str, Any] | None = None
     trade_history: list[dict[str, Any]] | None = None
+    data_info: dict[str, Any] | None = None
     error_message: str | None = None
     execution_time_seconds: float | None = None
     created_at: str | None = None

@@ -36,9 +36,11 @@ hatch and server-owned risk decisions remain unchanged.
 
 The reviewed producer candidate defaults new strategies to
 `volatility_tolerance=0.75` and `reward_basis="net_execution_costs"`.
-Protected backtests require an explicit historical execution-cost profile or
-known `taker_fee_rate`; the fixed-cost exchange model also disables network
-fees explicitly. These inputs belong to Mangrove's calculation, not an SDK
+Protected runs through the translated backtest helpers require a known
+`taker_fee_rate`; the fixed-cost exchange model also disables network fees
+explicitly. Native Oracle replays additionally accept a historical profile in
+`execution_config.execution_costs`; the translated helpers do not forward that
+profile or `replay_policy`. These inputs belong to Mangrove's calculation, not an SDK
 estimate. The SDK does not invent a zero fee or derive a stop locally.
 Existing stored strategies retain their legacy policy until explicitly migrated.
 Caller-owned positions using the protected policy supply signed confirmed

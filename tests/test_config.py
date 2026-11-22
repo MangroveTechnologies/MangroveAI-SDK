@@ -41,7 +41,7 @@ class TestTradingDefaults:
         assert "max_risk_per_trade" in result["risk_management"]
 
     def test_real_response_fixture_validates(self) -> None:
-        """The captured dev response has the shape documented in the service docstring."""
+        """The offline native response has the documented service shape."""
         fixture = _load("trading_defaults_response.json")
         for key in ("risk_management", "position_limits", "volatility_settings",
                     "trading_rules", "time_based_exits"):
@@ -61,8 +61,10 @@ class TestExecutionDefaults:
         # Keys from the five merged sections.
         assert "max_risk_per_trade" in result       # risk_management
         assert "initial_balance" in result           # position_limits
-        assert "cooldown_bars" in result             # trading_rules
+        assert "cooldown_model" in result            # trading_rules
         assert "max_hold_bars" in result             # time_based_exits
+        assert result["volatility_tolerance"] == 0.75
+        assert result["reward_basis"] == "net_execution_costs"
 
         # signal_defaults + backtest_defaults NOT merged in.
         assert "slippage_pct" not in result

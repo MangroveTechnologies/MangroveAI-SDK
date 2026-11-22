@@ -2,17 +2,28 @@
     "description": "Default values for trading system configuration",
     "signal_defaults": {},
     "backtest_defaults": {
-        "slippage_pct": 0.004,
+        "slippage_pct": 0.0025,
         "fee_pct": 0.0085
     },
     "risk_management": {
         "max_risk_per_trade": 0.01,
         "reward_factor": 2,
+        "reward_basis": "net_execution_costs",
         "atr_period": 14,
-        "atr_volatility_factor": 2.0,
-        "atr_short_weight": 0.95,
-        "atr_long_weight": 0.05,
-        "atr_cap_multiplier": 2.1
+        "stop_model": "atr_width_dial",
+        "volatility_tolerance": 0.75,
+        "min_stop_distance_pct": 0.005,
+        "position_size_calc": "v2",
+        "max_drawdown_limit": 0.2,
+        "max_drawdown_halt_limit": 0.2
+    },
+    "retired_stop_models": {
+        "weighted_atr": {
+            "atr_short_weight": 0.95,
+            "atr_long_weight": 0.05,
+            "atr_cap_multiplier": 2.1,
+            "atr_volatility_factor": 2.0
+        }
     },
     "position_limits": {
         "initial_balance": 10000,
@@ -34,30 +45,66 @@
         "cooldown_bars": 24,
         "daily_momentum_limit": 3,
         "weekly_momentum_limit": 3,
+        "cooldown_model": "trades",
+        "circuit_breaker": {
+            "consecutive_loss_limit": 2,
+            "loss_amount_pct": 0.06,
+            "pause_bars": 36,
+            "drawdown_pause_bars": 72,
+            "max_consecutive_pauses": 3,
+            "resume_size_fraction": 0.5,
+            "resume_trades": 3,
+            "pause_min_hours": 24,
+            "pause_max_days": 14
+        },
         "cooldown_config": {
             "5m": {
                 "short_loss_limit": 4,
                 "long_loss_limit": 6,
                 "short_window_bars": 180,
-                "long_window_bars": 480
+                "long_window_bars": 480,
+                "short_cooldown_bars": 180,
+                "long_cooldown_bars": 480
             },
             "15m": {
                 "short_loss_limit": 4,
                 "long_loss_limit": 6,
                 "short_window_bars": 120,
-                "long_window_bars": 320
+                "long_window_bars": 320,
+                "short_cooldown_bars": 120,
+                "long_cooldown_bars": 320
+            },
+            "30m": {
+                "short_loss_limit": 4,
+                "long_loss_limit": 6,
+                "short_window_bars": 80,
+                "long_window_bars": 220,
+                "short_cooldown_bars": 80,
+                "long_cooldown_bars": 220
             },
             "1h": {
                 "short_loss_limit": 4,
                 "long_loss_limit": 6,
                 "short_window_bars": 48,
-                "long_window_bars": 144
+                "long_window_bars": 144,
+                "short_cooldown_bars": 48,
+                "long_cooldown_bars": 144
+            },
+            "4h": {
+                "short_loss_limit": 4,
+                "long_loss_limit": 6,
+                "short_window_bars": 32,
+                "long_window_bars": 96,
+                "short_cooldown_bars": 32,
+                "long_cooldown_bars": 96
             },
             "1d": {
                 "short_loss_limit": 4,
                 "long_loss_limit": 6,
                 "short_window_bars": 20,
-                "long_window_bars": 60
+                "long_window_bars": 60,
+                "short_cooldown_bars": 20,
+                "long_cooldown_bars": 60
             }
         }
     },

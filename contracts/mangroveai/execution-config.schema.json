@@ -198,7 +198,7 @@
     },
     "exit_on_loss_after_bars": {
       "default": 1000,
-      "description": "Exit a losing position after this many bars.",
+      "description": "Exit a losing position after this many bars. Under net_execution_costs, losing means estimated net P&L after entry and exit costs is negative.",
       "maximum": 10000,
       "minimum": 1,
       "type": [
@@ -211,7 +211,7 @@
     },
     "exit_on_profit_after_bars": {
       "default": 1000,
-      "description": "Exit a winning position after this many bars.",
+      "description": "Exit a winning position after this many bars. Under net_execution_costs, winning and the profit threshold use estimated net P&L after entry and exit costs.",
       "maximum": 10000,
       "minimum": 1,
       "type": [
@@ -439,7 +439,7 @@
     },
     "profit_threshold_pct": {
       "default": 0.05,
-      "description": "Profit threshold (5%% default) above which a position counts as 'winning' for the time-based exit logic.",
+      "description": "Profit threshold (5% default) for the time-profit exit. net_execution_costs uses estimated net gain divided by entry cash cost; gross_price_distance retains reference-price return.",
       "maximum": 1.0,
       "minimum": 0.0,
       "type": [
@@ -461,9 +461,24 @@
       "x-mangrove-effect": "Higher lets the split drift further before a rebalance order, so fewer core orders; lower holds the split closer to target with more core orders and more fees.",
       "x-mangrove-status": "tunable"
     },
+    "reward_basis": {
+      "default": "net_execution_costs",
+      "description": "Reward and profit-exit policy. net_execution_costs sizes against modeled cash loss at the volatility stop, solves the target after both legs of costs, and requires positive estimated net profit for TP, signal and time-profit exits. gross_price_distance preserves explicitly selected legacy behavior. Mandatory time-loss, maximum-hold, stop and emergency exits remain available.",
+      "enum": [
+        "net_execution_costs",
+        "gross_price_distance",
+        null
+      ],
+      "type": [
+        "string",
+        "null"
+      ],
+      "x-mangrove-effect": "The net policy requires a known execution cost quote. Missing costs deny protected entries and discretionary profit exits; this is an estimate, not a guarantee of live fill profitability.",
+      "x-mangrove-status": "guardrail"
+    },
     "reward_factor": {
       "default": 2,
-      "description": "Risk/reward target. Take-profit distance = reward_factor * stop_distance.",
+      "description": "Reward multiple on the declared reward_basis. net_execution_costs solves take-profit for this multiple of modeled net stop loss after execution costs; gross_price_distance preserves the legacy price-distance target.",
       "exclusiveMinimum": 0.0,
       "maximum": 100.0,
       "type": [
@@ -475,7 +490,7 @@
       "x-mangrove-status": "tunable"
     },
     "stop_gap_allowance": {
-      "description": "position_size_calc 'v3' only. Fraction of the stop price a stop fill is assumed to miss by when computing the worst-case loss of a trade (0.01 = 1%).",
+      "description": "Fraction of stop price allowed for an adverse gap when estimating stop loss (0.01 = 1%). Required for v3; also accepted by protected v1/v2. This is a modeling allowance, not a guaranteed bound on a market fill.",
       "exclusiveMaximum": 1.0,
       "minimum": 0.0,
       "type": [
@@ -501,7 +516,7 @@
       "x-mangrove-status": "guardrail"
     },
     "taker_fee_rate": {
-      "description": "position_size_calc 'v3' only. Venue fee per fill as a fraction of notional, charged in cash (0.004 = 0.4%).",
+      "description": "Venue fee per fill as a fraction of notional, charged in cash (0.004 = 0.4%). Required for v3; also accepted by v1/v2 with reward_basis net_execution_costs as an explicit execution cost quote.",
       "exclusiveMaximum": 0.1,
       "minimum": 0.0,
       "type": [
@@ -553,7 +568,7 @@
       "x-mangrove-status": "unused"
     },
     "volatility_tolerance": {
-      "default": 0.5,
+      "default": 0.75,
       "description": "Where on the ATR width the stop is taken, as the ATR_long-vs-ATR_short contribution ratio: 0 is all short end (0.5x the signal timeframe's ATR), 1 is all long end (2x the daily ATR). Interpolated geometrically, so the value is exactly the long end's share of log(stop) and each 0.1 is the same multiplicative step. Replaces atr_short_weight, atr_long_weight and atr_cap_multiplier.",
       "maximum": 1.0,
       "minimum": 0.0,

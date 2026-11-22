@@ -33,7 +33,9 @@ class BacktestRequest(MangroveModel):
     inline) or `strategy_id` (reuse a saved strategy by UUID -- the server loads
     its `strategy_json` and defaults `asset` from the saved strategy). `asset` is
     required only when using `strategy_json`. Every other trading-config field is
-    optional -- the server fills it from `trading_defaults.json` when omitted.
+    optional at the transport boundary. The server fills ordinary defaults from
+    `trading_defaults.json`; protected net-cost runs require explicit execution
+    cost assumptions and reject a missing venue fee quote.
     Fetch the canonical defaults via ``client.config.execution_defaults()``.
     (strategy_id added in MangroveAI #629; mirrors run_bulk's strategy_ids and
     execution.evaluate(strategy_id).)

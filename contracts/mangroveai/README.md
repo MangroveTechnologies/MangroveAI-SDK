@@ -27,12 +27,23 @@ defaults and nested glossary in the explicit schema response. The default trades
 schema omits the four bars-only keys (`cooldown_config`, `cooldown_bars`,
 `daily_momentum_limit`, `weekly_momentum_limit`), matching the canonical server.
 Explicit bars/legacy objects remain transport-compatible. The shared default
-fixture comes from the offline API1525 source service; the separate bars fixture
+fixture comes from the offline producer service identified in `provenance.json`; the separate bars fixture
 comes from the same service with explicit `cooldown_model="bars"` and verifies
 legacy response compatibility without claiming a public mode selector. Both
 fixtures carry the producer's default of two consecutive losses. These authoring
 declarations do not add a client-side trading gate; the legacy transport escape
 hatch and server-owned risk decisions remain unchanged.
+
+The reviewed producer candidate defaults new strategies to
+`volatility_tolerance=0.75` and `reward_basis="net_execution_costs"`.
+Protected backtests require an explicit historical execution-cost profile or
+known `taker_fee_rate`; the fixed-cost exchange model also disables network
+fees explicitly. These inputs belong to Mangrove's calculation, not an SDK
+estimate. The SDK does not invent a zero fee or derive a stop locally.
+Existing stored strategies retain their legacy policy until explicitly migrated.
+Caller-owned positions using the protected policy supply signed confirmed
+`entry_cash_flow` including entry costs and the actual held quantity.
+Source declarations do not establish serving rollout or published package support.
 
 `local-deployment-not-ready.json` is a synthetic stored strategy snapshot with
 explicit legacy execution settings, including a loss limit of four. That stored

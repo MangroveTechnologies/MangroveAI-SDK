@@ -45,9 +45,9 @@ and [dated release handoff](docs/issue-66-release-handoff.md). The former
 
 The TypeScript client has named `users`, `signals`, `strategies`, `strategyWorkflow` and
 `backtesting` helpers plus a generic typed `request(operation, options)` surface.
-The current public contract classifies 273 method/path operations across core
-and Oracle proxy REST, including 10 v2 operations; this is generated declaration
-coverage, not live endpoint acceptance. Of these, 269 use JSON/no-content, one
+The current public contract classifies 276 method/path operations across core
+and Oracle proxy REST, including 12 v2 operations; this is generated declaration
+coverage, not live endpoint acceptance. Of these, 272 use JSON/no-content, one
 requires a separate redirect flow and three require a streaming/non-JSON client.
 It is not a drop-in copy of Python's service methods. It does not supply MCP/OAuth
 discovery, the separate legacy KB-host client, x402 signing or SSE consumption.
@@ -329,6 +329,16 @@ inside each strategy config. Check each result's `success` independently.
 `persist=True` with a saved strategy ID instead uses the engine's simulated fill
 ledger; it does not confirm execution at an external venue. `persist=True`
 without a strategy ID does not confirm fills.
+
+### Quote a protected spot exit
+
+Send an `ExitQuoteRequest` to `client.execution.exit_quote()` with confirmed
+remaining entry cash flow and quantity, an executable bid, and the venue's fee
+and rounding bounds. Use decimal strings for all numeric fields, and supply
+both base-currency fee bounds. The authenticated API returns the minimum
+profitable sell price, the safe sale quantity, and the modeled net profit.
+The server computes the quote. The executor verifies the venue receipt,
+maintains protection, and submits any order.
 
 ## Services
 

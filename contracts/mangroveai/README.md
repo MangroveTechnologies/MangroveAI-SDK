@@ -47,6 +47,11 @@ Caller-owned positions using the protected policy supply signed confirmed
 `entry_cash_flow` including entry costs and the actual held quantity.
 Source declarations do not establish serving rollout or published package support.
 
+The authenticated `POST /api/v1/execution/exit-quote` contract accepts exact
+decimal strings and requires both base-fee bounds. Both SDKs send the strings
+unchanged and preserve the server's result. The shared fixture represents a
+candidate bid below the minimum profitable sell limit.
+
 `local-deployment-not-ready.json` is a synthetic stored strategy snapshot with
 explicit legacy execution settings, including a loss limit of four. That stored
 value is not the current server default.

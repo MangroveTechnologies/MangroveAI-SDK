@@ -2,7 +2,7 @@
   "contracts": [
     {
       "path": "openapi.json",
-      "sha256": "08597c6e650195f7ced2f63d1fb8ce0d674a4185ee2d539196f18badb99bcd99"
+      "sha256": "3f45aa252c5d7a17b66e6878543123fc4de12c84a39cc0b09a47496d81060434"
     },
     {
       "path": "oracle-proxy-openapi.json",
@@ -14,13 +14,13 @@
     }
   ],
   "generation": "Real application factory and canonical config metadata in ci; temporary HelpBot namespace registration only; TCP/DNS attempts refused and fail export; bundled LiteLLM cost metadata; startup provider warm-up/directory setup disabled; overrides restored; no business handlers",
-  "source_commit": "6f2ce33bedb55526f722c92637bc4b5770734575",
+  "source_commit": "1f4d27c33eab86bf5c038e1ca0bf1ab4c66889b6",
   "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "source_dirty": false,
   "source_files": [
     {
       "path": "scripts/export_developer_contracts.py",
-      "sha256": "2832c6dfb0b92778d675e1e998b5933ff4e3c20a72692beb090aaedef5e1ac5e"
+      "sha256": "49e06d71e0095e977bd150cd7e50e0f2d9f50057e2316c89421c2a14bccfb62e"
     },
     {
       "path": "src/MangroveAI/__init__.py",
@@ -85,6 +85,18 @@
     {
       "path": "src/MangroveAI/domains/managers/account_manager.py",
       "sha256": "1cf0527f4df6ef97413dc11ccf6f1a8421cf3f0babd678455b0cc16274b3df09"
+    },
+    {
+      "path": "src/MangroveAI/domains/managers/routes.py",
+      "sha256": "a49053772a27d6bbefa6a3738529ba53de1e9413df102e92d3eb9647236c0705"
+    },
+    {
+      "path": "src/MangroveAI/domains/managers/operations/exit_quote.py",
+      "sha256": "d1f7012353a5e1ad3f3d27f0caf0f4a9ed8f0ae0fb0396e955a9b24a002c7630"
+    },
+    {
+      "path": "src/MangroveAI/domains/managers/execution_costs.py",
+      "sha256": "a6eaf01d0cf58f48c8a0fd194bddfeb78fae32cb61a8423cf41f2e8076d28f70"
     },
     {
       "path": "src/MangroveAI/domains/agent/tooling/schema.py",

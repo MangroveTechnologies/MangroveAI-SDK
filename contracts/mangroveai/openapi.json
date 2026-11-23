@@ -3895,6 +3895,134 @@
         ],
         "type": "object"
       },
+      "api1.ExitQuoteRequest": {
+        "properties": {
+          "base_fee_bps": {
+            "description": "Maximum possible base-currency percentage fee; zero only when none can apply.",
+            "type": "string"
+          },
+          "base_fee_increment": {
+            "description": "Maximum base-currency rounding or minimum fee quantum per fill; zero only when none can apply.",
+            "type": "string"
+          },
+          "candidate_price": {
+            "description": "Fresh executable best bid in quote currency per base unit.",
+            "type": "string"
+          },
+          "entry_cash_flow": {
+            "description": "Negative confirmed quote cash spent on all remaining held quantity, including entry costs.",
+            "type": "string"
+          },
+          "exit_fee_bps": {
+            "description": "Conservative maximum percentage fee in basis points, below 10000.",
+            "type": "string"
+          },
+          "exit_fixed_fee_quote": {
+            "default": "0",
+            "description": "Known maximum extra fixed quote charge per fill; zero only where none applies.",
+            "type": "string"
+          },
+          "exit_quantity": {
+            "description": "Proposed base quantity, at most held quantity and exactly lot-rounded.",
+            "type": "string"
+          },
+          "held_quantity": {
+            "description": "Confirmed remaining base quantity after base-currency fees.",
+            "type": "string"
+          },
+          "price_increment": {
+            "description": "Positive venue price tick in quote currency per base unit.",
+            "type": "string"
+          },
+          "quantity_increment": {
+            "description": "Positive minimum fill quantity increment in base units.",
+            "type": "string"
+          },
+          "quote_increment": {
+            "description": "Positive cash quantum bounding proceeds and fee rounding per fill.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "base_fee_bps",
+          "base_fee_increment",
+          "candidate_price",
+          "entry_cash_flow",
+          "exit_fee_bps",
+          "exit_quantity",
+          "held_quantity",
+          "price_increment",
+          "quantity_increment",
+          "quote_increment"
+        ],
+        "type": "object"
+      },
+      "api1.ExitQuoteResponse": {
+        "properties": {
+          "allocated_entry_cost_quote": {
+            "description": "Confirmed remaining entry cost attributable to the proposed quantity.",
+            "type": "string"
+          },
+          "base_fee_cost_allowance_quote": {
+            "description": "Entry cost attributable to the worst possible base fee debit.",
+            "type": "string"
+          },
+          "candidate_net_profit_quote": {
+            "description": "Full proposed quantity profit lower bound at the candidate price.",
+            "type": "string"
+          },
+          "cash_rounding_allowance_quote": {
+            "description": "Conservative proceeds, fee rounding, and fixed-cost allowance over all possible partial fills.",
+            "type": "string"
+          },
+          "direction": {
+            "description": "Long spot sale; other directions are unsupported.",
+            "type": "string"
+          },
+          "exit_quantity": {
+            "description": "Safe sale quantity, clamped to fund base fees from this position alone.",
+            "type": "string"
+          },
+          "minimum_exit_price": {
+            "description": "Strictly profitable sell limit, rounded up to a venue tick.",
+            "type": "string"
+          },
+          "minimum_net_profit_quote": {
+            "description": "Full proposed quantity profit lower bound at the minimum price.",
+            "type": "string"
+          },
+          "profitable": {
+            "description": "Whether the candidate bid reaches the executable minimum price.",
+            "type": "boolean"
+          },
+          "reserved_base_fee_quantity": {
+            "description": "Base quantity reserved from this position to cover fee fallback.",
+            "type": "string"
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "version": {
+            "description": "Quote arithmetic contract version.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "allocated_entry_cost_quote",
+          "base_fee_cost_allowance_quote",
+          "candidate_net_profit_quote",
+          "cash_rounding_allowance_quote",
+          "direction",
+          "exit_quantity",
+          "minimum_exit_price",
+          "minimum_net_profit_quote",
+          "profitable",
+          "reserved_base_fee_quantity",
+          "success",
+          "version"
+        ],
+        "type": "object"
+      },
       "api1.FlowIntelligenceResponse": {
         "properties": {
           "chain": {
@@ -15010,6 +15138,54 @@
             }
           ]
         }
+      }
+    },
+    "/api/v1/execution/exit-quote": {
+      "post": {
+        "description": "Calculate a strictly profitable minimum sell limit from a confirmed signed long-entry cash flow and bounded venue costs, including partial-fill rounding. Caller-supplied decimals are quote-currency amounts or base quantities. This arithmetic does not verify an exchange receipt or authorize trading.",
+        "operationId": "api1_post_profitable_exit_quote",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/api1.ExitQuoteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api1.ExitQuoteResponse"
+                }
+              }
+            },
+            "description": "Quote computed; not an order authorization"
+          },
+          "400": {
+            "description": "Invalid receipt or venue bounds"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Missing strategy-read permission"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        },
+        "security": [
+          {
+            "MangroveBearer": []
+          }
+        ],
+        "tags": [
+          "execution"
+        ]
       }
     },
     "/api/v1/execution/paper/{strategy_id}": {

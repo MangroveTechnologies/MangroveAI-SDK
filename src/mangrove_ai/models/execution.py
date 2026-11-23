@@ -205,6 +205,46 @@ class CreateAccountRequest(MangroveModel):
     risk_params: dict[str, Any] | None = None
 
 
+class ExitQuoteRequest(MangroveModel):
+    """Exact decimal inputs for a modeled long-spot sale.
+
+    Cash amounts and price increments are in quote currency. Held quantity,
+    requested exit quantity, and their increments are in base units. Supply
+    both base-fee bounds explicitly.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    entry_cash_flow: StrictStr
+    held_quantity: StrictStr
+    exit_quantity: StrictStr
+    candidate_price: StrictStr
+    exit_fee_bps: StrictStr
+    price_increment: StrictStr
+    quantity_increment: StrictStr
+    quote_increment: StrictStr
+    base_fee_bps: StrictStr
+    base_fee_increment: StrictStr
+    exit_fixed_fee_quote: StrictStr = "0"
+
+
+class ExitQuoteResponse(MangroveModel):
+    """Server-calculated price floor, safe quantity, and lower-bound net profit."""
+
+    success: bool
+    version: str
+    direction: str
+    minimum_exit_price: StrictStr
+    profitable: bool
+    minimum_net_profit_quote: StrictStr
+    candidate_net_profit_quote: StrictStr
+    allocated_entry_cost_quote: StrictStr
+    base_fee_cost_allowance_quote: StrictStr
+    reserved_base_fee_quantity: StrictStr
+    cash_rounding_allowance_quote: StrictStr
+    exit_quantity: StrictStr
+
+
 class Account(MangroveModel):
     """A trading account (paper or live)."""
 

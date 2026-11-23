@@ -78,6 +78,8 @@ export interface CoreModels {
   "api1.ExecutionConfiguration": (ExecutionConfiguration) | Record<string, unknown>;
   "api1.ExecutionState": { "account_value"?: number; "asset_balance"?: number; "bar_index"?: number; "cash_balance"?: number; "exits_pending"?: boolean; "halt"?: unknown; "last_core_order_at"?: string; "last_evaluated_candle"?: string; "last_evaluated_timeframe"?: string; "num_open_positions"?: number; "realized_pnl"?: number; "risk_state"?: unknown; "total_trades"?: number; [key: string]: unknown; };
   "api1.ExecutionValidationResult": { "errors"?: Array<string>; "valid": boolean; [key: string]: unknown; };
+  "api1.ExitQuoteRequest": { "base_fee_bps": string; "base_fee_increment": string; "candidate_price": string; "entry_cash_flow": string; "exit_fee_bps": string; "exit_fixed_fee_quote"?: string; "exit_quantity": string; "held_quantity": string; "price_increment": string; "quantity_increment": string; "quote_increment": string; [key: string]: unknown; };
+  "api1.ExitQuoteResponse": { "allocated_entry_cost_quote": string; "base_fee_cost_allowance_quote": string; "candidate_net_profit_quote": string; "cash_rounding_allowance_quote": string; "direction": string; "exit_quantity": string; "minimum_exit_price": string; "minimum_net_profit_quote": string; "profitable": boolean; "reserved_base_fee_quantity": string; "success": boolean; "version": string; [key: string]: unknown; };
   "api1.FlowIntelligenceResponse": { "chain"?: string; "data"?: unknown; "success"?: boolean; "symbol"?: string; "timeframe"?: string; [key: string]: unknown; };
   "api1.GetStrategyResponse": { "strategy"?: CoreModels["api1.StrategyDetail"]; "success"?: boolean; [key: string]: unknown; };
   "api1.GlobalMarketResponse": { "data"?: unknown; "success"?: boolean; [key: string]: unknown; };
@@ -338,6 +340,7 @@ export interface Operations {
   "POST /api/v1/execution/evaluate": { input: { body: CoreModels["api1.EvaluateObjectRequest"]; }; output: CoreModels["api1.EvaluateResponse"]; };
   "POST /api/v1/execution/evaluate/bulk": { input: { body: CoreModels["api1.BulkEvaluateRequest"]; }; output: CoreModels["api1.BulkEvaluateResult"]; };
   "POST /api/v1/execution/evaluate/{strategy_id}": { input: { path: { "strategy_id": string; }; body: CoreModels["api1.EvaluateRequest"]; }; output: CoreModels["api1.EvaluateResponse"]; };
+  "POST /api/v1/execution/exit-quote": { input: { body: CoreModels["api1.ExitQuoteRequest"]; }; output: CoreModels["api1.ExitQuoteResponse"]; };
   "GET /api/v1/execution/paper/{strategy_id}": { input: { path: { "strategy_id": string; }; }; output: unknown; };
   "POST /api/v1/execution/paper/{strategy_id}/pause": { input: { path: { "strategy_id": string; }; }; output: unknown; };
   "POST /api/v1/execution/paper/{strategy_id}/start": { input: { path: { "strategy_id": string; }; }; output: unknown; };
@@ -2520,6 +2523,15 @@ export const operationMetadata = {
         "strategy_id"
       ]
     },
+    "transport": "json-or-no-content"
+  },
+  "POST /api/v1/execution/exit-quote": {
+    "authenticated": true,
+    "bodyRequired": true,
+    "method": "POST",
+    "path": "/api/v1/execution/exit-quote",
+    "queryFormats": {},
+    "required": {},
     "transport": "json-or-no-content"
   },
   "POST /api/v1/execution/paper/{strategy_id}/pause": {

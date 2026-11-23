@@ -12,7 +12,7 @@
     },
     {
       "path": "openapi.json",
-      "sha256": "08597c6e650195f7ced2f63d1fb8ce0d674a4185ee2d539196f18badb99bcd99"
+      "sha256": "3f45aa252c5d7a17b66e6878543123fc4de12c84a39cc0b09a47496d81060434"
     },
     {
       "path": "oracle-proxy-openapi.json",
@@ -931,6 +931,19 @@
       "operation": "POST /api/v1/execution/evaluate/{strategy_id}",
       "python_direct_bindings": [
         "ExecutionService.evaluate"
+      ],
+      "request": "declared",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "POST /api/v1/execution/exit-quote",
+      "python_direct_bindings": [
+        "ExecutionService.exit_quote"
       ],
       "request": "declared",
       "response": "declared",

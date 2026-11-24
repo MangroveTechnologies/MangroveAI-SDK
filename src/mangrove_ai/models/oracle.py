@@ -354,11 +354,15 @@ class ExperimentDeleted(MangroveModel):
 
 
 class OracleEffectiveFilters(MangroveModel):
-    """Duration policy resolved by Oracle, including any user-visible notice."""
+    """Duration policy resolved by Oracle, including any user-visible notice.
+
+    Every field is optional. A key the server omits is ``None``, which means
+    the server did not report that value.
+    """
 
     min_days: int | None = None
     max_days: int | None = None
-    irr_duration_default_applied: bool
+    irr_duration_default_applied: bool | None = None
     notice: str | None = None
 
 

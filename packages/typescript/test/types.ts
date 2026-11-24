@@ -1,4 +1,4 @@
-import { MangroveAI, type CoreModels, type Operations, type UsageMetrics, type ExecutionConfiguration, type LocalDeployment } from '../src/index.js';
+import { MangroveAI, oracleEffectiveFilters, type CoreModels, type Operations, type OracleEffectiveFilters, type UsageMetrics, type ExecutionConfiguration, type LocalDeployment } from '../src/index.js';
 
 const sdk = new MangroveAI({ apiKey: 'prod_fixture', baseUrl: 'https://example.invalid' });
 void sdk.signals.list().then(page => {
@@ -35,6 +35,20 @@ void sdk.request('GET /api/v1/oracle/experiments/{experiment_id}/results', {
 });
 // @ts-expect-error Historical duration is numeric, not a string.
 void sdk.request('GET /api/v1/oracle/results', { query: { min_days: '90' } });
+void sdk.request('GET /api/v1/oracle/results', { query: { min_irr: 14 } }).then(page => {
+  const filters: OracleEffectiveFilters | null = oracleEffectiveFilters(page);
+  const appliedDays: number | null | undefined = filters?.min_days;
+  const applied: boolean | null | undefined = filters?.irr_duration_default_applied;
+  const notice: string | null | undefined = filters?.notice;
+  void appliedDays; void applied; void notice;
+  // @ts-expect-error The open result envelope does not type effective_filters; use oracleEffectiveFilters.
+  const direct: string = page.effective_filters.notice;
+  void direct;
+});
+void sdk.strategyWorkflow.findSweepRuns({ body: { sort_by: 'irr_annualized', min_irr: 14 } }).then(result => {
+  const notice: string | null | undefined = oracleEffectiveFilters(result)?.notice;
+  void notice;
+});
 
 // @ts-expect-error The contract requires the path identity.
 void sdk.request('GET /api/v1/strategies/{strategy_id}', {});

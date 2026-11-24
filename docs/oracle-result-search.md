@@ -34,8 +34,21 @@ if page.effective_filters and page.effective_filters.notice:
 
 Oracle applies the 182-day default only when `min_irr` is supplied (including
 zero), `min_days` is omitted, and `use_irr_duration_default` is true or omitted.
+A search that sets only a minimum IRR therefore returns the applied minimum and
+a notice:
+
+```python
+page = client.oracle.list_results(min_irr=14, sort="irr_annualized", order="desc")
+filters = page.effective_filters
+if filters is not None:
+    print(filters.min_days)                      # 182
+    print(filters.irr_duration_default_applied)  # True
+    if filters.notice:
+        print(filters.notice)
+```
+
 An explicit `min_days=0`, `90`, or `180` overrides that default. To clear the
-default entirely, omit `min_days` and pass false:
+default entirely, omit `min_days` and pass false. This search returns no notice:
 
 ```python
 page = client.oracle.list_results(
@@ -94,15 +107,35 @@ for row in rows:
 The callback runs before each validated page is yielded, including an empty final
 page. Filters are forwarded on every request. Older servers may omit
 `effective_filters`; its absence is not proof that these controls are supported.
+`page.effective_filters` is `None` in that case, and a key the server omits
+inside it is `None`.
 
 ## TypeScript and the shared workflow
 
 Use the generated public operation, with the same parameter names and explicit
-`false` when clearing the default. The response preserves Oracle's envelope;
-these legacy result operations have an open response schema, so validate the
-shape before accessing it in strict TypeScript code.
+`false` when clearing the default. The response preserves Oracle's envelope.
+These legacy result operations have an open response schema, so
+`effective_filters` is not typed on the response. The exported
+`oracleEffectiveFilters(response)` helper checks its shape at runtime and returns
+a typed `OracleEffectiveFilters` object, or `null` when the server did not return
+the field. A key the server omits is `null`; an unexpected shape throws
+`MalformedResponseError`.
 
 ```typescript
+import { MangroveAI, oracleEffectiveFilters } from '@mangrove-ai/sdk';
+
+// Only a minimum IRR: Oracle applies its 182-day minimum and returns a notice.
+const defaulted = await client.request('GET /api/v1/oracle/results', {
+  query: { min_irr: 14, sort: 'irr_annualized', order: 'desc' },
+});
+const filters = oracleEffectiveFilters(defaulted);
+if (filters !== null) {
+  console.log(filters.min_days);                      // 182
+  console.log(filters.irr_duration_default_applied);  // true
+  if (filters.notice) console.log(filters.notice);
+}
+
+// The default cleared: shorter histories are included and no notice is returned.
 const page = await client.request('GET /api/v1/oracle/results', {
   query: {
     min_irr: 14, use_irr_duration_default: false,
@@ -116,7 +149,8 @@ For one experiment, use
 `GET /api/v1/oracle/experiments/{experiment_id}/results` with its path identity.
 The Python `client.strategy_workflow.find_sweep_runs` and TypeScript
 `client.strategyWorkflow.findSweepRuns` helpers expose the shared workflow;
-its sort parameter is `sort_by`, and it returns the same `effective_filters`.
+its sort parameter is `sort_by`, and it returns the same `effective_filters`,
+which `oracleEffectiveFilters` also reads.
 Workflow metric display strings include `%`; `metrics_raw` retains the numeric
 percentage values. Load the server's current `sweep-results` skill before an
 agent-led workflow and report the chosen sorting measure and any duration notice.

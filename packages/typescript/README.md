@@ -87,10 +87,16 @@ The generated Oracle result operations support recorded-day bounds and separate
 period total, IRR, simple annualized, daily, and closed-trade return measures. A minimum-IRR
 search defaults to 182 recorded days only when `min_days` is omitted; pass an
 explicit minimum to override it, or `use_irr_duration_default: false` without
-`min_days` to clear it. Preserve and display the returned `effective_filters`
-notice. Historical duration is not deployment age, and filters do not recalculate
-an existing run over a new date range. The client forwards these parameters
-unchanged; Oracle resolves the default.
+`min_days` to clear it. Historical duration is not deployment age, and filters
+do not recalculate an existing run over a new date range. The client forwards
+these parameters unchanged; Oracle resolves the default.
+
+These result operations declare an open response object, so
+`effective_filters` is not typed on the response. Read it with the exported
+`oracleEffectiveFilters(response)` helper, which returns a typed
+`OracleEffectiveFilters` object or `null` when the server did not return the
+field. It checks the shape at runtime and throws `MalformedResponseError` when
+the field is present with an unexpected shape. A key the server omits is `null`.
 
 ```typescript
 // Runs with exactly 90 recorded days, ranked by simple annualized return.
@@ -102,11 +108,26 @@ const ninetyDay = await client.request('GET /api/v1/oracle/results', {
   },
 });
 
-// A minimum-IRR search with the 182-day default cleared.
+// A minimum-IRR search with no duration parameters. Oracle applies its 182-day
+// minimum and reports it in effective_filters.
+const defaulted = await client.request('GET /api/v1/oracle/results', {
+  query: { min_irr: 14, sort: 'irr_annualized', order: 'desc' },
+});
+const filters = oracleEffectiveFilters(defaulted);
+if (filters !== null) {
+  console.log(filters.min_days);                      // 182
+  console.log(filters.irr_duration_default_applied);  // true
+  if (filters.notice) console.log(filters.notice);    // "Minimum IRR searches default to 182 backtest days. ..."
+}
+
+// The same search with the 182-day default cleared. No notice is returned.
 const allLengths = await client.request('GET /api/v1/oracle/results', {
   query: { min_irr: 14, use_irr_duration_default: false, sort: 'irr_annualized', order: 'desc' },
 });
 ```
+
+The examples import the helper with the client:
+`import { MangroveAI, oracleEffectiveFilters } from '@mangrove-ai/sdk'`.
 
 See the [Python and TypeScript result-search guide](../../docs/oracle-result-search.md)
 for examples, metric units, null handling and paging. These controls require the

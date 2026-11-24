@@ -571,14 +571,25 @@ page = client.oracle.list_results(
     sort="simple_annualized_return", order="desc",
 )
 
-# A minimum-IRR search with the 182-day default cleared.
+# A minimum-IRR search with no duration parameters. Oracle applies its 182-day
+# minimum and reports it in effective_filters.
+page = client.oracle.list_results(min_irr=14, sort="irr_annualized", order="desc")
+filters = page.effective_filters
+if filters is not None:
+    print(filters.min_days)                      # 182
+    print(filters.irr_duration_default_applied)  # True
+    if filters.notice:
+        print(filters.notice)  # "Minimum IRR searches default to 182 backtest days. ..."
+
+# The same search with the 182-day default cleared. No notice is returned.
 page = client.oracle.list_results(
     min_irr=14, use_irr_duration_default=False,
     sort="irr_annualized", order="desc",
 )
-if page.effective_filters and page.effective_filters.notice:
-    print(page.effective_filters.notice)
 ```
+
+`effective_filters` is `None` when the server does not return it, and a key the
+server omits is `None`.
 
 [Result-search examples](docs/oracle-result-search.md) cover Python, TypeScript,
 return measures, nullable metrics, and pagination notices. These are historical

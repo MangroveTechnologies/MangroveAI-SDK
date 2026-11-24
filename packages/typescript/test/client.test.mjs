@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import test from 'node:test';
 import { MangroveAI, APIError, ConfigurationError, MalformedResponseError,
-  RequestTimeoutError, RequestAbortedError } from '../dist/index.js';
+  RequestTimeoutError, RequestAbortedError, oracleEffectiveFilters } from '../dist/index.js';
 
 const fakeKey = 'prod_fixture_key_not_a_credential';
 const fixture = async name => JSON.parse(await readFile(new URL(`../../../contracts/mangroveai/fixtures/${name}.json`, import.meta.url), 'utf8'));
@@ -346,4 +346,29 @@ test('Oracle result search forwards caller filters only and preserves the server
   assert.deepEqual(clearedPage.effective_filters, cleared);
   assert.deepEqual(ninetyDay.effective_filters, ninety);
   assert.deepEqual(ninetyDay.results, [row]);
+});
+
+test('oracleEffectiveFilters narrows the open result envelope and tolerates older servers', () => {
+  const notice = 'Minimum IRR searches default to 182 backtest days. Change the minimum or set use_irr_duration_default=false to include shorter histories.';
+  assert.deepEqual(
+    oracleEffectiveFilters({ total: 0, results: [], effective_filters: { min_days: 182, max_days: null, irr_duration_default_applied: true, notice } }),
+    { min_days: 182, max_days: null, irr_duration_default_applied: true, notice });
+  assert.deepEqual(oracleEffectiveFilters({ effective_filters: { min_days: 182, future_field: 'kept' } }),
+    { min_days: 182, max_days: null, irr_duration_default_applied: null, notice: null, future_field: 'kept' });
+  assert.equal(oracleEffectiveFilters({ total: 0, results: [] }), null);
+  assert.equal(oracleEffectiveFilters({ total: 0, results: [], effective_filters: null }), null);
+  for (const malformed of [null, 'page', [], { effective_filters: 'notice' }, { effective_filters: [] },
+    { effective_filters: { min_days: '182' } }, { effective_filters: { max_days: -1 } },
+    { effective_filters: { irr_duration_default_applied: 'true' } }, { effective_filters: { notice: 182 } }]) {
+    assert.throws(() => oracleEffectiveFilters(malformed), MalformedResponseError);
+  }
+});
+
+test('a minimum-IRR search result is read through oracleEffectiveFilters without a cast', async () => {
+  const applied = { min_days: 182, max_days: null, irr_duration_default_applied: true, notice: 'Minimum IRR searches default to 182 backtest days.' };
+  const sdk = client(async () => json({ total: 0, offset: 0, limit: 100, results: [], effective_filters: applied }));
+  const filters = oracleEffectiveFilters(await sdk.request('GET /api/v1/oracle/results', { query: { min_irr: 14 } }));
+  assert.equal(filters.min_days, 182);
+  assert.equal(filters.irr_duration_default_applied, true);
+  assert.equal(filters.notice, applied.notice);
 });

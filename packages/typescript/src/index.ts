@@ -86,6 +86,15 @@ export interface SignalListOptions extends RequestControls {
   role?: string;
 }
 
+/** Duration policy resolved by Oracle for a result search. A key the server omits is null. */
+export interface OracleEffectiveFilters {
+  min_days: number | null;
+  max_days: number | null;
+  irr_duration_default_applied: boolean | null;
+  notice: string | null;
+  [key: string]: unknown;
+}
+
 export interface PollOptions extends RequestControls {
   pollIntervalMs?: number;
 }
@@ -201,6 +210,32 @@ function page<T>(value: unknown, itemKey: string, offset: number, requestedLimit
     throw new MalformedResponseError('Page continuation did not advance');
   }
   return { items, total, offset: actualOffset, limit, hasMore, nextOffset: hasMore ? next as number : null };
+}
+
+/**
+ * Read `effective_filters` from an Oracle result-search response, including the
+ * `strategyWorkflow.findSweepRuns` response. Returns null when the response has
+ * no `effective_filters`, as with a server that predates the field. Throws
+ * `MalformedResponseError` when the response is not an object or the field has
+ * an unexpected shape. Unknown keys are preserved.
+ */
+export function oracleEffectiveFilters(response: unknown): OracleEffectiveFilters | null {
+  if (!object(response)) throw new MalformedResponseError('Expected an Oracle result-search response object');
+  const value = response['effective_filters'];
+  if (value === undefined || value === null) return null;
+  if (!object(value)) throw new MalformedResponseError('Expected effective_filters to be an object');
+  const days = (name: string): number | null => {
+    const result = value[name] ?? null;
+    if (result !== null && (typeof result !== 'number' || !Number.isSafeInteger(result) || result < 0)) {
+      throw new MalformedResponseError(`Invalid effective_filters ${name}`);
+    }
+    return result;
+  };
+  const applied = value['irr_duration_default_applied'] ?? null;
+  if (applied !== null && typeof applied !== 'boolean') throw new MalformedResponseError('Invalid effective_filters irr_duration_default_applied');
+  const notice = value['notice'] ?? null;
+  if (notice !== null && typeof notice !== 'string') throw new MalformedResponseError('Invalid effective_filters notice');
+  return { ...value, min_days: days('min_days'), max_days: days('max_days'), irr_duration_default_applied: applied, notice };
 }
 
 export class MangroveAI {

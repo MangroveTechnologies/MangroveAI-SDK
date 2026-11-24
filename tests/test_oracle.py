@@ -1054,3 +1054,33 @@ def test_ninety_day_search_by_a_non_irr_return_measure_is_forwarded_unchanged():
     assert "min_irr" not in params and "use_irr_duration_default" not in params
     assert page.results == [row]
     assert page.effective_filters.notice is None
+
+
+def test_effective_filters_tolerate_missing_keys():
+    mock = MockTransport()
+    mock.add_response("GET", "/oracle/results", json={
+        "total": 0, "offset": 0, "limit": 100, "results": [],
+        "effective_filters": {"min_days": 182},
+    })
+    client = _make_client(mock)
+
+    page = client.oracle.list_results(min_irr=14)
+
+    assert page.effective_filters.min_days == 182
+    assert page.effective_filters.max_days is None
+    assert page.effective_filters.irr_duration_default_applied is None
+    assert page.effective_filters.notice is None
+
+
+@pytest.mark.parametrize("extra", [{}, {"effective_filters": None}])
+def test_results_page_parses_without_effective_filters(extra):
+    mock = MockTransport()
+    mock.add_response("GET", "/oracle/results", json={
+        "total": 1, "offset": 0, "limit": 100, "results": [{"run_index": 0}], **extra,
+    })
+    client = _make_client(mock)
+
+    page = client.oracle.list_results(min_irr=14)
+
+    assert page.effective_filters is None
+    assert page.results == [{"run_index": 0}]

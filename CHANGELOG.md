@@ -19,7 +19,10 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   182-day minimum only when `min_irr` is set and `min_days` is omitted.
   `OracleResultsPage.effective_filters` exposes the server-resolved duration
   filters and notice, and `list_results_iter` accepts an `on_page` callback.
-  The TypeScript generated contract declares the same query parameters. See the
+  `effective_filters` is `None` when the server omits it, and each of its fields
+  is optional. The TypeScript generated contract declares the same query
+  parameters, and the package exports `oracleEffectiveFilters` and the
+  `OracleEffectiveFilters` type to read the notice from the open response. See the
   [result-search guide](docs/oracle-result-search.md).
 
 - Restrict Python source archives to declared Python source, tests, contracts,

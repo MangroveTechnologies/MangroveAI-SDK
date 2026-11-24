@@ -15,14 +15,14 @@
     "success": true,
     "version": "1.0",
     "direction": "long",
-    "minimum_exit_price": "101019.1",
+    "minimum_exit_price": "100850.8",
     "profitable": false,
-    "minimum_net_profit_quote": "0.000076880000",
-    "candidate_net_profit_quote": "-22.6999583200000",
+    "minimum_net_profit_quote": "0.000942140000",
+    "candidate_net_profit_quote": "-18.5419484200000",
     "allocated_entry_cost_quote": "2480.12400000",
-    "base_fee_cost_allowance_quote": "10.168508400000",
-    "reserved_base_fee_quantity": "0.000101680000",
-    "cash_rounding_allowance_quote": "4.96",
+    "base_fee_cost_allowance_quote": "9.97049850000",
+    "reserved_base_fee_quantity": "0.00009970000",
+    "cash_rounding_allowance_quote": "1.00",
     "exit_quantity": "0.02480000"
   }
 }

@@ -210,7 +210,8 @@ class ExitQuoteRequest(MangroveModel):
 
     Cash amounts and price increments are in quote currency. Held quantity,
     requested exit quantity, and their increments are in base units. Supply
-    both base-fee bounds explicitly.
+    both base-fee bounds explicitly. ``max_fills`` is the whole number of fills
+    the server reserves cash rounding for.
     """
 
     model_config = ConfigDict(extra="forbid")
@@ -226,6 +227,7 @@ class ExitQuoteRequest(MangroveModel):
     base_fee_bps: StrictStr
     base_fee_increment: StrictStr
     exit_fixed_fee_quote: StrictStr = "0"
+    max_fills: StrictStr = "50"
 
 
 class ExitQuoteResponse(MangroveModel):

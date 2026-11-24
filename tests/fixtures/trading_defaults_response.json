@@ -5,6 +5,9 @@
         "slippage_pct": 0.0025,
         "fee_pct": 0.0085
     },
+    "net_execution_defaults": {
+        "taker_fee_rate": 0.008
+    },
     "risk_management": {
         "max_risk_per_trade": 0.01,
         "reward_factor": 2,

@@ -36,9 +36,10 @@ hatch and server-owned risk decisions remain unchanged.
 
 The reviewed producer candidate defaults new strategies to
 `volatility_tolerance=0.75` and `reward_basis="net_execution_costs"`.
-Protected runs through the translated backtest helpers require a known
-`taker_fee_rate`; the fixed-cost exchange model also disables network fees
-explicitly. Native Oracle replays additionally accept a historical profile in
+A protected configuration that states no `taker_fee_rate` is costed by the
+server at its canonical `net_execution_defaults.taker_fee_rate` (0.008), and
+the fixed-cost exchange model runs without network fees unless they are
+requested. Native Oracle replays additionally accept a historical profile in
 `execution_config.execution_costs`; the translated helpers do not forward that
 profile or `replay_policy`. These inputs belong to Mangrove's calculation, not an SDK
 estimate. The SDK does not invent a zero fee or derive a stop locally.
@@ -48,7 +49,8 @@ Caller-owned positions using the protected policy supply signed confirmed
 Source declarations do not establish serving rollout or published package support.
 
 The authenticated `POST /api/v1/execution/exit-quote` contract accepts exact
-decimal strings and requires both base-fee bounds. Both SDKs send the strings
+decimal strings and requires both base-fee bounds. The optional `max_fills`
+bounds the fills the server reserves cash rounding for; the server default is 50. Both SDKs send the strings
 unchanged and preserve the server's result. The shared fixture represents a
 candidate bid below the minimum profitable sell limit.
 

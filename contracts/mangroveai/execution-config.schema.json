@@ -473,7 +473,7 @@
         "string",
         "null"
       ],
-      "x-mangrove-effect": "The net policy requires a known execution cost quote. Missing costs deny protected entries and discretionary profit exits; this is an estimate, not a guarantee of live fill profitability.",
+      "x-mangrove-effect": "The net policy requires a known execution cost quote. A config that states no taker_fee_rate is resolved with canon's net_execution_defaults.taker_fee_rate; this is an estimate, not a guarantee of live fill profitability.",
       "x-mangrove-status": "guardrail"
     },
     "reward_factor": {
@@ -516,7 +516,7 @@
       "x-mangrove-status": "guardrail"
     },
     "taker_fee_rate": {
-      "description": "Venue fee per fill as a fraction of notional, charged in cash (0.004 = 0.4%). Required for v3; also accepted by v1/v2 with reward_basis net_execution_costs as an explicit execution cost quote.",
+      "description": "Venue fee per fill as a fraction of notional, charged in cash (0.004 = 0.4%). Required for v3. Under v1/v2 with reward_basis net_execution_costs a config that states none is costed at canon's net_execution_defaults.taker_fee_rate.",
       "exclusiveMaximum": 0.1,
       "minimum": 0.0,
       "type": [

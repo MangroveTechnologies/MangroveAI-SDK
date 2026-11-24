@@ -19,8 +19,8 @@ languages. Keep their package identities and capabilities distinct:
 
 TypeScript provides named `users`, `signals`, `strategies`, `strategyWorkflow` and `backtesting`
 helpers and a generated generic `request(operation, options)` surface, not
-Python method parity. The pinned public classification contains 273 core/Oracle
-proxy method/path operations including 10 v2: 269 JSON/no-content, one separate
+Python method parity. The pinned public classification contains 276 core/Oracle
+proxy method/path operations including 12 v2: 272 JSON/no-content, one separate
 redirect flow and three streaming/non-JSON operations. Counts describe declarations,
 not authenticated live coverage. MCP/OAuth discovery, the separate legacy KB
 host, x402 signing and SSE consumption are outside this JSON client.

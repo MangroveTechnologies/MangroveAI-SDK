@@ -101,8 +101,8 @@ this documentation does not assert registry or production availability.
 The named helpers are `users`, `signals`, `strategies`, `strategyWorkflow` and `backtesting`.
 Other declared REST operations use `client.request(operation, options)`, with
 generated path, parameter, body and response types. This is not Python helper
-parity. The current classification has 273 core/Oracle proxy method/path keys,
-including 10 v2 operations: 269 JSON/no-content, one separate redirect flow and
+parity. The current classification has 276 core/Oracle proxy method/path keys,
+including 12 v2 operations: 272 JSON/no-content, one separate redirect flow and
 three streaming/non-JSON operations. Counts describe pinned declarations, not live
 endpoint acceptance. The JSON transport does not perform the redirect or consume
 those streams. Operation keys include the HTTP method and exact versioned path:
@@ -119,6 +119,12 @@ declarations. They are not proof that every deployed response matches its model.
 Unmodelled responses and legacy Raw JSON fields remain `unknown`. The transport
 checks status, JSON, size and deadline; the metrics and pagination helpers also
 validate their envelopes. Application code must narrow an opaque result.
+
+To quote a protected long-spot exit, use
+`client.request('POST /api/v1/execution/exit-quote', { body })`. The declared
+body requires decimal strings for the confirmed position, bid, and venue fee
+bounds. The response returns the server's limit, safe sale quantity, and
+profitability decision. It does not submit an order.
 
 The server's canonical strategy workflow schemas generate method names such as
 `client.strategyWorkflow.getStrategy({ body: { strategy_id } })` and

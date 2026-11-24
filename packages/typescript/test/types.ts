@@ -142,3 +142,12 @@ void canonicalAgain;
 void sdk.request('POST /api/v1/backtests/', canonicalBacktest.input);
 // @ts-expect-error the compatibility key inherits the canonical required body.
 void sdk.request('POST /api/v1/backtests/', {});
+
+declare const exitQuote: Operations["POST /api/v1/execution/exit-quote"];
+void sdk.request('POST /api/v1/execution/exit-quote', exitQuote.input).then(result => {
+  const price: string = result.minimum_exit_price;
+  const profitable: boolean = result.profitable;
+  return { price, profitable };
+});
+// @ts-expect-error Exit quotes require decimal strings so the payload preserves venue precision.
+void sdk.request('POST /api/v1/execution/exit-quote', { body: { ...exitQuote.input.body, candidate_price: 100100.10 } });

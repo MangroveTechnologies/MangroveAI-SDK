@@ -164,6 +164,21 @@
             ],
             "title": "Error Message"
           },
+          "execution_equity": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Execution Equity"
+          },
           "execution_state": {
             "anyOf": [
               {
@@ -532,7 +547,7 @@
             "title": "Fee Pct"
           },
           "generation": {
-            "default": 13,
+            "default": 14,
             "title": "Generation",
             "type": "integer"
           },
@@ -896,6 +911,21 @@
             ],
             "title": "Error"
           },
+          "execution_equity": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Execution Equity"
+          },
           "execution_state": {
             "anyOf": [
               {
@@ -1225,7 +1255,7 @@
             "title": "Fee Pct"
           },
           "generation": {
-            "default": 13,
+            "default": 14,
             "title": "Generation",
             "type": "integer"
           },
@@ -1901,7 +1931,7 @@
             "type": "string"
           },
           "generation": {
-            "default": 13,
+            "default": 14,
             "title": "Generation",
             "type": "integer"
           },
@@ -4616,7 +4646,7 @@
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
           "422": {
-            "description": "The requested market has no history covering the window and warm-up"
+            "description": "Market history or execution cost assumptions cannot support the requested run"
           },
           "429": {
             "description": "Rate, quota or concurrency limit reached"
@@ -4665,7 +4695,7 @@
               "description": "Missing required fields, invalid date format or invalid market fields"
             },
             "422": {
-              "description": "The requested market has no history covering the window and warm-up"
+              "description": "Market history or execution cost assumptions cannot support the requested run"
             },
             "500": {
               "description": "Backtest engine failure"
@@ -11472,8 +11502,8 @@
   ],
   "x-mangrove-provenance": {
     "generation": "git archive of exact commit; app.openapi(); sockets blocked; lifespan not started",
-    "schema_sha256": "af188a0b7938008a2073e758582035eda277afdfab8f5c1f4cf8d017926190e8",
-    "source_commit": "d31425bd1b7cdd1990496f69afe44ea0e9aababd",
+    "schema_sha256": "2a6231922a7767b5b703bb45a8b12459ac89218d6248144ab9e33609a4a56f43",
+    "source_commit": "be92a03597eee35ca8ead4c5a9894d439b2b50b7",
     "source_repository": "MangroveTechnologies/MangroveOracle"
   }
 }

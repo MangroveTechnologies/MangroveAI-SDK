@@ -15,6 +15,14 @@ Bounds are inclusive. Set both bounds to 90 for exactly 90 recorded days, or to
 180 for exactly 180 days. A 90-180 range includes all matching stored run lengths.
 
 ```python
+# Exactly 90 recorded days, ranked by simple annualized return.
+page = client.oracle.list_results(
+    min_days=90, max_days=90,
+    min_simple_annualized_return=0,
+    sort="simple_annualized_return", order="desc",
+)
+
+# Any stored length from 90 through 180 recorded days.
 page = client.oracle.list_results(
     min_days=90, max_days=180,
     min_simple_annualized_return=0,

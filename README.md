@@ -561,6 +561,24 @@ including 90-day and 180-day histories. Minimum-IRR searches apply a 182-day
 minimum only when `min_irr` is supplied and `min_days` is omitted. Pass an explicit
 minimum to override it, or `use_irr_duration_default=False` with no `min_days` to
 clear it. Read `page.effective_filters` and display its notice when present.
+The SDK forwards these parameters unchanged; Oracle resolves the default.
+
+```python
+# Runs with exactly 90 recorded days, ranked by simple annualized return.
+page = client.oracle.list_results(
+    min_days=90, max_days=90,
+    min_simple_annualized_return=10,
+    sort="simple_annualized_return", order="desc",
+)
+
+# A minimum-IRR search with the 182-day default cleared.
+page = client.oracle.list_results(
+    min_irr=14, use_irr_duration_default=False,
+    sort="irr_annualized", order="desc",
+)
+if page.effective_filters and page.effective_filters.notice:
+    print(page.effective_filters.notice)
+```
 
 [Result-search examples](docs/oracle-result-search.md) cover Python, TypeScript,
 return measures, nullable metrics, and pagination notices. These are historical

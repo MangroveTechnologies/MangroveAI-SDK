@@ -1007,3 +1007,50 @@ def test_results_expose_server_duration_policy_on_each_page():
     assert params["max_simple_annualized_return"] == 0
     assert params["min_avg_closed_trade_return"] == -2
     assert "min_days" not in params
+
+
+def test_min_irr_alone_leaves_the_duration_default_to_the_server():
+    mock = MockTransport()
+    notice = ("Minimum IRR searches default to 182 backtest days. Change the minimum "
+              "or set use_irr_duration_default=false to include shorter histories.")
+    mock.add_response("GET", "/oracle/results", json={
+        "total": 0, "offset": 0, "limit": 100, "results": [],
+        "effective_filters": {"min_days": 182, "max_days": None,
+                              "irr_duration_default_applied": True, "notice": notice},
+    })
+    client = _make_client(mock)
+
+    page = client.oracle.list_results(min_irr=14)
+
+    params = mock.requests[-1].params
+    assert params["min_irr"] == 14
+    assert not {"min_days", "max_days", "use_irr_duration_default"} & set(params)
+    assert page.effective_filters.min_days == 182
+    assert page.effective_filters.irr_duration_default_applied is True
+    assert page.effective_filters.notice == notice
+
+
+def test_ninety_day_search_by_a_non_irr_return_measure_is_forwarded_unchanged():
+    mock = MockTransport()
+    row = {"num_days": 90, "total_return": 4.5, "avg_daily_return": 0.05,
+           "simple_annualized_return": 18.25, "irr_annualized": 19.6,
+           "avg_closed_trade_return": 0.75, "closed_trade_count": 6}
+    mock.add_response("GET", "/oracle/results", json={
+        "total": 1, "offset": 0, "limit": 100, "results": [row],
+        "effective_filters": {"min_days": 90, "max_days": 90,
+                              "irr_duration_default_applied": False, "notice": None},
+    })
+    client = _make_client(mock)
+
+    page = client.oracle.list_results(
+        min_days=90, max_days=90, min_simple_annualized_return=10,
+        min_closed_trades=5, sort="simple_annualized_return", order="desc")
+
+    params = mock.requests[-1].params
+    assert {name: params[name] for name in (
+        "min_days", "max_days", "min_simple_annualized_return", "min_closed_trades", "sort", "order",
+    )} == {"min_days": 90, "max_days": 90, "min_simple_annualized_return": 10,
+           "min_closed_trades": 5, "sort": "simple_annualized_return", "order": "desc"}
+    assert "min_irr" not in params and "use_irr_duration_default" not in params
+    assert page.results == [row]
+    assert page.effective_filters.notice is None

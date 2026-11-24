@@ -11,6 +11,17 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+- Add Oracle result-search controls to `oracle.list_results` and
+  `oracle.list_results_iter`: recorded-day bounds (`min_days`, `max_days`),
+  `use_irr_duration_default`, simple annualized return bounds, mean
+  closed-trade return bounds, daily-return bounds and `min_closed_trades`.
+  The SDK forwards them unchanged, including zero and false. Oracle applies its
+  182-day minimum only when `min_irr` is set and `min_days` is omitted.
+  `OracleResultsPage.effective_filters` exposes the server-resolved duration
+  filters and notice, and `list_results_iter` accepts an `on_page` callback.
+  The TypeScript generated contract declares the same query parameters. See the
+  [result-search guide](docs/oracle-result-search.md).
+
 - Restrict Python source archives to declared Python source, tests, contracts,
   scripts and documentation, excluding Node dependencies and transient test output.
 

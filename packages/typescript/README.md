@@ -89,7 +89,24 @@ search defaults to 182 recorded days only when `min_days` is omitted; pass an
 explicit minimum to override it, or `use_irr_duration_default: false` without
 `min_days` to clear it. Preserve and display the returned `effective_filters`
 notice. Historical duration is not deployment age, and filters do not recalculate
-an existing run over a new date range.
+an existing run over a new date range. The client forwards these parameters
+unchanged; Oracle resolves the default.
+
+```typescript
+// Runs with exactly 90 recorded days, ranked by simple annualized return.
+const ninetyDay = await client.request('GET /api/v1/oracle/results', {
+  query: {
+    min_days: 90, max_days: 90,
+    min_simple_annualized_return: 10,
+    sort: 'simple_annualized_return', order: 'desc',
+  },
+});
+
+// A minimum-IRR search with the 182-day default cleared.
+const allLengths = await client.request('GET /api/v1/oracle/results', {
+  query: { min_irr: 14, use_irr_duration_default: false, sort: 'irr_annualized', order: 'desc' },
+});
+```
 
 See the [Python and TypeScript result-search guide](../../docs/oracle-result-search.md)
 for examples, metric units, null handling and paging. These controls require the

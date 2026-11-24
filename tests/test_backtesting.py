@@ -327,6 +327,12 @@ class TestBacktestAsync:
 
     def test_run_async_polls_until_complete(self) -> None:
         mock = MockTransport()
+        data_info = {
+            "replay_policy": {"version": "closed_bar_subbar_v1", "risk_controls": {
+                "max_drawdown_halt_limit": 0.2,
+            }},
+            "execution_costs": {"fills": [{"side": "buy", "venue_fee": 3.0}]},
+        }
         # submit
         mock.add_response("POST", "/backtests/", json={
             "backtest_id": "async-bt-2",
@@ -339,6 +345,7 @@ class TestBacktestAsync:
             "metrics": {"sharpe_ratio": 2.0},
             "trade_history": [{"profit_loss": 100}],
             "execution_time_seconds": 4.0,
+            "data_info": data_info,
         })
         client = _make_client(mock)
 
@@ -348,6 +355,7 @@ class TestBacktestAsync:
         assert result.success is True
         assert result.metrics["sharpe_ratio"] == 2.0
         assert result.trade_count == 1
+        assert result.data_info == data_info
 
     def test_run_async_returns_failure(self) -> None:
         mock = MockTransport()

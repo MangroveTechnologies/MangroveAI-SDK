@@ -1,0 +1,28 @@
+{
+  "request": {
+    "entry_cash_flow": "-2500.12500000",
+    "held_quantity": "0.02500000",
+    "exit_quantity": "0.02500000",
+    "candidate_price": "100100.10",
+    "exit_fee_bps": "40",
+    "price_increment": "0.1",
+    "quantity_increment": "0.00010000",
+    "quote_increment": "0.01",
+    "base_fee_bps": "40",
+    "base_fee_increment": "0.00000001"
+  },
+  "response": {
+    "success": true,
+    "version": "1.0",
+    "direction": "long",
+    "minimum_exit_price": "100850.8",
+    "profitable": false,
+    "minimum_net_profit_quote": "0.000942140000",
+    "candidate_net_profit_quote": "-18.5419484200000",
+    "allocated_entry_cost_quote": "2480.12400000",
+    "base_fee_cost_allowance_quote": "9.97049850000",
+    "reserved_base_fee_quantity": "0.00009970000",
+    "cash_rounding_allowance_quote": "1.00",
+    "exit_quantity": "0.02480000"
+  }
+}

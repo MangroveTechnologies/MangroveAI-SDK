@@ -8,6 +8,8 @@ from ..models.execution import (
     BulkEvaluateResult,
     CreateAccountRequest,
     EvaluateResult,
+    ExitQuoteRequest,
+    ExitQuoteResponse,
     ExternalExecutionRequest,
     PortfolioResponse,
     Position,
@@ -139,6 +141,18 @@ class ExecutionService(BaseService):
         if isinstance(data, list):
             return [Trade.model_validate(t) for t in data]
         return [Trade.model_validate(t) for t in data.get("trades", data)]
+
+    def exit_quote(self, request: ExitQuoteRequest) -> ExitQuoteResponse:
+        """Ask Mangrove for a strictly profitable modeled long-spot sell limit.
+
+        The executor supplies confirmed entry cash flow, remaining quantity, a
+        fresh bid, and bounded venue costs. The response is an arithmetic quote.
+        Receipt verification and placing an order are separate operations.
+        """
+        return self._request_model(
+            "POST", "/execution/exit-quote", ExitQuoteResponse,
+            json=request.model_dump(exclude_unset=True),
+        )
 
     def evaluate(self, strategy_id: str, *, persist: bool = True) -> EvaluateResult:
         """Evaluate a strategy against current market data.

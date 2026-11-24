@@ -2,29 +2,29 @@
   "contracts": [
     {
       "path": "openapi.json",
-      "sha256": "07e78220227a7ffaed60f316eeff8a5e520876f9dcbb6d81681b3b6a341829d1"
+      "sha256": "7d08a798ab75c122f5b96902f0e19a014d862e7389cf6295d2a56c5f8cd84c4a"
     },
     {
       "path": "oracle-proxy-openapi.json",
-      "sha256": "d8e2061293ec7f71604a3c4167ef06d57352314cfeebaa068644bf6807bc3a0a"
+      "sha256": "4aaa61fd6faa5b0382042faaad6ce27140f00ed8dd3b7fd958c92a5357991d39"
     },
     {
       "path": "execution-config.schema.json",
-      "sha256": "396c60764b9b29316224f8774582e021f21e87a1db1bb79d1f8b6cd28f63229c"
+      "sha256": "72887f042b879044747c7a6a9dbe38c5a42062b63da8c0d66a1b1fb572a54104"
     }
   ],
   "generation": "Real application factory and canonical config metadata in ci; temporary HelpBot namespace registration only; TCP/DNS attempts refused and fail export; bundled LiteLLM cost metadata; startup provider warm-up/directory setup disabled; overrides restored; no business handlers",
-  "source_commit": "b3337f2e1a9561b3cb419f163e19e1b51ac71b27",
+  "source_commit": "cc26b8e52f1156d5b95d6a1c70c9987279cb7d51",
   "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "source_dirty": false,
   "source_files": [
     {
       "path": "scripts/export_developer_contracts.py",
-      "sha256": "2832c6dfb0b92778d675e1e998b5933ff4e3c20a72692beb090aaedef5e1ac5e"
+      "sha256": "72819dee7cc4c1c77601c70f53df43b3b82be40a57aa209f2aa542f6b35cd32b"
     },
     {
       "path": "src/MangroveAI/__init__.py",
-      "sha256": "85f6b4cbf75b9245cb9facd40a4c63edfb0b1fbe28d08a42929c41e4876f3c36"
+      "sha256": "2eb425f8f16045de26fc1e44e38aa80f690a874c2c966c6aab6444207ed61128"
     },
     {
       "path": "src/MangroveAI/config.py",
@@ -39,6 +39,14 @@
       "sha256": "4f21ca65560999cb8ee5c25b2b06b79b7c453978fbb77215f2844f80c79eed1a"
     },
     {
+      "path": "src/MangroveAI/config/tool-prices.json",
+      "sha256": "2359670762f269cdeaea0ee333d1813d5c614bf4eee882a87879747733516eda"
+    },
+    {
+      "path": "src/MangroveAI/x402_enforcement/tool_prices.py",
+      "sha256": "80abdb0a4a985124010e47fd2bc1c248516fc7d26d14bc84a1b0c4f2bdf5079b"
+    },
+    {
       "path": "src/MangroveAI/domains/help_bot/routes.py",
       "sha256": "6d5959f87c8088d5ae7a00acd11cc976ed1758c760e115996d88c100c2ad56cb"
     },
@@ -48,7 +56,7 @@
     },
     {
       "path": "src/MangroveAI/public_openapi3.py",
-      "sha256": "a55f7002c96f702dcd4bbcb1e124279e9f9b53b047ffab804aa6b75af326c74e"
+      "sha256": "5cd133a05b5a1225447592c4df500bca6359a0a662cc747a8f7e92e924fd792c"
     },
     {
       "path": "src/MangroveAI/public_oracle_openapi.py",
@@ -60,7 +68,7 @@
     },
     {
       "path": "src/MangroveAI/domains/config/services.py",
-      "sha256": "d25844eadbaaab1d91bf6e2716a132c0becfaa2cc94d53ed3ca34ce40daae734"
+      "sha256": "003b365db0381eaa1f9f5076dabc819ca904d3e95de23a5d1cb1b797bfd4dee6"
     },
     {
       "path": "src/MangroveAI/domains/config/execution_schema.py",
@@ -72,19 +80,31 @@
     },
     {
       "path": "src/MangroveAI/domains/config/routes.py",
-      "sha256": "df1232cbdc9bc17e169fe47d40b5ebc6cbe61af58b0bd1c81ba074065fb6994a"
+      "sha256": "04cdf672508285d33ffbdaa32d14ecd371a6e01a2e0735fed276f665520ec381"
     },
     {
       "path": "src/MangroveAI/domains/config/trading_defaults.json",
-      "sha256": "8995bce13649f8a224234a27d6642d0ae13d1f4cb23977655f1b599fb1e942cb"
+      "sha256": "dfba401c322a4180b037d96c3d9c3aa5e4766f18314245a6ef8aeac3293830c7"
     },
     {
       "path": "src/MangroveAI/domains/managers/risk_manager.py",
-      "sha256": "14b42fef6fa5aa762bab37983aec9d2350229f3cbd37bdb429ec463ffd9af722"
+      "sha256": "c01d5eeba4e9e0bab8ffd97999ee992cd0e16943e556addd3955ebbf475cc29b"
     },
     {
       "path": "src/MangroveAI/domains/managers/account_manager.py",
-      "sha256": "d60d440c32ea0441d9e2fb3268891d052b805032e20090dfe32ce4d90b1350da"
+      "sha256": "1cf0527f4df6ef97413dc11ccf6f1a8421cf3f0babd678455b0cc16274b3df09"
+    },
+    {
+      "path": "src/MangroveAI/domains/managers/routes.py",
+      "sha256": "5889d093827a654e7d14019c6ce876ac80ab5bf4e679ed57b6abf1d7a6a80742"
+    },
+    {
+      "path": "src/MangroveAI/domains/managers/operations/exit_quote.py",
+      "sha256": "35865edf8f297e8212a4f610ae5e189c46391a066db47dbd12ea02a15371380d"
+    },
+    {
+      "path": "src/MangroveAI/domains/managers/execution_costs.py",
+      "sha256": "088a0c273e1574a2ec94ce0dbf2669aa62c962a95e7bc04d7b22b67fb39f9a33"
     },
     {
       "path": "src/MangroveAI/domains/agent/tooling/schema.py",
@@ -92,11 +112,11 @@
     },
     {
       "path": "src/MangroveAI/domains/agent/michael/tools/strategies.py",
-      "sha256": "4ad0275f15f7e774a8eeff48b8fc7e220774920fe9101d60401f28b9cd18de39"
+      "sha256": "1dfcd47ebdba86e284e2e01526eda8f60d57a88a5ef357e56d73989d9819ddc1"
     },
     {
       "path": "src/MangroveAI/domains/agent/michael/tools/backtests.py",
-      "sha256": "49d658343faa1a5a92cedce5e40e83bb802e2e1d78ae6b20c0fae7bd6f2b0c93"
+      "sha256": "0c3809438e683b47a73501c54f5301c26718a187b87838db08a8a41a1a7e76ee"
     },
     {
       "path": "src/MangroveAI/domains/auth/routes.py",
@@ -104,11 +124,11 @@
     },
     {
       "path": "src/MangroveAI/domains/backtesting/oracle_proxy.py",
-      "sha256": "0fc135388f88736d19d50dbcfa4c8d7538f02a19ab7192117c8811d8c90d4ad4"
+      "sha256": "17129a63bd7b4c729e6342a546b5ed9fc5b21d73e456a61c099dc02f4d8b54b7"
     },
     {
       "path": "src/MangroveAI/domains/backtesting/routes.py",
-      "sha256": "9a7774adb2db2eede065851a63fa5f6d2ab6ca73ca17dcd19c328766771dc954"
+      "sha256": "766363b32fe5c61cf1c4c00170ac2eaf62ae83d460a6e18a08a97250fbd17286"
     },
     {
       "path": "src/MangroveAI/domains/strategies/workflow_routes.py",
@@ -116,15 +136,15 @@
     },
     {
       "path": "src/MangroveAI/domains/strategies/routes.py",
-      "sha256": "cdff3e262a3fdbbac23095758e6e785f02edbacdda9daaea80edd2526d5b4268"
+      "sha256": "e5ba9e3bff05b4b0498737c2ae697b12ba0e009d07dbe8dac7d512ac33f3293c"
     },
     {
       "path": "src/MangroveAI/domains/strategies/local_deployment.py",
-      "sha256": "9da4cca65c3067b76f12650ba8a87f7aa732e4afad0614ba316dc18be33e4808"
+      "sha256": "2257eb6dd4545c9e5fd5d9c896798a58180dbc50ff2399554264e4dd2a1d2f50"
     },
     {
       "path": "src/MangroveAI/schemas/oracle-upstream.openapi.json",
-      "sha256": "270d4bb1701d67c97fdcd4f1276382610c37967a6c3aaa23abd3fefde86217c8"
+      "sha256": "2a6231922a7767b5b703bb45a8b12459ac89218d6248144ab9e33609a4a56f43"
     }
   ],
   "source_repository": "MangroveTechnologies/MangroveAI"

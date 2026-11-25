@@ -12,11 +12,7 @@
     },
     {
       "path": "openapi.json",
-<<<<<<< HEAD
-      "sha256": "f7ccb1fdc9e997c55ca191ebd0862be480aa2e8fb60420fd63db5d793f9d3682"
-=======
-      "sha256": "7d08a798ab75c122f5b96902f0e19a014d862e7389cf6295d2a56c5f8cd84c4a"
->>>>>>> origin/main
+      "sha256": "60d529fe4d6e7c2cf48fc32cda8d7b36f563a2e2864133779e6102e5375d50a0"
     },
     {
       "path": "oracle-proxy-openapi.json",

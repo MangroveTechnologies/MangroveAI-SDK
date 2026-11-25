@@ -2240,6 +2240,13 @@
             "description": "Current market price",
             "type": "number"
           },
+          "data_unavailable": {
+            "description": "Optional data sources that could not be read this tick: \"x\" for X post counts, \"cambrian\" for Cambrian data. Rules reading that data were not satisfied; every other rule ran on price data.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "denied_signals": {
             "description": "Entry signals that fired but were denied by a risk/account gate. Empty list = no signal fired OR the signal converted to an order. Non-empty with new_orders empty = the strategy IS firing and being blocked.",
             "items": {
@@ -6687,6 +6694,13 @@
           "current_price": {
             "description": "Market price at evaluation time",
             "type": "number"
+          },
+          "data_unavailable": {
+            "description": "Optional data sources that could not be read this tick: \"x\" for X post counts, \"cambrian\" for Cambrian data. Rules reading that data were not satisfied; every other rule ran on price data.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           },
           "denied_signals": {
             "description": "Entry signals that fired but were denied by a risk/account gate. Empty list = no signal fired OR the signal converted to an order. Non-empty with new_orders empty = the strategy IS firing and being blocked.",
@@ -11219,24 +11233,6 @@
           "200": {
             "description": "Backtest retrieved successfully"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Payment Required",
-            "headers": {
-              "PAYMENT-REQUIRED": {
-                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "404": {
             "content": {
               "application/json": {
@@ -11261,31 +11257,12 @@
         "security": [
           {
             "MangroveBearer": []
-          },
-          {}
+          }
         ],
         "summary": "Retrieve a backtest result by ID",
         "tags": [
           "backtesting"
-        ],
-        "x-payment-info": {
-          "price": {
-            "amount": "0.001000",
-            "currency": "USD",
-            "mode": "fixed"
-          },
-          "protocols": [
-            {
-              "x402": {
-                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                "network": "eip155:8453",
-                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
-                "scheme": "exact",
-                "x402Version": 2
-              }
-            }
-          ]
-        }
+        ]
       }
     },
     "/api/v1/backtesting/backtest/{backtest_id}/trades": {
@@ -11306,24 +11283,6 @@
           "200": {
             "description": "Trades retrieved successfully"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Payment Required",
-            "headers": {
-              "PAYMENT-REQUIRED": {
-                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "404": {
             "content": {
               "application/json": {
@@ -11348,31 +11307,12 @@
         "security": [
           {
             "MangroveBearer": []
-          },
-          {}
+          }
         ],
         "summary": "Retrieve trade history for a backtest run",
         "tags": [
           "backtesting"
-        ],
-        "x-payment-info": {
-          "price": {
-            "amount": "0.001000",
-            "currency": "USD",
-            "mode": "fixed"
-          },
-          "protocols": [
-            {
-              "x402": {
-                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                "network": "eip155:8453",
-                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
-                "scheme": "exact",
-                "x402Version": 2
-              }
-            }
-          ]
-        }
+        ]
       }
     },
     "/api/v1/backtests": {
@@ -11711,24 +11651,6 @@
           "200": {
             "description": "Backtest retrieved successfully"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Payment Required",
-            "headers": {
-              "PAYMENT-REQUIRED": {
-                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "404": {
             "content": {
               "application/json": {
@@ -11753,31 +11675,12 @@
         "security": [
           {
             "MangroveBearer": []
-          },
-          {}
+          }
         ],
         "summary": "Retrieve a backtest result by ID",
         "tags": [
           "backtests"
-        ],
-        "x-payment-info": {
-          "price": {
-            "amount": "0.001000",
-            "currency": "USD",
-            "mode": "fixed"
-          },
-          "protocols": [
-            {
-              "x402": {
-                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                "network": "eip155:8453",
-                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
-                "scheme": "exact",
-                "x402Version": 2
-              }
-            }
-          ]
-        }
+        ]
       }
     },
     "/api/v1/backtests/{backtest_id}/archive": {
@@ -11855,24 +11758,6 @@
           "200": {
             "description": "Trades retrieved successfully"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Payment Required",
-            "headers": {
-              "PAYMENT-REQUIRED": {
-                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "404": {
             "content": {
               "application/json": {
@@ -11897,31 +11782,12 @@
         "security": [
           {
             "MangroveBearer": []
-          },
-          {}
+          }
         ],
         "summary": "Retrieve trade history for a backtest run",
         "tags": [
           "backtests"
-        ],
-        "x-payment-info": {
-          "price": {
-            "amount": "0.001000",
-            "currency": "USD",
-            "mode": "fixed"
-          },
-          "protocols": [
-            {
-              "x402": {
-                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                "network": "eip155:8453",
-                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
-                "scheme": "exact",
-                "x402Version": 2
-              }
-            }
-          ]
-        }
+        ]
       }
     },
     "/api/v1/backtests/{backtest_id}/unarchive": {
@@ -12069,54 +11935,17 @@
               }
             },
             "description": "Every execution_config parameter: default, effect, bounds and status"
-          },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Payment Required",
-            "headers": {
-              "PAYMENT-REQUIRED": {
-                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
           }
         },
         "security": [
           {
             "MangroveBearer": []
-          },
-          {}
+          }
         ],
         "summary": "Every execution-config parameter a strategy can carry, and what each one does",
         "tags": [
           "config"
-        ],
-        "x-payment-info": {
-          "price": {
-            "amount": "0.001000",
-            "currency": "USD",
-            "mode": "fixed"
-          },
-          "protocols": [
-            {
-              "x402": {
-                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                "network": "eip155:8453",
-                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
-                "scheme": "exact",
-                "x402Version": 2
-              }
-            }
-          ]
-        }
+        ]
       }
     },
     "/api/v1/config/execution-defaults": {
@@ -12268,24 +12097,6 @@
             },
             "description": "OK"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Payment Required",
-            "headers": {
-              "PAYMENT-REQUIRED": {
-                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "500": {
             "content": {
               "application/json": {
@@ -12300,31 +12111,12 @@
         "security": [
           {
             "MangroveBearer": []
-          },
-          {}
+          }
         ],
         "summary": "List all exchanges with tier and volume information",
         "tags": [
           "crypto-assets"
-        ],
-        "x-payment-info": {
-          "price": {
-            "amount": "0.001000",
-            "currency": "USD",
-            "mode": "fixed"
-          },
-          "protocols": [
-            {
-              "x402": {
-                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                "network": "eip155:8453",
-                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
-                "scheme": "exact",
-                "x402Version": 2
-              }
-            }
-          ]
-        }
+        ]
       }
     },
     "/api/v1/crypto-assets/flow-intelligence/{symbol}": {
@@ -12770,24 +12562,6 @@
             },
             "description": "OK"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Payment Required",
-            "headers": {
-              "PAYMENT-REQUIRED": {
-                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "500": {
             "content": {
               "application/json": {
@@ -12802,31 +12576,12 @@
         "security": [
           {
             "MangroveBearer": []
-          },
-          {}
+          }
         ],
         "summary": "Query approved crypto assets with simplified risk scores for frontend display",
         "tags": [
           "crypto-assets"
-        ],
-        "x-payment-info": {
-          "price": {
-            "amount": "0.001000",
-            "currency": "USD",
-            "mode": "fixed"
-          },
-          "protocols": [
-            {
-              "x402": {
-                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                "network": "eip155:8453",
-                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
-                "scheme": "exact",
-                "x402Version": 2
-              }
-            }
-          ]
-        }
+        ]
       }
     },
     "/api/v1/crypto-assets/smart-money/holdings": {
@@ -13065,24 +12820,6 @@
             },
             "description": "OK"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Payment Required",
-            "headers": {
-              "PAYMENT-REQUIRED": {
-                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "500": {
             "content": {
               "application/json": {
@@ -13097,31 +12834,12 @@
         "security": [
           {
             "MangroveBearer": []
-          },
-          {}
+          }
         ],
         "summary": "List all approved crypto assets with risk scores",
         "tags": [
           "crypto-assets"
-        ],
-        "x-payment-info": {
-          "price": {
-            "amount": "0.001000",
-            "currency": "USD",
-            "mode": "fixed"
-          },
-          "protocols": [
-            {
-              "x402": {
-                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                "network": "eip155:8453",
-                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
-                "scheme": "exact",
-                "x402Version": 2
-              }
-            }
-          ]
-        }
+        ]
       }
     },
     "/api/v1/crypto-assets/symbols/{symbol}": {
@@ -13148,24 +12866,6 @@
             },
             "description": "OK"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Payment Required",
-            "headers": {
-              "PAYMENT-REQUIRED": {
-                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "404": {
             "content": {
               "application/json": {
@@ -13190,31 +12890,12 @@
         "security": [
           {
             "MangroveBearer": []
-          },
-          {}
+          }
         ],
         "summary": "Get detailed information about a specific crypto asset",
         "tags": [
           "crypto-assets"
-        ],
-        "x-payment-info": {
-          "price": {
-            "amount": "0.001000",
-            "currency": "USD",
-            "mode": "fixed"
-          },
-          "protocols": [
-            {
-              "x402": {
-                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                "network": "eip155:8453",
-                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
-                "scheme": "exact",
-                "x402Version": 2
-              }
-            }
-          ]
-        }
+        ]
       }
     },
     "/api/v1/crypto-assets/symbols/{symbol}/exchanges": {
@@ -13241,24 +12922,6 @@
             },
             "description": "OK"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Payment Required",
-            "headers": {
-              "PAYMENT-REQUIRED": {
-                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "404": {
             "content": {
               "application/json": {
@@ -13283,31 +12946,12 @@
         "security": [
           {
             "MangroveBearer": []
-          },
-          {}
+          }
         ],
         "summary": "Get all exchanges where a specific asset is listed",
         "tags": [
           "crypto-assets"
-        ],
-        "x-payment-info": {
-          "price": {
-            "amount": "0.001000",
-            "currency": "USD",
-            "mode": "fixed"
-          },
-          "protocols": [
-            {
-              "x402": {
-                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                "network": "eip155:8453",
-                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
-                "scheme": "exact",
-                "x402Version": 2
-              }
-            }
-          ]
-        }
+        ]
       }
     },
     "/api/v1/crypto-assets/token-holders/{symbol}": {
@@ -15648,24 +15292,6 @@
           "401": {
             "description": "Unauthorized"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Payment Required",
-            "headers": {
-              "PAYMENT-REQUIRED": {
-                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "429": {
             "description": "Rate limit exceeded"
           },
@@ -15676,31 +15302,12 @@
         "security": [
           {
             "MangroveBearer": []
-          },
-          {}
+          }
         ],
         "summary": "List positions",
         "tags": [
           "execution"
-        ],
-        "x-payment-info": {
-          "price": {
-            "amount": "0.001000",
-            "currency": "USD",
-            "mode": "fixed"
-          },
-          "protocols": [
-            {
-              "x402": {
-                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                "network": "eip155:8453",
-                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
-                "scheme": "exact",
-                "x402Version": 2
-              }
-            }
-          ]
-        }
+        ]
       }
     },
     "/api/v1/execution/trades": {
@@ -15775,24 +15382,6 @@
           "401": {
             "description": "Unauthorized"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Payment Required",
-            "headers": {
-              "PAYMENT-REQUIRED": {
-                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "429": {
             "description": "Rate limit exceeded"
           },
@@ -15803,31 +15392,12 @@
         "security": [
           {
             "MangroveBearer": []
-          },
-          {}
+          }
         ],
         "summary": "List trade history",
         "tags": [
           "execution"
-        ],
-        "x-payment-info": {
-          "price": {
-            "amount": "0.001000",
-            "currency": "USD",
-            "mode": "fixed"
-          },
-          "protocols": [
-            {
-              "x402": {
-                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                "network": "eip155:8453",
-                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
-                "scheme": "exact",
-                "x402Version": 2
-              }
-            }
-          ]
-        }
+        ]
       }
     },
     "/api/v1/health": {
@@ -19179,24 +18749,6 @@
             },
             "description": "Validation error"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Payment Required",
-            "headers": {
-              "PAYMENT-REQUIRED": {
-                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "404": {
             "content": {
               "application/json": {
@@ -19221,31 +18773,12 @@
         "security": [
           {
             "MangroveBearer": []
-          },
-          {}
+          }
         ],
         "summary": "Validate parameters for a signal",
         "tags": [
           "signals"
-        ],
-        "x-payment-info": {
-          "price": {
-            "amount": "0.001000",
-            "currency": "USD",
-            "mode": "fixed"
-          },
-          "protocols": [
-            {
-              "x402": {
-                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                "network": "eip155:8453",
-                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
-                "scheme": "exact",
-                "x402Version": 2
-              }
-            }
-          ]
-        }
+        ]
       }
     },
     "/api/v1/social/influence/{username}": {
@@ -20530,24 +20063,6 @@
             },
             "description": "OK"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Payment Required",
-            "headers": {
-              "PAYMENT-REQUIRED": {
-                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "404": {
             "description": "Strategy not found"
           },
@@ -20558,31 +20073,12 @@
         "security": [
           {
             "MangroveBearer": []
-          },
-          {}
+          }
         ],
         "summary": "Verify a stored strategy: signal names, parameter keys, roles, timeframes",
         "tags": [
           "strategies"
-        ],
-        "x-payment-info": {
-          "price": {
-            "amount": "0.005000",
-            "currency": "USD",
-            "mode": "fixed"
-          },
-          "protocols": [
-            {
-              "x402": {
-                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                "network": "eip155:8453",
-                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
-                "scheme": "exact",
-                "x402Version": 2
-              }
-            }
-          ]
-        }
+        ]
       }
     },
     "/api/v1/strategy-workflow/build_strategy_for_regime": {
@@ -20916,31 +20412,12 @@
         "responses": {
           "200": {
             "description": "Success"
-          },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Payment Required",
-            "headers": {
-              "PAYMENT-REQUIRED": {
-                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
           }
         },
         "security": [
           {
             "MangroveBearer": []
-          },
-          {}
+          }
         ],
         "summary": "Post delete strategy operation",
         "tags": [
@@ -20958,24 +20435,6 @@
             "strategy_id"
           ],
           "type": "object"
-        },
-        "x-payment-info": {
-          "price": {
-            "amount": "0.005000",
-            "currency": "USD",
-            "mode": "fixed"
-          },
-          "protocols": [
-            {
-              "x402": {
-                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                "network": "eip155:8453",
-                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
-                "scheme": "exact",
-                "x402Version": 2
-              }
-            }
-          ]
         }
       }
     },
@@ -21075,31 +20534,12 @@
         "responses": {
           "200": {
             "description": "Success"
-          },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Payment Required",
-            "headers": {
-              "PAYMENT-REQUIRED": {
-                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
           }
         },
         "security": [
           {
             "MangroveBearer": []
-          },
-          {}
+          }
         ],
         "summary": "Post find sweep runs operation",
         "tags": [
@@ -21316,24 +20756,6 @@
             "sort_by"
           ],
           "type": "object"
-        },
-        "x-payment-info": {
-          "price": {
-            "amount": "0.005000",
-            "currency": "USD",
-            "mode": "fixed"
-          },
-          "protocols": [
-            {
-              "x402": {
-                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                "network": "eip155:8453",
-                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
-                "scheme": "exact",
-                "x402Version": 2
-              }
-            }
-          ]
         }
       }
     },
@@ -21353,31 +20775,12 @@
         "responses": {
           "200": {
             "description": "Success"
-          },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Payment Required",
-            "headers": {
-              "PAYMENT-REQUIRED": {
-                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
           }
         },
         "security": [
           {
             "MangroveBearer": []
-          },
-          {}
+          }
         ],
         "summary": "Post get backtest operation",
         "tags": [
@@ -21395,24 +20798,6 @@
             "backtest_id"
           ],
           "type": "object"
-        },
-        "x-payment-info": {
-          "price": {
-            "amount": "0.001000",
-            "currency": "USD",
-            "mode": "fixed"
-          },
-          "protocols": [
-            {
-              "x402": {
-                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                "network": "eip155:8453",
-                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
-                "scheme": "exact",
-                "x402Version": 2
-              }
-            }
-          ]
         }
       }
     },
@@ -21432,31 +20817,12 @@
         "responses": {
           "200": {
             "description": "Success"
-          },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Payment Required",
-            "headers": {
-              "PAYMENT-REQUIRED": {
-                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
           }
         },
         "security": [
           {
             "MangroveBearer": []
-          },
-          {}
+          }
         ],
         "summary": "Post get backtest trades operation",
         "tags": [
@@ -21484,24 +20850,6 @@
             "backtest_id"
           ],
           "type": "object"
-        },
-        "x-payment-info": {
-          "price": {
-            "amount": "0.001000",
-            "currency": "USD",
-            "mode": "fixed"
-          },
-          "protocols": [
-            {
-              "x402": {
-                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                "network": "eip155:8453",
-                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
-                "scheme": "exact",
-                "x402Version": 2
-              }
-            }
-          ]
         }
       }
     },
@@ -21528,31 +20876,12 @@
               }
             },
             "description": "Canonical execution configuration metadata and JSON Schema"
-          },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Payment Required",
-            "headers": {
-              "PAYMENT-REQUIRED": {
-                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
           }
         },
         "security": [
           {
             "MangroveBearer": []
-          },
-          {}
+          }
         ],
         "summary": "Post get execution config schema operation",
         "tags": [
@@ -21563,24 +20892,6 @@
           "properties": {},
           "required": [],
           "type": "object"
-        },
-        "x-payment-info": {
-          "price": {
-            "amount": "0.001000",
-            "currency": "USD",
-            "mode": "fixed"
-          },
-          "protocols": [
-            {
-              "x402": {
-                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                "network": "eip155:8453",
-                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
-                "scheme": "exact",
-                "x402Version": 2
-              }
-            }
-          ]
         }
       }
     },
@@ -21679,31 +20990,12 @@
         "responses": {
           "200": {
             "description": "Success"
-          },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Payment Required",
-            "headers": {
-              "PAYMENT-REQUIRED": {
-                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
           }
         },
         "security": [
           {
             "MangroveBearer": []
-          },
-          {}
+          }
         ],
         "summary": "Post get strategy operation",
         "tags": [
@@ -21723,24 +21015,6 @@
           },
           "required": [],
           "type": "object"
-        },
-        "x-payment-info": {
-          "price": {
-            "amount": "0.005000",
-            "currency": "USD",
-            "mode": "fixed"
-          },
-          "protocols": [
-            {
-              "x402": {
-                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                "network": "eip155:8453",
-                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
-                "scheme": "exact",
-                "x402Version": 2
-              }
-            }
-          ]
         }
       }
     },
@@ -22061,31 +21335,12 @@
         "responses": {
           "200": {
             "description": "Success"
-          },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Payment Required",
-            "headers": {
-              "PAYMENT-REQUIRED": {
-                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
           }
         },
         "security": [
           {
             "MangroveBearer": []
-          },
-          {}
+          }
         ],
         "summary": "Post list backtests operation",
         "tags": [
@@ -22111,24 +21366,6 @@
           },
           "required": [],
           "type": "object"
-        },
-        "x-payment-info": {
-          "price": {
-            "amount": "0.001000",
-            "currency": "USD",
-            "mode": "fixed"
-          },
-          "protocols": [
-            {
-              "x402": {
-                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                "network": "eip155:8453",
-                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
-                "scheme": "exact",
-                "x402Version": 2
-              }
-            }
-          ]
         }
       }
     },
@@ -22246,31 +21483,12 @@
         "responses": {
           "200": {
             "description": "Success"
-          },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Payment Required",
-            "headers": {
-              "PAYMENT-REQUIRED": {
-                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
           }
         },
         "security": [
           {
             "MangroveBearer": []
-          },
-          {}
+          }
         ],
         "summary": "Post list positions operation",
         "tags": [
@@ -22305,24 +21523,6 @@
           },
           "required": [],
           "type": "object"
-        },
-        "x-payment-info": {
-          "price": {
-            "amount": "0.001000",
-            "currency": "USD",
-            "mode": "fixed"
-          },
-          "protocols": [
-            {
-              "x402": {
-                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                "network": "eip155:8453",
-                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
-                "scheme": "exact",
-                "x402Version": 2
-              }
-            }
-          ]
         }
       }
     },
@@ -22540,31 +21740,12 @@
         "responses": {
           "200": {
             "description": "Success"
-          },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Payment Required",
-            "headers": {
-              "PAYMENT-REQUIRED": {
-                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
           }
         },
         "security": [
           {
             "MangroveBearer": []
-          },
-          {}
+          }
         ],
         "summary": "Post list trades operation",
         "tags": [
@@ -22598,24 +21779,6 @@
           },
           "required": [],
           "type": "object"
-        },
-        "x-payment-info": {
-          "price": {
-            "amount": "0.001000",
-            "currency": "USD",
-            "mode": "fixed"
-          },
-          "protocols": [
-            {
-              "x402": {
-                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                "network": "eip155:8453",
-                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
-                "scheme": "exact",
-                "x402Version": 2
-              }
-            }
-          ]
         }
       }
     },
@@ -26316,31 +25479,12 @@
         "responses": {
           "200": {
             "description": "Success"
-          },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Payment Required",
-            "headers": {
-              "PAYMENT-REQUIRED": {
-                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
           }
         },
         "security": [
           {
             "MangroveBearer": []
-          },
-          {}
+          }
         ],
         "summary": "Post verify strategy operation",
         "tags": [
@@ -26358,24 +25502,6 @@
             "strategy_id"
           ],
           "type": "object"
-        },
-        "x-payment-info": {
-          "price": {
-            "amount": "0.005000",
-            "currency": "USD",
-            "mode": "fixed"
-          },
-          "protocols": [
-            {
-              "x402": {
-                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                "network": "eip155:8453",
-                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
-                "scheme": "exact",
-                "x402Version": 2
-              }
-            }
-          ]
         }
       }
     },

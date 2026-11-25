@@ -2,48 +2,33 @@
 
 Issue: https://github.com/MangroveTechnologies/MangroveAI-SDK/issues/66
 
-## Current packages and source candidate (2026-11-24 UTC)
+## Current packages and source candidate (2026-11-25 UTC)
 
-Registry readback confirms Python [`mangroveai` 2.6.0](https://pypi.org/project/mangroveai/2.6.0/)
-and npm [`@mangrove-ai/sdk` 1.3.0](https://www.npmjs.com/package/@mangrove-ai/sdk/v/1.3.0).
-Python already contains `strategies.local_deployment`. These published bytes
-must never be replaced by this branch's local builds.
-The current release-preparation branch carries Python 2.7.0 and TypeScript 1.4.0
-source while 2.6.0 and 1.3.0 remain the published packages.
+Registry readback confirms Python [`mangroveai` 2.7.0](https://pypi.org/project/mangroveai/2.7.0/)
+and npm [`@mangrove-ai/sdk` 1.4.0](https://www.npmjs.com/package/@mangrove-ai/sdk/v/1.4.0).
+Both were published from SDK source `e0f6774d193c3759e27e9a6f8004a77d008d7bf4`,
+before the market microstructure additions. Never replace those published bytes.
 
-[SDK83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83) merged;
-its flat `mangroveai.py` legacy alias is retained in published Python 2.4.2. It avoids the
-case-insensitive physical package collision while preserving imports.
-Coexistence still requires qualifying the actual repaired SDK and private-engine
-wheels together; registry publication alone is insufficient.
+Merged [SDK99](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/99)
+adds the four [book, flow, and liquidation-level reads](bitcoin-market-data.md).
+This release candidate prepares Python 2.8.0 and TypeScript 1.5.0. The official
+contract export records API source `1812a42cbb6d0754c55c93af99ae81c03e9e33fc`;
+the matching [API1660](https://github.com/MangroveTechnologies/MangroveAI/pull/1660)
+and [Roots105](https://github.com/MangroveTechnologies/MangroveRoots/pull/105)
+implementations must pass serving acceptance before package publication.
 
-Merged [SDK84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84)
-preserves that fix, closed [SDK85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85)
-contract/serialization changes and optional signal metadata. Public input
-schemas match a clean official offline export from merged API source
-`b3337f2e1a9561b3cb419f163e19e1b51ac71b27`;
-`contracts/mangroveai/provenance.json` records that exact exporter commit and
-27 source-file hashes. All three public document hashes are unchanged from the
-accepted [API1525](https://github.com/MangroveTechnologies/MangroveAI/pull/1525)
-export. Source acceptance and the reviewed production promotion are distinct
-from actual API/Oracle serving acceptance, which gates package publication.
+The native [Python preparation run](https://github.com/MangroveTechnologies/MangroveAI-SDK/actions/runs/45706696363)
+created the 2.8.0 version commit on `codex/release-v2.8.0`. Its token could not
+open a PR, so the generated branch was recovered for ordinary review. After
+human merge and current-main verification, publish the exact committed Python
+version with `release.yml version=2.8.0`. For TypeScript, first run
+`typescript-release.yml version=1.5.0 dry_run=true`, then publish the same
+reviewed main source with `dry_run=false`. Verify registry archives and consumer
+pins afterward. Agents do not merge PRs or push release tags manually.
 
-The native `prepare-release.yml` workflow generated the Python 2.7.0 version commit. After
-human merge, current-main verification, serving-contract acceptance and separate
-publication authorization, publish
-the exact committed version with `release.yml`. Never dispatch a new upload for
-existing Python 2.6.0. TypeScript's
-[1.2.0 dry run](https://github.com/MangroveTechnologies/MangroveAI-SDK/actions/runs/43527554956)
-passed from merged SDK84 main `6434a7cd`. The publication controller verifies
-fresh main before upload. Authorized publication through
-`typescript-release.yml` remains separate. Verify registry archives and
-consumer adoption separately. No agent merges or pushes tags manually.
-
-The reviewed API1525 producer defaults to two consecutive losses. The earlier
-[SDK82](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/82) and
-[API1518](https://github.com/MangroveTechnologies/MangroveAI/pull/1518)
-proposals are closed; neither is a separate dependency. Historical dated records below do not prescribe
-the current release version or order.
+The existing flat `mangroveai.py` alias, Oracle result-search controls, and local
+deployment helpers remain available. The historical records below describe
+older releases; they do not prescribe the current version or release order.
 
 <details>
 <summary>Historical naming plan before the November 2 registry releases</summary>

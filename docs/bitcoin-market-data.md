@@ -1,6 +1,6 @@
 # Bitcoin order books, trade flow, and liquidation levels
 
-These source additions depend on the matching [MangroveAI operations](https://github.com/MangroveTechnologies/MangroveAI/pull/1660)
+These additions are prepared for Python 2.8.0 and TypeScript 1.5.0. They depend on the matching [MangroveAI operations](https://github.com/MangroveTechnologies/MangroveAI/pull/1660)
 and [MangroveRoots provider implementation](https://github.com/MangroveTechnologies/MangroveRoots/pull/105).
 They are not a statement that a
 published SDK or deployed API already serves them. Provider configuration and

@@ -1,11 +1,11 @@
-"""Market-data service -- regime readings (``/api/v1/market-data/*``).
+"""Authenticated market-data reads (``/api/v1/market-data/*``).
 
-Both methods are billable (one ``api_calls`` unit per successful call; 4xx responses
-are not billed) and require an API key.
+Methods do not paginate or start collection. The client HTTP retry policy still
+applies; use ``auto_retry=False`` for one transport attempt.
 """
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 from urllib.parse import quote
 
 from ..models.market_data import MarketRegime, MarketSegment
@@ -13,7 +13,71 @@ from ._base import BaseService
 
 
 class MarketDataService(BaseService):
-    """Regime classification: an asset's current regime, or one named stretch of the past."""
+    """Market regimes, bounded order books and trades, and venue liquidation levels."""
+
+    def get_orderbook(
+        self, symbol_id: str, *, limit_levels: int = 20, provider: str = "coinapi",
+    ) -> dict[str, Any]:
+        """Read one CoinAPI order-book snapshot, including the best bid and ask.
+
+        ``symbol_id`` is an exact spot instrument, such as ``COINBASE_SPOT_BTC_USD``.
+        The server accepts 1-200 levels per side. Prices and notional values use
+        that instrument's quote currency; sizes use its base currency. This is
+        one bounded read, not a stream or a history collection job.
+        """
+        return cast(dict[str, Any], self._request("GET", "/market-data/orderbook", params={
+            "symbol_id": symbol_id, "limit_levels": limit_levels, "provider": provider,
+        }))
+
+    def get_orderbook_history(
+        self, symbol_id: str, time_start: str, time_end: str, *,
+        limit: int = 100, limit_levels: int = 20, provider: str = "coinapi",
+    ) -> dict[str, Any]:
+        """Read a bounded CoinAPI order-book history response.
+
+        Supply timezone-aware ISO timestamps spanning at most 24 hours. The
+        server accepts 1-1,000 snapshots and 1-50 levels per side. Preserve the
+        response's coverage and limit metadata when comparing bid buildup;
+        returned snapshots do not establish complete order-by-order history.
+        No additional pages are fetched automatically.
+        """
+        return cast(dict[str, Any], self._request("GET", "/market-data/orderbook/history", params={
+            "symbol_id": symbol_id, "time_start": time_start, "time_end": time_end,
+            "limit": limit, "limit_levels": limit_levels, "provider": provider,
+        }))
+
+    def get_order_flow(
+        self, symbol_id: str, time_start: str, time_end: str, *,
+        limit: int = 100, provider: str = "coinapi",
+    ) -> dict[str, Any]:
+        """Read trades and their server-calculated aggressive buy/sell imbalance.
+
+        Supply timezone-aware ISO timestamps spanning at most 24 hours and a
+        limit of 1-1,000 trades. Delta and cumulative volume delta describe only
+        the returned trades, in the instrument's quote currency. Unknown taker
+        sides stay unknown. Trades cannot reconstruct resting order-book depth.
+        """
+        return cast(dict[str, Any], self._request("GET", "/market-data/order-flow", params={
+            "symbol_id": symbol_id, "time_start": time_start, "time_end": time_end,
+            "limit": limit, "provider": provider,
+        }))
+
+    def get_liquidation_levels(
+        self, token_symbol: str = "BTC", *, page: int = 1,
+        per_page: int = 100, provider: str = "nansen",
+    ) -> dict[str, Any]:
+        """Read one Nansen page of reported Hyperliquid position thresholds.
+
+        The server accepts page 1-10,000 and page size 1-100. The response retains
+        missing liquidation prices as null and reports its venue and coverage.
+        These are current position liquidation levels, not realized liquidations
+        or an estimate covering all exchanges. Each page is a separate explicit
+        request; the SDK never fetches another page automatically.
+        """
+        return cast(dict[str, Any], self._request("GET", "/market-data/liquidation-levels", params={
+            "token_symbol": token_symbol, "page": page,
+            "per_page": per_page, "provider": provider,
+        }))
 
     def get_market_regime(
         self, asset: str, *, lookback_days: int | None = None,

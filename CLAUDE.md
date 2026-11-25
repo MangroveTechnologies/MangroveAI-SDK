@@ -4,10 +4,10 @@ This repository contains clients for the public MangroveAI services in both
 languages. Keep their package identities and capabilities distinct:
 
 - Python: PyPI `mangroveai`, import `from mangrove_ai import MangroveAI`, source
-  `src/mangrove_ai/`. Python 2.6.0 is published; source version 2.7.0 is prepared for review.
+  `src/mangrove_ai/`. Python 2.7.0 is published. This branch adds unreleased verdict fields.
 - TypeScript: npm `@mangrove-ai/sdk` 1.x, import
   `import { MangroveAI } from '@mangrove-ai/sdk'`, source `packages/typescript/`.
-  The published version is 1.3.0; 1.4.0 is the prepared source candidate. Use the [guide](packages/typescript/README.md),
+  The published version is 1.4.0; this branch adds unreleased verdict fields. Use the [guide](packages/typescript/README.md),
   [migration notice](docs/typescript-package-migration.md) and [dated release status](docs/issue-66-release-handoff.md)
   before claiming registry availability.
 - MangroveMarkets moves to `@mangrove-ai/markets` 0.4.0 with its existing
@@ -81,10 +81,9 @@ The package name stays `mangroveai`; `mangrove_ai` is its import path.
 
 ## Current release preparation and recovery
 
-Registry readback November 25, 2026 confirms Python `mangroveai` 2.6.0 and
-TypeScript `@mangrove-ai/sdk` 1.3.0. Python source version 2.7.0 and TypeScript
-source version 1.4.0 are prepared for review; 2.6.0 and 1.3.0 remain the
-published packages.
+Registry readback November 25, 2026 confirms Python `mangroveai` 2.7.0 and
+TypeScript `@mangrove-ai/sdk` 1.4.0. Those published artifacts do not include
+this branch's async verdict fields. A future release needs fresh version bumps.
 Source does not imply registry identity.
 Never publish changed bytes under an existing version.
 
@@ -100,10 +99,10 @@ export. Provenance records the new exporter source and its 27 input hashes.
 API source review and production promotion are separate from actual serving
 API/Oracle acceptance and SDK package publication.
 
-The native `prepare-release.yml` workflow generated the Python 2.7.0 version commit. After
-human merge, current-main verification, serving-contract acceptance and separate
-publication authorization, publish
-that exact committed version through `release.yml`. TypeScript
+The native `prepare-release.yml` workflow generated the published Python 2.7.0
+version commit. Future changes require a new version, human merge, current-main
+verification, serving-contract acceptance, and separate publication authorization
+through `release.yml`. TypeScript
 uses `typescript-release.yml` with a committed candidate version, first
 `dry_run=true`. No agent merges or pushes tags manually. The reviewed API1525
 producer schema defaults to two consecutive losses. The older

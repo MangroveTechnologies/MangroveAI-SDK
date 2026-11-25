@@ -15911,7 +15911,7 @@
         "operationId": "api1_get_liquidation_levels",
         "parameters": [
           {
-            "description": "Provider page, 1-10000 (default 1); does not automatically fetch every page.",
+            "description": "Page number for pagination.",
             "in": "query",
             "name": "page",
             "required": false,
@@ -15921,7 +15921,7 @@
             }
           },
           {
-            "description": "Maximum positions on this page, 1-100 (default 100).",
+            "description": "Page size for pagination.",
             "in": "query",
             "name": "per_page",
             "required": false,
@@ -15931,15 +15931,12 @@
             }
           },
           {
-            "description": "Existing configured provider; nansen only.",
+            "description": "Optional upstream override; omitted uses the existing server default.",
             "in": "query",
             "name": "provider",
             "required": false,
             "schema": {
               "default": "nansen",
-              "enum": [
-                "nansen"
-              ],
               "type": "string"
             }
           },
@@ -16019,7 +16016,7 @@
         "operationId": "api1_get_order_flow",
         "parameters": [
           {
-            "description": "Maximum returned trades, 1-1000 (default 100).",
+            "description": "Maximum results.",
             "in": "query",
             "name": "limit",
             "required": false,
@@ -16029,20 +16026,17 @@
             }
           },
           {
-            "description": "Existing configured data provider; coinapi only.",
+            "description": "Optional upstream override; omitted uses the existing server default.",
             "in": "query",
             "name": "provider",
             "required": false,
             "schema": {
               "default": "coinapi",
-              "enum": [
-                "coinapi"
-              ],
               "type": "string"
             }
           },
           {
-            "description": "Exact provider spot instrument identifier, including venue and quote.",
+            "description": "Exact provider spot instrument identifier, including venue, SPOT, base, and quote.",
             "in": "query",
             "name": "symbol_id",
             "required": true,
@@ -16134,7 +16128,7 @@
         "operationId": "api1_get_orderbook",
         "parameters": [
           {
-            "description": "Maximum levels on each side, 1-200 (default 20).",
+            "description": "Maximum price levels on each side of the order book.",
             "in": "query",
             "name": "limit_levels",
             "required": false,
@@ -16144,15 +16138,12 @@
             }
           },
           {
-            "description": "Existing configured data provider; coinapi only.",
+            "description": "Optional upstream override; omitted uses the existing server default.",
             "in": "query",
             "name": "provider",
             "required": false,
             "schema": {
               "default": "coinapi",
-              "enum": [
-                "coinapi"
-              ],
               "type": "string"
             }
           },
@@ -16231,7 +16222,7 @@
         "operationId": "api1_get_orderbook_history",
         "parameters": [
           {
-            "description": "Maximum returned snapshots, 1-1000 (default 100).",
+            "description": "Maximum results.",
             "in": "query",
             "name": "limit",
             "required": false,
@@ -16241,7 +16232,7 @@
             }
           },
           {
-            "description": "Maximum levels on each side, 1-50 (default 20).",
+            "description": "Maximum price levels on each side of the order book.",
             "in": "query",
             "name": "limit_levels",
             "required": false,
@@ -16251,20 +16242,17 @@
             }
           },
           {
-            "description": "Existing configured data provider; coinapi only.",
+            "description": "Optional upstream override; omitted uses the existing server default.",
             "in": "query",
             "name": "provider",
             "required": false,
             "schema": {
               "default": "coinapi",
-              "enum": [
-                "coinapi"
-              ],
               "type": "string"
             }
           },
           {
-            "description": "Exact provider spot instrument identifier, including venue and quote.",
+            "description": "Exact provider spot instrument identifier, including venue, SPOT, base, and quote.",
             "in": "query",
             "name": "symbol_id",
             "required": true,

@@ -362,10 +362,10 @@ export interface Operations {
   "POST /api/v1/knowledge/query": { input: {  }; output: unknown; };
   "GET /api/v1/knowledge/quick-reference": { input: {  }; output: unknown; };
   "GET /api/v1/knowledge/search": { input: {  }; output: unknown; };
-  "GET /api/v1/market-data/liquidation-levels": { input: { query?: { "page"?: number; "per_page"?: number; "provider"?: "nansen"; "token_symbol"?: string; }; }; output: CoreModels["api1.GetLiquidationLevelsResponse"]; };
-  "GET /api/v1/market-data/order-flow": { input: { query: { "limit"?: number; "provider"?: "coinapi"; "symbol_id": string; "time_end": string; "time_start": string; }; }; output: CoreModels["api1.GetOrderFlowResponse"]; };
-  "GET /api/v1/market-data/orderbook": { input: { query: { "limit_levels"?: number; "provider"?: "coinapi"; "symbol_id": string; }; }; output: CoreModels["api1.GetOrderbookResponse"]; };
-  "GET /api/v1/market-data/orderbook/history": { input: { query: { "limit"?: number; "limit_levels"?: number; "provider"?: "coinapi"; "symbol_id": string; "time_end": string; "time_start": string; }; }; output: CoreModels["api1.GetOrderbookHistoryResponse"]; };
+  "GET /api/v1/market-data/liquidation-levels": { input: { query?: { "page"?: number; "per_page"?: number; "provider"?: string; "token_symbol"?: string; }; }; output: CoreModels["api1.GetLiquidationLevelsResponse"]; };
+  "GET /api/v1/market-data/order-flow": { input: { query: { "limit"?: number; "provider"?: string; "symbol_id": string; "time_end": string; "time_start": string; }; }; output: CoreModels["api1.GetOrderFlowResponse"]; };
+  "GET /api/v1/market-data/orderbook": { input: { query: { "limit_levels"?: number; "provider"?: string; "symbol_id": string; }; }; output: CoreModels["api1.GetOrderbookResponse"]; };
+  "GET /api/v1/market-data/orderbook/history": { input: { query: { "limit"?: number; "limit_levels"?: number; "provider"?: string; "symbol_id": string; "time_end": string; "time_start": string; }; }; output: CoreModels["api1.GetOrderbookHistoryResponse"]; };
   "GET /api/v1/market-data/regime/{asset}": { input: { path: { "asset": string; }; query?: { "lookback_days"?: string; "market_data_venue"?: string; "provider"?: string; "quote_token"?: string; }; }; output: CoreModels["api1.MarketRegimeResponse"]; };
   "GET /api/v1/market-data/segment": { input: { query?: { "asset"?: string; "candle_size"?: string; "end_date"?: string; "market_data_venue"?: string; "provider"?: string; "quote_token"?: string; "start_date"?: string; "window_file"?: string; }; }; output: CoreModels["api1.MarketSegmentResponse"]; };
   "GET /api/v1/on-chain/exchange-flows": { input: {  }; output: unknown; };

@@ -33,8 +33,9 @@ void sdk.request('GET /api/v1/market-data/orderbook', {});
 void sdk.request('GET /api/v1/market-data/order-flow', { query: { symbol_id: 'COINBASE_SPOT_BTC_USD', time_start: '2026-11-20T02:00:00Z' } });
 // @ts-expect-error Snapshot limit is numeric.
 void sdk.request('GET /api/v1/market-data/orderbook', { query: { symbol_id: 'COINBASE_SPOT_BTC_USD', limit_levels: '50' } });
-// @ts-expect-error Nansen is the declared provider for reported Hyperliquid levels.
-void sdk.request('GET /api/v1/market-data/liquidation-levels', { query: { provider: 'coinapi' } });
+// Provider is text in the shared schema; the server restricts this operation to Nansen.
+// @ts-expect-error Provider identifiers must be text.
+void sdk.request('GET /api/v1/market-data/liquidation-levels', { query: { provider: 123 } });
 void sdk.signals.list().then(page => {
   const mode: string | undefined = page.items[0]?.evaluation_mode;
   const provider: string | null | undefined = page.items[0]?.data_provider;

@@ -6,7 +6,7 @@ source hashes and exported-document hashes. No real user, API key, session token
 or account record belongs here.
 
 The Bitcoin market-data refresh is exported from clean API source
-`568508410c0b65a36602540bde5970e2dd93e5a8`. It adds four public GET operations:
+`1812a42cbb6d0754c55c93af99ae81c03e9e33fc`. It adds four public GET operations:
 order-book snapshot, order-book history, trade flow, and reported Hyperliquid
 liquidation levels. Nullable quote fields, quality counts, and bounded coverage
 come from their canonical operation response schemas. `liquidation-levels-page.json`

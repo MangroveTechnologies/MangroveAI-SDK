@@ -13,9 +13,13 @@ before changing a pin. The old `@mangrove-ai/client` candidate was never publish
 and will not become a registry alias.
 
 Published checkpoint: November 25, 2026: AI 1.4.0 and Markets 0.4.0 are available.
-AI 1.4.0 includes the Oracle result-search duration and return filters and the
-`oracleEffectiveFilters` reader. This branch adds unreleased async verdict fields
-and requires a new version for publication; the local-deployment helper requires backend 7.11.0 or later
+This branch additionally exposes unreleased optional async `verdict` and nullable
+`failed_checks` fields from [API1591](https://github.com/MangroveTechnologies/MangroveAI/pull/1591).
+They preserve server decisions and accept future verdict strings. They are not
+in the separately prepared main release.
+
+This source prepares AI 1.5.0, which adds order-book, trade-flow, and reported
+Hyperliquid liquidation-level operations; the local-deployment helper requires backend 7.11.0 or later
 and actual capability serving acceptance, not merely an installed package.
 
 Check the [dated repository release status](https://github.com/MangroveTechnologies/MangroveAI-SDK/blob/main/docs/issue-66-release-handoff.md)
@@ -33,7 +37,7 @@ is written there, with a name based on that revision's `package.json` version.
 Then install that reviewed archive in the consuming project, using its actual path:
 
 ```sh
-npm install /path/to/reviewed/mangrove-ai-sdk-1.4.0.tgz
+npm install /path/to/reviewed/mangrove-ai-sdk-1.5.0.tgz
 ```
 
 When installing a registry release, verify its exact version and package identity

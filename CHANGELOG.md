@@ -11,6 +11,8 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Python 2.8.0 candidate
+
 - Add `market_data.get_orderbook`, `get_orderbook_history`, `get_order_flow`,
   and `get_liquidation_levels`, with matching TypeScript REST declarations.
   CoinAPI supplies bounded spot books and trades; Nansen supplies one page of
@@ -18,6 +20,8 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   quality, and coverage are preserved. Requires the matching API and Roots
   implementation; no collection job, automatic pagination, or provider fallback
   is added. See the [coverage guide](docs/bitcoin-market-data.md).
+
+### Earlier changes
 
 - Add Oracle result-search controls to `oracle.list_results` and
   `oracle.list_results_iter`: recorded-day bounds (`min_days`, `max_days`),

@@ -16,11 +16,11 @@ legacy shim from merged [PR83](https://github.com/MangroveTechnologies/MangroveA
 is published in 2.4.2. Merged [PR84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84)
 includes the contract and serialization changes from closed
 [PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85) and optional
-signal metadata. Its contract inputs match the clean offline export from merged
-API source `b3337f2e`, with identical public document bytes to the accepted
-[API1525](https://github.com/MangroveTechnologies/MangroveAI/pull/1525) export.
-The async verdict fields on this branch are unreleased. Their publication needs
-new versions, human review, and serving API/Oracle contract acceptance. See the [release handoff](docs/issue-66-release-handoff.md).
+signal metadata. The current contract includes the four market-data reads from
+[SDK99](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/99), matching
+the clean API export at `64b6ade32bdab339be7e141d335e0e18713f4122`.
+Package publication follows human review of the prepared Python 2.8.0 version
+and serving API/Oracle contract acceptance. See the [release handoff](docs/issue-66-release-handoff.md).
 
 | Product and language | Registry package | Import | Guide |
 |---|---|---|---|
@@ -33,8 +33,14 @@ and [TypeScript GitHub Release](https://github.com/MangroveTechnologies/Mangrove
 for availability; a source version does not establish publication. The
 [TypeScript guide](packages/typescript/README.md) covers registry and reviewed
 archive installation. Dated publication checkpoints are in the [release handoff](docs/issue-66-release-handoff.md).
-Published Python 2.7.0 and TypeScript 1.4.0 remain unchanged; this branch does not
-publish or overwrite either version.
+Python source version 2.8.0 and TypeScript source version 1.5.0 are prepared;
+published 2.7.0 and 1.4.0 remain unchanged.
+
+This branch also adds unreleased async `verdict` and `failed_checks` fields from
+[API1591](https://github.com/MangroveTechnologies/MangroveAI/pull/1591). The
+version numbers follow merged [SDK100](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/100);
+its separate publication does not include this unmerged branch. Verdict publication
+requires its own reviewed release after source merge. Never reuse a published version.
 
 **Breaking product boundary:** published `@mangrove-ai/sdk` 0.1.2, 0.2.0 and 0.3.0
 are historical Markets clients. The new 1.0.0 package is MangroveAI and does not

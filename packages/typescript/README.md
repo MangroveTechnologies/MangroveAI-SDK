@@ -13,6 +13,11 @@ before changing a pin. The old `@mangrove-ai/client` candidate was never publish
 and will not become a registry alias.
 
 Published checkpoint: November 25, 2026: AI 1.4.0 and Markets 0.4.0 are available.
+This branch additionally exposes unreleased optional async `verdict` and nullable
+`failed_checks` fields from [API1591](https://github.com/MangroveTechnologies/MangroveAI/pull/1591).
+They preserve server decisions and accept future verdict strings. They are not
+in the separately prepared main release.
+
 This source prepares AI 1.5.0, which adds order-book, trade-flow, and reported
 Hyperliquid liquidation-level operations; the local-deployment helper requires backend 7.11.0 or later
 and actual capability serving acceptance, not merely an installed package.

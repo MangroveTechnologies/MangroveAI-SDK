@@ -4,7 +4,7 @@ This repository contains clients for the public MangroveAI services in both
 languages. Keep their package identities and capabilities distinct:
 
 - Python: PyPI `mangroveai`, import `from mangrove_ai import MangroveAI`, source
-  `src/mangrove_ai/`. Python 2.7.0 is published; source version 2.8.0 is prepared for review.
+  `src/mangrove_ai/`. Python 2.7.0 is published; source version 2.8.0 is prepared on main.
 - TypeScript: npm `@mangrove-ai/sdk` 1.x, import
   `import { MangroveAI } from '@mangrove-ai/sdk'`, source `packages/typescript/`.
   The published version is 1.4.0; 1.5.0 is the prepared source candidate. Use the [guide](packages/typescript/README.md),
@@ -83,9 +83,15 @@ The package name stays `mangroveai`; `mangrove_ai` is its import path.
 
 Registry readback November 25, 2026 confirms Python `mangroveai` 2.7.0 and
 TypeScript `@mangrove-ai/sdk` 1.4.0. Python source version 2.8.0 and TypeScript
-source version 1.5.0 are prepared for review; 2.7.0 and 1.4.0 remain the
+source version 1.5.0 are prepared on main; 2.7.0 and 1.4.0 remain the
 published packages.
 Source does not imply registry identity.
+
+This branch also adds unreleased async `verdict` and `failed_checks` fields from
+[API1591](https://github.com/MangroveTechnologies/MangroveAI/pull/1591). The
+version numbers follow merged [SDK100](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/100);
+its separate publication does not include this unmerged branch. Verdict publication
+requires its own reviewed release after source merge. Never reuse a published version.
 Never publish changed bytes under an existing version.
 
 [PR83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83) is merged
@@ -96,7 +102,7 @@ and serialization changes from closed [PR85](https://github.com/MangroveTechnolo
 contract inputs include the four market microstructure operations from merged
 [SDK99](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/99).
 Provenance records the clean API export at
-`1812a42cbb6d0754c55c93af99ae81c03e9e33fc` and its source-file hashes.
+`64b6ade32bdab339be7e141d335e0e18713f4122` and its source-file hashes.
 API source review and production promotion are separate from actual serving
 API/Oracle acceptance and SDK package publication.
 

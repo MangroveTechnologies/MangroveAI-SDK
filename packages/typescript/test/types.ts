@@ -192,6 +192,20 @@ void sdk.request('POST /api/v1/backtests/', canonicalBacktest.input);
 // @ts-expect-error the compatibility key inherits the canonical required body.
 void sdk.request('POST /api/v1/backtests/', {});
 
+// Status keeps server-owned outcomes, including future strings and older omissions.
+void sdk.backtesting.getStatus('fixture').then(status => {
+  const verdict: string | null | undefined = status.verdict;
+  const checks: string[] | null | undefined = status.failed_checks;
+  void verdict; void checks;
+});
+const futureVerdict: CoreModels['api2.AsyncBacktestStatusResponse'] = {
+  verdict: 'FUTURE_SERVER_VERDICT', failed_checks: ['future_check'],
+};
+// @ts-expect-error The canonical verdict is nullable text, not a numeric extra.
+const invalidVerdict: CoreModels['api2.AsyncBacktestStatusResponse']['verdict'] = 123;
+// @ts-expect-error Check names are strings, not arbitrary values.
+const invalidChecks: CoreModels['api2.AsyncBacktestStatusResponse']['failed_checks'] = [123];
+void futureVerdict; void invalidVerdict; void invalidChecks;
 declare const exitQuote: Operations["POST /api/v1/execution/exit-quote"];
 void sdk.request('POST /api/v1/execution/exit-quote', exitQuote.input).then(result => {
   const price: string = result.minimum_exit_price;

@@ -8089,6 +8089,17 @@
             "description": "Wall-clock simulation time",
             "type": "number"
           },
+          "failed_checks": {
+            "description": "Thresholds a FAIL verdict missed (sortino, sharpe, calmar, irr, max_drawdown, win_rate); empty for PASS; null otherwise",
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ],
+            "x-nullable": true
+          },
           "market_data_venue": {
             "description": "Recorded market data venue; null for historical runs",
             "type": [
@@ -8118,6 +8129,14 @@
             "description": "Trade list (populated when completed)",
             "type": "object",
             "x-mangrove-raw-json": true
+          },
+          "verdict": {
+            "description": "Threshold verdict of a completed run: \"PASS\", \"FAIL\", \"INSUFFICIENT_TRADES\", \"NOT_EVALUABLE\" or \"unknown\"; null until the run completes",
+            "type": [
+              "string",
+              "null"
+            ],
+            "x-nullable": true
           }
         },
         "type": "object"
@@ -20815,6 +20834,10 @@
             "candle_size": {
               "description": "Duration of one candle, e.g. 1h or 1d.",
               "type": "string"
+            },
+            "min_days": {
+              "description": "Minimum recorded backtest days, inclusive. An explicit value overrides the conditional IRR duration default, including zero.",
+              "type": "integer"
             }
           },
           "required": [

@@ -294,7 +294,7 @@ class AsyncBacktestSubmission(MangroveModel):
 
 
 class AsyncBacktestStatus(MangroveModel):
-    """Status of an async backtest."""
+    """Status and server-owned outcome of an async backtest."""
 
     backtest_id: str
     status: str
@@ -305,3 +305,5 @@ class AsyncBacktestStatus(MangroveModel):
     execution_time_seconds: float | None = None
     created_at: str | None = None
     completed_at: str | None = None
+    verdict: str | None = None
+    failed_checks: list[str] | None = None

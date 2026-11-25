@@ -18,7 +18,7 @@ includes the contract and serialization changes from closed
 [PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85) and optional
 signal metadata. The current contract includes the four market-data reads from
 [SDK99](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/99), matching
-the clean API export at `1812a42cbb6d0754c55c93af99ae81c03e9e33fc`.
+the clean API export at `64b6ade32bdab339be7e141d335e0e18713f4122`.
 Package publication follows human review of the prepared Python 2.8.0 version
 and serving API/Oracle contract acceptance. See the [release handoff](docs/issue-66-release-handoff.md).
 
@@ -35,6 +35,12 @@ for availability; a source version does not establish publication. The
 archive installation. Dated publication checkpoints are in the [release handoff](docs/issue-66-release-handoff.md).
 Python source version 2.8.0 and TypeScript source version 1.5.0 are prepared;
 published 2.7.0 and 1.4.0 remain unchanged.
+
+This branch also adds unreleased async `verdict` and `failed_checks` fields from
+[API1591](https://github.com/MangroveTechnologies/MangroveAI/pull/1591). The
+version numbers follow merged [SDK100](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/100);
+its separate publication does not include this unmerged branch. Verdict publication
+requires its own reviewed release after source merge. Never reuse a published version.
 
 **Breaking product boundary:** published `@mangrove-ai/sdk` 0.1.2, 0.2.0 and 0.3.0
 are historical Markets clients. The new 1.0.0 package is MangroveAI and does not

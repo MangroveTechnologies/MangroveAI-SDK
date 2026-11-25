@@ -324,6 +324,8 @@ class TestBacktestAsync:
 
         assert isinstance(result, AsyncBacktestStatus)
         assert result.status == "completed"
+        assert result.verdict is None
+        assert result.failed_checks is None
 
     def test_run_async_polls_until_complete(self) -> None:
         mock = MockTransport()
@@ -440,3 +442,19 @@ def test_benchmark_forwards_market_and_preserves_coverage():
     assert result.buy_and_hold_return_raw == 10
     assert result.start != result.requested_start
     assert result.has_gaps is False
+
+
+@pytest.mark.parametrize("verdict,failed_checks", [
+    ("PASS", []), ("FAIL", ["sharpe", "irr"]),
+    ("INSUFFICIENT_TRADES", None), ("NOT_EVALUABLE", None),
+    ("FUTURE_SERVER_VERDICT", ["future_check"]), (None, None),
+])
+def test_status_preserves_server_verdict(verdict, failed_checks):
+    mock = MockTransport()
+    mock.add_response("GET", "/backtests/async-bt-1/status", json={
+        "backtest_id": "async-bt-1", "status": "completed",
+        "verdict": verdict, "failed_checks": failed_checks,
+    })
+    result = _make_client(mock).backtesting.poll_status("async-bt-1")
+    assert result.verdict == verdict
+    assert result.failed_checks == failed_checks

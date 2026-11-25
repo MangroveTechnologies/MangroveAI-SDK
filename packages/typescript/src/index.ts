@@ -102,6 +102,8 @@ export interface PollOptions extends RequestControls {
 export interface BacktestStatus {
   backtest_id: string;
   status: 'pending' | 'running' | 'completed' | 'failed' | 'cancelled';
+  verdict?: CoreModels['api2.AsyncBacktestStatusResponse']['verdict'];
+  failed_checks?: CoreModels['api2.AsyncBacktestStatusResponse']['failed_checks'];
   [key: string]: unknown;
 }
 

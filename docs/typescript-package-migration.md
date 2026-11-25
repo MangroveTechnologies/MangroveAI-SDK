@@ -9,7 +9,7 @@ AI 1.2.0, which remains a candidate until its official release is verified.
 | MangroveAI | `@mangrove-ai/sdk` 1.1.0 | `import { MangroveAI } from '@mangrove-ai/sdk'` |
 | MangroveMarkets | `@mangrove-ai/markets` 0.4.0 | `import { MangroveClient } from '@mangrove-ai/markets'` |
 
-Published Python names: `mangroveai` 2.4.2 imports as
+Published Python names: `mangroveai` 2.5.0 imports as
 `mangrove_ai`; `mangrovemarkets` 1.1.1 imports as `mangrove_markets`.
 
 ## Existing Markets applications
@@ -76,10 +76,10 @@ skipped by the AI controller. Never publish `@mangrove-ai/client`.
    main `6434a7cd`; the publication controller verifies fresh main. After serving
    acceptance and authorized publication, the workflow uses
    `typescript-release.yml` with `version=1.2.0` and `dry_run=false` from fresh
-   main. The native Python version-preparation workflow generated PR91 for
-   2.5.0; after human merge, current-main verification, serving acceptance and
+   main. The native Python version-preparation workflow generated PR96 for
+   2.6.0; after human merge, current-main verification, serving acceptance and
    separate publication authorization, publish that exact committed version with
-   `release.yml`. Python 2.4.2 is already published and must not be uploaded
+   `release.yml`. Python 2.5.0 is already published and must not be uploaded
    again with changed bytes.
 3. The TypeScript controller checks the actual source, npm-prepared gitHead,
    identity and archive checksums. Only an absent target may be uploaded from

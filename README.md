@@ -9,8 +9,8 @@ separate product, not the TypeScript version of this API.
 
 ## Choose a client
 
-Python [`mangroveai` 2.4.2](https://pypi.org/project/mangroveai/2.4.2/)
-and npm `@mangrove-ai/sdk` 1.1.0 are published (registry readback November 13,
+Python [`mangroveai` 2.5.0](https://pypi.org/project/mangroveai/2.5.0/)
+and npm `@mangrove-ai/sdk` 1.2.0 are published (registry readback November 24,
 2026). Python already includes `strategies.local_deployment`, and the flat
 legacy shim from merged [PR83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83)
 is published in 2.4.2. Merged [PR84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84)
@@ -19,7 +19,7 @@ includes the contract and serialization changes from closed
 signal metadata. Its contract inputs match the clean offline export from merged
 API source `b3337f2e`, with identical public document bytes to the accepted
 [API1525](https://github.com/MangroveTechnologies/MangroveAI/pull/1525) export.
-Package publication follows human review of the prepared Python 2.5.0 version
+Package publication follows human review of the prepared Python 2.6.0 version
 and serving API/Oracle contract acceptance. See the [release handoff](docs/issue-66-release-handoff.md).
 
 | Product and language | Registry package | Import | Guide |
@@ -33,8 +33,8 @@ and [TypeScript GitHub Release](https://github.com/MangroveTechnologies/Mangrove
 for availability; a source version does not establish publication. The
 [TypeScript guide](packages/typescript/README.md) covers registry and reviewed
 archive installation. Dated publication checkpoints are in the [release handoff](docs/issue-66-release-handoff.md).
-Python source version 2.5.0 is prepared in [PR91](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/91);
-published 2.4.2 remains unchanged. TypeScript 1.2.0 remains an unpublished candidate.
+Python source version 2.6.0 is prepared in [PR96](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/96);
+published 2.5.0 remains unchanged. TypeScript 1.2.0 is published.
 
 **Breaking product boundary:** published `@mangrove-ai/sdk` 0.1.2, 0.2.0 and 0.3.0
 are historical Markets clients. The new 1.0.0 package is MangroveAI and does not

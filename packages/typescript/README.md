@@ -12,9 +12,9 @@ published `@mangrove-ai/markets` 0.4.0. Read the [migration notice](https://gith
 before changing a pin. The old `@mangrove-ai/client` candidate was never published
 and will not become a registry alias.
 
-Published checkpoint: November 24, 2026: AI 1.2.0 and Markets 0.4.0 are available.
-This source prepares AI 1.3.0, which adds the declared exit-quote operation and the
-execution cost fields on backtest results; the local-deployment helper requires backend 7.11.0 or later
+Published checkpoint: November 25, 2026: AI 1.3.0 and Markets 0.4.0 are available.
+This source prepares AI 1.4.0, which adds the Oracle result-search duration and return
+filters and the `oracleEffectiveFilters` reader; the local-deployment helper requires backend 7.11.0 or later
 and actual capability serving acceptance, not merely an installed package.
 
 Check the [dated repository release status](https://github.com/MangroveTechnologies/MangroveAI-SDK/blob/main/docs/issue-66-release-handoff.md)
@@ -32,7 +32,7 @@ is written there, with a name based on that revision's `package.json` version.
 Then install that reviewed archive in the consuming project, using its actual path:
 
 ```sh
-npm install /path/to/reviewed/mangrove-ai-sdk-1.3.0.tgz
+npm install /path/to/reviewed/mangrove-ai-sdk-1.4.0.tgz
 ```
 
 When installing a registry release, verify its exact version and package identity

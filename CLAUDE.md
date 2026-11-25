@@ -7,7 +7,7 @@ languages. Keep their package identities and capabilities distinct:
   `src/mangrove_ai/`. Python 2.5.0 is published; source version 2.6.0 is prepared for review.
 - TypeScript: npm `@mangrove-ai/sdk` 1.x, import
   `import { MangroveAI } from '@mangrove-ai/sdk'`, source `packages/typescript/`.
-  The published version is 1.1.0; 1.2.0 is the prepared source candidate. Use the [guide](packages/typescript/README.md),
+  The published version is 1.2.0; 1.3.0 is the prepared source candidate. Use the [guide](packages/typescript/README.md),
   [migration notice](docs/typescript-package-migration.md) and [dated release status](docs/issue-66-release-handoff.md)
   before claiming registry availability.
 - MangroveMarkets moves to `@mangrove-ai/markets` 0.4.0 with its existing
@@ -83,8 +83,8 @@ The package name stays `mangroveai`; `mangrove_ai` is its import path.
 
 Registry readback November 24, 2026 confirms Python `mangroveai` 2.5.0 and
 TypeScript `@mangrove-ai/sdk` 1.2.0. [PR96](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/96)
-prepares Python source version 2.6.0; TypeScript source has changed since
-published 1.2.0 and has no prepared version.
+prepared Python source version 2.6.0; TypeScript source version 1.3.0 is prepared
+for review and 1.2.0 remains the published package.
 Source does not imply registry identity.
 Never publish changed bytes under an existing version.
 

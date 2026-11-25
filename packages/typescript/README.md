@@ -12,8 +12,9 @@ published `@mangrove-ai/markets` 0.4.0. Read the [migration notice](https://gith
 before changing a pin. The old `@mangrove-ai/client` candidate was never published
 and will not become a registry alias.
 
-Published checkpoint: November 2, 2026: AI 1.1.0 and Markets 0.4.0 are available.
-This source prepares AI 1.2.0; its local-deployment helper requires backend 7.11.0 or later
+Published checkpoint: November 25, 2026: AI 1.3.0 and Markets 0.4.0 are available.
+This source prepares AI 1.4.0, which adds the Oracle result-search duration and return
+filters and the `oracleEffectiveFilters` reader; the local-deployment helper requires backend 7.11.0 or later
 and actual capability serving acceptance, not merely an installed package.
 
 Check the [dated repository release status](https://github.com/MangroveTechnologies/MangroveAI-SDK/blob/main/docs/issue-66-release-handoff.md)
@@ -31,7 +32,7 @@ is written there, with a name based on that revision's `package.json` version.
 Then install that reviewed archive in the consuming project, using its actual path:
 
 ```sh
-npm install /path/to/reviewed/mangrove-ai-sdk-1.2.0.tgz
+npm install /path/to/reviewed/mangrove-ai-sdk-1.4.0.tgz
 ```
 
 When installing a registry release, verify its exact version and package identity
@@ -64,7 +65,7 @@ try {
 This sends one Bearer-authenticated usage read. It does not create a wallet,
 launch compute, connect a broker, invoke an MCP tool or send a payment.
 
-## Local deployment snapshot (1.2.0 candidate)
+## Local deployment snapshot (1.2.0 and later)
 
 ```typescript
 const snapshot = await client.strategies.localDeployment(strategyId, {
@@ -81,13 +82,66 @@ A server conflict remains an `APIError` with its HTTP status and diagnostics.
 The generated generic operation supports the same path/query/response contract.
 No automatic retry or payment is added.
 
+## Search existing backtest results
+
+The generated Oracle result operations support recorded-day bounds and separate
+period total, IRR, simple annualized, daily, and closed-trade return measures. A minimum-IRR
+search defaults to 182 recorded days only when `min_days` is omitted; pass an
+explicit minimum to override it, or `use_irr_duration_default: false` without
+`min_days` to clear it. Historical duration is not deployment age, and filters
+do not recalculate an existing run over a new date range. The client forwards
+these parameters unchanged; Oracle resolves the default.
+
+These result operations declare an open response object, so
+`effective_filters` is not typed on the response. Read it with the exported
+`oracleEffectiveFilters(response)` helper, which returns a typed
+`OracleEffectiveFilters` object or `null` when the server did not return the
+field. It checks the shape at runtime and throws `MalformedResponseError` when
+the field is present with an unexpected shape. A key the server omits is `null`.
+
+```typescript
+// Runs with exactly 90 recorded days, ranked by simple annualized return.
+const ninetyDay = await client.request('GET /api/v1/oracle/results', {
+  query: {
+    min_days: 90, max_days: 90,
+    min_simple_annualized_return: 10,
+    sort: 'simple_annualized_return', order: 'desc',
+  },
+});
+
+// A minimum-IRR search with no duration parameters. Oracle applies its 182-day
+// minimum and reports it in effective_filters.
+const defaulted = await client.request('GET /api/v1/oracle/results', {
+  query: { min_irr: 14, sort: 'irr_annualized', order: 'desc' },
+});
+const filters = oracleEffectiveFilters(defaulted);
+if (filters !== null) {
+  console.log(filters.min_days);                      // 182
+  console.log(filters.irr_duration_default_applied);  // true
+  if (filters.notice) console.log(filters.notice);    // "Minimum IRR searches default to 182 backtest days. ..."
+}
+
+// The same search with the 182-day default cleared. No notice is returned.
+const allLengths = await client.request('GET /api/v1/oracle/results', {
+  query: { min_irr: 14, use_irr_duration_default: false, sort: 'irr_annualized', order: 'desc' },
+});
+```
+
+The examples import the helper with the client:
+`import { MangroveAI, oracleEffectiveFilters } from '@mangrove-ai/sdk'`.
+
+See the [Python and TypeScript result-search guide](../../docs/oracle-result-search.md)
+for examples, metric units, null handling and paging. These controls require the
+corresponding serving contract and an SDK build containing this source change;
+this documentation does not assert registry or production availability.
+
 ## Supported surface
 
 The named helpers are `users`, `signals`, `strategies`, `strategyWorkflow` and `backtesting`.
 Other declared REST operations use `client.request(operation, options)`, with
 generated path, parameter, body and response types. This is not Python helper
-parity. The current classification has 275 core/Oracle proxy method/path keys,
-including 12 v2 operations: 271 JSON/no-content, one separate redirect flow and
+parity. The current classification has 276 core/Oracle proxy method/path keys,
+including 12 v2 operations: 272 JSON/no-content, one separate redirect flow and
 three streaming/non-JSON operations. Counts describe pinned declarations, not live
 endpoint acceptance. The JSON transport does not perform the redirect or consume
 those streams. Operation keys include the HTTP method and exact versioned path:
@@ -104,6 +158,12 @@ declarations. They are not proof that every deployed response matches its model.
 Unmodelled responses and legacy Raw JSON fields remain `unknown`. The transport
 checks status, JSON, size and deadline; the metrics and pagination helpers also
 validate their envelopes. Application code must narrow an opaque result.
+
+To quote a protected long-spot exit, use
+`client.request('POST /api/v1/execution/exit-quote', { body })`. The declared
+body requires decimal strings for the confirmed position, bid, and venue fee
+bounds. The response returns the server's limit, safe sale quantity, and
+profitability decision. It does not submit an order.
 
 The server's canonical strategy workflow schemas generate method names such as
 `client.strategyWorkflow.getStrategy({ body: { strategy_id } })` and

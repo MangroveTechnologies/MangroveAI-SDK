@@ -2,14 +2,14 @@
 
 Issue: https://github.com/MangroveTechnologies/MangroveAI-SDK/issues/66
 
-## Current packages and source candidate (2026-11-13 UTC)
+## Current packages and source candidate (2026-11-24 UTC)
 
-Registry readback confirms Python [`mangroveai` 2.4.2](https://pypi.org/project/mangroveai/2.4.2/)
-and npm [`@mangrove-ai/sdk` 1.1.0](https://www.npmjs.com/package/@mangrove-ai/sdk/v/1.1.0).
+Registry readback confirms Python [`mangroveai` 2.6.0](https://pypi.org/project/mangroveai/2.6.0/)
+and npm [`@mangrove-ai/sdk` 1.3.0](https://www.npmjs.com/package/@mangrove-ai/sdk/v/1.3.0).
 Python already contains `strategies.local_deployment`. These published bytes
-must never be replaced by this branch's local builds. TypeScript 1.2.0 remains
-a candidate; [Python version PR91](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/91)
-prepares 2.5.0 source while 2.4.2 remains the published package.
+must never be replaced by this branch's local builds.
+The current release-preparation branch carries Python 2.7.0 and TypeScript 1.4.0
+source while 2.6.0 and 1.3.0 remain the published packages.
 
 [SDK83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83) merged;
 its flat `mangroveai.py` legacy alias is retained in published Python 2.4.2. It avoids the
@@ -28,11 +28,11 @@ accepted [API1525](https://github.com/MangroveTechnologies/MangroveAI/pull/1525)
 export. Source acceptance and the reviewed production promotion are distinct
 from actual API/Oracle serving acceptance, which gates package publication.
 
-The native `prepare-release.yml` workflow generated Python 2.5.0 in PR91. After
+The native `prepare-release.yml` workflow generated the Python 2.7.0 version commit. After
 human merge, current-main verification, serving-contract acceptance and separate
 publication authorization, publish
 the exact committed version with `release.yml`. Never dispatch a new upload for
-existing Python 2.4.2. TypeScript's
+existing Python 2.6.0. TypeScript's
 [1.2.0 dry run](https://github.com/MangroveTechnologies/MangroveAI-SDK/actions/runs/43527554956)
 passed from merged SDK84 main `6434a7cd`. The publication controller verifies
 fresh main before upload. Authorized publication through

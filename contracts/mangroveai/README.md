@@ -27,12 +27,32 @@ defaults and nested glossary in the explicit schema response. The default trades
 schema omits the four bars-only keys (`cooldown_config`, `cooldown_bars`,
 `daily_momentum_limit`, `weekly_momentum_limit`), matching the canonical server.
 Explicit bars/legacy objects remain transport-compatible. The shared default
-fixture comes from the offline API1525 source service; the separate bars fixture
+fixture comes from the offline producer service identified in `provenance.json`; the separate bars fixture
 comes from the same service with explicit `cooldown_model="bars"` and verifies
 legacy response compatibility without claiming a public mode selector. Both
 fixtures carry the producer's default of two consecutive losses. These authoring
 declarations do not add a client-side trading gate; the legacy transport escape
 hatch and server-owned risk decisions remain unchanged.
+
+The reviewed producer candidate defaults new strategies to
+`volatility_tolerance=0.75` and `reward_basis="net_execution_costs"`.
+A protected configuration that states no `taker_fee_rate` is costed by the
+server at its canonical `net_execution_defaults.taker_fee_rate` (0.008), and
+the fixed-cost exchange model runs without network fees unless they are
+requested. Native Oracle replays additionally accept a historical profile in
+`execution_config.execution_costs`; the translated helpers do not forward that
+profile or `replay_policy`. These inputs belong to Mangrove's calculation, not an SDK
+estimate. The SDK does not invent a zero fee or derive a stop locally.
+Existing stored strategies retain their legacy policy until explicitly migrated.
+Caller-owned positions using the protected policy supply signed confirmed
+`entry_cash_flow` including entry costs and the actual held quantity.
+Source declarations do not establish serving rollout or published package support.
+
+The authenticated `POST /api/v1/execution/exit-quote` contract accepts exact
+decimal strings and requires both base-fee bounds. The optional `max_fills`
+bounds the fills the server reserves cash rounding for; the server default is 50. Both SDKs send the strings
+unchanged and preserve the server's result. The shared fixture represents a
+candidate bid below the minimum profitable sell limit.
 
 `local-deployment-not-ready.json` is a synthetic stored strategy snapshot with
 explicit legacy execution settings, including a loss limit of four. That stored

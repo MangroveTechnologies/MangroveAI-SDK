@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 import pytest
+from pydantic import ValidationError
 
 from mangrove_ai import MangroveAI
 from mangrove_ai._transport._mock import MockTransport
@@ -8,6 +12,7 @@ from mangrove_ai.models.execution import (
     Account,
     CreateAccountRequest,
     EvaluateResult,
+    ExitQuoteRequest,
     ExternalExecutionRequest,
     Position,
     Trade,
@@ -16,6 +21,23 @@ from mangrove_ai.models.execution import (
 
 def _make_client(mock: MockTransport) -> MangroveAI:
     return MangroveAI(api_key="test_abc123", environment="local", httpx_client=mock)
+
+
+def test_exit_quote_preserves_exact_decimals_and_server_decision() -> None:
+    path = Path(__file__).resolve().parents[1] / "contracts/mangroveai/fixtures/exit-quote.json"
+    fixture = json.loads(path.read_text())
+    mock = MockTransport()
+    mock.add_response("POST", "/execution/exit-quote", json=fixture["response"])
+    client = _make_client(mock)
+
+    result = client.execution.exit_quote(ExitQuoteRequest(**fixture["request"]))
+
+    assert mock.requests[0].json == fixture["request"]
+    assert mock.requests[0].headers["Authorization"] == "Bearer test_abc123"
+    assert result.model_dump() == fixture["response"]
+    assert result.profitable is False
+    with pytest.raises(ValidationError, match="candidate_price"):
+        ExitQuoteRequest(**{**fixture["request"], "candidate_price": 100100.10})
 
 
 def test_pause_payment_replacement_preserves_command_identity():

@@ -9,8 +9,8 @@ separate product, not the TypeScript version of this API.
 
 ## Choose a client
 
-Python [`mangroveai` 2.4.2](https://pypi.org/project/mangroveai/2.4.2/)
-and npm `@mangrove-ai/sdk` 1.1.0 are published (registry readback November 13,
+Python [`mangroveai` 2.6.0](https://pypi.org/project/mangroveai/2.6.0/)
+and npm `@mangrove-ai/sdk` 1.3.0 are published (registry readback November 25,
 2026). Python already includes `strategies.local_deployment`, and the flat
 legacy shim from merged [PR83](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/83)
 is published in 2.4.2. Merged [PR84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84)
@@ -19,7 +19,7 @@ includes the contract and serialization changes from closed
 signal metadata. Its contract inputs match the clean offline export from merged
 API source `b3337f2e`, with identical public document bytes to the accepted
 [API1525](https://github.com/MangroveTechnologies/MangroveAI/pull/1525) export.
-Package publication follows human review of the prepared Python 2.5.0 version
+Package publication follows human review of the prepared Python 2.7.0 version
 and serving API/Oracle contract acceptance. See the [release handoff](docs/issue-66-release-handoff.md).
 
 | Product and language | Registry package | Import | Guide |
@@ -33,8 +33,8 @@ and [TypeScript GitHub Release](https://github.com/MangroveTechnologies/Mangrove
 for availability; a source version does not establish publication. The
 [TypeScript guide](packages/typescript/README.md) covers registry and reviewed
 archive installation. Dated publication checkpoints are in the [release handoff](docs/issue-66-release-handoff.md).
-Python source version 2.5.0 is prepared in [PR91](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/91);
-published 2.4.2 remains unchanged. TypeScript 1.2.0 remains an unpublished candidate.
+Python source version 2.7.0 and TypeScript source version 1.4.0 are prepared;
+published 2.6.0 and 1.3.0 remain unchanged.
 
 **Breaking product boundary:** published `@mangrove-ai/sdk` 0.1.2, 0.2.0 and 0.3.0
 are historical Markets clients. The new 1.0.0 package is MangroveAI and does not
@@ -45,9 +45,9 @@ and [dated release handoff](docs/issue-66-release-handoff.md). The former
 
 The TypeScript client has named `users`, `signals`, `strategies`, `strategyWorkflow` and
 `backtesting` helpers plus a generic typed `request(operation, options)` surface.
-The current public contract classifies 275 method/path operations across core
+The current public contract classifies 276 method/path operations across core
 and Oracle proxy REST, including 12 v2 operations; this is generated declaration
-coverage, not live endpoint acceptance. Of these, 271 use JSON/no-content, one
+coverage, not live endpoint acceptance. Of these, 272 use JSON/no-content, one
 requires a separate redirect flow and three require a streaming/non-JSON client.
 It is not a drop-in copy of Python's service methods. It does not supply MCP/OAuth
 discovery, the separate legacy KB-host client, x402 signing or SSE consumption.
@@ -330,6 +330,16 @@ inside each strategy config. Check each result's `success` independently.
 ledger; it does not confirm execution at an external venue. `persist=True`
 without a strategy ID does not confirm fills.
 
+### Quote a protected spot exit
+
+Send an `ExitQuoteRequest` to `client.execution.exit_quote()` with confirmed
+remaining entry cash flow and quantity, an executable bid, and the venue's fee
+and rounding bounds. Use decimal strings for all numeric fields, and supply
+both base-currency fee bounds. The authenticated API returns the minimum
+profitable sell price, the safe sale quantity, and the modeled net profit.
+The server computes the quote. The executor verifies the venue receipt,
+maintains protection, and submits any order.
+
 ## Services
 
 ### Layer 1: MangroveAI Core API
@@ -543,6 +553,48 @@ a sweep does not launch it; launch only after agreeing to the server's run count
 The SDK uses its existing authenticated HTTP transport; it does not add a wallet
 or sign x402 payments. The agent's existing MCP payer handles wallet access.
 The lower-level `client.oracle.*` methods retain their existing raw-engine contracts.
+
+### Search by recorded days and return measure
+
+Use `min_days` and `max_days` to search existing runs by recorded backtest length,
+including 90-day and 180-day histories. Minimum-IRR searches apply a 182-day
+minimum only when `min_irr` is supplied and `min_days` is omitted. Pass an explicit
+minimum to override it, or `use_irr_duration_default=False` with no `min_days` to
+clear it. Read `page.effective_filters` and display its notice when present.
+The SDK forwards these parameters unchanged; Oracle resolves the default.
+
+```python
+# Runs with exactly 90 recorded days, ranked by simple annualized return.
+page = client.oracle.list_results(
+    min_days=90, max_days=90,
+    min_simple_annualized_return=10,
+    sort="simple_annualized_return", order="desc",
+)
+
+# A minimum-IRR search with no duration parameters. Oracle applies its 182-day
+# minimum and reports it in effective_filters.
+page = client.oracle.list_results(min_irr=14, sort="irr_annualized", order="desc")
+filters = page.effective_filters
+if filters is not None:
+    print(filters.min_days)                      # 182
+    print(filters.irr_duration_default_applied)  # True
+    if filters.notice:
+        print(filters.notice)  # "Minimum IRR searches default to 182 backtest days. ..."
+
+# The same search with the 182-day default cleared. No notice is returned.
+page = client.oracle.list_results(
+    min_irr=14, use_irr_duration_default=False,
+    sort="irr_annualized", order="desc",
+)
+```
+
+`effective_filters` is `None` when the server does not return it, and a key the
+server omits is `None`.
+
+[Result-search examples](docs/oracle-result-search.md) cover Python, TypeScript,
+return measures, nullable metrics, and pagination notices. These are historical
+backtest lengths, not days since a strategy was deployed. Check the serving
+contract and package release status before using this source revision's controls.
 
 ### Other `client.oracle.*` methods
 

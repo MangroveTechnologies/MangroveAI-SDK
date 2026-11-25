@@ -674,7 +674,7 @@
             "type": "array"
           },
           "data_info": {
-            "description": "position_size_calc \"v3\" only: what the engine reports about the data the run used. Absent otherwise.",
+            "description": "Engine data metadata for v3 or audit evidence for a protected historical replay.",
             "type": "object",
             "x-mangrove-raw-json": true
           },
@@ -2158,7 +2158,7 @@
       "api1.EvaluateObjectRequest": {
         "properties": {
           "open_positions": {
-            "description": "Caller-owned open positions (stateless lane); authoritative set returned on the response",
+            "description": "Caller-owned open positions (stateless lane); authoritative set returned on the response. Protected net exits require entry_cash_flow: signed confirmed quote-currency cash flow including entry costs (negative long debit, positive short credit), and position_size as the actual held quantity after base-currency fees.",
             "items": {
               "type": "object",
               "x-mangrove-raw-json": true
@@ -2727,10 +2727,10 @@
             }
           },
           "exit_on_loss_after_bars": {
-            "description": "Exit a losing position after this many bars.",
+            "description": "Exit a losing position after this many bars. Under net_execution_costs, losing means estimated net P&L after entry and exit costs is negative.",
             "x-mangrove-authoring-schema": {
               "default": 1000,
-              "description": "Exit a losing position after this many bars.",
+              "description": "Exit a losing position after this many bars. Under net_execution_costs, losing means estimated net P&L after entry and exit costs is negative.",
               "maximum": 10000,
               "minimum": 1,
               "type": [
@@ -2743,10 +2743,10 @@
             }
           },
           "exit_on_profit_after_bars": {
-            "description": "Exit a winning position after this many bars.",
+            "description": "Exit a winning position after this many bars. Under net_execution_costs, winning and the profit threshold use estimated net P&L after entry and exit costs.",
             "x-mangrove-authoring-schema": {
               "default": 1000,
-              "description": "Exit a winning position after this many bars.",
+              "description": "Exit a winning position after this many bars. Under net_execution_costs, winning and the profit threshold use estimated net P&L after entry and exit costs.",
               "maximum": 10000,
               "minimum": 1,
               "type": [
@@ -3025,10 +3025,10 @@
             }
           },
           "profit_threshold_pct": {
-            "description": "Profit threshold (5%% default) above which a position counts as 'winning' for the time-based exit logic.",
+            "description": "Profit threshold (5% default) for the time-profit exit. net_execution_costs uses estimated net gain divided by entry cash cost; gross_price_distance retains reference-price return.",
             "x-mangrove-authoring-schema": {
               "default": 0.05,
-              "description": "Profit threshold (5%% default) above which a position counts as 'winning' for the time-based exit logic.",
+              "description": "Profit threshold (5% default) for the time-profit exit. net_execution_costs uses estimated net gain divided by entry cash cost; gross_price_distance retains reference-price return.",
               "maximum": 1.0,
               "minimum": 0.0,
               "type": [
@@ -3054,11 +3054,29 @@
               "x-mangrove-status": "tunable"
             }
           },
+          "reward_basis": {
+            "description": "Reward and profit-exit policy. net_execution_costs sizes against modeled cash loss at the volatility stop, solves the target after both legs of costs, and requires positive estimated net profit for TP, signal and time-profit exits. gross_price_distance preserves explicitly selected legacy behavior. Mandatory time-loss, maximum-hold, stop and emergency exits remain available.",
+            "x-mangrove-authoring-schema": {
+              "default": "net_execution_costs",
+              "description": "Reward and profit-exit policy. net_execution_costs sizes against modeled cash loss at the volatility stop, solves the target after both legs of costs, and requires positive estimated net profit for TP, signal and time-profit exits. gross_price_distance preserves explicitly selected legacy behavior. Mandatory time-loss, maximum-hold, stop and emergency exits remain available.",
+              "enum": [
+                "net_execution_costs",
+                "gross_price_distance",
+                null
+              ],
+              "type": [
+                "string",
+                "null"
+              ],
+              "x-mangrove-effect": "The net policy requires a known execution cost quote. A config that states no taker_fee_rate is resolved with canon's net_execution_defaults.taker_fee_rate; this is an estimate, not a guarantee of live fill profitability.",
+              "x-mangrove-status": "guardrail"
+            }
+          },
           "reward_factor": {
-            "description": "Risk/reward target. Take-profit distance = reward_factor * stop_distance.",
+            "description": "Reward multiple on the declared reward_basis. net_execution_costs solves take-profit for this multiple of modeled net stop loss after execution costs; gross_price_distance preserves the legacy price-distance target.",
             "x-mangrove-authoring-schema": {
               "default": 2,
-              "description": "Risk/reward target. Take-profit distance = reward_factor * stop_distance.",
+              "description": "Reward multiple on the declared reward_basis. net_execution_costs solves take-profit for this multiple of modeled net stop loss after execution costs; gross_price_distance preserves the legacy price-distance target.",
               "exclusiveMinimum": 0.0,
               "maximum": 100.0,
               "type": [
@@ -3071,9 +3089,9 @@
             }
           },
           "stop_gap_allowance": {
-            "description": "position_size_calc 'v3' only. Fraction of the stop price a stop fill is assumed to miss by when computing the worst-case loss of a trade (0.01 = 1%).",
+            "description": "Fraction of stop price allowed for an adverse gap when estimating stop loss (0.01 = 1%). Required for v3; also accepted by protected v1/v2. This is a modeling allowance, not a guaranteed bound on a market fill.",
             "x-mangrove-authoring-schema": {
-              "description": "position_size_calc 'v3' only. Fraction of the stop price a stop fill is assumed to miss by when computing the worst-case loss of a trade (0.01 = 1%).",
+              "description": "Fraction of stop price allowed for an adverse gap when estimating stop loss (0.01 = 1%). Required for v3; also accepted by protected v1/v2. This is a modeling allowance, not a guaranteed bound on a market fill.",
               "exclusiveMaximum": 1.0,
               "minimum": 0.0,
               "type": [
@@ -3103,9 +3121,9 @@
             }
           },
           "taker_fee_rate": {
-            "description": "position_size_calc 'v3' only. Venue fee per fill as a fraction of notional, charged in cash (0.004 = 0.4%).",
+            "description": "Venue fee per fill as a fraction of notional, charged in cash (0.004 = 0.4%). Required for v3. Under v1/v2 with reward_basis net_execution_costs a config that states none is costed at canon's net_execution_defaults.taker_fee_rate.",
             "x-mangrove-authoring-schema": {
-              "description": "position_size_calc 'v3' only. Venue fee per fill as a fraction of notional, charged in cash (0.004 = 0.4%).",
+              "description": "Venue fee per fill as a fraction of notional, charged in cash (0.004 = 0.4%). Required for v3. Under v1/v2 with reward_basis net_execution_costs a config that states none is costed at canon's net_execution_defaults.taker_fee_rate.",
               "exclusiveMaximum": 0.1,
               "minimum": 0.0,
               "type": [
@@ -3169,7 +3187,7 @@
           "volatility_tolerance": {
             "description": "Where on the ATR width the stop is taken, as the ATR_long-vs-ATR_short contribution ratio: 0 is all short end (0.5x the signal timeframe's ATR), 1 is all long end (2x the daily ATR). Interpolated geometrically, so the value is exactly the long end's share of log(stop) and each 0.1 is the same multiplicative step. Replaces atr_short_weight, atr_long_weight and atr_cap_multiplier.",
             "x-mangrove-authoring-schema": {
-              "default": 0.5,
+              "default": 0.75,
               "description": "Where on the ATR width the stop is taken, as the ATR_long-vs-ATR_short contribution ratio: 0 is all short end (0.5x the signal timeframe's ATR), 1 is all long end (2x the daily ATR). Interpolated geometrically, so the value is exactly the long end's share of log(stop) and each 0.1 is the same multiplicative step. Replaces atr_short_weight, atr_long_weight and atr_cap_multiplier.",
               "maximum": 1.0,
               "minimum": 0.0,
@@ -3400,7 +3418,7 @@
             },
             "exit_on_loss_after_bars": {
               "default": 1000,
-              "description": "Exit a losing position after this many bars.",
+              "description": "Exit a losing position after this many bars. Under net_execution_costs, losing means estimated net P&L after entry and exit costs is negative.",
               "maximum": 10000,
               "minimum": 1,
               "type": [
@@ -3413,7 +3431,7 @@
             },
             "exit_on_profit_after_bars": {
               "default": 1000,
-              "description": "Exit a winning position after this many bars.",
+              "description": "Exit a winning position after this many bars. Under net_execution_costs, winning and the profit threshold use estimated net P&L after entry and exit costs.",
               "maximum": 10000,
               "minimum": 1,
               "type": [
@@ -3641,7 +3659,7 @@
             },
             "profit_threshold_pct": {
               "default": 0.05,
-              "description": "Profit threshold (5%% default) above which a position counts as 'winning' for the time-based exit logic.",
+              "description": "Profit threshold (5% default) for the time-profit exit. net_execution_costs uses estimated net gain divided by entry cash cost; gross_price_distance retains reference-price return.",
               "maximum": 1.0,
               "minimum": 0.0,
               "type": [
@@ -3663,9 +3681,24 @@
               "x-mangrove-effect": "Higher lets the split drift further before a rebalance order, so fewer core orders; lower holds the split closer to target with more core orders and more fees.",
               "x-mangrove-status": "tunable"
             },
+            "reward_basis": {
+              "default": "net_execution_costs",
+              "description": "Reward and profit-exit policy. net_execution_costs sizes against modeled cash loss at the volatility stop, solves the target after both legs of costs, and requires positive estimated net profit for TP, signal and time-profit exits. gross_price_distance preserves explicitly selected legacy behavior. Mandatory time-loss, maximum-hold, stop and emergency exits remain available.",
+              "enum": [
+                "net_execution_costs",
+                "gross_price_distance",
+                null
+              ],
+              "type": [
+                "string",
+                "null"
+              ],
+              "x-mangrove-effect": "The net policy requires a known execution cost quote. A config that states no taker_fee_rate is resolved with canon's net_execution_defaults.taker_fee_rate; this is an estimate, not a guarantee of live fill profitability.",
+              "x-mangrove-status": "guardrail"
+            },
             "reward_factor": {
               "default": 2,
-              "description": "Risk/reward target. Take-profit distance = reward_factor * stop_distance.",
+              "description": "Reward multiple on the declared reward_basis. net_execution_costs solves take-profit for this multiple of modeled net stop loss after execution costs; gross_price_distance preserves the legacy price-distance target.",
               "exclusiveMinimum": 0.0,
               "maximum": 100.0,
               "type": [
@@ -3677,7 +3710,7 @@
               "x-mangrove-status": "tunable"
             },
             "stop_gap_allowance": {
-              "description": "position_size_calc 'v3' only. Fraction of the stop price a stop fill is assumed to miss by when computing the worst-case loss of a trade (0.01 = 1%).",
+              "description": "Fraction of stop price allowed for an adverse gap when estimating stop loss (0.01 = 1%). Required for v3; also accepted by protected v1/v2. This is a modeling allowance, not a guaranteed bound on a market fill.",
               "exclusiveMaximum": 1.0,
               "minimum": 0.0,
               "type": [
@@ -3703,7 +3736,7 @@
               "x-mangrove-status": "guardrail"
             },
             "taker_fee_rate": {
-              "description": "position_size_calc 'v3' only. Venue fee per fill as a fraction of notional, charged in cash (0.004 = 0.4%).",
+              "description": "Venue fee per fill as a fraction of notional, charged in cash (0.004 = 0.4%). Required for v3. Under v1/v2 with reward_basis net_execution_costs a config that states none is costed at canon's net_execution_defaults.taker_fee_rate.",
               "exclusiveMaximum": 0.1,
               "minimum": 0.0,
               "type": [
@@ -3755,7 +3788,7 @@
               "x-mangrove-status": "unused"
             },
             "volatility_tolerance": {
-              "default": 0.5,
+              "default": 0.75,
               "description": "Where on the ATR width the stop is taken, as the ATR_long-vs-ATR_short contribution ratio: 0 is all short end (0.5x the signal timeframe's ATR), 1 is all long end (2x the daily ATR). Interpolated geometrically, so the value is exactly the long end's share of log(stop) and each 0.1 is the same multiplicative step. Replaces atr_short_weight, atr_long_weight and atr_cap_multiplier.",
               "maximum": 1.0,
               "minimum": 0.0,
@@ -3859,6 +3892,139 @@
         },
         "required": [
           "valid"
+        ],
+        "type": "object"
+      },
+      "api1.ExitQuoteRequest": {
+        "properties": {
+          "base_fee_bps": {
+            "description": "Maximum possible base-currency percentage fee; zero only when none can apply.",
+            "type": "string"
+          },
+          "base_fee_increment": {
+            "description": "Maximum base-currency rounding or minimum fee quantum per fill; zero only when none can apply.",
+            "type": "string"
+          },
+          "candidate_price": {
+            "description": "Fresh executable best bid in quote currency per base unit.",
+            "type": "string"
+          },
+          "entry_cash_flow": {
+            "description": "Negative confirmed quote cash spent on all remaining held quantity, including entry costs.",
+            "type": "string"
+          },
+          "exit_fee_bps": {
+            "description": "Conservative maximum percentage fee in basis points, below 10000.",
+            "type": "string"
+          },
+          "exit_fixed_fee_quote": {
+            "default": "0",
+            "description": "Known maximum extra fixed quote charge per fill; zero only where none applies.",
+            "type": "string"
+          },
+          "exit_quantity": {
+            "description": "Proposed base quantity, at most held quantity and exactly lot-rounded.",
+            "type": "string"
+          },
+          "held_quantity": {
+            "description": "Confirmed remaining base quantity after base-currency fees.",
+            "type": "string"
+          },
+          "max_fills": {
+            "default": "50",
+            "description": "Whole number of fills the order may execute in; cash rounding is reserved once per fill. Defaults to 50.",
+            "type": "string"
+          },
+          "price_increment": {
+            "description": "Positive venue price tick in quote currency per base unit.",
+            "type": "string"
+          },
+          "quantity_increment": {
+            "description": "Positive minimum fill quantity increment in base units.",
+            "type": "string"
+          },
+          "quote_increment": {
+            "description": "Positive cash quantum bounding proceeds and fee rounding per fill.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "base_fee_bps",
+          "base_fee_increment",
+          "candidate_price",
+          "entry_cash_flow",
+          "exit_fee_bps",
+          "exit_quantity",
+          "held_quantity",
+          "price_increment",
+          "quantity_increment",
+          "quote_increment"
+        ],
+        "type": "object"
+      },
+      "api1.ExitQuoteResponse": {
+        "properties": {
+          "allocated_entry_cost_quote": {
+            "description": "Confirmed remaining entry cost attributable to the proposed quantity.",
+            "type": "string"
+          },
+          "base_fee_cost_allowance_quote": {
+            "description": "Entry cost attributable to the worst possible base fee debit.",
+            "type": "string"
+          },
+          "candidate_net_profit_quote": {
+            "description": "Full proposed quantity profit lower bound at the candidate price.",
+            "type": "string"
+          },
+          "cash_rounding_allowance_quote": {
+            "description": "Proceeds rounding, fee rounding, and fixed-cost allowance for the bounded number of fills.",
+            "type": "string"
+          },
+          "direction": {
+            "description": "Long spot sale; other directions are unsupported.",
+            "type": "string"
+          },
+          "exit_quantity": {
+            "description": "Safe sale quantity, clamped to fund base fees from this position alone.",
+            "type": "string"
+          },
+          "minimum_exit_price": {
+            "description": "Strictly profitable sell limit, rounded up to a venue tick.",
+            "type": "string"
+          },
+          "minimum_net_profit_quote": {
+            "description": "Full proposed quantity profit lower bound at the minimum price.",
+            "type": "string"
+          },
+          "profitable": {
+            "description": "Whether the candidate bid reaches the executable minimum price.",
+            "type": "boolean"
+          },
+          "reserved_base_fee_quantity": {
+            "description": "Base quantity reserved from this position to cover fee fallback.",
+            "type": "string"
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "version": {
+            "description": "Quote arithmetic contract version.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "allocated_entry_cost_quote",
+          "base_fee_cost_allowance_quote",
+          "candidate_net_profit_quote",
+          "cash_rounding_allowance_quote",
+          "direction",
+          "exit_quantity",
+          "minimum_exit_price",
+          "minimum_net_profit_quote",
+          "profitable",
+          "reserved_base_fee_quantity",
+          "success",
+          "version"
         ],
         "type": "object"
       },
@@ -6328,7 +6494,7 @@
             "type": "array"
           },
           "data_info": {
-            "description": "Engine data metadata; present for v3 runs",
+            "description": "Engine data metadata for v3 or audit evidence for a protected historical replay.",
             "type": "object",
             "x-mangrove-raw-json": true
           },
@@ -7627,6 +7793,11 @@
             "description": "ISO timestamp when run was created",
             "type": "string"
           },
+          "data_info": {
+            "description": "Audit evidence when a protected historical replay completes",
+            "type": "object",
+            "x-mangrove-raw-json": true
+          },
           "equity_curve": {
             "description": "Timestamped marked account equity samples; time is Unix seconds UTC",
             "type": "object",
@@ -8148,10 +8319,10 @@
             }
           },
           "exit_on_loss_after_bars": {
-            "description": "Exit a losing position after this many bars.",
+            "description": "Exit a losing position after this many bars. Under net_execution_costs, losing means estimated net P&L after entry and exit costs is negative.",
             "x-mangrove-authoring-schema": {
               "default": 1000,
-              "description": "Exit a losing position after this many bars.",
+              "description": "Exit a losing position after this many bars. Under net_execution_costs, losing means estimated net P&L after entry and exit costs is negative.",
               "maximum": 10000,
               "minimum": 1,
               "type": [
@@ -8164,10 +8335,10 @@
             }
           },
           "exit_on_profit_after_bars": {
-            "description": "Exit a winning position after this many bars.",
+            "description": "Exit a winning position after this many bars. Under net_execution_costs, winning and the profit threshold use estimated net P&L after entry and exit costs.",
             "x-mangrove-authoring-schema": {
               "default": 1000,
-              "description": "Exit a winning position after this many bars.",
+              "description": "Exit a winning position after this many bars. Under net_execution_costs, winning and the profit threshold use estimated net P&L after entry and exit costs.",
               "maximum": 10000,
               "minimum": 1,
               "type": [
@@ -8446,10 +8617,10 @@
             }
           },
           "profit_threshold_pct": {
-            "description": "Profit threshold (5%% default) above which a position counts as 'winning' for the time-based exit logic.",
+            "description": "Profit threshold (5% default) for the time-profit exit. net_execution_costs uses estimated net gain divided by entry cash cost; gross_price_distance retains reference-price return.",
             "x-mangrove-authoring-schema": {
               "default": 0.05,
-              "description": "Profit threshold (5%% default) above which a position counts as 'winning' for the time-based exit logic.",
+              "description": "Profit threshold (5% default) for the time-profit exit. net_execution_costs uses estimated net gain divided by entry cash cost; gross_price_distance retains reference-price return.",
               "maximum": 1.0,
               "minimum": 0.0,
               "type": [
@@ -8475,11 +8646,29 @@
               "x-mangrove-status": "tunable"
             }
           },
+          "reward_basis": {
+            "description": "Reward and profit-exit policy. net_execution_costs sizes against modeled cash loss at the volatility stop, solves the target after both legs of costs, and requires positive estimated net profit for TP, signal and time-profit exits. gross_price_distance preserves explicitly selected legacy behavior. Mandatory time-loss, maximum-hold, stop and emergency exits remain available.",
+            "x-mangrove-authoring-schema": {
+              "default": "net_execution_costs",
+              "description": "Reward and profit-exit policy. net_execution_costs sizes against modeled cash loss at the volatility stop, solves the target after both legs of costs, and requires positive estimated net profit for TP, signal and time-profit exits. gross_price_distance preserves explicitly selected legacy behavior. Mandatory time-loss, maximum-hold, stop and emergency exits remain available.",
+              "enum": [
+                "net_execution_costs",
+                "gross_price_distance",
+                null
+              ],
+              "type": [
+                "string",
+                "null"
+              ],
+              "x-mangrove-effect": "The net policy requires a known execution cost quote. A config that states no taker_fee_rate is resolved with canon's net_execution_defaults.taker_fee_rate; this is an estimate, not a guarantee of live fill profitability.",
+              "x-mangrove-status": "guardrail"
+            }
+          },
           "reward_factor": {
-            "description": "Risk/reward target. Take-profit distance = reward_factor * stop_distance.",
+            "description": "Reward multiple on the declared reward_basis. net_execution_costs solves take-profit for this multiple of modeled net stop loss after execution costs; gross_price_distance preserves the legacy price-distance target.",
             "x-mangrove-authoring-schema": {
               "default": 2,
-              "description": "Risk/reward target. Take-profit distance = reward_factor * stop_distance.",
+              "description": "Reward multiple on the declared reward_basis. net_execution_costs solves take-profit for this multiple of modeled net stop loss after execution costs; gross_price_distance preserves the legacy price-distance target.",
               "exclusiveMinimum": 0.0,
               "maximum": 100.0,
               "type": [
@@ -8492,9 +8681,9 @@
             }
           },
           "stop_gap_allowance": {
-            "description": "position_size_calc 'v3' only. Fraction of the stop price a stop fill is assumed to miss by when computing the worst-case loss of a trade (0.01 = 1%).",
+            "description": "Fraction of stop price allowed for an adverse gap when estimating stop loss (0.01 = 1%). Required for v3; also accepted by protected v1/v2. This is a modeling allowance, not a guaranteed bound on a market fill.",
             "x-mangrove-authoring-schema": {
-              "description": "position_size_calc 'v3' only. Fraction of the stop price a stop fill is assumed to miss by when computing the worst-case loss of a trade (0.01 = 1%).",
+              "description": "Fraction of stop price allowed for an adverse gap when estimating stop loss (0.01 = 1%). Required for v3; also accepted by protected v1/v2. This is a modeling allowance, not a guaranteed bound on a market fill.",
               "exclusiveMaximum": 1.0,
               "minimum": 0.0,
               "type": [
@@ -8524,9 +8713,9 @@
             }
           },
           "taker_fee_rate": {
-            "description": "position_size_calc 'v3' only. Venue fee per fill as a fraction of notional, charged in cash (0.004 = 0.4%).",
+            "description": "Venue fee per fill as a fraction of notional, charged in cash (0.004 = 0.4%). Required for v3. Under v1/v2 with reward_basis net_execution_costs a config that states none is costed at canon's net_execution_defaults.taker_fee_rate.",
             "x-mangrove-authoring-schema": {
-              "description": "position_size_calc 'v3' only. Venue fee per fill as a fraction of notional, charged in cash (0.004 = 0.4%).",
+              "description": "Venue fee per fill as a fraction of notional, charged in cash (0.004 = 0.4%). Required for v3. Under v1/v2 with reward_basis net_execution_costs a config that states none is costed at canon's net_execution_defaults.taker_fee_rate.",
               "exclusiveMaximum": 0.1,
               "minimum": 0.0,
               "type": [
@@ -8590,7 +8779,7 @@
           "volatility_tolerance": {
             "description": "Where on the ATR width the stop is taken, as the ATR_long-vs-ATR_short contribution ratio: 0 is all short end (0.5x the signal timeframe's ATR), 1 is all long end (2x the daily ATR). Interpolated geometrically, so the value is exactly the long end's share of log(stop) and each 0.1 is the same multiplicative step. Replaces atr_short_weight, atr_long_weight and atr_cap_multiplier.",
             "x-mangrove-authoring-schema": {
-              "default": 0.5,
+              "default": 0.75,
               "description": "Where on the ATR width the stop is taken, as the ATR_long-vs-ATR_short contribution ratio: 0 is all short end (0.5x the signal timeframe's ATR), 1 is all long end (2x the daily ATR). Interpolated geometrically, so the value is exactly the long end's share of log(stop) and each 0.1 is the same multiplicative step. Replaces atr_short_weight, atr_long_weight and atr_cap_multiplier.",
               "maximum": 1.0,
               "minimum": 0.0,
@@ -8821,7 +9010,7 @@
             },
             "exit_on_loss_after_bars": {
               "default": 1000,
-              "description": "Exit a losing position after this many bars.",
+              "description": "Exit a losing position after this many bars. Under net_execution_costs, losing means estimated net P&L after entry and exit costs is negative.",
               "maximum": 10000,
               "minimum": 1,
               "type": [
@@ -8834,7 +9023,7 @@
             },
             "exit_on_profit_after_bars": {
               "default": 1000,
-              "description": "Exit a winning position after this many bars.",
+              "description": "Exit a winning position after this many bars. Under net_execution_costs, winning and the profit threshold use estimated net P&L after entry and exit costs.",
               "maximum": 10000,
               "minimum": 1,
               "type": [
@@ -9062,7 +9251,7 @@
             },
             "profit_threshold_pct": {
               "default": 0.05,
-              "description": "Profit threshold (5%% default) above which a position counts as 'winning' for the time-based exit logic.",
+              "description": "Profit threshold (5% default) for the time-profit exit. net_execution_costs uses estimated net gain divided by entry cash cost; gross_price_distance retains reference-price return.",
               "maximum": 1.0,
               "minimum": 0.0,
               "type": [
@@ -9084,9 +9273,24 @@
               "x-mangrove-effect": "Higher lets the split drift further before a rebalance order, so fewer core orders; lower holds the split closer to target with more core orders and more fees.",
               "x-mangrove-status": "tunable"
             },
+            "reward_basis": {
+              "default": "net_execution_costs",
+              "description": "Reward and profit-exit policy. net_execution_costs sizes against modeled cash loss at the volatility stop, solves the target after both legs of costs, and requires positive estimated net profit for TP, signal and time-profit exits. gross_price_distance preserves explicitly selected legacy behavior. Mandatory time-loss, maximum-hold, stop and emergency exits remain available.",
+              "enum": [
+                "net_execution_costs",
+                "gross_price_distance",
+                null
+              ],
+              "type": [
+                "string",
+                "null"
+              ],
+              "x-mangrove-effect": "The net policy requires a known execution cost quote. A config that states no taker_fee_rate is resolved with canon's net_execution_defaults.taker_fee_rate; this is an estimate, not a guarantee of live fill profitability.",
+              "x-mangrove-status": "guardrail"
+            },
             "reward_factor": {
               "default": 2,
-              "description": "Risk/reward target. Take-profit distance = reward_factor * stop_distance.",
+              "description": "Reward multiple on the declared reward_basis. net_execution_costs solves take-profit for this multiple of modeled net stop loss after execution costs; gross_price_distance preserves the legacy price-distance target.",
               "exclusiveMinimum": 0.0,
               "maximum": 100.0,
               "type": [
@@ -9098,7 +9302,7 @@
               "x-mangrove-status": "tunable"
             },
             "stop_gap_allowance": {
-              "description": "position_size_calc 'v3' only. Fraction of the stop price a stop fill is assumed to miss by when computing the worst-case loss of a trade (0.01 = 1%).",
+              "description": "Fraction of stop price allowed for an adverse gap when estimating stop loss (0.01 = 1%). Required for v3; also accepted by protected v1/v2. This is a modeling allowance, not a guaranteed bound on a market fill.",
               "exclusiveMaximum": 1.0,
               "minimum": 0.0,
               "type": [
@@ -9124,7 +9328,7 @@
               "x-mangrove-status": "guardrail"
             },
             "taker_fee_rate": {
-              "description": "position_size_calc 'v3' only. Venue fee per fill as a fraction of notional, charged in cash (0.004 = 0.4%).",
+              "description": "Venue fee per fill as a fraction of notional, charged in cash (0.004 = 0.4%). Required for v3. Under v1/v2 with reward_basis net_execution_costs a config that states none is costed at canon's net_execution_defaults.taker_fee_rate.",
               "exclusiveMaximum": 0.1,
               "minimum": 0.0,
               "type": [
@@ -9176,7 +9380,7 @@
               "x-mangrove-status": "unused"
             },
             "volatility_tolerance": {
-              "default": 0.5,
+              "default": 0.75,
               "description": "Where on the ATR width the stop is taken, as the ATR_long-vs-ATR_short contribution ratio: 0 is all short end (0.5x the signal timeframe's ATR), 1 is all long end (2x the daily ATR). Interpolated geometrically, so the value is exactly the long end's share of log(stop) and each 0.1 is the same multiplicative step. Replaces atr_short_weight, atr_long_weight and atr_cap_multiplier.",
               "maximum": 1.0,
               "minimum": 0.0,
@@ -10811,7 +11015,7 @@
     },
     "/api/v1/backtesting/backtest/bulk": {
       "post": {
-        "description": "Market data is fetched once per unique (asset, timeframe) pair and\nshared across all strategies that need the same data.  For example,\nfour BTC/1h strategies result in a single API call for BTC 1h data.\n\nStrategy sources\n----------------\nProvide exactly one of:\n- **strategy_ids** -- list of UUIDs from the strategies table. Strategies\n  are loaded from the database and must belong to the caller's org.\n- **strategy_configs** -- list of strategy config objects in the canonical\n  entry/exit format (same structure as the ``strategy_json`` field in\n  ``POST /backtest``, but already parsed as JSON objects, not strings).\n\nDate range\n----------\nBoth ``start_date`` and ``end_date`` are required.\n\nExecution config\n----------------\n``execution_config`` is optional and is applied to every strategy in the\nbatch.  Per-strategy execution_config embedded inside each strategy record\nis merged on top of this value.  If omitted entirely, defaults from\n``trading_defaults.json`` are used (atr_period=14, volatility_tolerance=0.5).\n\nFailures\n--------\nIndividual strategy failures are captured per-result and do not abort\nthe batch.  Check ``results[i].success`` and ``results[i].error`` for\neach strategy.\n\nSubscription counting\n---------------------\nEach strategy result that produced at least one round trip\n(``trade_count >= 2``) increments the backtest usage counter once; a\nresult below that threshold is a dry run or a config error and is NOT\ncharged, as are technical failures (engine-busy, oracle error).  See\n``docs/architecture/billable-endpoints.md`` for rationale and\n``services.counts_against_quota`` for the rule itself.  Accounting lives\nin ``services.run_bulk_backtest``, not in this route.  The total\nrequired quota is checked upfront.  The response includes\n``X-Quota-Counted-Total`` and ``X-Quota-Counted-Of`` headers so callers\ncan tell how many results actually counted.",
+        "description": "Market data is fetched once per unique (asset, timeframe) pair and\nshared across all strategies that need the same data.  For example,\nfour BTC/1h strategies result in a single API call for BTC 1h data.\n\nStrategy sources\n----------------\nProvide exactly one of:\n- **strategy_ids** -- list of UUIDs from the strategies table. Strategies\n  are loaded from the database and must belong to the caller's org.\n- **strategy_configs** -- list of strategy config objects in the canonical\n  entry/exit format (same structure as the ``strategy_json`` field in\n  ``POST /backtest``, but already parsed as JSON objects, not strings).\n\nDate range\n----------\nBoth ``start_date`` and ``end_date`` are required.\n\nExecution config\n----------------\n``execution_config`` is optional and is applied to every strategy in the\nbatch.  Per-strategy execution_config embedded inside each strategy record\nis merged on top of this value.  If omitted entirely, defaults from\n``trading_defaults.json`` are used (atr_period=14, volatility_tolerance=0.75).\n\nFailures\n--------\nIndividual strategy failures are captured per-result and do not abort\nthe batch.  Check ``results[i].success`` and ``results[i].error`` for\neach strategy.\n\nSubscription counting\n---------------------\nEach strategy result that produced at least one round trip\n(``trade_count >= 2``) increments the backtest usage counter once; a\nresult below that threshold is a dry run or a config error and is NOT\ncharged, as are technical failures (engine-busy, oracle error).  See\n``docs/architecture/billable-endpoints.md`` for rationale and\n``services.counts_against_quota`` for the rule itself.  Accounting lives\nin ``services.run_bulk_backtest``, not in this route.  The total\nrequired quota is checked upfront.  The response includes\n``X-Quota-Counted-Total`` and ``X-Quota-Counted-Of`` headers so callers\ncan tell how many results actually counted.",
         "operationId": "api1_post_bulk_backtest",
         "requestBody": {
           "content": {
@@ -11397,7 +11601,7 @@
     },
     "/api/v1/backtests/bulk": {
       "post": {
-        "description": "Market data is fetched once per unique (asset, timeframe) pair and\nshared across all strategies that need the same data.  For example,\nfour BTC/1h strategies result in a single API call for BTC 1h data.\n\nStrategy sources\n----------------\nProvide exactly one of:\n- **strategy_ids** -- list of UUIDs from the strategies table. Strategies\n  are loaded from the database and must belong to the caller's org.\n- **strategy_configs** -- list of strategy config objects in the canonical\n  entry/exit format (same structure as the ``strategy_json`` field in\n  ``POST /backtest``, but already parsed as JSON objects, not strings).\n\nDate range\n----------\nBoth ``start_date`` and ``end_date`` are required.\n\nExecution config\n----------------\n``execution_config`` is optional and is applied to every strategy in the\nbatch.  Per-strategy execution_config embedded inside each strategy record\nis merged on top of this value.  If omitted entirely, defaults from\n``trading_defaults.json`` are used (atr_period=14, volatility_tolerance=0.5).\n\nFailures\n--------\nIndividual strategy failures are captured per-result and do not abort\nthe batch.  Check ``results[i].success`` and ``results[i].error`` for\neach strategy.\n\nSubscription counting\n---------------------\nEach strategy result that produced at least one round trip\n(``trade_count >= 2``) increments the backtest usage counter once; a\nresult below that threshold is a dry run or a config error and is NOT\ncharged, as are technical failures (engine-busy, oracle error).  See\n``docs/architecture/billable-endpoints.md`` for rationale and\n``services.counts_against_quota`` for the rule itself.  Accounting lives\nin ``services.run_bulk_backtest``, not in this route.  The total\nrequired quota is checked upfront.  The response includes\n``X-Quota-Counted-Total`` and ``X-Quota-Counted-Of`` headers so callers\ncan tell how many results actually counted.",
+        "description": "Market data is fetched once per unique (asset, timeframe) pair and\nshared across all strategies that need the same data.  For example,\nfour BTC/1h strategies result in a single API call for BTC 1h data.\n\nStrategy sources\n----------------\nProvide exactly one of:\n- **strategy_ids** -- list of UUIDs from the strategies table. Strategies\n  are loaded from the database and must belong to the caller's org.\n- **strategy_configs** -- list of strategy config objects in the canonical\n  entry/exit format (same structure as the ``strategy_json`` field in\n  ``POST /backtest``, but already parsed as JSON objects, not strings).\n\nDate range\n----------\nBoth ``start_date`` and ``end_date`` are required.\n\nExecution config\n----------------\n``execution_config`` is optional and is applied to every strategy in the\nbatch.  Per-strategy execution_config embedded inside each strategy record\nis merged on top of this value.  If omitted entirely, defaults from\n``trading_defaults.json`` are used (atr_period=14, volatility_tolerance=0.75).\n\nFailures\n--------\nIndividual strategy failures are captured per-result and do not abort\nthe batch.  Check ``results[i].success`` and ``results[i].error`` for\neach strategy.\n\nSubscription counting\n---------------------\nEach strategy result that produced at least one round trip\n(``trade_count >= 2``) increments the backtest usage counter once; a\nresult below that threshold is a dry run or a config error and is NOT\ncharged, as are technical failures (engine-busy, oracle error).  See\n``docs/architecture/billable-endpoints.md`` for rationale and\n``services.counts_against_quota`` for the rule itself.  Accounting lives\nin ``services.run_bulk_backtest``, not in this route.  The total\nrequired quota is checked upfront.  The response includes\n``X-Quota-Counted-Total`` and ``X-Quota-Counted-Of`` headers so callers\ncan tell how many results actually counted.",
         "operationId": "api1_post_backtests_bulk_alias",
         "requestBody": {
           "content": {
@@ -11853,7 +12057,7 @@
     },
     "/api/v1/config/execution-config-schema": {
       "get": {
-        "description": "`defaults` is the flattened canon config. `param_glossary` gives, per parameter,\nits `status` -- tunable (strategy character), guardrail (account/size bound),\ngated (only effective behind `gate_field`), unused (no runtime effect) or\nsuperseded -- with `description`, `effect` and bounds (`type`, `min`, `max`,\n`min_exclusive`, `max_exclusive`, `choices`). `transaction_costs` holds fee and\nslippage, which are canon and not settable per strategy. Authenticated and\nbillable, unlike the two plain defaults reads above: this is the authoring\ncontract the copilot's get_execution_config_schema tool serves.",
+        "description": "`defaults` is the flattened canon config. `param_glossary` gives, per parameter,\nits `status` -- tunable (strategy character), guardrail (account/size bound),\ngated (only effective behind `gate_field`), unused (no runtime effect) or\nsuperseded -- with `description`, `effect` and bounds (`type`, `min`, `max`,\n`min_exclusive`, `max_exclusive`, `choices`). `transaction_costs` holds the\nsimulation performance-fee and slippage defaults. Protected execution also\nneeds a venue cost quote; `taker_fee_rate` is the separate per-fill venue\nfee input, resolved from canon when a config states none. Authenticated and\nbillable, unlike the two plain defaults reads above: this is the authoring\ncontract the copilot's get_execution_config_schema tool serves.",
         "operationId": "api1_get_execution_config_schema",
         "responses": {
           "200": {
@@ -13349,7 +13553,7 @@
         ],
         "x-payment-info": {
           "price": {
-            "amount": "0.010000",
+            "amount": "0.003000",
             "currency": "USD",
             "mode": "fixed"
           },
@@ -13484,7 +13688,7 @@
         ],
         "x-payment-info": {
           "price": {
-            "amount": "0.010000",
+            "amount": "0.050000",
             "currency": "USD",
             "mode": "fixed"
           },
@@ -13770,7 +13974,7 @@
         ],
         "x-payment-info": {
           "price": {
-            "amount": "0.010000",
+            "amount": "0.003000",
             "currency": "USD",
             "mode": "fixed"
           },
@@ -13864,7 +14068,7 @@
         ],
         "x-payment-info": {
           "price": {
-            "amount": "0.010000",
+            "amount": "0.003000",
             "currency": "USD",
             "mode": "fixed"
           },
@@ -13937,7 +14141,7 @@
         ],
         "x-payment-info": {
           "price": {
-            "amount": "0.005000",
+            "amount": "0.003000",
             "currency": "USD",
             "mode": "fixed"
           },
@@ -14097,7 +14301,7 @@
         ],
         "x-payment-info": {
           "price": {
-            "amount": "0.010000",
+            "amount": "0.050000",
             "currency": "USD",
             "mode": "fixed"
           },
@@ -14958,6 +15162,54 @@
             }
           ]
         }
+      }
+    },
+    "/api/v1/execution/exit-quote": {
+      "post": {
+        "description": "Calculate a strictly profitable minimum sell limit from a confirmed signed long-entry cash flow and bounded venue costs, including per-fill cash rounding. Caller-supplied decimals are quote-currency amounts or base quantities. This arithmetic does not verify an exchange receipt or authorize trading.",
+        "operationId": "api1_post_profitable_exit_quote",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/api1.ExitQuoteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api1.ExitQuoteResponse"
+                }
+              }
+            },
+            "description": "Quote computed; not an order authorization"
+          },
+          "400": {
+            "description": "Invalid receipt or venue bounds"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Missing strategy-read permission"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        },
+        "security": [
+          {
+            "MangroveBearer": []
+          }
+        ],
+        "tags": [
+          "execution"
+        ]
       }
     },
     "/api/v1/execution/paper/{strategy_id}": {
@@ -19202,7 +19454,7 @@
         ],
         "x-payment-info": {
           "price": {
-            "amount": "1.000000",
+            "amount": "0.100000",
             "currency": "USD",
             "mode": "fixed"
           },
@@ -19314,7 +19566,7 @@
         ],
         "x-payment-info": {
           "price": {
-            "amount": "1.000000",
+            "amount": "0.100000",
             "currency": "USD",
             "mode": "fixed"
           },
@@ -20911,6 +21163,18 @@
               "description": "Only runs from windows of this market character, e.g. bear or mega_bull. Several are one comma-separated string, e.g. \"bull,super_bull\", and a run matching any of them counts. What a run did in one kind of market says little about another.",
               "type": "string"
             },
+            "max_avg_closed_trade_return": {
+              "description": "Maximum mean net return per closed trade.",
+              "type": "number"
+            },
+            "max_avg_daily_return": {
+              "description": "Maximum mean daily return in percent, inclusive.",
+              "type": "number"
+            },
+            "max_days": {
+              "description": "Maximum recorded backtest days, inclusive.",
+              "type": "integer"
+            },
             "max_delta_vs_asset": {
               "description": "Only runs beating their own asset by at most this much.",
               "type": "number"
@@ -20935,6 +21199,10 @@
               "description": "Only runs at or below this Sharpe ratio.",
               "type": "number"
             },
+            "max_simple_annualized_return": {
+              "description": "Maximum simple annualized return percent.",
+              "type": "number"
+            },
             "max_trades": {
               "description": "Only runs at or below this trade count. Pairs with min_trades to ask for a band rather than a floor.",
               "type": "integer"
@@ -20942,6 +21210,22 @@
             "max_win_rate": {
               "description": "Only runs at or below this win rate.",
               "type": "number"
+            },
+            "min_avg_closed_trade_return": {
+              "description": "Minimum mean net return per closed trade in percent of absolute entry notional. Unknown histories stay null.",
+              "type": "number"
+            },
+            "min_avg_daily_return": {
+              "description": "Minimum mean daily return in percent, inclusive.",
+              "type": "number"
+            },
+            "min_closed_trades": {
+              "description": "Minimum number of closed trades, inclusive.",
+              "type": "integer"
+            },
+            "min_days": {
+              "description": "Minimum recorded backtest days, inclusive. An explicit value overrides the conditional IRR duration default, including zero.",
+              "type": "integer"
             },
             "min_delta_vs_asset": {
               "description": "Only runs beating buy-and-hold on their own asset by at least this much.",
@@ -20961,6 +21245,10 @@
             },
             "min_sharpe": {
               "description": "Only runs at or above this Sharpe ratio.",
+              "type": "number"
+            },
+            "min_simple_annualized_return": {
+              "description": "Minimum total return / recorded days * 365, in percent; simple annualization, not IRR or compounding.",
               "type": "number"
             },
             "min_trades": {
@@ -21003,7 +21291,7 @@
               "type": "string"
             },
             "sort_by": {
-              "description": "The metric to order by, e.g. sharpe_ratio, sortino_ratio, irr_annualized, total_return, max_drawdown, total_trades. Required, because the choice IS the question being asked.",
+              "description": "The metric to order by, e.g. sharpe_ratio, sortino_ratio, irr_annualized, total_return, avg_daily_return, num_days, simple_annualized_return, avg_closed_trade_return, closed_trade_count, max_drawdown, total_trades. Required, because the choice IS the question being asked.",
               "type": "string"
             },
             "trend": {
@@ -21013,6 +21301,11 @@
             "trigger_name": {
               "description": "Only runs whose entry trigger is this signal.",
               "type": "string"
+            },
+            "use_irr_duration_default": {
+              "default": true,
+              "description": "When true, Oracle uses a 182-day minimum only if min_irr is supplied and min_days is omitted. To clear that default, pass false and omit min_days. Read effective_filters.",
+              "type": "boolean"
             },
             "volatility": {
               "description": "Only runs from windows of this volatility band, e.g. low; several comma-separated, any of them counts.",
@@ -22798,10 +23091,10 @@
                   }
                 },
                 "exit_on_loss_after_bars": {
-                  "description": "Exit a losing position after this many bars.",
+                  "description": "Exit a losing position after this many bars. Under net_execution_costs, losing means estimated net P&L after entry and exit costs is negative.",
                   "x-mangrove-authoring-schema": {
                     "default": 1000,
-                    "description": "Exit a losing position after this many bars.",
+                    "description": "Exit a losing position after this many bars. Under net_execution_costs, losing means estimated net P&L after entry and exit costs is negative.",
                     "maximum": 10000,
                     "minimum": 1,
                     "type": [
@@ -22814,10 +23107,10 @@
                   }
                 },
                 "exit_on_profit_after_bars": {
-                  "description": "Exit a winning position after this many bars.",
+                  "description": "Exit a winning position after this many bars. Under net_execution_costs, winning and the profit threshold use estimated net P&L after entry and exit costs.",
                   "x-mangrove-authoring-schema": {
                     "default": 1000,
-                    "description": "Exit a winning position after this many bars.",
+                    "description": "Exit a winning position after this many bars. Under net_execution_costs, winning and the profit threshold use estimated net P&L after entry and exit costs.",
                     "maximum": 10000,
                     "minimum": 1,
                     "type": [
@@ -23096,10 +23389,10 @@
                   }
                 },
                 "profit_threshold_pct": {
-                  "description": "Profit threshold (5%% default) above which a position counts as 'winning' for the time-based exit logic.",
+                  "description": "Profit threshold (5% default) for the time-profit exit. net_execution_costs uses estimated net gain divided by entry cash cost; gross_price_distance retains reference-price return.",
                   "x-mangrove-authoring-schema": {
                     "default": 0.05,
-                    "description": "Profit threshold (5%% default) above which a position counts as 'winning' for the time-based exit logic.",
+                    "description": "Profit threshold (5% default) for the time-profit exit. net_execution_costs uses estimated net gain divided by entry cash cost; gross_price_distance retains reference-price return.",
                     "maximum": 1.0,
                     "minimum": 0.0,
                     "type": [
@@ -23125,11 +23418,29 @@
                     "x-mangrove-status": "tunable"
                   }
                 },
+                "reward_basis": {
+                  "description": "Reward and profit-exit policy. net_execution_costs sizes against modeled cash loss at the volatility stop, solves the target after both legs of costs, and requires positive estimated net profit for TP, signal and time-profit exits. gross_price_distance preserves explicitly selected legacy behavior. Mandatory time-loss, maximum-hold, stop and emergency exits remain available.",
+                  "x-mangrove-authoring-schema": {
+                    "default": "net_execution_costs",
+                    "description": "Reward and profit-exit policy. net_execution_costs sizes against modeled cash loss at the volatility stop, solves the target after both legs of costs, and requires positive estimated net profit for TP, signal and time-profit exits. gross_price_distance preserves explicitly selected legacy behavior. Mandatory time-loss, maximum-hold, stop and emergency exits remain available.",
+                    "enum": [
+                      "net_execution_costs",
+                      "gross_price_distance",
+                      null
+                    ],
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "x-mangrove-effect": "The net policy requires a known execution cost quote. A config that states no taker_fee_rate is resolved with canon's net_execution_defaults.taker_fee_rate; this is an estimate, not a guarantee of live fill profitability.",
+                    "x-mangrove-status": "guardrail"
+                  }
+                },
                 "reward_factor": {
-                  "description": "Risk/reward target. Take-profit distance = reward_factor * stop_distance.",
+                  "description": "Reward multiple on the declared reward_basis. net_execution_costs solves take-profit for this multiple of modeled net stop loss after execution costs; gross_price_distance preserves the legacy price-distance target.",
                   "x-mangrove-authoring-schema": {
                     "default": 2,
-                    "description": "Risk/reward target. Take-profit distance = reward_factor * stop_distance.",
+                    "description": "Reward multiple on the declared reward_basis. net_execution_costs solves take-profit for this multiple of modeled net stop loss after execution costs; gross_price_distance preserves the legacy price-distance target.",
                     "exclusiveMinimum": 0.0,
                     "maximum": 100.0,
                     "type": [
@@ -23142,9 +23453,9 @@
                   }
                 },
                 "stop_gap_allowance": {
-                  "description": "position_size_calc 'v3' only. Fraction of the stop price a stop fill is assumed to miss by when computing the worst-case loss of a trade (0.01 = 1%).",
+                  "description": "Fraction of stop price allowed for an adverse gap when estimating stop loss (0.01 = 1%). Required for v3; also accepted by protected v1/v2. This is a modeling allowance, not a guaranteed bound on a market fill.",
                   "x-mangrove-authoring-schema": {
-                    "description": "position_size_calc 'v3' only. Fraction of the stop price a stop fill is assumed to miss by when computing the worst-case loss of a trade (0.01 = 1%).",
+                    "description": "Fraction of stop price allowed for an adverse gap when estimating stop loss (0.01 = 1%). Required for v3; also accepted by protected v1/v2. This is a modeling allowance, not a guaranteed bound on a market fill.",
                     "exclusiveMaximum": 1.0,
                     "minimum": 0.0,
                     "type": [
@@ -23174,9 +23485,9 @@
                   }
                 },
                 "taker_fee_rate": {
-                  "description": "position_size_calc 'v3' only. Venue fee per fill as a fraction of notional, charged in cash (0.004 = 0.4%).",
+                  "description": "Venue fee per fill as a fraction of notional, charged in cash (0.004 = 0.4%). Required for v3. Under v1/v2 with reward_basis net_execution_costs a config that states none is costed at canon's net_execution_defaults.taker_fee_rate.",
                   "x-mangrove-authoring-schema": {
-                    "description": "position_size_calc 'v3' only. Venue fee per fill as a fraction of notional, charged in cash (0.004 = 0.4%).",
+                    "description": "Venue fee per fill as a fraction of notional, charged in cash (0.004 = 0.4%). Required for v3. Under v1/v2 with reward_basis net_execution_costs a config that states none is costed at canon's net_execution_defaults.taker_fee_rate.",
                     "exclusiveMaximum": 0.1,
                     "minimum": 0.0,
                     "type": [
@@ -23240,7 +23551,7 @@
                 "volatility_tolerance": {
                   "description": "Where on the ATR width the stop is taken, as the ATR_long-vs-ATR_short contribution ratio: 0 is all short end (0.5x the signal timeframe's ATR), 1 is all long end (2x the daily ATR). Interpolated geometrically, so the value is exactly the long end's share of log(stop) and each 0.1 is the same multiplicative step. Replaces atr_short_weight, atr_long_weight and atr_cap_multiplier.",
                   "x-mangrove-authoring-schema": {
-                    "default": 0.5,
+                    "default": 0.75,
                     "description": "Where on the ATR width the stop is taken, as the ATR_long-vs-ATR_short contribution ratio: 0 is all short end (0.5x the signal timeframe's ATR), 1 is all long end (2x the daily ATR). Interpolated geometrically, so the value is exactly the long end's share of log(stop) and each 0.1 is the same multiplicative step. Replaces atr_short_weight, atr_long_weight and atr_cap_multiplier.",
                     "maximum": 1.0,
                     "minimum": 0.0,
@@ -23471,7 +23782,7 @@
                   },
                   "exit_on_loss_after_bars": {
                     "default": 1000,
-                    "description": "Exit a losing position after this many bars.",
+                    "description": "Exit a losing position after this many bars. Under net_execution_costs, losing means estimated net P&L after entry and exit costs is negative.",
                     "maximum": 10000,
                     "minimum": 1,
                     "type": [
@@ -23484,7 +23795,7 @@
                   },
                   "exit_on_profit_after_bars": {
                     "default": 1000,
-                    "description": "Exit a winning position after this many bars.",
+                    "description": "Exit a winning position after this many bars. Under net_execution_costs, winning and the profit threshold use estimated net P&L after entry and exit costs.",
                     "maximum": 10000,
                     "minimum": 1,
                     "type": [
@@ -23712,7 +24023,7 @@
                   },
                   "profit_threshold_pct": {
                     "default": 0.05,
-                    "description": "Profit threshold (5%% default) above which a position counts as 'winning' for the time-based exit logic.",
+                    "description": "Profit threshold (5% default) for the time-profit exit. net_execution_costs uses estimated net gain divided by entry cash cost; gross_price_distance retains reference-price return.",
                     "maximum": 1.0,
                     "minimum": 0.0,
                     "type": [
@@ -23734,9 +24045,24 @@
                     "x-mangrove-effect": "Higher lets the split drift further before a rebalance order, so fewer core orders; lower holds the split closer to target with more core orders and more fees.",
                     "x-mangrove-status": "tunable"
                   },
+                  "reward_basis": {
+                    "default": "net_execution_costs",
+                    "description": "Reward and profit-exit policy. net_execution_costs sizes against modeled cash loss at the volatility stop, solves the target after both legs of costs, and requires positive estimated net profit for TP, signal and time-profit exits. gross_price_distance preserves explicitly selected legacy behavior. Mandatory time-loss, maximum-hold, stop and emergency exits remain available.",
+                    "enum": [
+                      "net_execution_costs",
+                      "gross_price_distance",
+                      null
+                    ],
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "x-mangrove-effect": "The net policy requires a known execution cost quote. A config that states no taker_fee_rate is resolved with canon's net_execution_defaults.taker_fee_rate; this is an estimate, not a guarantee of live fill profitability.",
+                    "x-mangrove-status": "guardrail"
+                  },
                   "reward_factor": {
                     "default": 2,
-                    "description": "Risk/reward target. Take-profit distance = reward_factor * stop_distance.",
+                    "description": "Reward multiple on the declared reward_basis. net_execution_costs solves take-profit for this multiple of modeled net stop loss after execution costs; gross_price_distance preserves the legacy price-distance target.",
                     "exclusiveMinimum": 0.0,
                     "maximum": 100.0,
                     "type": [
@@ -23748,7 +24074,7 @@
                     "x-mangrove-status": "tunable"
                   },
                   "stop_gap_allowance": {
-                    "description": "position_size_calc 'v3' only. Fraction of the stop price a stop fill is assumed to miss by when computing the worst-case loss of a trade (0.01 = 1%).",
+                    "description": "Fraction of stop price allowed for an adverse gap when estimating stop loss (0.01 = 1%). Required for v3; also accepted by protected v1/v2. This is a modeling allowance, not a guaranteed bound on a market fill.",
                     "exclusiveMaximum": 1.0,
                     "minimum": 0.0,
                     "type": [
@@ -23774,7 +24100,7 @@
                     "x-mangrove-status": "guardrail"
                   },
                   "taker_fee_rate": {
-                    "description": "position_size_calc 'v3' only. Venue fee per fill as a fraction of notional, charged in cash (0.004 = 0.4%).",
+                    "description": "Venue fee per fill as a fraction of notional, charged in cash (0.004 = 0.4%). Required for v3. Under v1/v2 with reward_basis net_execution_costs a config that states none is costed at canon's net_execution_defaults.taker_fee_rate.",
                     "exclusiveMaximum": 0.1,
                     "minimum": 0.0,
                     "type": [
@@ -23826,7 +24152,7 @@
                     "x-mangrove-status": "unused"
                   },
                   "volatility_tolerance": {
-                    "default": 0.5,
+                    "default": 0.75,
                     "description": "Where on the ATR width the stop is taken, as the ATR_long-vs-ATR_short contribution ratio: 0 is all short end (0.5x the signal timeframe's ATR), 1 is all long end (2x the daily ATR). Interpolated geometrically, so the value is exactly the long end's share of log(stop) and each 0.1 is the same multiplicative step. Replaces atr_short_weight, atr_long_weight and atr_cap_multiplier.",
                     "maximum": 1.0,
                     "minimum": 0.0,
@@ -24771,10 +25097,10 @@
                   }
                 },
                 "exit_on_loss_after_bars": {
-                  "description": "Exit a losing position after this many bars.",
+                  "description": "Exit a losing position after this many bars. Under net_execution_costs, losing means estimated net P&L after entry and exit costs is negative.",
                   "x-mangrove-authoring-schema": {
                     "default": 1000,
-                    "description": "Exit a losing position after this many bars.",
+                    "description": "Exit a losing position after this many bars. Under net_execution_costs, losing means estimated net P&L after entry and exit costs is negative.",
                     "maximum": 10000,
                     "minimum": 1,
                     "type": [
@@ -24787,10 +25113,10 @@
                   }
                 },
                 "exit_on_profit_after_bars": {
-                  "description": "Exit a winning position after this many bars.",
+                  "description": "Exit a winning position after this many bars. Under net_execution_costs, winning and the profit threshold use estimated net P&L after entry and exit costs.",
                   "x-mangrove-authoring-schema": {
                     "default": 1000,
-                    "description": "Exit a winning position after this many bars.",
+                    "description": "Exit a winning position after this many bars. Under net_execution_costs, winning and the profit threshold use estimated net P&L after entry and exit costs.",
                     "maximum": 10000,
                     "minimum": 1,
                     "type": [
@@ -25069,10 +25395,10 @@
                   }
                 },
                 "profit_threshold_pct": {
-                  "description": "Profit threshold (5%% default) above which a position counts as 'winning' for the time-based exit logic.",
+                  "description": "Profit threshold (5% default) for the time-profit exit. net_execution_costs uses estimated net gain divided by entry cash cost; gross_price_distance retains reference-price return.",
                   "x-mangrove-authoring-schema": {
                     "default": 0.05,
-                    "description": "Profit threshold (5%% default) above which a position counts as 'winning' for the time-based exit logic.",
+                    "description": "Profit threshold (5% default) for the time-profit exit. net_execution_costs uses estimated net gain divided by entry cash cost; gross_price_distance retains reference-price return.",
                     "maximum": 1.0,
                     "minimum": 0.0,
                     "type": [
@@ -25098,11 +25424,29 @@
                     "x-mangrove-status": "tunable"
                   }
                 },
+                "reward_basis": {
+                  "description": "Reward and profit-exit policy. net_execution_costs sizes against modeled cash loss at the volatility stop, solves the target after both legs of costs, and requires positive estimated net profit for TP, signal and time-profit exits. gross_price_distance preserves explicitly selected legacy behavior. Mandatory time-loss, maximum-hold, stop and emergency exits remain available.",
+                  "x-mangrove-authoring-schema": {
+                    "default": "net_execution_costs",
+                    "description": "Reward and profit-exit policy. net_execution_costs sizes against modeled cash loss at the volatility stop, solves the target after both legs of costs, and requires positive estimated net profit for TP, signal and time-profit exits. gross_price_distance preserves explicitly selected legacy behavior. Mandatory time-loss, maximum-hold, stop and emergency exits remain available.",
+                    "enum": [
+                      "net_execution_costs",
+                      "gross_price_distance",
+                      null
+                    ],
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "x-mangrove-effect": "The net policy requires a known execution cost quote. A config that states no taker_fee_rate is resolved with canon's net_execution_defaults.taker_fee_rate; this is an estimate, not a guarantee of live fill profitability.",
+                    "x-mangrove-status": "guardrail"
+                  }
+                },
                 "reward_factor": {
-                  "description": "Risk/reward target. Take-profit distance = reward_factor * stop_distance.",
+                  "description": "Reward multiple on the declared reward_basis. net_execution_costs solves take-profit for this multiple of modeled net stop loss after execution costs; gross_price_distance preserves the legacy price-distance target.",
                   "x-mangrove-authoring-schema": {
                     "default": 2,
-                    "description": "Risk/reward target. Take-profit distance = reward_factor * stop_distance.",
+                    "description": "Reward multiple on the declared reward_basis. net_execution_costs solves take-profit for this multiple of modeled net stop loss after execution costs; gross_price_distance preserves the legacy price-distance target.",
                     "exclusiveMinimum": 0.0,
                     "maximum": 100.0,
                     "type": [
@@ -25115,9 +25459,9 @@
                   }
                 },
                 "stop_gap_allowance": {
-                  "description": "position_size_calc 'v3' only. Fraction of the stop price a stop fill is assumed to miss by when computing the worst-case loss of a trade (0.01 = 1%).",
+                  "description": "Fraction of stop price allowed for an adverse gap when estimating stop loss (0.01 = 1%). Required for v3; also accepted by protected v1/v2. This is a modeling allowance, not a guaranteed bound on a market fill.",
                   "x-mangrove-authoring-schema": {
-                    "description": "position_size_calc 'v3' only. Fraction of the stop price a stop fill is assumed to miss by when computing the worst-case loss of a trade (0.01 = 1%).",
+                    "description": "Fraction of stop price allowed for an adverse gap when estimating stop loss (0.01 = 1%). Required for v3; also accepted by protected v1/v2. This is a modeling allowance, not a guaranteed bound on a market fill.",
                     "exclusiveMaximum": 1.0,
                     "minimum": 0.0,
                     "type": [
@@ -25147,9 +25491,9 @@
                   }
                 },
                 "taker_fee_rate": {
-                  "description": "position_size_calc 'v3' only. Venue fee per fill as a fraction of notional, charged in cash (0.004 = 0.4%).",
+                  "description": "Venue fee per fill as a fraction of notional, charged in cash (0.004 = 0.4%). Required for v3. Under v1/v2 with reward_basis net_execution_costs a config that states none is costed at canon's net_execution_defaults.taker_fee_rate.",
                   "x-mangrove-authoring-schema": {
-                    "description": "position_size_calc 'v3' only. Venue fee per fill as a fraction of notional, charged in cash (0.004 = 0.4%).",
+                    "description": "Venue fee per fill as a fraction of notional, charged in cash (0.004 = 0.4%). Required for v3. Under v1/v2 with reward_basis net_execution_costs a config that states none is costed at canon's net_execution_defaults.taker_fee_rate.",
                     "exclusiveMaximum": 0.1,
                     "minimum": 0.0,
                     "type": [
@@ -25213,7 +25557,7 @@
                 "volatility_tolerance": {
                   "description": "Where on the ATR width the stop is taken, as the ATR_long-vs-ATR_short contribution ratio: 0 is all short end (0.5x the signal timeframe's ATR), 1 is all long end (2x the daily ATR). Interpolated geometrically, so the value is exactly the long end's share of log(stop) and each 0.1 is the same multiplicative step. Replaces atr_short_weight, atr_long_weight and atr_cap_multiplier.",
                   "x-mangrove-authoring-schema": {
-                    "default": 0.5,
+                    "default": 0.75,
                     "description": "Where on the ATR width the stop is taken, as the ATR_long-vs-ATR_short contribution ratio: 0 is all short end (0.5x the signal timeframe's ATR), 1 is all long end (2x the daily ATR). Interpolated geometrically, so the value is exactly the long end's share of log(stop) and each 0.1 is the same multiplicative step. Replaces atr_short_weight, atr_long_weight and atr_cap_multiplier.",
                     "maximum": 1.0,
                     "minimum": 0.0,
@@ -25444,7 +25788,7 @@
                   },
                   "exit_on_loss_after_bars": {
                     "default": 1000,
-                    "description": "Exit a losing position after this many bars.",
+                    "description": "Exit a losing position after this many bars. Under net_execution_costs, losing means estimated net P&L after entry and exit costs is negative.",
                     "maximum": 10000,
                     "minimum": 1,
                     "type": [
@@ -25457,7 +25801,7 @@
                   },
                   "exit_on_profit_after_bars": {
                     "default": 1000,
-                    "description": "Exit a winning position after this many bars.",
+                    "description": "Exit a winning position after this many bars. Under net_execution_costs, winning and the profit threshold use estimated net P&L after entry and exit costs.",
                     "maximum": 10000,
                     "minimum": 1,
                     "type": [
@@ -25685,7 +26029,7 @@
                   },
                   "profit_threshold_pct": {
                     "default": 0.05,
-                    "description": "Profit threshold (5%% default) above which a position counts as 'winning' for the time-based exit logic.",
+                    "description": "Profit threshold (5% default) for the time-profit exit. net_execution_costs uses estimated net gain divided by entry cash cost; gross_price_distance retains reference-price return.",
                     "maximum": 1.0,
                     "minimum": 0.0,
                     "type": [
@@ -25707,9 +26051,24 @@
                     "x-mangrove-effect": "Higher lets the split drift further before a rebalance order, so fewer core orders; lower holds the split closer to target with more core orders and more fees.",
                     "x-mangrove-status": "tunable"
                   },
+                  "reward_basis": {
+                    "default": "net_execution_costs",
+                    "description": "Reward and profit-exit policy. net_execution_costs sizes against modeled cash loss at the volatility stop, solves the target after both legs of costs, and requires positive estimated net profit for TP, signal and time-profit exits. gross_price_distance preserves explicitly selected legacy behavior. Mandatory time-loss, maximum-hold, stop and emergency exits remain available.",
+                    "enum": [
+                      "net_execution_costs",
+                      "gross_price_distance",
+                      null
+                    ],
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "x-mangrove-effect": "The net policy requires a known execution cost quote. A config that states no taker_fee_rate is resolved with canon's net_execution_defaults.taker_fee_rate; this is an estimate, not a guarantee of live fill profitability.",
+                    "x-mangrove-status": "guardrail"
+                  },
                   "reward_factor": {
                     "default": 2,
-                    "description": "Risk/reward target. Take-profit distance = reward_factor * stop_distance.",
+                    "description": "Reward multiple on the declared reward_basis. net_execution_costs solves take-profit for this multiple of modeled net stop loss after execution costs; gross_price_distance preserves the legacy price-distance target.",
                     "exclusiveMinimum": 0.0,
                     "maximum": 100.0,
                     "type": [
@@ -25721,7 +26080,7 @@
                     "x-mangrove-status": "tunable"
                   },
                   "stop_gap_allowance": {
-                    "description": "position_size_calc 'v3' only. Fraction of the stop price a stop fill is assumed to miss by when computing the worst-case loss of a trade (0.01 = 1%).",
+                    "description": "Fraction of stop price allowed for an adverse gap when estimating stop loss (0.01 = 1%). Required for v3; also accepted by protected v1/v2. This is a modeling allowance, not a guaranteed bound on a market fill.",
                     "exclusiveMaximum": 1.0,
                     "minimum": 0.0,
                     "type": [
@@ -25747,7 +26106,7 @@
                     "x-mangrove-status": "guardrail"
                   },
                   "taker_fee_rate": {
-                    "description": "position_size_calc 'v3' only. Venue fee per fill as a fraction of notional, charged in cash (0.004 = 0.4%).",
+                    "description": "Venue fee per fill as a fraction of notional, charged in cash (0.004 = 0.4%). Required for v3. Under v1/v2 with reward_basis net_execution_costs a config that states none is costed at canon's net_execution_defaults.taker_fee_rate.",
                     "exclusiveMaximum": 0.1,
                     "minimum": 0.0,
                     "type": [
@@ -25799,7 +26158,7 @@
                     "x-mangrove-status": "unused"
                   },
                   "volatility_tolerance": {
-                    "default": 0.5,
+                    "default": 0.75,
                     "description": "Where on the ATR width the stop is taken, as the ATR_long-vs-ATR_short contribution ratio: 0 is all short end (0.5x the signal timeframe's ATR), 1 is all long end (2x the daily ATR). Interpolated geometrically, so the value is exactly the long end's share of log(stop) and each 0.1 is the same multiplicative step. Replaces atr_short_weight, atr_long_weight and atr_cap_multiplier.",
                     "maximum": 1.0,
                     "minimum": 0.0,

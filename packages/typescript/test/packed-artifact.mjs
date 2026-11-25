@@ -19,6 +19,22 @@ const backtestPaths = [];
 const server = createServer((request, response) => {
   calls++;
   assert.equal(request.headers.authorization, 'Bearer prod_fixture_package_key');
+  if (request.url.startsWith('/api/v1/oracle/results?')) {
+    const params = new URL(request.url, 'http://localhost').searchParams;
+    assert.equal(params.get('use_irr_duration_default'), 'false');
+    assert.equal(params.get('min_closed_trades'), '0');
+    assert.equal(params.get('min_simple_annualized_return'), '-1');
+    assert.equal(params.get('max_simple_annualized_return'), '0');
+    assert.equal(params.get('min_avg_closed_trade_return'), '-2');
+    assert.equal(params.get('max_avg_closed_trade_return'), '0');
+    assert.equal(params.get('min_days'), '0');
+    assert.equal(params.get('max_days'), '180');
+    assert.equal(params.get('min_avg_daily_return'), '-0.2');
+    assert.equal(params.get('max_avg_daily_return'), '0');
+    response.writeHead(200, { 'Content-Type': 'application/json' });
+    response.end(JSON.stringify({ total: 0, offset: 0, limit: 100, results: [] }));
+    return;
+  }
   if (['/api/v1/backtests/', '/api/v1/backtests'].includes(request.url)) {
     assert.equal(request.method, 'POST');
     backtestPaths.push(request.url);
@@ -80,7 +96,7 @@ try {
   writeFileSync(join(scratch, 'smoke.mjs'), `
     import assert from 'node:assert/strict';
     import { readFileSync } from 'node:fs';
-    import { MangroveAI, APIError, ConfigurationError } from '@mangrove-ai/sdk';
+    import { MangroveAI, APIError, ConfigurationError, oracleEffectiveFilters } from '@mangrove-ai/sdk';
     const sdk = new MangroveAI({apiKey:'prod_fixture_package_key',baseUrl:process.env.SDK_FIXTURE_ORIGIN});
     for (const expected of JSON.parse(readFileSync('statuses.json', 'utf8'))) {
       assert.deepEqual(await sdk.backtesting.getStatus(expected.backtest_id), expected);
@@ -96,6 +112,12 @@ try {
     assert.equal(config.json_schema.properties.circuit_breaker.additionalProperties,false);
     assert.equal(config.param_glossary.circuit_breaker.fields.consecutive_loss_limit.type,'int');
     assert.ok(import.meta.resolve('@mangrove-ai/sdk').includes('/node_modules/'));
+    const results = await sdk.request('GET /api/v1/oracle/results', {
+      query: { min_days: 0, max_days: 180, min_avg_daily_return: -0.2, max_avg_daily_return: 0, use_irr_duration_default: false, min_closed_trades: 0, min_simple_annualized_return: -1, max_simple_annualized_return: 0, min_avg_closed_trade_return: -2, max_avg_closed_trade_return: 0 },
+    });
+    assert.equal(results.total, 0);
+    assert.equal(oracleEffectiveFilters(results), null);
+    assert.equal(oracleEffectiveFilters({ effective_filters: { min_days: 182, notice: 'fixture' } }).notice, 'fixture');
     const signals = [];
     for await (const item of sdk.signals.listIter({limit:1})) signals.push(item);
     assert.deepEqual(signals.map(row => [row.evaluation_mode,row.data_provider]), [['frame',null],['live','x']]);
@@ -123,7 +145,7 @@ try {
   const child = spawn(process.execPath, ['smoke.mjs'], { cwd: scratch, env: { ...process.env, SDK_FIXTURE_ORIGIN: `http://127.0.0.1:${server.address().port}` }, stdio: 'inherit' });
   const exitCode = await new Promise(resolve => child.once('exit', resolve));
   assert.equal(exitCode, 0);
-  assert.equal(calls, 10 + statuses.length);
+  assert.equal(calls, 11 + statuses.length);
   assert.deepEqual(backtestPaths, ['/api/v1/backtests/', '/api/v1/backtests']);
   assert.equal(streamCalls, 0);
 } finally {

@@ -104,3 +104,25 @@ test('released slashed backtest key preserves its HTTP request as a compatibilit
   await assert.rejects(client.request('POST /api/v1/backtests//', {body:{}}), ConfigurationError);
   assert.equal(requests.length,1);
 });
+
+test('exit quote sends exact decimal strings and keeps the server decision', async () => {
+  const fixture = JSON.parse(readFileSync(join(root, 'contracts/mangroveai/fixtures/exit-quote.json'), 'utf8'));
+  const requests = [];
+  const client = new MangroveAI({ apiKey: 'prod_quote_fixture', fetch: async (url, init) => {
+    requests.push({
+      url: String(url),
+      method: init.method,
+      authorization: new Headers(init.headers).get('authorization'),
+      body: JSON.parse(init.body),
+    });
+    return new Response(JSON.stringify(fixture.response), { headers: { 'content-type': 'application/json' } });
+  } });
+
+  assert.deepEqual(await client.request('POST /api/v1/execution/exit-quote', { body: fixture.request }), fixture.response);
+  assert.deepEqual(requests, [{
+    url: 'https://api.mangrovedeveloper.ai/api/v1/execution/exit-quote',
+    method: 'POST',
+    authorization: 'Bearer prod_quote_fixture',
+    body: fixture.request,
+  }]);
+});

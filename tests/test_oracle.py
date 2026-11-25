@@ -514,6 +514,10 @@ class TestResults:
             min_win_rate=0.5,
             min_return=0.1,
             min_irr=0.2,
+            min_days=0,
+            max_days=180,
+            min_avg_daily_return=-0.2,
+            max_avg_daily_return=0,
             min_delta_vs_benchmark=-0.1,
             min_delta_vs_asset=-0.2,
             max_trades=10,
@@ -546,6 +550,8 @@ class TestResults:
             "trigger_name": "rsi", "kind": "sweep", "status": "completed",
             "min_trades": 0, "min_sharpe": 1.0, "min_win_rate": 0.5,
             "min_return": 0.1, "min_irr": 0.2,
+            "min_days": 0, "max_days": 180,
+            "min_avg_daily_return": -0.2, "max_avg_daily_return": 0,
             "min_delta_vs_benchmark": -0.1, "min_delta_vs_asset": -0.2,
             "max_trades": 10, "max_sharpe": 5.0, "max_win_rate": 1.0,
             "max_return": 0.9, "max_irr": 1.5,
@@ -576,7 +582,10 @@ class TestResults:
             return OracleResultsPage(**next(pages))
 
         monkeypatch.setattr(client.oracle, "list_results", list_results)
-        rows = list(client.oracle.list_results_iter(page_size=2, asset="BTC"))
+        observed_pages = []
+        rows = list(client.oracle.list_results_iter(
+            page_size=2, asset="BTC", on_page=observed_pages.append))
+        assert [page.offset for page in observed_pages] == [0, 1]
 
         assert rows == [{"run_index": 0}, {"run_index": 1}, {"run_index": 2}]
         assert offsets == [0, 1]
@@ -971,3 +980,107 @@ class TestDataQueryRequestContract:
         OrderBy(col="x", dir="desc")
         with pytest.raises(ValidationError):
             OrderBy(col="x", dir="ascending")
+
+
+def test_results_expose_server_duration_policy_on_each_page():
+    mock = MockTransport()
+    effective = {"min_days": None, "max_days": 180,
+                 "irr_duration_default_applied": False, "notice": None}
+    mock.add_response("GET", "/oracle/results", json={
+        "total": 1, "offset": 0, "limit": 1,
+        "effective_filters": effective,
+        "results": [{"simple_annualized_return": 0,
+                     "avg_closed_trade_return": None, "closed_trade_count": 0}],
+    })
+    client = _make_client(mock)
+    pages = []
+    rows = list(client.oracle.list_results_iter(
+        page_size=1, min_irr=0, use_irr_duration_default=False,
+        min_simple_annualized_return=-1, max_simple_annualized_return=0,
+        min_avg_closed_trade_return=-2, max_avg_closed_trade_return=0,
+        min_closed_trades=0, on_page=pages.append))
+    assert pages[0].effective_filters.model_dump() == effective
+    assert rows[0]["avg_closed_trade_return"] is None
+    params = mock.requests[-1].params
+    assert params["use_irr_duration_default"] is False
+    assert params["min_closed_trades"] == 0
+    assert params["max_simple_annualized_return"] == 0
+    assert params["min_avg_closed_trade_return"] == -2
+    assert "min_days" not in params
+
+
+def test_min_irr_alone_leaves_the_duration_default_to_the_server():
+    mock = MockTransport()
+    notice = ("Minimum IRR searches default to 182 backtest days. Change the minimum "
+              "or set use_irr_duration_default=false to include shorter histories.")
+    mock.add_response("GET", "/oracle/results", json={
+        "total": 0, "offset": 0, "limit": 100, "results": [],
+        "effective_filters": {"min_days": 182, "max_days": None,
+                              "irr_duration_default_applied": True, "notice": notice},
+    })
+    client = _make_client(mock)
+
+    page = client.oracle.list_results(min_irr=14)
+
+    params = mock.requests[-1].params
+    assert params["min_irr"] == 14
+    assert not {"min_days", "max_days", "use_irr_duration_default"} & set(params)
+    assert page.effective_filters.min_days == 182
+    assert page.effective_filters.irr_duration_default_applied is True
+    assert page.effective_filters.notice == notice
+
+
+def test_ninety_day_search_by_a_non_irr_return_measure_is_forwarded_unchanged():
+    mock = MockTransport()
+    row = {"num_days": 90, "total_return": 4.5, "avg_daily_return": 0.05,
+           "simple_annualized_return": 18.25, "irr_annualized": 19.6,
+           "avg_closed_trade_return": 0.75, "closed_trade_count": 6}
+    mock.add_response("GET", "/oracle/results", json={
+        "total": 1, "offset": 0, "limit": 100, "results": [row],
+        "effective_filters": {"min_days": 90, "max_days": 90,
+                              "irr_duration_default_applied": False, "notice": None},
+    })
+    client = _make_client(mock)
+
+    page = client.oracle.list_results(
+        min_days=90, max_days=90, min_simple_annualized_return=10,
+        min_closed_trades=5, sort="simple_annualized_return", order="desc")
+
+    params = mock.requests[-1].params
+    assert {name: params[name] for name in (
+        "min_days", "max_days", "min_simple_annualized_return", "min_closed_trades", "sort", "order",
+    )} == {"min_days": 90, "max_days": 90, "min_simple_annualized_return": 10,
+           "min_closed_trades": 5, "sort": "simple_annualized_return", "order": "desc"}
+    assert "min_irr" not in params and "use_irr_duration_default" not in params
+    assert page.results == [row]
+    assert page.effective_filters.notice is None
+
+
+def test_effective_filters_tolerate_missing_keys():
+    mock = MockTransport()
+    mock.add_response("GET", "/oracle/results", json={
+        "total": 0, "offset": 0, "limit": 100, "results": [],
+        "effective_filters": {"min_days": 182},
+    })
+    client = _make_client(mock)
+
+    page = client.oracle.list_results(min_irr=14)
+
+    assert page.effective_filters.min_days == 182
+    assert page.effective_filters.max_days is None
+    assert page.effective_filters.irr_duration_default_applied is None
+    assert page.effective_filters.notice is None
+
+
+@pytest.mark.parametrize("extra", [{}, {"effective_filters": None}])
+def test_results_page_parses_without_effective_filters(extra):
+    mock = MockTransport()
+    mock.add_response("GET", "/oracle/results", json={
+        "total": 1, "offset": 0, "limit": 100, "results": [{"run_index": 0}], **extra,
+    })
+    client = _make_client(mock)
+
+    page = client.oracle.list_results(min_irr=14)
+
+    assert page.effective_filters is None
+    assert page.results == [{"run_index": 0}]

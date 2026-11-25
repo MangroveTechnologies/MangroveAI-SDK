@@ -1,12 +1,52 @@
 {
   "components": {
     "schemas": {
+      "AltData": {
+        "description": "Alternative data a strategy's signals read, carried with the request.",
+        "properties": {
+          "cambrian": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CambrianData"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "x_post_counts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/XPostCountsData"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "title": "AltData",
+        "type": "object"
+      },
       "AsyncBacktestStatus": {
         "description": "Response model for async backtest status polling and result retrieval.",
         "properties": {
           "backtest_id": {
             "title": "Backtest Id",
             "type": "string"
+          },
+          "backtest_mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Backtest Mode"
           },
           "base_token": {
             "anyOf": [
@@ -124,6 +164,21 @@
             ],
             "title": "Error Message"
           },
+          "execution_equity": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Execution Equity"
+          },
           "execution_state": {
             "anyOf": [
               {
@@ -215,6 +270,29 @@
             ],
             "title": "Quote Token"
           },
+          "requested_mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested Mode"
+          },
+          "risk_halt": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk Halt"
+          },
           "status": {
             "title": "Status",
             "type": "string"
@@ -292,8 +370,6 @@
           {
             "asset": "ETH",
             "base_token": "ETH",
-            "cooldown_bars": 24,
-            "daily_momentum_limit": 3.0,
             "enable_volatility_adjustment": false,
             "end_date": "2024-06-15",
             "execution_config": {
@@ -315,11 +391,21 @@
             "strategy_json": "{\"name\": \"ETH Strategy\", \"asset\": \"ETH\", \"entry\": [{\"name\": \"macd_bullish_cross\", \"timeframe\": \"1h\", \"signal_type\": \"TRIGGER\", \"params\": {\"window_fast\": 12, \"window_slow\": 26, \"window_sign\": 9}}, {\"name\": \"is_above_sma\", \"timeframe\": \"1h\", \"params\": {\"window\": 50}, \"signal_type\": \"FILTER\"}], \"exit\": []}",
             "target_volatility": 0.02,
             "volatility_mode": "stddev",
-            "volatility_window": 24,
-            "weekly_momentum_limit": 3.0
+            "volatility_window": 24
           }
         ],
         "properties": {
+          "alt_data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AltData"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
           "asset": {
             "default": "BTC-USDT",
             "title": "Asset",
@@ -347,8 +433,16 @@
             "type": "boolean"
           },
           "cooldown_bars": {
-            "title": "Cooldown Bars",
-            "type": "integer"
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Cooldown Bars"
           },
           "corpus_dataset": {
             "anyOf": [
@@ -363,8 +457,16 @@
             "title": "Corpus Dataset"
           },
           "daily_momentum_limit": {
-            "title": "Daily Momentum Limit",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Daily Momentum Limit"
           },
           "data_provider": {
             "anyOf": [
@@ -396,9 +498,16 @@
             "title": "End Date"
           },
           "enforce_capital_floor": {
-            "default": false,
-            "title": "Enforce Capital Floor",
-            "type": "boolean"
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Enforce Capital Floor"
           },
           "exchange": {
             "anyOf": [
@@ -438,7 +547,7 @@
             "title": "Fee Pct"
           },
           "generation": {
-            "default": 10,
+            "default": 14,
             "title": "Generation",
             "type": "integer"
           },
@@ -526,6 +635,11 @@
           },
           "mode": {
             "default": "full",
+            "description": "Both modes execute the full risk-managed engine. Quick is a compatibility alias with full-engine latency and fees; results distinguish requested_mode from backtest_mode.",
+            "enum": [
+              "quick",
+              "full"
+            ],
             "title": "Mode",
             "type": "string"
           },
@@ -635,8 +749,16 @@
             "type": "integer"
           },
           "weekly_momentum_limit": {
-            "title": "Weekly Momentum Limit",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Weekly Momentum Limit"
           }
         },
         "required": [
@@ -651,10 +773,7 @@
           "volatility_window",
           "target_volatility",
           "volatility_mode",
-          "enable_volatility_adjustment",
-          "cooldown_bars",
-          "daily_momentum_limit",
-          "weekly_momentum_limit"
+          "enable_volatility_adjustment"
         ],
         "title": "BacktestRequest",
         "type": "object"
@@ -662,6 +781,17 @@
       "BacktestResult": {
         "description": "Result model for backtesting endpoint.",
         "properties": {
+          "backtest_mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Backtest Mode"
+          },
           "base_token": {
             "anyOf": [
               {
@@ -781,6 +911,21 @@
             ],
             "title": "Error"
           },
+          "execution_equity": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Execution Equity"
+          },
           "execution_state": {
             "anyOf": [
               {
@@ -864,6 +1009,29 @@
               "USDC"
             ],
             "title": "Quote Token"
+          },
+          "requested_mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested Mode"
+          },
+          "risk_halt": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk Halt"
           },
           "strategy_names": {
             "anyOf": [
@@ -954,8 +1122,6 @@
         "description": "Request model for bulk backtesting endpoint.\n\nEvaluates multiple strategies over a shared date range. Raw market data is\nreused only when source, market, timeframe and required history window\nmatch; every strategy receives fresh mutable loaders.",
         "examples": [
           {
-            "cooldown_bars": 24,
-            "daily_momentum_limit": 3.0,
             "enable_volatility_adjustment": false,
             "end_date": "2024-12-31",
             "execution_config": {
@@ -1014,18 +1180,33 @@
             ],
             "target_volatility": 0.02,
             "volatility_mode": "stddev",
-            "volatility_window": 24,
-            "weekly_momentum_limit": 3.0
+            "volatility_window": 24
           }
         ],
         "properties": {
           "cooldown_bars": {
-            "title": "Cooldown Bars",
-            "type": "integer"
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Cooldown Bars"
           },
           "daily_momentum_limit": {
-            "title": "Daily Momentum Limit",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Daily Momentum Limit"
           },
           "data_provider": {
             "anyOf": [
@@ -1074,7 +1255,7 @@
             "title": "Fee Pct"
           },
           "generation": {
-            "default": 10,
+            "default": 14,
             "title": "Generation",
             "type": "integer"
           },
@@ -1136,6 +1317,11 @@
           },
           "mode": {
             "default": "full",
+            "description": "Both modes execute the full risk-managed engine. Quick is a compatibility alias with full-engine latency and fees; results distinguish requested_mode from backtest_mode.",
+            "enum": [
+              "quick",
+              "full"
+            ],
             "title": "Mode",
             "type": "string"
           },
@@ -1223,8 +1409,16 @@
             "type": "integer"
           },
           "weekly_momentum_limit": {
-            "title": "Weekly Momentum Limit",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Weekly Momentum Limit"
           }
         },
         "required": [
@@ -1241,10 +1435,7 @@
           "volatility_window",
           "target_volatility",
           "volatility_mode",
-          "enable_volatility_adjustment",
-          "cooldown_bars",
-          "daily_momentum_limit",
-          "weekly_momentum_limit"
+          "enable_volatility_adjustment"
         ],
         "title": "BulkBacktestRequest",
         "type": "object"
@@ -1253,7 +1444,7 @@
         "description": "Result model for bulk backtesting endpoint.",
         "properties": {
           "data_fetches": {
-            "description": "Unique raw full-engine source/window reads in this batch; zero in quick mode. This does not count quick-evaluator reads or already preloaded engine frames.",
+            "description": "Unique raw full-engine source/window reads in this batch, excluding preloaded frames. Both full and quick requests run the full engine.",
             "title": "Data Fetches",
             "type": "integer"
           },
@@ -1347,6 +1538,88 @@
           }
         },
         "title": "BulkStrategyConfig",
+        "type": "object"
+      },
+      "CambrianData": {
+        "description": "Point-in-time Cambrian values for a social or holder strategy (sent by MangroveAI).\n\n``rows`` is ``[[known_at, v1, v2, ...], ...]`` sorted by ``known_at``, values in\n``columns`` order, null allowed. A bar stamped ``t`` (open time) with timeframe\n``tf`` sees the latest value with ``known_at <= t + tf``. ``start``/``end`` is the\nwindow covered, warm-up included. ``sources`` names the feed behind each family,\ne.g. ``{\"social\": \"deep42 token-analysis\"}``.",
+        "properties": {
+          "caveats": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Caveats",
+            "type": "array"
+          },
+          "columns": {
+            "items": {
+              "enum": [
+                "SocialSentiment",
+                "SocialBullShare",
+                "SocialBearShare",
+                "SocialNetBullShare",
+                "SocialTweets",
+                "SocialAuthors",
+                "HolderCount",
+                "RetailHolderCount",
+                "WhaleHolderCount",
+                "WhaleHeldShare"
+              ],
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Columns",
+            "type": "array"
+          },
+          "end": {
+            "format": "date-time",
+            "title": "End",
+            "type": "string"
+          },
+          "mint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Mint"
+          },
+          "rows": {
+            "items": {
+              "items": {},
+              "type": "array"
+            },
+            "title": "Rows",
+            "type": "array"
+          },
+          "sources": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Sources",
+            "type": "object"
+          },
+          "start": {
+            "format": "date-time",
+            "title": "Start",
+            "type": "string"
+          },
+          "symbol": {
+            "title": "Symbol",
+            "type": "string"
+          }
+        },
+        "required": [
+          "symbol",
+          "columns",
+          "start",
+          "end",
+          "rows"
+        ],
+        "title": "CambrianData",
         "type": "object"
       },
       "ConditionPreviewRequest": {
@@ -1658,7 +1931,7 @@
             "type": "string"
           },
           "generation": {
-            "default": 10,
+            "default": 14,
             "title": "Generation",
             "type": "integer"
           },
@@ -1962,6 +2235,47 @@
               }
             ],
             "title": "Total Workers"
+          },
+          "trade_materialization_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trade Materialization Error"
+          },
+          "trade_materialization_fingerprint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trade Materialization Fingerprint"
+          },
+          "trade_materialization_quarantined": {
+            "default": false,
+            "title": "Trade Materialization Quarantined",
+            "type": "boolean"
+          },
+          "trade_materialization_retry": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trade Materialization Retry"
           },
           "trades_materialized": {
             "default": false,
@@ -3049,6 +3363,18 @@
             "title": "Replayable",
             "type": "boolean"
           },
+          "risk_controls": {
+            "anyOf": [
+              {
+                "const": "explicitly_disabled",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk Controls"
+          },
           "trade_count": {
             "default": 0,
             "title": "Trade Count",
@@ -3078,6 +3404,17 @@
       "RerunResponse": {
         "description": "Rerun-on-latest response (Commit 7).\n\nLives in the same module to keep replay-related schemas adjacent;\nconsumed by the second endpoint that runs every row regardless of\nclassification. Carries the migration diff so the UI can show what\nEC fields were filled / changed during the migration.",
         "properties": {
+          "backtest_mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Backtest Mode"
+          },
           "classification": {
             "title": "Classification",
             "type": "string"
@@ -3135,6 +3472,29 @@
           "ok": {
             "title": "Ok",
             "type": "boolean"
+          },
+          "requested_mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested Mode"
+          },
+          "risk_halt": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk Halt"
           },
           "trade_count": {
             "default": 0,
@@ -3883,6 +4243,17 @@
       "StrategyBacktestResult": {
         "description": "Per-strategy result within a bulk backtest response.",
         "properties": {
+          "backtest_mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Backtest Mode"
+          },
           "base_token": {
             "anyOf": [
               {
@@ -3947,6 +4318,29 @@
               "USDC"
             ],
             "title": "Quote Token"
+          },
+          "requested_mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested Mode"
+          },
+          "risk_halt": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk Halt"
           },
           "strategy_id": {
             "anyOf": [
@@ -4112,6 +4506,94 @@
         ],
         "title": "ValidationError",
         "type": "object"
+      },
+      "XPostCountsData": {
+        "description": "Settled X post-count buckets for an x_attention strategy (sent by MangroveAI).\n\n``buckets`` is ``[[start, end, count], ...]`` covering ``[start, end)`` with no\ngaps. ``ingest_lag``: a bar decided at its close reads only buckets that ended at\nleast this long before (the same lag live evaluation uses).",
+        "properties": {
+          "buckets": {
+            "items": {
+              "items": {},
+              "type": "array"
+            },
+            "title": "Buckets",
+            "type": "array"
+          },
+          "caveats": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Caveats",
+            "type": "array"
+          },
+          "end": {
+            "format": "date-time",
+            "title": "End",
+            "type": "string"
+          },
+          "fetch": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Fetch"
+          },
+          "granularity": {
+            "enum": [
+              "minute",
+              "hour",
+              "day"
+            ],
+            "title": "Granularity",
+            "type": "string"
+          },
+          "ingest_lag": {
+            "default": "5min",
+            "title": "Ingest Lag",
+            "type": "string"
+          },
+          "outliers": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Outliers",
+            "type": "array"
+          },
+          "query": {
+            "title": "Query",
+            "type": "string"
+          },
+          "query_hash": {
+            "title": "Query Hash",
+            "type": "string"
+          },
+          "start": {
+            "format": "date-time",
+            "title": "Start",
+            "type": "string"
+          },
+          "variant": {
+            "default": "all",
+            "title": "Variant",
+            "type": "string"
+          }
+        },
+        "required": [
+          "query",
+          "query_hash",
+          "granularity",
+          "start",
+          "end",
+          "buckets"
+        ],
+        "title": "XPostCountsData",
+        "type": "object"
       }
     },
     "securitySchemes": {
@@ -4164,7 +4646,7 @@
             "description": "Caller role, scope or entitlement does not permit this operation"
           },
           "422": {
-            "description": "The requested market has no history covering the window and warm-up"
+            "description": "Market history or execution cost assumptions cannot support the requested run"
           },
           "429": {
             "description": "Rate, quota or concurrency limit reached"
@@ -4213,7 +4695,7 @@
               "description": "Missing required fields, invalid date format or invalid market fields"
             },
             "422": {
-              "description": "The requested market has no history covering the window and warm-up"
+              "description": "Market history or execution cost assumptions cannot support the requested run"
             },
             "500": {
               "description": "Backtest engine failure"
@@ -7288,6 +7770,176 @@
             }
           },
           {
+            "description": "Apply a visible 182-day minimum only when min_irr is set and min_days is omitted. False clears it.",
+            "in": "query",
+            "name": "use_irr_duration_default",
+            "required": false,
+            "schema": {
+              "default": true,
+              "description": "Apply a visible 182-day minimum only when min_irr is set and min_days is omitted. False clears it.",
+              "title": "Use Irr Duration Default",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "min_simple_annualized_return",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Min Simple Annualized Return"
+            }
+          },
+          {
+            "in": "query",
+            "name": "max_simple_annualized_return",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Max Simple Annualized Return"
+            }
+          },
+          {
+            "in": "query",
+            "name": "min_avg_closed_trade_return",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Min Avg Closed Trade Return"
+            }
+          },
+          {
+            "in": "query",
+            "name": "max_avg_closed_trade_return",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Max Avg Closed Trade Return"
+            }
+          },
+          {
+            "in": "query",
+            "name": "min_closed_trades",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 9223372036854775807,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Min Closed Trades"
+            }
+          },
+          {
+            "description": "Minimum historical backtest days (inclusive).",
+            "in": "query",
+            "name": "min_days",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 9223372036854775807,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Minimum historical backtest days (inclusive).",
+              "title": "Min Days"
+            }
+          },
+          {
+            "description": "Maximum historical backtest days (inclusive).",
+            "in": "query",
+            "name": "max_days",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 9223372036854775807,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Maximum historical backtest days (inclusive).",
+              "title": "Max Days"
+            }
+          },
+          {
+            "description": "Minimum mean daily return, in percent.",
+            "in": "query",
+            "name": "min_avg_daily_return",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Minimum mean daily return, in percent.",
+              "title": "Min Avg Daily Return"
+            }
+          },
+          {
+            "description": "Maximum mean daily return, in percent.",
+            "in": "query",
+            "name": "max_avg_daily_return",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Maximum mean daily return, in percent.",
+              "title": "Max Avg Daily Return"
+            }
+          },
+          {
             "in": "query",
             "name": "min_delta_vs_benchmark",
             "required": false,
@@ -9313,6 +9965,176 @@
             }
           },
           {
+            "description": "Apply a visible 182-day minimum only when min_irr is set and min_days is omitted. False clears it.",
+            "in": "query",
+            "name": "use_irr_duration_default",
+            "required": false,
+            "schema": {
+              "default": true,
+              "description": "Apply a visible 182-day minimum only when min_irr is set and min_days is omitted. False clears it.",
+              "title": "Use Irr Duration Default",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "min_simple_annualized_return",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Min Simple Annualized Return"
+            }
+          },
+          {
+            "in": "query",
+            "name": "max_simple_annualized_return",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Max Simple Annualized Return"
+            }
+          },
+          {
+            "in": "query",
+            "name": "min_avg_closed_trade_return",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Min Avg Closed Trade Return"
+            }
+          },
+          {
+            "in": "query",
+            "name": "max_avg_closed_trade_return",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Max Avg Closed Trade Return"
+            }
+          },
+          {
+            "in": "query",
+            "name": "min_closed_trades",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 9223372036854775807,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Min Closed Trades"
+            }
+          },
+          {
+            "description": "Minimum historical backtest days (inclusive).",
+            "in": "query",
+            "name": "min_days",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 9223372036854775807,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Minimum historical backtest days (inclusive).",
+              "title": "Min Days"
+            }
+          },
+          {
+            "description": "Maximum historical backtest days (inclusive).",
+            "in": "query",
+            "name": "max_days",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 9223372036854775807,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Maximum historical backtest days (inclusive).",
+              "title": "Max Days"
+            }
+          },
+          {
+            "description": "Minimum mean daily return, in percent.",
+            "in": "query",
+            "name": "min_avg_daily_return",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Minimum mean daily return, in percent.",
+              "title": "Min Avg Daily Return"
+            }
+          },
+          {
+            "description": "Maximum mean daily return, in percent.",
+            "in": "query",
+            "name": "max_avg_daily_return",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Maximum mean daily return, in percent.",
+              "title": "Max Avg Daily Return"
+            }
+          },
+          {
             "in": "query",
             "name": "min_delta_vs_benchmark",
             "required": false,
@@ -10680,8 +11502,8 @@
   ],
   "x-mangrove-provenance": {
     "generation": "git archive of exact commit; app.openapi(); sockets blocked; lifespan not started",
-    "schema_sha256": "270d4bb1701d67c97fdcd4f1276382610c37967a6c3aaa23abd3fefde86217c8",
-    "source_commit": "ddccbc115024b2df00d096538c727dc8f257d5d8",
+    "schema_sha256": "2a6231922a7767b5b703bb45a8b12459ac89218d6248144ab9e33609a4a56f43",
+    "source_commit": "be92a03597eee35ca8ead4c5a9894d439b2b50b7",
     "source_repository": "MangroveTechnologies/MangroveOracle"
   }
 }

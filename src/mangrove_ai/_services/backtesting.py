@@ -199,6 +199,7 @@ class BacktestingService:
                     trade_history=status.trade_history,
                     execution_time_seconds=status.execution_time_seconds,
                     trade_count=len(status.trade_history) if status.trade_history else 0,
+                    **status.model_dump(include={"data_info"}, exclude_unset=True),
                 )
 
             if status.status == "failed":

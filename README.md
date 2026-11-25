@@ -16,9 +16,9 @@ legacy shim from merged [PR83](https://github.com/MangroveTechnologies/MangroveA
 is published in 2.4.2. Merged [PR84](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/84)
 includes the contract and serialization changes from closed
 [PR85](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/85) and optional
-signal metadata. Its contract inputs match the clean offline export from merged
-API source `b3337f2e`, with identical public document bytes to the accepted
-[API1525](https://github.com/MangroveTechnologies/MangroveAI/pull/1525) export.
+signal metadata. The current contract includes the four market-data reads from
+[SDK99](https://github.com/MangroveTechnologies/MangroveAI-SDK/pull/99), matching
+the clean API export at `1812a42cbb6d0754c55c93af99ae81c03e9e33fc`.
 Package publication follows human review of the prepared Python 2.8.0 version
 and serving API/Oracle contract acceptance. See the [release handoff](docs/issue-66-release-handoff.md).
 

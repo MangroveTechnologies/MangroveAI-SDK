@@ -51,6 +51,11 @@ def main() -> None:
             return httpx.Response(200, json=fixture("usage-success"))
         if request.url.path == "/api/v1/config/execution-config-schema":
             return httpx.Response(200, json=fixture("execution-config-success"))
+        if request.url.path == "/api/v1/market-data/liquidation-levels":
+            assert dict(request.url.params) == {
+                "token_symbol": "BTC", "page": "1", "per_page": "100", "provider": "nansen",
+            }
+            return httpx.Response(200, json=fixture("liquidation-levels-page"))
         if request.url.path == "/api/v1/signals/":
             page = "one" if request.url.params["offset"] == "0" else "two"
             return httpx.Response(200, json=fixture(f"signals-page-{page}"))
@@ -96,6 +101,7 @@ def main() -> None:
         assert config.param_glossary["circuit_breaker"].fields_shape == "object"
         assert config.param_glossary["circuit_breaker"].additional_properties is False
         assert config.param_glossary["circuit_breaker"].fields["consecutive_loss_limit"].type == "int"
+        assert client.market_data.get_liquidation_levels() == fixture("liquidation-levels-page")
         signals = list(client.signals.list_iter(limit_per_page=1))
         assert [row.name for row in signals] == ["fixture_one", "fixture_two"]
         assert [(row.evaluation_mode, row.data_provider) for row in signals] == [("frame", None), ("live", "x")]
@@ -126,7 +132,7 @@ def main() -> None:
             pass
         else:
             raise AssertionError("Malformed success was accepted")
-    assert len(calls) == 10
+    assert len(calls) == 11
     print(json.dumps({
         "distribution": "mangroveai", "version": mangrove_ai.__version__,
         "requests_intercepted": len(calls),

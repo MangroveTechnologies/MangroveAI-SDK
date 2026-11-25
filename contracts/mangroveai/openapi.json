@@ -20834,6 +20834,10 @@
             "candle_size": {
               "description": "Duration of one candle, e.g. 1h or 1d.",
               "type": "string"
+            },
+            "min_days": {
+              "description": "Minimum recorded backtest days, inclusive. An explicit value overrides the conditional IRR duration default, including zero.",
+              "type": "integer"
             }
           },
           "required": [

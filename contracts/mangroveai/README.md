@@ -129,7 +129,7 @@ JSON successes and opaque JSON declarations remain usable. Python has no dedicat
 HelpBot service in its direct-binding inventory. These statements describe client
 coverage, not provider activation or live HelpBot acceptance.
 
-The async status contract is generated from [API1591](https://github.com/MangroveTechnologies/MangroveAI/pull/1591) source `ec60f05d`.
+The async status contract is generated from [API1591](https://github.com/MangroveTechnologies/MangroveAI/pull/1591) source `64b6ade3`.
 Python `poll_status` and TypeScript `backtesting.getStatus` expose the server's
 nullable `verdict` and `failed_checks`; the latter distinguishes `[]` (PASS)
 from `null` (no threshold evaluation). Older servers may omit both fields.

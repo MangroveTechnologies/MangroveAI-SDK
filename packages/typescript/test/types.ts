@@ -1,6 +1,41 @@
 import { MangroveAI, oracleEffectiveFilters, type CoreModels, type Operations, type OracleEffectiveFilters, type UsageMetrics, type ExecutionConfiguration, type LocalDeployment } from '../src/index.js';
 
 const sdk = new MangroveAI({ apiKey: 'prod_fixture', baseUrl: 'https://example.invalid' });
+void sdk.request('GET /api/v1/market-data/orderbook', {
+  query: { symbol_id: 'COINBASE_SPOT_BTC_USD', limit_levels: 20, provider: 'coinapi' },
+}).then(book => {
+  const ask: number | null = book.best_ask;
+  const exchangeTime: string | null = book.time_exchange;
+  void ask; void exchangeTime;
+});
+void sdk.request('GET /api/v1/market-data/orderbook/history', {
+  query: {
+    symbol_id: 'COINBASE_SPOT_BTC_USD', time_start: '2026-11-20T02:00:00Z',
+    time_end: '2026-11-20T02:01:00Z', limit: 100, limit_levels: 50,
+  },
+});
+void sdk.request('GET /api/v1/market-data/order-flow', {
+  query: {
+    symbol_id: 'COINBASE_SPOT_BTC_USD', time_start: '2026-11-20T02:00:00Z',
+    time_end: '2026-11-20T02:01:00Z', limit: 100,
+  },
+});
+void sdk.request('GET /api/v1/market-data/liquidation-levels', {
+  query: { token_symbol: 'BTC', page: 2, per_page: 50, provider: 'nansen' },
+}).then(levels => {
+  const venue: string = levels.venue;
+  const coverage: string = levels.coverage;
+  void venue; void coverage;
+});
+// @ts-expect-error An exact instrument is required; a venue is not inferred.
+void sdk.request('GET /api/v1/market-data/orderbook', {});
+// @ts-expect-error A bounded history needs its end timestamp.
+void sdk.request('GET /api/v1/market-data/order-flow', { query: { symbol_id: 'COINBASE_SPOT_BTC_USD', time_start: '2026-11-20T02:00:00Z' } });
+// @ts-expect-error Snapshot limit is numeric.
+void sdk.request('GET /api/v1/market-data/orderbook', { query: { symbol_id: 'COINBASE_SPOT_BTC_USD', limit_levels: '50' } });
+// Provider is text in the shared schema; the server restricts this operation to Nansen.
+// @ts-expect-error Provider identifiers must be text.
+void sdk.request('GET /api/v1/market-data/liquidation-levels', { query: { provider: 123 } });
 void sdk.signals.list().then(page => {
   const mode: string | undefined = page.items[0]?.evaluation_mode;
   const provider: string | null | undefined = page.items[0]?.data_provider;

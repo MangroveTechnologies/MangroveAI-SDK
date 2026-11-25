@@ -5,6 +5,20 @@ and TypeScript clients. `provenance.json` records the backend source commit,
 source hashes and exported-document hashes. No real user, API key, session token
 or account record belongs here.
 
+The Bitcoin market-data refresh is exported from clean API source
+`1812a42cbb6d0754c55c93af99ae81c03e9e33fc`. It adds four public GET operations:
+order-book snapshot, order-book history, trade flow, and reported Hyperliquid
+liquidation levels. Nullable quote fields, quality counts, and bounded coverage
+come from their canonical operation response schemas. `liquidation-levels-page.json`
+is synthetic and is shared by Python and TypeScript source and installed-package
+tests; its addresses do not identify the live acceptance sample.
+
+The full source export also carries merged base changes since the preceding
+input: free-tool payment metadata on 24 existing route variants and optional
+`data_unavailable` fields on two evaluation response models. No existing route is
+removed. The Oracle proxy and execution-configuration documents are unchanged.
+The exported source and tests do not establish deployment or SDK publication.
+
 `openapi.json` preserves the registered RESTX v1/v2 contract in its public OpenAPI 3.1 projection,
 including the source-declared x402 alternatives and payment metadata.
 `oracle-proxy-openapi.json` uses OpenAPI 3.1 and describes only upstream paths

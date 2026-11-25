@@ -12,7 +12,7 @@
     },
     {
       "path": "openapi.json",
-      "sha256": "60d529fe4d6e7c2cf48fc32cda8d7b36f563a2e2864133779e6102e5375d50a0"
+      "sha256": "bcbabec90ade10b47df82f593d8a3c35c8b54eff0b5d97cba17494bf35a4306d"
     },
     {
       "path": "oracle-proxy-openapi.json",
@@ -1154,6 +1154,58 @@
       ],
       "request": "no-model-or-no-body",
       "response": "opaque-or-no-content",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/market-data/liquidation-levels",
+      "python_direct_bindings": [
+        "MarketDataService.get_liquidation_levels"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/market-data/order-flow",
+      "python_direct_bindings": [
+        "MarketDataService.get_order_flow"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/market-data/orderbook",
+      "python_direct_bindings": [
+        "MarketDataService.get_orderbook"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
+      "runtime_payload_verified": false,
+      "schema_status": "registered-restx-declaration",
+      "typescript": "request(operation, options)",
+      "typescript_transport": "json-or-no-content"
+    },
+    {
+      "contract": "openapi.json",
+      "operation": "GET /api/v1/market-data/orderbook/history",
+      "python_direct_bindings": [
+        "MarketDataService.get_orderbook_history"
+      ],
+      "request": "no-model-or-no-body",
+      "response": "declared",
       "runtime_payload_verified": false,
       "schema_status": "registered-restx-declaration",
       "typescript": "request(operation, options)",

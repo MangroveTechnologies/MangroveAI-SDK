@@ -4056,6 +4056,270 @@
         },
         "type": "object"
       },
+      "api1.GetLiquidationLevelsResponse": {
+        "properties": {
+          "coverage": {
+            "description": "provider_page; the response is not a complete market census.",
+            "type": "string"
+          },
+          "data": {
+            "description": "Current positions and their nullable reported liquidation prices; no missing price is replaced by zero.",
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "kind": {
+            "description": "reported_position_liquidation_prices, distinct from executed liquidations or estimates.",
+            "type": "string"
+          },
+          "observed_at": {
+            "description": "UTC time Mangrove read the provider response, not an upstream quote timestamp.",
+            "type": "string"
+          },
+          "pagination": {
+            "description": "Provider pagination metadata retained for further bounded reads.",
+            "type": "object"
+          },
+          "provider": {
+            "description": "Nansen, the source of the positions.",
+            "type": "string"
+          },
+          "quality": {
+            "description": "Count of malformed provider position records skipped from this page.",
+            "type": "object"
+          },
+          "success": {
+            "description": "Whether the read succeeded.",
+            "type": "boolean"
+          },
+          "token_symbol": {
+            "description": "Requested token symbol.",
+            "type": "string"
+          },
+          "venue": {
+            "description": "Hyperliquid; these positions do not cover other venues.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "coverage",
+          "data",
+          "kind",
+          "observed_at",
+          "pagination",
+          "provider",
+          "quality",
+          "success",
+          "token_symbol",
+          "venue"
+        ],
+        "type": "object"
+      },
+      "api1.GetOrderFlowResponse": {
+        "properties": {
+          "coverage": {
+            "description": "Bounded provider response; does not promise every trade in the window.",
+            "type": "string"
+          },
+          "data": {
+            "description": "Returned trades with timestamps, price, size, taker side, and cumulative quote delta.",
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "limit_reached": {
+            "description": "Whether the requested response limit was reached.",
+            "type": "boolean"
+          },
+          "observed_at": {
+            "description": "UTC time Mangrove read this response, separate from source timestamps.",
+            "type": "string"
+          },
+          "provider": {
+            "description": "Provider that answered.",
+            "type": "string"
+          },
+          "quality": {
+            "description": "Counts of invalid and duplicate provider records excluded from totals.",
+            "type": "object"
+          },
+          "success": {
+            "description": "Whether the read succeeded.",
+            "type": "boolean"
+          },
+          "summary": {
+            "description": "Buy, sell, unknown-side, and net quote volume over returned trades only.",
+            "type": "object"
+          },
+          "symbol_id": {
+            "description": "Exact instrument that was requested.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "coverage",
+          "data",
+          "limit_reached",
+          "observed_at",
+          "provider",
+          "quality",
+          "success",
+          "summary",
+          "symbol_id"
+        ],
+        "type": "object"
+      },
+      "api1.GetOrderbookHistoryResponse": {
+        "properties": {
+          "coverage": {
+            "description": "Bounded provider response; does not promise complete history.",
+            "type": "string"
+          },
+          "data": {
+            "description": "Returned order-book snapshots with exchange/provider timestamps and bids/asks.",
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "limit_reached": {
+            "description": "Whether the requested response limit was reached.",
+            "type": "boolean"
+          },
+          "observed_at": {
+            "description": "UTC time Mangrove read this response, separate from source timestamps.",
+            "type": "string"
+          },
+          "provider": {
+            "description": "Provider that answered.",
+            "type": "string"
+          },
+          "quality": {
+            "description": "Counts of invalid provider records skipped while preserving valid snapshots.",
+            "type": "object"
+          },
+          "success": {
+            "description": "Whether the read succeeded.",
+            "type": "boolean"
+          },
+          "symbol_id": {
+            "description": "Exact instrument that was requested.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "coverage",
+          "data",
+          "limit_reached",
+          "observed_at",
+          "provider",
+          "quality",
+          "success",
+          "symbol_id"
+        ],
+        "type": "object"
+      },
+      "api1.GetOrderbookResponse": {
+        "properties": {
+          "asks": {
+            "description": "Resting ask price and base-asset size pairs.",
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "type": "array"
+          },
+          "best_ask": {
+            "description": "Best ask price in the instrument's quote currency, null if absent.",
+            "type": [
+              "number",
+              "null"
+            ],
+            "x-nullable": true
+          },
+          "best_bid": {
+            "description": "Best bid price in the instrument's quote currency, null if absent.",
+            "type": [
+              "number",
+              "null"
+            ],
+            "x-nullable": true
+          },
+          "bids": {
+            "description": "Resting bid price and base-asset size pairs.",
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "type": "array"
+          },
+          "coverage": {
+            "description": "The book is limited to the requested number of price levels.",
+            "type": "string"
+          },
+          "observed_at": {
+            "description": "UTC time Mangrove read this response, separate from the source timestamps.",
+            "type": "string"
+          },
+          "provider": {
+            "description": "Provider that answered.",
+            "type": "string"
+          },
+          "spread": {
+            "description": "Best ask minus best bid, in quote currency; null if either is absent.",
+            "type": [
+              "number",
+              "null"
+            ],
+            "x-nullable": true
+          },
+          "success": {
+            "description": "Whether the read succeeded.",
+            "type": "boolean"
+          },
+          "symbol_id": {
+            "description": "Exact instrument that was requested.",
+            "type": "string"
+          },
+          "time_coinapi": {
+            "description": "Provider receipt timestamp, null if unavailable.",
+            "type": [
+              "string",
+              "null"
+            ],
+            "x-nullable": true
+          },
+          "time_exchange": {
+            "description": "Exchange timestamp, null if unavailable.",
+            "type": [
+              "string",
+              "null"
+            ],
+            "x-nullable": true
+          }
+        },
+        "required": [
+          "asks",
+          "best_ask",
+          "best_bid",
+          "bids",
+          "coverage",
+          "observed_at",
+          "provider",
+          "spread",
+          "success",
+          "symbol_id",
+          "time_coinapi",
+          "time_exchange"
+        ],
+        "type": "object"
+      },
       "api1.GetStrategyResponse": {
         "properties": {
           "strategy": {
@@ -15659,6 +15923,439 @@
         "tags": [
           "knowledge"
         ]
+      }
+    },
+    "/api/v1/market-data/liquidation-levels": {
+      "get": {
+        "operationId": "api1_get_liquidation_levels",
+        "parameters": [
+          {
+            "description": "Page number for pagination.",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Page size for pagination.",
+            "in": "query",
+            "name": "per_page",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Optional upstream override; omitted uses the existing server default.",
+            "in": "query",
+            "name": "provider",
+            "required": false,
+            "schema": {
+              "default": "nansen",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Token whose perpetual positions to read, e.g. BTC.",
+            "in": "query",
+            "name": "token_symbol",
+            "required": false,
+            "schema": {
+              "default": "BTC",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api1.GetLiquidationLevelsResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Payment Required",
+            "headers": {
+              "PAYMENT-REQUIRED": {
+                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "MangroveBearer": []
+          },
+          {}
+        ],
+        "summary": "Reported liquidation prices of current Hyperliquid positions from Nansen",
+        "tags": [
+          "market-data"
+        ],
+        "x-payment-info": {
+          "price": {
+            "amount": "0.020000",
+            "currency": "USD",
+            "mode": "fixed"
+          },
+          "protocols": [
+            {
+              "x402": {
+                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                "network": "eip155:8453",
+                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
+                "scheme": "exact",
+                "x402Version": 2
+              }
+            }
+          ]
+        }
+      }
+    },
+    "/api/v1/market-data/order-flow": {
+      "get": {
+        "operationId": "api1_get_order_flow",
+        "parameters": [
+          {
+            "description": "Maximum results.",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Optional upstream override; omitted uses the existing server default.",
+            "in": "query",
+            "name": "provider",
+            "required": false,
+            "schema": {
+              "default": "coinapi",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Exact provider spot instrument identifier, including venue, SPOT, base, and quote.",
+            "in": "query",
+            "name": "symbol_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "ISO 8601 UTC-aware end timestamp; after start and at most 24 hours later.",
+            "in": "query",
+            "name": "time_end",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Inclusive ISO 8601 UTC-aware start timestamp.",
+            "in": "query",
+            "name": "time_start",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api1.GetOrderFlowResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Payment Required",
+            "headers": {
+              "PAYMENT-REQUIRED": {
+                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "MangroveBearer": []
+          },
+          {}
+        ],
+        "summary": "Executed trades and aggressive buy/sell volume for a bounded window",
+        "tags": [
+          "market-data"
+        ],
+        "x-payment-info": {
+          "price": {
+            "amount": "0.010000",
+            "currency": "USD",
+            "mode": "fixed"
+          },
+          "protocols": [
+            {
+              "x402": {
+                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                "network": "eip155:8453",
+                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
+                "scheme": "exact",
+                "x402Version": 2
+              }
+            }
+          ]
+        }
+      }
+    },
+    "/api/v1/market-data/orderbook": {
+      "get": {
+        "operationId": "api1_get_orderbook",
+        "parameters": [
+          {
+            "description": "Maximum price levels on each side of the order book.",
+            "in": "query",
+            "name": "limit_levels",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Optional upstream override; omitted uses the existing server default.",
+            "in": "query",
+            "name": "provider",
+            "required": false,
+            "schema": {
+              "default": "coinapi",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Exact provider spot instrument identifier, including venue, SPOT, base, and quote.",
+            "in": "query",
+            "name": "symbol_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api1.GetOrderbookResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Payment Required",
+            "headers": {
+              "PAYMENT-REQUIRED": {
+                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "MangroveBearer": []
+          },
+          {}
+        ],
+        "summary": "Current resting bids, asks, and best quotes for one exact instrument",
+        "tags": [
+          "market-data"
+        ],
+        "x-payment-info": {
+          "price": {
+            "amount": "0.005000",
+            "currency": "USD",
+            "mode": "fixed"
+          },
+          "protocols": [
+            {
+              "x402": {
+                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                "network": "eip155:8453",
+                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
+                "scheme": "exact",
+                "x402Version": 2
+              }
+            }
+          ]
+        }
+      }
+    },
+    "/api/v1/market-data/orderbook/history": {
+      "get": {
+        "operationId": "api1_get_orderbook_history",
+        "parameters": [
+          {
+            "description": "Maximum results.",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Maximum price levels on each side of the order book.",
+            "in": "query",
+            "name": "limit_levels",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Optional upstream override; omitted uses the existing server default.",
+            "in": "query",
+            "name": "provider",
+            "required": false,
+            "schema": {
+              "default": "coinapi",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Exact provider spot instrument identifier, including venue, SPOT, base, and quote.",
+            "in": "query",
+            "name": "symbol_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "ISO 8601 UTC-aware end timestamp; after start and at most 24 hours later.",
+            "in": "query",
+            "name": "time_end",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Inclusive ISO 8601 UTC-aware start timestamp.",
+            "in": "query",
+            "name": "time_start",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api1.GetOrderbookHistoryResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Payment Required",
+            "headers": {
+              "PAYMENT-REQUIRED": {
+                "description": "The x402 v2 challenge as base64 JSON; the same JSON is the response body.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "MangroveBearer": []
+          },
+          {}
+        ],
+        "summary": "Bounded provider snapshots for comparing bid and ask depth over time",
+        "tags": [
+          "market-data"
+        ],
+        "x-payment-info": {
+          "price": {
+            "amount": "0.010000",
+            "currency": "USD",
+            "mode": "fixed"
+          },
+          "protocols": [
+            {
+              "x402": {
+                "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                "network": "eip155:8453",
+                "payTo": "0xDA913CF1D855A40560e39a1a2e0387a5f3117A2e",
+                "scheme": "exact",
+                "x402Version": 2
+              }
+            }
+          ]
+        }
       }
     },
     "/api/v1/market-data/regime/{asset}": {

@@ -11,6 +11,7 @@ const scratch = mkdtempSync(join(tmpdir(), 'mangrove-sdk-package-'));
 const fixture = JSON.parse(readFileSync(join(packageRoot, '../../contracts/mangroveai/fixtures/usage-success.json'), 'utf8'));
 const configFixture = JSON.parse(readFileSync(join(packageRoot, '../../contracts/mangroveai/fixtures/execution-config-success.json'), 'utf8'));
 const localFixture = JSON.parse(readFileSync(join(packageRoot, '../../contracts/mangroveai/fixtures/local-deployment-not-ready.json'), 'utf8'));
+const levelsFixture = JSON.parse(readFileSync(join(packageRoot, '../../contracts/mangroveai/fixtures/liquidation-levels-page.json'), 'utf8'));
 const signalFixtures = ['one', 'two'].map(page => JSON.parse(readFileSync(join(packageRoot, `../../contracts/mangroveai/fixtures/signals-page-${page}.json`), 'utf8')));
 const statuses = JSON.parse(readFileSync(join(packageRoot, '../../contracts/mangroveai/fixtures/backtest-status-verdicts.json'), 'utf8'));
 let calls = 0;
@@ -19,6 +20,15 @@ const backtestPaths = [];
 const server = createServer((request, response) => {
   calls++;
   assert.equal(request.headers.authorization, 'Bearer prod_fixture_package_key');
+  if (request.url.startsWith('/api/v1/market-data/liquidation-levels?')) {
+    assert.equal(request.method, 'GET');
+    assert.deepEqual(Object.fromEntries(new URL(request.url, 'http://localhost').searchParams), {
+      token_symbol: 'BTC', page: '1', per_page: '100', provider: 'nansen',
+    });
+    response.writeHead(200, { 'Content-Type': 'application/json' });
+    response.end(JSON.stringify(levelsFixture));
+    return;
+  }
   if (request.url.startsWith('/api/v1/oracle/results?')) {
     const params = new URL(request.url, 'http://localhost').searchParams;
     assert.equal(params.get('use_irr_duration_default'), 'false');
@@ -93,6 +103,7 @@ try {
   assert.equal(installedPackage.version, packed.version);
   writeFileSync(join(scratch, 'local-fixture.json'), JSON.stringify(localFixture));
   writeFileSync(join(scratch, 'statuses.json'), JSON.stringify(statuses));
+  writeFileSync(join(scratch, 'levels-fixture.json'), JSON.stringify(levelsFixture));
   writeFileSync(join(scratch, 'smoke.mjs'), `
     import assert from 'node:assert/strict';
     import { readFileSync } from 'node:fs';
@@ -103,6 +114,10 @@ try {
     }
     const metrics = await sdk.users.getMyMetrics();
     assert.equal(metrics.messages_count,7);
+    const levels = await sdk.request('GET /api/v1/market-data/liquidation-levels', {
+      query: { token_symbol: 'BTC', page: 1, per_page: 100, provider: 'nansen' },
+    });
+    assert.deepEqual(levels, JSON.parse(readFileSync('levels-fixture.json', 'utf8')));
     const config = await sdk.request('GET /api/v1/config/execution-config-schema', {});
     assert.equal(config.json_schema.$schema,'https://json-schema.org/draft/2020-12/schema');
     assert.equal(config.json_schema.properties.cooldown_config,undefined);
@@ -145,7 +160,7 @@ try {
   const child = spawn(process.execPath, ['smoke.mjs'], { cwd: scratch, env: { ...process.env, SDK_FIXTURE_ORIGIN: `http://127.0.0.1:${server.address().port}` }, stdio: 'inherit' });
   const exitCode = await new Promise(resolve => child.once('exit', resolve));
   assert.equal(exitCode, 0);
-  assert.equal(calls, 11 + statuses.length);
+  assert.equal(calls, 12 + statuses.length);
   assert.deepEqual(backtestPaths, ['/api/v1/backtests/', '/api/v1/backtests']);
   assert.equal(streamCalls, 0);
 } finally {

@@ -136,13 +136,21 @@ for examples, metric units, null handling and paging. These controls require the
 corresponding serving contract and an SDK build containing this source change;
 this documentation does not assert registry or production availability.
 
+## Bitcoin market-data source additions
+
+The generated request surface adds order-book snapshots/history, bounded trade
+flow, and Nansen Hyperliquid liquidation levels. Read the [shared guide](../../docs/bitcoin-market-data.md)
+for request examples, exact instrument identifiers, and coverage limits. These
+source additions require the corresponding backend operations and are not a
+claim about the currently published package or deployed service.
+
 ## Supported surface
 
 The named helpers are `users`, `signals`, `strategies`, `strategyWorkflow` and `backtesting`.
 Other declared REST operations use `client.request(operation, options)`, with
 generated path, parameter, body and response types. This is not Python helper
-parity. The current classification has 276 core/Oracle proxy method/path keys,
-including 12 v2 operations: 272 JSON/no-content, one separate redirect flow and
+parity. The current classification has 280 core/Oracle proxy method/path keys,
+including 12 v2 operations: 276 JSON/no-content, one separate redirect flow and
 three streaming/non-JSON operations. Counts describe pinned declarations, not live
 endpoint acceptance. The JSON transport does not perform the redirect or consume
 those streams. Operation keys include the HTTP method and exact versioned path:

@@ -81,6 +81,10 @@ export interface CoreModels {
   "api1.ExitQuoteRequest": { "base_fee_bps": string; "base_fee_increment": string; "candidate_price": string; "entry_cash_flow": string; "exit_fee_bps": string; "exit_fixed_fee_quote"?: string; "exit_quantity": string; "held_quantity": string; "max_fills"?: string; "price_increment": string; "quantity_increment": string; "quote_increment": string; [key: string]: unknown; };
   "api1.ExitQuoteResponse": { "allocated_entry_cost_quote": string; "base_fee_cost_allowance_quote": string; "candidate_net_profit_quote": string; "cash_rounding_allowance_quote": string; "direction": string; "exit_quantity": string; "minimum_exit_price": string; "minimum_net_profit_quote": string; "profitable": boolean; "reserved_base_fee_quantity": string; "success": boolean; "version": string; [key: string]: unknown; };
   "api1.FlowIntelligenceResponse": { "chain"?: string; "data"?: unknown; "success"?: boolean; "symbol"?: string; "timeframe"?: string; [key: string]: unknown; };
+  "api1.GetLiquidationLevelsResponse": { "coverage": string; "data": Array<{ [key: string]: unknown; }>; "kind": string; "observed_at": string; "pagination": { [key: string]: unknown; }; "provider": string; "quality": { [key: string]: unknown; }; "success": boolean; "token_symbol": string; "venue": string; [key: string]: unknown; };
+  "api1.GetOrderFlowResponse": { "coverage": string; "data": Array<{ [key: string]: unknown; }>; "limit_reached": boolean; "observed_at": string; "provider": string; "quality": { [key: string]: unknown; }; "success": boolean; "summary": { [key: string]: unknown; }; "symbol_id": string; [key: string]: unknown; };
+  "api1.GetOrderbookHistoryResponse": { "coverage": string; "data": Array<{ [key: string]: unknown; }>; "limit_reached": boolean; "observed_at": string; "provider": string; "quality": { [key: string]: unknown; }; "success": boolean; "symbol_id": string; [key: string]: unknown; };
+  "api1.GetOrderbookResponse": { "asks": Array<Array<number>>; "best_ask": number | null; "best_bid": number | null; "bids": Array<Array<number>>; "coverage": string; "observed_at": string; "provider": string; "spread": number | null; "success": boolean; "symbol_id": string; "time_coinapi": string | null; "time_exchange": string | null; [key: string]: unknown; };
   "api1.GetStrategyResponse": { "strategy"?: CoreModels["api1.StrategyDetail"]; "success"?: boolean; [key: string]: unknown; };
   "api1.GlobalMarketResponse": { "data"?: unknown; "success"?: boolean; [key: string]: unknown; };
   "api1.HealthChecks": { "database"?: CoreModels["api1.ServiceCheck"]; "llm"?: CoreModels["api1.ServiceCheck"]; [key: string]: unknown; };
@@ -358,6 +362,10 @@ export interface Operations {
   "POST /api/v1/knowledge/query": { input: {  }; output: unknown; };
   "GET /api/v1/knowledge/quick-reference": { input: {  }; output: unknown; };
   "GET /api/v1/knowledge/search": { input: {  }; output: unknown; };
+  "GET /api/v1/market-data/liquidation-levels": { input: { query?: { "page"?: number; "per_page"?: number; "provider"?: string; "token_symbol"?: string; }; }; output: CoreModels["api1.GetLiquidationLevelsResponse"]; };
+  "GET /api/v1/market-data/order-flow": { input: { query: { "limit"?: number; "provider"?: string; "symbol_id": string; "time_end": string; "time_start": string; }; }; output: CoreModels["api1.GetOrderFlowResponse"]; };
+  "GET /api/v1/market-data/orderbook": { input: { query: { "limit_levels"?: number; "provider"?: string; "symbol_id": string; }; }; output: CoreModels["api1.GetOrderbookResponse"]; };
+  "GET /api/v1/market-data/orderbook/history": { input: { query: { "limit"?: number; "limit_levels"?: number; "provider"?: string; "symbol_id": string; "time_end": string; "time_start": string; }; }; output: CoreModels["api1.GetOrderbookHistoryResponse"]; };
   "GET /api/v1/market-data/regime/{asset}": { input: { path: { "asset": string; }; query?: { "lookback_days"?: string; "market_data_venue"?: string; "provider"?: string; "quote_token"?: string; }; }; output: CoreModels["api1.MarketRegimeResponse"]; };
   "GET /api/v1/market-data/segment": { input: { query?: { "asset"?: string; "candle_size"?: string; "end_date"?: string; "market_data_venue"?: string; "provider"?: string; "quote_token"?: string; "start_date"?: string; "window_file"?: string; }; }; output: CoreModels["api1.MarketSegmentResponse"]; };
   "GET /api/v1/on-chain/exchange-flows": { input: {  }; output: unknown; };
@@ -1311,6 +1319,60 @@ export const operationMetadata = {
     "path": "/api/v1/knowledge/search",
     "queryFormats": {},
     "required": {},
+    "transport": "json-or-no-content"
+  },
+  "GET /api/v1/market-data/liquidation-levels": {
+    "authenticated": true,
+    "bodyRequired": false,
+    "method": "GET",
+    "path": "/api/v1/market-data/liquidation-levels",
+    "queryFormats": {},
+    "required": {
+      "query": []
+    },
+    "transport": "json-or-no-content"
+  },
+  "GET /api/v1/market-data/order-flow": {
+    "authenticated": true,
+    "bodyRequired": false,
+    "method": "GET",
+    "path": "/api/v1/market-data/order-flow",
+    "queryFormats": {},
+    "required": {
+      "query": [
+        "symbol_id",
+        "time_end",
+        "time_start"
+      ]
+    },
+    "transport": "json-or-no-content"
+  },
+  "GET /api/v1/market-data/orderbook": {
+    "authenticated": true,
+    "bodyRequired": false,
+    "method": "GET",
+    "path": "/api/v1/market-data/orderbook",
+    "queryFormats": {},
+    "required": {
+      "query": [
+        "symbol_id"
+      ]
+    },
+    "transport": "json-or-no-content"
+  },
+  "GET /api/v1/market-data/orderbook/history": {
+    "authenticated": true,
+    "bodyRequired": false,
+    "method": "GET",
+    "path": "/api/v1/market-data/orderbook/history",
+    "queryFormats": {},
+    "required": {
+      "query": [
+        "symbol_id",
+        "time_end",
+        "time_start"
+      ]
+    },
     "transport": "json-or-no-content"
   },
   "GET /api/v1/market-data/regime/{asset}": {

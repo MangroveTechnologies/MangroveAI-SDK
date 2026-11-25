@@ -1,4 +1,4 @@
-import { MangroveAI, type CoreModels, type Operations, type UsageMetrics, type ExecutionConfiguration, type LocalDeployment } from '../src/index.js';
+import { MangroveAI, oracleEffectiveFilters, type CoreModels, type Operations, type OracleEffectiveFilters, type UsageMetrics, type ExecutionConfiguration, type LocalDeployment } from '../src/index.js';
 
 const sdk = new MangroveAI({ apiKey: 'prod_fixture', baseUrl: 'https://example.invalid' });
 void sdk.signals.list().then(page => {
@@ -26,6 +26,29 @@ void metrics;
 void sdk.request('GET /api/v1/strategies/{strategy_id}', { path: { strategy_id: 'fixture' } });
 void sdk.strategyWorkflow.getStrategy({ body: { strategy_id: 'fixture' } });
 void sdk.strategyWorkflow.getSweepLimits({});
+void sdk.request('GET /api/v1/oracle/results', {
+  query: { min_days: 90, max_days: 180, min_avg_daily_return: -0.2, max_avg_daily_return: 0, use_irr_duration_default: false, min_simple_annualized_return: -1, max_simple_annualized_return: 0, min_avg_closed_trade_return: -2, max_avg_closed_trade_return: 0, min_closed_trades: 0, sort: 'simple_annualized_return' },
+});
+void sdk.request('GET /api/v1/oracle/experiments/{experiment_id}/results', {
+  path: { experiment_id: 'fixture' },
+  query: { min_days: 0, max_days: 90, min_avg_daily_return: 0, use_irr_duration_default: true, min_closed_trades: 0, sort: 'avg_closed_trade_return' },
+});
+// @ts-expect-error Historical duration is numeric, not a string.
+void sdk.request('GET /api/v1/oracle/results', { query: { min_days: '90' } });
+void sdk.request('GET /api/v1/oracle/results', { query: { min_irr: 14 } }).then(page => {
+  const filters: OracleEffectiveFilters | null = oracleEffectiveFilters(page);
+  const appliedDays: number | null | undefined = filters?.min_days;
+  const applied: boolean | null | undefined = filters?.irr_duration_default_applied;
+  const notice: string | null | undefined = filters?.notice;
+  void appliedDays; void applied; void notice;
+  // @ts-expect-error The open result envelope does not type effective_filters; use oracleEffectiveFilters.
+  const direct: string = page.effective_filters.notice;
+  void direct;
+});
+void sdk.strategyWorkflow.findSweepRuns({ body: { sort_by: 'irr_annualized', min_irr: 14 } }).then(result => {
+  const notice: string | null | undefined = oracleEffectiveFilters(result)?.notice;
+  void notice;
+});
 
 // @ts-expect-error The contract requires the path identity.
 void sdk.request('GET /api/v1/strategies/{strategy_id}', {});

@@ -554,6 +554,48 @@ The SDK uses its existing authenticated HTTP transport; it does not add a wallet
 or sign x402 payments. The agent's existing MCP payer handles wallet access.
 The lower-level `client.oracle.*` methods retain their existing raw-engine contracts.
 
+### Search by recorded days and return measure
+
+Use `min_days` and `max_days` to search existing runs by recorded backtest length,
+including 90-day and 180-day histories. Minimum-IRR searches apply a 182-day
+minimum only when `min_irr` is supplied and `min_days` is omitted. Pass an explicit
+minimum to override it, or `use_irr_duration_default=False` with no `min_days` to
+clear it. Read `page.effective_filters` and display its notice when present.
+The SDK forwards these parameters unchanged; Oracle resolves the default.
+
+```python
+# Runs with exactly 90 recorded days, ranked by simple annualized return.
+page = client.oracle.list_results(
+    min_days=90, max_days=90,
+    min_simple_annualized_return=10,
+    sort="simple_annualized_return", order="desc",
+)
+
+# A minimum-IRR search with no duration parameters. Oracle applies its 182-day
+# minimum and reports it in effective_filters.
+page = client.oracle.list_results(min_irr=14, sort="irr_annualized", order="desc")
+filters = page.effective_filters
+if filters is not None:
+    print(filters.min_days)                      # 182
+    print(filters.irr_duration_default_applied)  # True
+    if filters.notice:
+        print(filters.notice)  # "Minimum IRR searches default to 182 backtest days. ..."
+
+# The same search with the 182-day default cleared. No notice is returned.
+page = client.oracle.list_results(
+    min_irr=14, use_irr_duration_default=False,
+    sort="irr_annualized", order="desc",
+)
+```
+
+`effective_filters` is `None` when the server does not return it, and a key the
+server omits is `None`.
+
+[Result-search examples](docs/oracle-result-search.md) cover Python, TypeScript,
+return measures, nullable metrics, and pagination notices. These are historical
+backtest lengths, not days since a strategy was deployed. Check the serving
+contract and package release status before using this source revision's controls.
+
 ### Other `client.oracle.*` methods
 
 - **Backtests:** `backtest`, `backtest_async` + `backtest_poll`, `backtest_bulk`
